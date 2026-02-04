@@ -4,17 +4,16 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class EmpresaMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check()) {
-            abort(403, 'No autenticado');
-        }
+        $user = auth()->user();
 
-        if (auth()->user()->empresa_id === null) {
-            abort(403, 'Acceso solo para empresa');
+        if (!$user || $user->role !== 'empresa') {
+            abort(403, 'ACCESO SOLO PARA EMPRESA');
         }
 
         return $next($request);

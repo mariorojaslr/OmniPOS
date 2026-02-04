@@ -1,24 +1,18 @@
-@extends('layouts.app')
+@extends('layouts.empresa')
 
 @section('content')
 <div class="container">
+    <h2>Ventas</h2>
 
-    <h1 class="mb-4">Ventas registradas</h1>
-
-    @if($ventas->isEmpty())
-        <div class="alert alert-info">
-            No hay ventas registradas todavía.
-        </div>
+    @if($ventas->count() === 0)
+        <p>No hay ventas registradas.</p>
     @else
-        <table class="table table-bordered">
+        <table class="table">
             <thead>
                 <tr>
                     <th>#</th>
                     <th>Fecha</th>
-                    <th>Usuario</th>
-                    <th>Total sin IVA</th>
-                    <th>IVA</th>
-                    <th>Total con IVA</th>
+                    <th>Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,15 +20,11 @@
                     <tr>
                         <td>{{ $venta->id }}</td>
                         <td>{{ $venta->created_at->format('d/m/Y H:i') }}</td>
-                        <td>{{ $venta->user->name ?? '—' }}</td>
-                        <td>${{ number_format($venta->total_sin_iva, 2, ',', '.') }}</td>
-                        <td>${{ number_format($venta->total_iva, 2, ',', '.') }}</td>
-                        <td><strong>${{ number_format($venta->total_con_iva, 2, ',', '.') }}</strong></td>
+                        <td>$ {{ number_format($venta->total_con_iva, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     @endif
-
 </div>
 @endsection

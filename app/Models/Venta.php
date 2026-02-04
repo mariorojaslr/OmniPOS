@@ -3,12 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Venta extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'empresa_id',
         'user_id',
@@ -16,10 +13,6 @@ class Venta extends Model
         'total_iva',
         'total_con_iva',
     ];
-
-    /* =========================
-       Relaciones
-    ========================= */
 
     public function items()
     {
