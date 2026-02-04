@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,9 +21,8 @@ use App\Http\Controllers\Empresa\ProductImageController;
 use App\Http\Controllers\Empresa\POSController;
 use App\Http\Controllers\Empresa\VentaController;
 
-// CATÁLOGO
+// CATÁLOGO PÚBLICO
 use App\Http\Controllers\CatalogController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +31,6 @@ use App\Http\Controllers\CatalogController;
 */
 Route::get('/', fn () => redirect()->route('login'));
 
-
 /*
 |--------------------------------------------------------------------------
 | Autenticación (Breeze)
@@ -39,28 +38,30 @@ Route::get('/', fn () => redirect()->route('login'));
 */
 require __DIR__ . '/auth.php';
 
-
 /*
 |--------------------------------------------------------------------------
 | Dashboard inteligente según rol
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->get('/dashboard', function () {
+Route::middleware('auth')->get('/dashboard', function () {
 
     $user = auth()->user();
 
-    if ($user->isOwner()) {
+    if ($user->role === 'owner') {
         return redirect()->route('owner.dashboard');
     }
 
-    if ($user->isEmpresa()) {
+    if (in_array($user->role, ['empresa', 'usuario'])) {
         return redirect()->route('empresa.dashboard');
     }
+
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
 
     abort(403);
 
 })->name('dashboard');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -114,7 +115,6 @@ Route::middleware(['auth', 'owner'])
         )->name('empresas.users.reset');
     });
 
-
 /*
 |--------------------------------------------------------------------------
 | EMPRESA
@@ -125,8 +125,21 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
     ->name('empresa.')
     ->group(function () {
 
+        // Dashboard
         Route::get('/dashboard', [EmpresaDashboardController::class, 'index'])
             ->name('dashboard');
+
+        // Catálogo interno (link del menú)
+        Route::get('/catalogo', function () {
+            return redirect()->route('empresa.products.index');
+        })->name('catalogo.index');
+
+        // Ventas
+        Route::get('/ventas', [VentaController::class, 'index'])
+            ->name('ventas.index');
+
+        Route::post('/ventas', [VentaController::class, 'store'])
+            ->name('ventas.store');
 
         /*
         | Productos
@@ -152,14 +165,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         Route::post('/pos/checkout', [POSController::class, 'checkout'])
             ->name('pos.checkout');
-
-        /*
-        | Ventas (registro)
-        */
-        Route::post('/ventas', [VentaController::class, 'store'])
-            ->name('ventas.store');
     });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -171,11 +177,3 @@ Route::get('/c/{empresa}', [CatalogController::class, 'index'])
 
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class, 'show'])
     ->name('catalog.show');
-
-
-/*
-|--------------------------------------------------------------------------
-| Rutas empresa adicionales
-|--------------------------------------------------------------------------
-*/
-require __DIR__ . '/empresa.php';

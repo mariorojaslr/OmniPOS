@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Empresa;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Empresa\VentaController;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -13,20 +14,12 @@ class POSController extends Controller
      */
     public function index()
     {
-        // Traemos los productos activos de la empresa logueada
         $products = Product::with('images')
             ->where('empresa_id', auth()->user()->empresa_id)
             ->where('active', 1)
             ->orderBy('name')
             ->get();
 
-        /**
-         * Preparamos los datos EXACTAMENTE
-         * como el frontend los necesita.
-         *
-         * Esto evita errores de JSON, parseo,
-         * imágenes rotas o pantalla vacía.
-         */
         $productsData = $products->map(function ($p) {
             return [
                 'id'    => $p->id,
@@ -39,23 +32,33 @@ class POSController extends Controller
         })->values();
 
         return view('empresa.pos.index', [
-            'products'     => $products,      // por si lo necesitás más adelante
-            'productsData' => $productsData,  // ESTE es el que usa el JS
+            'products'     => $products,
+            'productsData' => $productsData,
         ]);
     }
 
     /**
-     * Checkout (por ahora SIMULADO)
-     * Después lo conectamos con:
-     * - Modal
-     * - Métodos de pago
-     * - Guardado de venta
+     * Checkout REAL
+     * Delegamos la venta al VentaController
      */
     public function checkout(Request $request)
     {
-        return response()->json([
-            'ok' => true,
-            'message' => 'Checkout simulado correctamente'
+        /**
+         * Adaptamos el payload del POS
+         * al formato que espera VentaController
+         */
+        $ventaRequest = new Request([
+            'items' => collect($request->items)->map(function ($item) {
+                return [
+                    'product_id' => $item['id'],
+                    'cantidad'   => $item['quantity'] ?? 1,
+                ];
+            })->toArray(),
         ]);
+
+        /**
+         * Llamamos al controller REAL de ventas
+         */
+        return app(VentaController::class)->store($ventaRequest);
     }
 }

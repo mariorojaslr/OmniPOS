@@ -3,50 +3,45 @@
 namespace App\Http\Controllers\Empresa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Venta;
+use App\Services\VentaService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class VentaController extends Controller
 {
-    public function store(Request $request)
+    /**
+     * 📄 Listado de ventas
+     */
+    public function index()
+    {
+        $empresa = auth()->user()->empresa;
+
+        $ventas = Venta::where('empresa_id', $empresa->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('empresa.ventas.index', compact('ventas'));
+    }
+
+    /**
+     * 💾 Guarda una venta real desde el POS
+     */
+    public function store(Request $request, VentaService $ventaService)
     {
         $request->validate([
-            'items' => 'required|array|min:1',
-            'total' => 'required|numeric|min:1',
+            'items'              => 'required|array|min:1',
+            'items.*.id'         => 'required|exists:products,id',
+            'items.*.quantity'   => 'required|integer|min:1',
         ]);
 
-        DB::beginTransaction();
-        try {
-            $ventaId = DB::table('ventas')->insertGetId([
-                'empresa_id' => auth()->user()->empresa_id,
-                'total' => $request->total,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        $venta = $ventaService->registrarVenta(
+            auth()->user(),
+            $request->items
+        );
 
-            foreach ($request->items as $item) {
-                DB::table('venta_items')->insert([
-                    'venta_id' => $ventaId,
-                    'producto_id' => $item['id'],
-                    'cantidad' => $item['qty'],
-                    'precio' => $item['price'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'ok' => true,
-                'venta_id' => $ventaId
-            ]);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return response()->json([
-                'ok' => false,
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'ok'       => true,
+            'venta_id' => $venta->id,
+        ]);
     }
 }

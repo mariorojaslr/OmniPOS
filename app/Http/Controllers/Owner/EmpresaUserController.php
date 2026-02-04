@@ -34,17 +34,18 @@ class EmpresaUserController extends Controller
         $password = Str::random(8);
 
         User::create([
-            'name'       => $data['name'],
-            'email'      => $data['email'],
-            'password'   => Hash::make($password),
-            'empresa_id' => $empresa->id,
-            'role'       => 'empresa',
-            'activo'     => true,
+            'name'              => $data['name'],
+            'email'             => $data['email'],
+            'password'          => Hash::make($password),
+            'empresa_id'        => $empresa->id,
+            'role'              => 'usuario',   // 👈 SIEMPRE usuario
+            'activo'            => 1,
+            'email_verified_at' => now(),        // 👈 CLAVE
         ]);
 
         return redirect()
             ->route('owner.empresas.users.index', $empresa)
-            ->with('success', "Usuario creado. Password: {$password}");
+            ->with('success', "Usuario creado correctamente. Password: {$password}");
     }
 
     public function toggle(Empresa $empresa, User $user)
@@ -64,9 +65,9 @@ class EmpresaUserController extends Controller
 
         $password = Str::random(8);
 
-        $user->update([
+        $user->forceFill([
             'password' => Hash::make($password),
-        ]);
+        ])->save();
 
         return back()->with('success', "Nuevo password: {$password}");
     }

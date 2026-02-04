@@ -62,13 +62,15 @@
                             </a>
                         </li>
 
-                        <!-- Catálogo (ACTIVO) -->
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               href="{{ route('empresa.catalogo.index') }}">
-                                Catálogo
-                            </a>
-                        </li>
+                       <!-- Catálogo -->
+<li class="nav-item">
+    <a class="nav-link"
+       href="{{ route('catalog.index', auth()->user()->empresa_id) }}"
+       target="_blank">
+        Catálogo
+    </a>
+</li>
+
 
                         <!-- POS (ACTIVO) -->
                         <li class="nav-item">

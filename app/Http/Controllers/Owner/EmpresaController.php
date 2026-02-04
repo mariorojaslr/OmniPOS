@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Empresa;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class EmpresaController extends Controller
 {
@@ -24,17 +27,43 @@ class EmpresaController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nombre_comercial' => 'required|string|max:255',
-            'email' => 'nullable|email',
-            'telefono' => 'nullable|string|max:50',
-            'fecha_vencimiento' => 'nullable|date',
+            'nombre_comercial'   => 'required|string|max:255',
+            'email'              => 'required|email|unique:users,email',
+            'telefono'           => 'nullable|string|max:50',
+            'fecha_vencimiento'  => 'nullable|date',
         ]);
 
-        Empresa::create($data + ['activo' => true]);
+        /*
+         |----------------------------------------------------------
+         | Crear empresa
+         |----------------------------------------------------------
+         */
+        $empresa = Empresa::create([
+            'nombre_comercial'  => $data['nombre_comercial'],
+            'email'             => $data['email'],
+            'telefono'          => $data['telefono'] ?? null,
+            'fecha_vencimiento' => $data['fecha_vencimiento'] ?? null,
+            'activo'            => true,
+        ]);
+
+        /*
+         |----------------------------------------------------------
+         | Crear usuario principal de la empresa
+         |----------------------------------------------------------
+         */
+        User::create([
+            'name'              => $empresa->nombre_comercial,
+            'email'             => $empresa->email,
+            'password'          => Hash::make('12345678'), // password inicial
+            'role'              => 'empresa',              // 👈 CORRECTO
+            'empresa_id'        => $empresa->id,
+            'activo'            => 1,
+            'email_verified_at' => now(),                   // 👈 CLAVE
+        ]);
 
         return redirect()
             ->route('owner.empresas.index')
-            ->with('success', 'Empresa creada correctamente');
+            ->with('success', 'Empresa y usuario creados correctamente');
     }
 
     public function edit(Empresa $empresa)
@@ -45,9 +74,9 @@ class EmpresaController extends Controller
     public function update(Request $request, Empresa $empresa)
     {
         $data = $request->validate([
-            'nombre_comercial' => 'required|string|max:255',
-            'email' => 'nullable|email',
-            'telefono' => 'nullable|string|max:50',
+            'nombre_comercial'  => 'required|string|max:255',
+            'email'             => 'nullable|email',
+            'telefono'          => 'nullable|string|max:50',
             'fecha_vencimiento' => 'nullable|date',
         ]);
 
@@ -59,7 +88,7 @@ class EmpresaController extends Controller
     }
 
     /**
-     * 🔁 ACTIVAR / DESACTIVAR EMPRESA (ESTO ES LO QUE NO FUNCIONABA)
+     * ACTIVAR / DESACTIVAR EMPRESA
      */
     public function toggleStatus(Empresa $empresa): RedirectResponse
     {
@@ -71,7 +100,7 @@ class EmpresaController extends Controller
     }
 
     /**
-     * 🔄 RENOVAR EMPRESA
+     * RENOVAR EMPRESA
      */
     public function renovar(Empresa $empresa): RedirectResponse
     {
