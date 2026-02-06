@@ -19,94 +19,111 @@
         </a>
     </div>
 
+    {{-- Buscador --}}
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+            <input type="text"
+                   id="buscarProducto"
+                   class="form-control"
+                   placeholder="Buscar producto...">
+        </div>
+    </div>
+
     {{-- Mensaje de éxito --}}
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show">
             {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
-    {{-- Card contenedora --}}
+    {{-- Tabla --}}
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
 
-            @if($products->isEmpty())
-                {{-- Estado vacío --}}
-                <div class="text-center p-5">
-                    <i class="bi bi-box-seam fs-1 text-muted"></i>
-                    <h5 class="mt-3">No hay productos cargados</h5>
-                    <p class="text-muted mb-3">
-                        Empezá creando el primer producto del catálogo.
-                    </p>
-                    <a href="{{ route('empresa.products.create') }}"
-                       class="btn btn-outline-primary">
-                        Crear producto
-                    </a>
-                </div>
-            @else
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Producto</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
 
-                {{-- Tabla --}}
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-4">Producto</th>
-                                <th>Precio</th>
-                                <th>Estado</th>
-                                <th class="text-end pe-4">Acciones</th>
+                    <tbody id="tablaProductos">
+                        @foreach($products as $product)
+                            <tr class="fila-producto">
+                                <td class="ps-4 nombre-producto">
+                                    <strong>{{ $product->name }}</strong>
+                                </td>
+
+                                <td>
+                                    ${{ number_format($product->price, 2, ',', '.') }}
+                                </td>
+
+                                <td>
+                                    @if($product->active)
+                                        <span class="badge bg-success">Activo</span>
+                                    @else
+                                        <span class="badge bg-secondary">Inactivo</span>
+                                    @endif
+                                </td>
+
+                                <td class="text-end pe-4">
+                                    <a href="{{ route('empresa.products.edit', $product) }}"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        Editar
+                                    </a>
+
+                                    <a href="{{ route('empresa.products.images.create', $product) }}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Imágenes
+                                    </a>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($products as $product)
-                                <tr>
-                                    <td class="ps-4">
-                                        <div class="fw-semibold">
-                                            {{ $product->name }}
-                                        </div>
-                                    </td>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-                                    <td>
-                                        <span class="fw-bold">
-                                            ${{ number_format($product->price, 2, ',', '.') }}
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        @if($product->active)
-                                            <span class="badge bg-success-subtle text-success">
-                                                Activo
-                                            </span>
-                                        @else
-                                            <span class="badge bg-secondary-subtle text-secondary">
-                                                Inactivo
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <td class="text-end pe-4">
-                                        <div class="btn-group">
-                                            <a href="{{ route('empresa.products.edit', $product) }}"
-                                               class="btn btn-sm btn-outline-secondary">
-                                                Editar
-                                            </a>
-
-                                            <a href="{{ route('empresa.products.images.create', $product) }}"
-                                               class="btn btn-sm btn-outline-primary">
-                                                Imágenes
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-            @endif
+            {{-- PAGINADOR --}}
+            <div class="p-3">
+                {{ $products->links('pagination::bootstrap-5') }}
+            </div>
 
         </div>
     </div>
 
 </div>
+
+{{-- BUSCADOR EN TIEMPO REAL --}}
+<script>
+document.getElementById('buscarProducto').addEventListener('input', function () {
+    let filtro = this.value.toLowerCase();
+
+    document.querySelectorAll('.fila-producto').forEach(function (row) {
+        let nombre = row.querySelector('.nombre-producto').innerText.toLowerCase();
+
+        if (filtro === '') {
+            row.style.display = '';
+            row.querySelector('.nombre-producto').innerHTML = row.querySelector('.nombre-producto').innerText;
+            return;
+        }
+
+        if (nombre.includes(filtro)) {
+            row.style.display = '';
+
+            let original = row.querySelector('.nombre-producto').innerText;
+            let regex = new RegExp('(' + filtro + ')', 'gi');
+            row.querySelector('.nombre-producto').innerHTML =
+                original.replace(regex, '<mark style="background: #fff3cd;">$1</mark>');
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
+
 @endsection
