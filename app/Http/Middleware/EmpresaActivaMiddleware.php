@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Empresa;
 
 class EmpresaActivaMiddleware
 {
@@ -12,19 +13,32 @@ class EmpresaActivaMiddleware
     {
         $user = auth()->user();
 
-        // Seguridad básica
-        if (!$user || !$user->empresa) {
-            abort(403, 'EMPRESA INACTIVA');
+        // -------------------------------------------------
+        // Verificar usuario logueado
+        // -------------------------------------------------
+        if (!$user) {
+            abort(403, 'USUARIO NO AUTENTICADO');
         }
 
-        $empresa = $user->empresa;
+        // -------------------------------------------------
+        // Buscar empresa directamente por ID (más seguro)
+        // -------------------------------------------------
+        $empresa = Empresa::find($user->empresa_id);
 
+        if (!$empresa) {
+            abort(403, 'EMPRESA NO EXISTE');
+        }
+
+        // -------------------------------------------------
         // Empresa desactivada
+        // -------------------------------------------------
         if ((int) $empresa->activo !== 1) {
             abort(403, 'EMPRESA INACTIVA');
         }
 
+        // -------------------------------------------------
         // Empresa vencida
+        // -------------------------------------------------
         if ($empresa->fecha_vencimiento && now()->gt($empresa->fecha_vencimiento)) {
             abort(403, 'EMPRESA VENCIDA');
         }

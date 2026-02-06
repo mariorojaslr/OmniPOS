@@ -129,7 +129,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/dashboard', [EmpresaDashboardController::class, 'index'])
             ->name('dashboard');
 
-        // Catálogo interno (link del menú)
+        // Catálogo interno
         Route::get('/catalogo', function () {
             return redirect()->route('empresa.products.index');
         })->name('catalogo.index');
@@ -142,23 +142,35 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
             ->name('ventas.store');
 
         /*
-        | Productos
+        |--------------------------------------------------------------------------
+        | PRODUCTOS
+        |--------------------------------------------------------------------------
         */
         Route::resource('products', ProductController::class)
             ->except(['show', 'destroy']);
 
+        // Ver imágenes
         Route::get(
             'products/{product}/images',
             [ProductImageController::class, 'create']
         )->name('products.images.create');
 
+        // Subir imágenes
         Route::post(
             'products/{product}/images',
             [ProductImageController::class, 'store']
         )->name('products.images.store');
 
+        // 🔴 ELIMINAR IMAGEN (CORREGIDO — ahora dentro del grupo)
+        Route::delete(
+            'products/{product}/images/{image}',
+            [ProductImageController::class, 'destroy']
+        )->name('products.images.destroy');
+
         /*
+        |--------------------------------------------------------------------------
         | POS
+        |--------------------------------------------------------------------------
         */
         Route::get('/pos', [POSController::class, 'index'])
             ->name('pos.index');

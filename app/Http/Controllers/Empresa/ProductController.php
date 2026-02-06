@@ -9,22 +9,39 @@ use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
-    public function index()
+    /**
+     * Listado de productos con paginado
+     */
+    public function index(Request $request)
     {
         $empresaId = Auth::user()->empresa_id;
 
-        $products = Product::where('empresa_id', $empresaId)
-            ->orderBy('name')
-            ->get();
+        // Consulta base
+        $query = Product::where('empresa_id', $empresaId)
+            ->orderBy('name');
+
+        // 🔍 Buscador opcional por nombre (si existe input q)
+        if ($request->filled('q')) {
+            $query->where('name', 'like', '%' . $request->q . '%');
+        }
+
+        // ⚠️ IMPORTANTE: paginate (NO get)
+        $products = $query->paginate(15)->withQueryString();
 
         return view('empresa.products.index', compact('products'));
     }
 
+    /**
+     * Formulario crear producto
+     */
     public function create()
     {
         return view('empresa.products.create');
     }
 
+    /**
+     * Guardar producto
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -44,6 +61,9 @@ class ProductController extends Controller
             ->with('success', 'Producto creado correctamente');
     }
 
+    /**
+     * Formulario editar producto
+     */
     public function edit(Product $product)
     {
         $this->authorizeProduct($product);
@@ -51,6 +71,9 @@ class ProductController extends Controller
         return view('empresa.products.edit', compact('product'));
     }
 
+    /**
+     * Actualizar producto
+     */
     public function update(Request $request, Product $product)
     {
         $this->authorizeProduct($product);
@@ -68,6 +91,9 @@ class ProductController extends Controller
             ->with('success', 'Producto actualizado');
     }
 
+    /**
+     * Seguridad: evita que una empresa edite productos de otra
+     */
     private function authorizeProduct(Product $product)
     {
         if ($product->empresa_id !== Auth::user()->empresa_id) {

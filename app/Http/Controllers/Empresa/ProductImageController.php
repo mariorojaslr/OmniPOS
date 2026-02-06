@@ -13,6 +13,11 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class ProductImageController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Pantalla de imágenes del producto
+    |--------------------------------------------------------------------------
+    */
     public function create(Product $product)
     {
         $this->authorizeProduct($product);
@@ -20,6 +25,11 @@ class ProductImageController extends Controller
         return view('empresa.products.images', compact('product'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Subir imágenes
+    |--------------------------------------------------------------------------
+    */
     public function store(Request $request, Product $product)
     {
         $this->authorizeProduct($product);
@@ -65,6 +75,60 @@ class ProductImageController extends Controller
         return back()->with('success', 'Imágenes subidas correctamente');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | ELIMINAR IMAGEN
+    |--------------------------------------------------------------------------
+    */
+    public function destroy(Product $product, ProductImage $image)
+    {
+        $this->authorizeProduct($product);
+
+        // Verifica que la imagen pertenece al producto
+        if ($image->product_id !== $product->id) {
+            abort(403);
+        }
+
+        // Borra archivo físico
+        Storage::disk('public')->delete($image->path);
+
+        $wasMain = $image->is_main;
+
+        // Borra registro DB
+        $image->delete();
+
+        /*
+        |----------------------------------------------------------
+        | Si borraste la imagen principal → asigna otra
+        |----------------------------------------------------------
+        */
+        if ($wasMain) {
+            $newMain = $product->images()->orderBy('order')->first();
+            if ($newMain) {
+                $newMain->update(['is_main' => true]);
+            }
+        }
+
+        /*
+        |----------------------------------------------------------
+        | Reordenar imágenes
+        |----------------------------------------------------------
+        */
+        $product->images()
+            ->orderBy('id')
+            ->get()
+            ->each(function ($img, $index) {
+                $img->update(['order' => $index]);
+            });
+
+        return back()->with('success', 'Imagen eliminada correctamente');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Seguridad empresa
+    |--------------------------------------------------------------------------
+    */
     private function authorizeProduct(Product $product)
     {
         if ($product->empresa_id !== Auth::user()->empresa_id) {
