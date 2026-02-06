@@ -24,23 +24,31 @@ class EmpresaUserController extends Controller
         return view('owner.empresas.users.create', compact('empresa'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | CREAR USUARIO (password manual o automático)
+    |--------------------------------------------------------------------------
+    */
     public function store(Request $request, Empresa $empresa)
     {
         $data = $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'nullable|string|min:6',
         ]);
 
-        $password = Str::random(8);
+        // ✔ Si el usuario escribió password → usar ese
+        // ✔ Si dejó vacío → generar automático
+        $password = $data['password'] ?? Str::random(8);
 
         User::create([
             'name'              => $data['name'],
             'email'             => $data['email'],
             'password'          => Hash::make($password),
             'empresa_id'        => $empresa->id,
-            'role'              => 'usuario',   // 👈 SIEMPRE usuario
+            'role'              => 'usuario',
             'activo'            => 1,
-            'email_verified_at' => now(),        // 👈 CLAVE
+            'email_verified_at' => now(),
         ]);
 
         return redirect()
@@ -48,6 +56,11 @@ class EmpresaUserController extends Controller
             ->with('success', "Usuario creado correctamente. Password: {$password}");
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Activar / Desactivar usuario
+    |--------------------------------------------------------------------------
+    */
     public function toggle(Empresa $empresa, User $user)
     {
         abort_if($user->empresa_id !== $empresa->id, 403);
@@ -59,6 +72,11 @@ class EmpresaUserController extends Controller
         return back()->with('success', 'Estado del usuario actualizado');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Resetear password (siempre automático)
+    |--------------------------------------------------------------------------
+    */
     public function resetPassword(Empresa $empresa, User $user)
     {
         abort_if($user->empresa_id !== $empresa->id, 403);
