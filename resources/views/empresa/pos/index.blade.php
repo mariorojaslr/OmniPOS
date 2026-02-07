@@ -89,7 +89,7 @@
 <div class="mb-3">
 <label>Monto recibido</label>
 <input type="text" id="montoPagado" class="form-control" placeholder="Ej: 2x10000 + 5x2000">
-<small class="text-muted">Podés usar: + - x (ej: 3x1000 + 2x500)</small>
+<small class="text-muted">Podés usar: + - x * / (ej: 3x1000 + 2x500)</small>
 </div>
 
 <strong>Vuelto: $ <span id="vuelto">0.00</span></strong>
@@ -111,7 +111,6 @@
 const products = {!! json_encode($productsData) !!};
 
 let cart={},cols=4,rows=3;
-
 const grid=document.getElementById('productGrid');
 const modalCobrar=new bootstrap.Modal(document.getElementById('modalCobrar'));
 
@@ -170,14 +169,18 @@ function removeItem(id){delete cart[id];renderCart();}
 
 /* ================= CALCULADORA ================= */
 
-function calcularExpresion(expr){
-expr=expr.toLowerCase().replace(/x/g,'*').replace(/,/g,'.').replace(/[^0-9\.\+\-\*\/]/g,'');
-try{return Function("return "+expr)();}catch{return 0;}
+function evaluarExpresion(expr){
+try{
+expr=expr.toLowerCase().replace(/x/g,'*').replace(/,/g,'.');
+expr=expr.replace(/[^0-9\.\+\-\*\/]/g,'');
+if(!expr)return 0;
+return Function('"use strict";return ('+expr+')')();
+}catch{return 0;}
 }
 
 document.getElementById('montoPagado').oninput=()=>{
-const pagado=calcularExpresion(document.getElementById('montoPagado').value)||0;
-const total=parseFloat(document.getElementById('modalTotal').innerText);
+const pagado=evaluarExpresion(document.getElementById('montoPagado').value);
+const total=parseFloat(document.getElementById('modalTotal').innerText)||0;
 document.getElementById('vuelto').innerText=Math.max(0,pagado-total).toFixed(2);
 };
 
@@ -197,29 +200,35 @@ const items=Object.values(cart).map(p=>{
 const subtotal=p.qty*p.price;
 const iva=subtotal*0.21;
 const total=subtotal+iva;
-return{product_id:p.id,cantidad:p.qty,precio:p.price,subtotal_sin_iva:subtotal,iva:iva,total:total};
+return{product_id:p.id,cantidad:p.qty,precio:p.price,subtotal_sin_iva:subtotal,iva,total};
 });
 
 const totalSinIva=items.reduce((s,i)=>s+i.subtotal_sin_iva,0);
 const totalIva=items.reduce((s,i)=>s+i.iva,0);
 const totalConIva=items.reduce((s,i)=>s+i.total,0);
 
-const montoPagado=calcularExpresion(document.getElementById('montoPagado').value)||0;
+const montoPagado=evaluarExpresion(document.getElementById('montoPagado').value);
 const vuelto=Math.max(0,montoPagado-totalConIva);
 
 fetch("{{ url('/empresa/pos/checkout') }}",{
 method:'POST',
 headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
 body:JSON.stringify({
-items,total_sin_iva:totalSinIva,total_iva:totalIva,total_con_iva:totalConIva,
+items,
+total_sin_iva:totalSinIva,
+total_iva:totalIva,
+total_con_iva:totalConIva,
 metodo_pago:document.getElementById('metodoPago').value,
-monto_pagado:montoPagado,vuelto:vuelto
+monto_pagado:montoPagado,
+vuelto
 })
 })
 .then(r=>r.json())
 .then(r=>{
 if(!r.ok){alert('ERROR AL GUARDAR');return;}
-modalCobrar.hide();cart={};renderCart();
+modalCobrar.hide();
+cart={};
+renderCart();
 const flash=document.getElementById('ventaFlash');
 flash.style.display='block';
 setTimeout(()=>flash.style.display='none',1200);
