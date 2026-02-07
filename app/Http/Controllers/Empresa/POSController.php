@@ -45,7 +45,7 @@ class POSController extends Controller
 
     /**
      * ==============================
-     * GUARDAR VENTA
+     * GUARDAR VENTA (ADAPTADO A TU DB)
      * ==============================
      */
     public function store(Request $request)
@@ -54,8 +54,7 @@ class POSController extends Controller
 
             $empresaId = Auth::user()->empresa_id;
             $userId    = Auth::id();
-
-            $items = $request->items ?? [];
+            $items     = $request->items ?? [];
 
             if (empty($items)) {
                 return response()->json([
@@ -66,36 +65,49 @@ class POSController extends Controller
 
             DB::beginTransaction();
 
-            // ===================== CABECERA =====================
+            /*
+            ==================================================
+            CABECERA VENTA  (USA COLUMNAS REALES DEL SERVIDOR)
+            ==================================================
+            */
+            $subtotal = $request->total_sin_iva ?? 0;
+            $iva      = $request->total_iva ?? 0;
+            $total    = $request->total_con_iva ?? 0;
+
             $ventaId = DB::table('ventas')->insertGetId([
-                'empresa_id'    => $empresaId,
-                'user_id'       => $userId,
-                'total_sin_iva' => $request->total_sin_iva ?? 0,
-                'total_iva'     => $request->total_iva ?? 0,
-                'total_con_iva' => $request->total_con_iva ?? 0,
-                'cliente_condicion' => 'consumidor_final',
-                'descuento'     => 0,
-                'iva'           => $request->total_iva ?? 0,
-                'metodo_pago'   => $request->metodo_pago ?? 'efectivo',
-                'monto_pagado'  => $request->monto_pagado ?? 0,
-                'vuelto'        => $request->vuelto ?? 0,
-                'created_at'    => now(),
-                'updated_at'    => now(),
+                'empresa_id'         => $empresaId,
+                'user_id'            => $userId,
+                'cliente_condicion'  => 'consumidor_final',
+
+                'subtotal'           => $subtotal,
+                'descuento'          => 0,
+                'iva'                => $iva,
+                'total'              => $total,
+
+                'metodo_pago'        => $request->metodo_pago ?? 'efectivo',
+                'monto_pagado'       => $request->monto_pagado ?? 0,
+                'vuelto'             => $request->vuelto ?? 0,
+
+                'created_at'         => now(),
+                'updated_at'         => now(),
             ]);
 
-            // ===================== ITEMS =====================
+            /*
+            ==================================================
+            ITEMS (USA COLUMNAS REALES DEL SERVIDOR)
+            ==================================================
+            */
             foreach ($items as $item) {
 
                 DB::table('venta_items')->insert([
-                    'venta_id'                => $ventaId,
-                    'product_id'              => $item['product_id'] ?? null,
-                    'cantidad'                => $item['cantidad'] ?? 1,
-                    'precio_unitario_sin_iva' => $item['precio'] ?? 0,
-                    'subtotal_item_sin_iva'   => $item['subtotal_sin_iva'] ?? 0,
-                    'iva_item'                => $item['iva'] ?? 0,
-                    'total_item_con_iva'      => $item['total'] ?? 0,
-                    'created_at'              => now(),
-                    'updated_at'              => now(),
+                    'venta_id'        => $ventaId,
+                    'product_id'      => $item['product_id'] ?? null,
+                    'producto_nombre' => $item['nombre'] ?? '',
+                    'precio_unitario' => $item['precio'] ?? 0,
+                    'cantidad'        => $item['cantidad'] ?? 1,
+                    'subtotal'        => $item['total'] ?? 0,
+                    'created_at'      => now(),
+                    'updated_at'      => now(),
                 ]);
             }
 
