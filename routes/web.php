@@ -20,6 +20,7 @@ use App\Http\Controllers\Empresa\ProductController;
 use App\Http\Controllers\Empresa\ProductImageController;
 use App\Http\Controllers\Empresa\POSController;
 use App\Http\Controllers\Empresa\VentaController;
+use App\Http\Controllers\Empresa\DashboardController;
 
 // CATÁLOGO PÚBLICO
 use App\Http\Controllers\CatalogController;
@@ -189,3 +190,15 @@ Route::get('/c/{empresa}', [CatalogController::class, 'index'])
 
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class, 'show'])
     ->name('catalog.show');
+
+    Route::get('/empresa/products/search', [\App\Http\Controllers\Empresa\ProductController::class, 'search'])
+    ->name('empresa.products.search');
+
+
+Route::post('/empresa/pos', [POSController::class, 'store'])->name('empresa.pos.store');
+
+Route::get('/empresa/dashboard/resumen', [DashboardController::class, 'resumen'])
+    ->name('empresa.dashboard.resumen');
+
+    Route::post('/empresa/pos/checkout', [POSController::class, 'store'])
+    ->name('empresa.pos.checkout');

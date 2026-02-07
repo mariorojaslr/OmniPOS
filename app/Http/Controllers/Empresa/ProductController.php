@@ -10,38 +10,43 @@ use Illuminate\Support\Facades\Auth;
 class ProductController extends Controller
 {
     /**
-     * Listado de productos con paginado
+     * LISTADO DE PRODUCTOS
      */
     public function index(Request $request)
     {
         $empresaId = Auth::user()->empresa_id;
+        $buscar = $request->q;
 
-        // Consulta base
-        $query = Product::where('empresa_id', $empresaId)
-            ->orderBy('name');
+        $query = Product::where('empresa_id', $empresaId);
 
-        // 🔍 Buscador opcional por nombre (si existe input q)
-        if ($request->filled('q')) {
-            $query->where('name', 'like', '%' . $request->q . '%');
+        if (!empty($buscar)) {
+            $query->where('name', 'like', "%{$buscar}%");
         }
 
-        // ⚠️ IMPORTANTE: paginate (NO get)
-        $products = $query->paginate(15)->withQueryString();
+        // Si es búsqueda en vivo (AJAX) → devolver JSON
+        if ($request->ajax() || $request->get('ajax')) {
+            return response()->json(
+                $query->orderBy('name')
+                      ->limit(50)
+                      ->get(['id','name','price','active'])
+            );
+        }
 
-        return view('empresa.products.index', compact('products'));
+        $products = $query
+            ->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('empresa.products.index', compact('products', 'buscar'));
     }
 
-    /**
-     * Formulario crear producto
-     */
+
     public function create()
     {
         return view('empresa.products.create');
     }
 
-    /**
-     * Guardar producto
-     */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -56,27 +61,26 @@ class ProductController extends Controller
             'active'     => true,
         ]);
 
-        return redirect()
-            ->route('empresa.products.index')
+        return redirect()->route('empresa.products.index')
             ->with('success', 'Producto creado correctamente');
     }
 
-    /**
-     * Formulario editar producto
-     */
+
     public function edit(Product $product)
     {
-        $this->authorizeProduct($product);
+        if ($product->empresa_id !== Auth::user()->empresa_id) {
+            abort(403);
+        }
 
         return view('empresa.products.edit', compact('product'));
     }
 
-    /**
-     * Actualizar producto
-     */
+
     public function update(Request $request, Product $product)
     {
-        $this->authorizeProduct($product);
+        if ($product->empresa_id !== Auth::user()->empresa_id) {
+            abort(403);
+        }
 
         $request->validate([
             'name'   => 'required|string|max:255',
@@ -86,18 +90,7 @@ class ProductController extends Controller
 
         $product->update($request->only('name', 'price', 'active'));
 
-        return redirect()
-            ->route('empresa.products.index')
+        return redirect()->route('empresa.products.index')
             ->with('success', 'Producto actualizado');
-    }
-
-    /**
-     * Seguridad: evita que una empresa edite productos de otra
-     */
-    private function authorizeProduct(Product $product)
-    {
-        if ($product->empresa_id !== Auth::user()->empresa_id) {
-            abort(403);
-        }
     }
 }

@@ -3,13 +3,10 @@
 @section('content')
 <div class="container py-4">
 
-    {{-- Encabezado --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-0">Productos</h2>
-            <small class="text-muted">
-                Gestión del catálogo de la empresa
-            </small>
+            <small class="text-muted">Gestión del catálogo de la empresa</small>
         </div>
 
         <a href="{{ route('empresa.products.create') }}"
@@ -19,25 +16,19 @@
         </a>
     </div>
 
-    {{-- Buscador --}}
+    {{-- BUSCADOR --}}
     <div class="card shadow-sm border-0 mb-3">
         <div class="card-body">
             <input type="text"
                    id="buscarProducto"
                    class="form-control"
-                   placeholder="Buscar producto...">
+                   placeholder="Buscar producto..."
+                   autocomplete="off"
+                   autofocus>
         </div>
     </div>
 
-    {{-- Mensaje de éxito --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    {{-- Tabla --}}
+    {{-- TABLA --}}
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
 
@@ -54,10 +45,8 @@
 
                     <tbody id="tablaProductos">
                         @foreach($products as $product)
-                            <tr class="fila-producto">
-                                <td class="ps-4 nombre-producto">
-                                    <strong>{{ $product->name }}</strong>
-                                </td>
+                            <tr>
+                                <td class="ps-4 nombre">{{ $product->name }}</td>
 
                                 <td>
                                     ${{ number_format($product->price, 2, ',', '.') }}
@@ -88,42 +77,105 @@
                 </table>
             </div>
 
-            {{-- PAGINADOR --}}
             <div class="p-3">
                 {{ $products->links('pagination::bootstrap-5') }}
             </div>
 
         </div>
     </div>
-
 </div>
 
-{{-- BUSCADOR EN TIEMPO REAL --}}
+
+{{-- =========================
+   BUSQUEDA EN VIVO + RESALTADO
+========================= --}}
 <script>
-document.getElementById('buscarProducto').addEventListener('input', function () {
-    let filtro = this.value.toLowerCase();
+const input = document.getElementById('buscarProducto');
+const tabla = document.getElementById('tablaProductos');
 
-    document.querySelectorAll('.fila-producto').forEach(function (row) {
-        let nombre = row.querySelector('.nombre-producto').innerText.toLowerCase();
+input.addEventListener('input', function () {
+    let q = this.value;
 
-        if (filtro === '') {
-            row.style.display = '';
-            row.querySelector('.nombre-producto').innerHTML = row.querySelector('.nombre-producto').innerText;
-            return;
-        }
+    fetch(`{{ route('empresa.products.index') }}?q=${encodeURIComponent(q)}&ajax=1`)
+        .then(res => res.json())
+        .then(data => {
 
-        if (nombre.includes(filtro)) {
-            row.style.display = '';
+            if (q === '') {
+                location.reload();
+                return;
+            }
 
-            let original = row.querySelector('.nombre-producto').innerText;
-            let regex = new RegExp('(' + filtro + ')', 'gi');
-            row.querySelector('.nombre-producto').innerHTML =
-                original.replace(regex, '<mark style="background: #fff3cd;">$1</mark>');
-        } else {
-            row.style.display = 'none';
-        }
-    });
+            tabla.innerHTML = '';
+
+            data.forEach(p => {
+
+                let nombre = p.name.replace(
+                    new RegExp(`(${q})`, 'gi'),
+                    `<mark style="background:#fff3cd">$1</mark>`
+                );
+
+                tabla.innerHTML += `
+                    <tr>
+                        <td class="ps-4">${nombre}</td>
+                        <td>$${parseFloat(p.price).toFixed(2)}</td>
+                        <td>${p.active ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>'}</td>
+                        <td class="text-end pe-4">
+                            <a href="/empresa/products/${p.id}/edit" class="btn btn-sm btn-outline-secondary">Editar</a>
+                            <a href="/empresa/products/${p.id}/images/create" class="btn btn-sm btn-outline-primary">Imágenes</a>
+                        </td>
+                    </tr>`;
+            });
+        });
 });
 </script>
+
+
+
+<script>
+/*
+======================================================
+ACTUALIZACION AUTOMATICA DEL DASHBOARD (TIEMPO REAL)
+- Actualiza cada 3 segundos
+- Refleja ventas inmediatamente
+======================================================
+*/
+
+async function actualizarDashboard() {
+    try {
+        const res = await fetch("{{ route('empresa.dashboard.resumen') }}");
+        const data = await res.json();
+
+        if (document.getElementById('ventasHoy'))
+            document.getElementById('ventasHoy').innerText = data.ventas_hoy;
+
+        if (document.getElementById('montoHoy'))
+            document.getElementById('montoHoy').innerText = data.monto_hoy;
+
+        if (document.getElementById('ventasSemana'))
+            document.getElementById('ventasSemana').innerText = data.ventas_semana;
+
+        if (document.getElementById('montoSemana'))
+            document.getElementById('montoSemana').innerText = data.monto_semana;
+
+        if (document.getElementById('ventasMes'))
+            document.getElementById('ventasMes').innerText = data.ventas_mes;
+
+        if (document.getElementById('montoMes'))
+            document.getElementById('montoMes').innerText = data.monto_mes;
+
+    } catch (e) {
+        console.log('Error actualizando dashboard');
+    }
+}
+
+// Cada 3 segundos refresca
+setInterval(actualizarDashboard, 3000);
+
+// Ejecuta una vez al cargar
+actualizarDashboard();
+</script>
+
+
+
 
 @endsection

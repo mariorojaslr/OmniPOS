@@ -29,27 +29,51 @@
         </div>
     </div>
 
-    {{-- Ventas hoy --}}
+    {{-- Ventas hoy (Monto) --}}
     <div class="col-md-3">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-body">
                 <small class="text-muted">Ventas hoy</small>
-                <h2 class="fw-bold text-success">$ {{ number_format($ventasHoy, 2) }}</h2>
-                <span class="badge bg-light text-muted">próximamente</span>
+                <h2 class="fw-bold text-success">
+                    $ <span id="montoHoy">{{ number_format($ventasHoy, 2) }}</span>
+                </h2>
             </div>
         </div>
     </div>
 
-    {{-- Ventas mes --}}
+   {{-- Cantidad ventas hoy --}}
+<div class="col-md-3">
+    <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+            <small class="text-muted">Cantidad ventas hoy</small>
+            <h2 class="fw-bold text-primary">{{ $cantidadVentasHoy }}</h2>
+        </div>
+    </div>
+</div>
+
+
+    {{-- Ventas mes (Monto) --}}
     <div class="col-md-3">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-body">
                 <small class="text-muted">Ventas del mes</small>
-                <h2 class="fw-bold text-success">$ {{ number_format($ventasMes, 2) }}</h2>
-                <span class="badge bg-light text-muted">próximamente</span>
+                <h2 class="fw-bold text-success">
+                    $ <span id="montoMes">{{ number_format($ventasMes, 2) }}</span>
+                </h2>
             </div>
         </div>
     </div>
+
+    {{-- Cantidad ventas mes --}}
+<div class="col-md-3">
+    <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+            <small class="text-muted">Cantidad ventas mes</small>
+            <h2 class="fw-bold text-primary">{{ $cantidadVentasMes }}</h2>
+        </div>
+    </div>
+</div>
+
 
     {{-- Stock bajo --}}
     <div class="col-md-3">
@@ -57,7 +81,6 @@
             <div class="card-body">
                 <small class="text-muted">Stock bajo</small>
                 <h2 class="fw-bold text-warning">{{ $stockBajo }}</h2>
-                <span class="badge bg-light text-muted">próximamente</span>
             </div>
         </div>
     </div>
@@ -84,19 +107,39 @@
         </div>
     </div>
 
-    {{-- Canales --}}
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
-                <small class="text-muted">Canales</small>
-                <ul class="list-unstyled mb-0">
-                    <li>🛒 Catálogo <span class="text-muted">(próx.)</span></li>
-                    <li>🏪 POS <span class="text-muted">(próx.)</span></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
 </div>
+
+<script>
+/*
+======================================================
+ACTUALIZACION AUTOMATICA DEL DASHBOARD (TIEMPO REAL)
+======================================================
+*/
+
+async function actualizarDashboard() {
+    try {
+        const res = await fetch("{{ route('empresa.dashboard.resumen') }}");
+        const data = await res.json();
+
+        if (document.getElementById('ventasHoy'))
+            document.getElementById('ventasHoy').innerText = data.ventas_hoy;
+
+        if (document.getElementById('montoHoy'))
+            document.getElementById('montoHoy').innerText = data.monto_hoy;
+
+        if (document.getElementById('ventasMes'))
+            document.getElementById('ventasMes').innerText = data.ventas_mes;
+
+        if (document.getElementById('montoMes'))
+            document.getElementById('montoMes').innerText = data.monto_mes;
+
+    } catch (e) {
+        console.log('Error actualizando dashboard');
+    }
+}
+
+setInterval(actualizarDashboard, 3000);
+actualizarDashboard();
+</script>
 
 @endsection
