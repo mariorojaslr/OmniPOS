@@ -23,28 +23,30 @@ class DashboardController extends Controller
         $productosCount = Product::where('empresa_id', $empresaId)->count();
 
         // ================= VENTAS HOY =================
-        $ventasHoy = DB::table('ventas')
-            ->where('empresa_id', $empresaId)
-            ->whereDate('created_at', today())
-            ->sum('total_con_iva');
+$ventasHoy = DB::table('ventas')
+    ->where('empresa_id', $empresaId)
+    ->whereDate('created_at', today())
+    ->sum('total');
 
-        $cantidadVentasHoy = DB::table('ventas')
-            ->where('empresa_id', $empresaId)
-            ->whereDate('created_at', today())
-            ->count();
+$cantidadVentasHoy = DB::table('ventas')
+    ->where('empresa_id', $empresaId)
+    ->whereDate('created_at', today())
+    ->count();
 
-        // ================= VENTAS MES =================
-        $ventasMes = DB::table('ventas')
-            ->where('empresa_id', $empresaId)
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->sum('total_con_iva');
 
-        $cantidadVentasMes = DB::table('ventas')
-            ->where('empresa_id', $empresaId)
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
+// ================= VENTAS MES =================
+$ventasMes = DB::table('ventas')
+    ->where('empresa_id', $empresaId)
+    ->whereMonth('created_at', now()->month)
+    ->whereYear('created_at', now()->year)
+    ->sum('total');
+
+$cantidadVentasMes = DB::table('ventas')
+    ->where('empresa_id', $empresaId)
+    ->whereMonth('created_at', now()->month)
+    ->whereYear('created_at', now()->year)
+    ->count();
+
 
         // ================= STOCK BAJO (SI EXISTE COLUMNA) =================
         $stockBajo = 0;
