@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Mostrar pantalla de login
      */
     public function create(): View
     {
@@ -20,38 +20,48 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Procesar login y redirigir según rol
      */
-    public function store(LoginRequest $request)
-{
-    $request->authenticate();
-    $request->session()->regenerate();
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+        $request->session()->regenerate();
 
-    $user = auth()->user();
+        $user = auth()->user();
 
-    if ($user->role === 'owner') {
-        return redirect('/owner/dashboard');
+        // ================= OWNER =================
+        if ($user->role === 'owner') {
+            return redirect()->route('owner.dashboard');
+        }
+
+        // ================= EMPRESA =================
+        if ($user->role === 'empresa') {
+            return redirect()->route('empresa.dashboard');
+        }
+
+        // ================= USUARIO =================
+        if ($user->role === 'usuario') {
+            return redirect()->route('empresa.usuario.dashboard');
+        }
+
+        // Rol inválido → cierre por seguridad
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        abort(403, 'Rol no permitido');
     }
-
-    if (in_array($user->role, ['empresa', 'usuario'])) {
-        return redirect('/empresa/dashboard');
-    }
-
-    abort(403);
-}
-
 
     /**
-     * Destroy an authenticated session.
+     * Logout limpio (sin errores de sesión)
      */
-    public function destroy(Request $request)
-{
-    Auth::logout();
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
 
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-    return redirect('/login');
-}
-
+        return redirect()->route('login');
+    }
 }

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
-| Controllers
+| CONTROLLERS
 |--------------------------------------------------------------------------
 */
 
@@ -20,28 +20,37 @@ use App\Http\Controllers\Empresa\ProductController;
 use App\Http\Controllers\Empresa\ProductImageController;
 use App\Http\Controllers\Empresa\POSController;
 use App\Http\Controllers\Empresa\VentaController;
-use App\Http\Controllers\Empresa\DashboardController;
+use App\Http\Controllers\Empresa\UsuarioDashboardController;
+use App\Http\Controllers\Empresa\UsuarioController;
+use App\Http\Controllers\Empresa\ReporteController;
+use App\Http\Controllers\Empresa\ConfiguracionEmpresaController;
 
-// CATÁLOGO PÚBLICO
+// AUTH
+use App\Http\Controllers\Auth\PasswordController;
+
+// CATÁLOGO
 use App\Http\Controllers\CatalogController;
+
 
 /*
 |--------------------------------------------------------------------------
-| Ruta raíz
+| RUTA RAÍZ
 |--------------------------------------------------------------------------
 */
 Route::get('/', fn () => redirect()->route('login'));
 
-/*
-|--------------------------------------------------------------------------
-| Autenticación (Breeze)
-|--------------------------------------------------------------------------
-*/
-require __DIR__ . '/auth.php';
 
 /*
 |--------------------------------------------------------------------------
-| Dashboard inteligente según rol
+| AUTH BREEZE
+|--------------------------------------------------------------------------
+*/
+require __DIR__.'/auth.php';
+
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD SEGÚN ROL
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->get('/dashboard', function () {
@@ -52,17 +61,19 @@ Route::middleware('auth')->get('/dashboard', function () {
         return redirect()->route('owner.dashboard');
     }
 
-    if (in_array($user->role, ['empresa', 'usuario'])) {
+    if ($user->role === 'empresa') {
         return redirect()->route('empresa.dashboard');
     }
 
-    Auth::logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
+    if ($user->role === 'usuario') {
+        return redirect()->route('empresa.usuario.dashboard');
+    }
 
+    Auth::logout();
     abort(403);
 
 })->name('dashboard');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -74,47 +85,21 @@ Route::middleware(['auth', 'owner'])
     ->name('owner.')
     ->group(function () {
 
-        Route::get('/dashboard', [OwnerDashboardController::class, 'index'])
-            ->name('dashboard');
+        Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
 
-        Route::resource('empresas', EmpresaController::class)
-            ->except(['show']);
+        Route::resource('empresas', EmpresaController::class)->except(['show']);
 
-        Route::patch(
-            'empresas/{empresa}/toggle',
-            [EmpresaController::class, 'toggleStatus']
-        )->name('empresas.toggle');
+        Route::patch('empresas/{empresa}/toggle', [EmpresaController::class, 'toggleStatus'])->name('empresas.toggle');
+        Route::patch('empresas/{empresa}/renovar', [EmpresaController::class, 'renovar'])->name('empresas.renovar');
 
-        Route::patch(
-            'empresas/{empresa}/renovar',
-            [EmpresaController::class, 'renovar']
-        )->name('empresas.renovar');
+        Route::get('empresas/{empresa}/users', [EmpresaUserController::class, 'index'])->name('empresas.users.index');
+        Route::get('empresas/{empresa}/users/create', [EmpresaUserController::class, 'create'])->name('empresas.users.create');
+        Route::post('empresas/{empresa}/users', [EmpresaUserController::class, 'store'])->name('empresas.users.store');
 
-        Route::get(
-            'empresas/{empresa}/users',
-            [EmpresaUserController::class, 'index']
-        )->name('empresas.users.index');
-
-        Route::get(
-            'empresas/{empresa}/users/create',
-            [EmpresaUserController::class, 'create']
-        )->name('empresas.users.create');
-
-        Route::post(
-            'empresas/{empresa}/users',
-            [EmpresaUserController::class, 'store']
-        )->name('empresas.users.store');
-
-        Route::patch(
-            'empresas/{empresa}/users/{user}/toggle',
-            [EmpresaUserController::class, 'toggle']
-        )->name('empresas.users.toggle');
-
-        Route::patch(
-            'empresas/{empresa}/users/{user}/reset-password',
-            [EmpresaUserController::class, 'resetPassword']
-        )->name('empresas.users.reset');
+        Route::patch('empresas/{empresa}/users/{user}/toggle', [EmpresaUserController::class, 'toggle'])->name('empresas.users.toggle');
+        Route::patch('empresas/{empresa}/users/{user}/reset-password', [EmpresaUserController::class, 'resetPassword'])->name('empresas.users.reset');
     });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -126,79 +111,122 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
     ->name('empresa.')
     ->group(function () {
 
-        // Dashboard
-        Route::get('/dashboard', [EmpresaDashboardController::class, 'index'])
-            ->name('dashboard');
+        /*
+        |--------------------------------------------------------------------------
+        | DASHBOARD
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/dashboard', [EmpresaDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/usuario/dashboard', [UsuarioDashboardController::class, 'index'])->name('usuario.dashboard');
 
-        // Catálogo interno
-        Route::get('/catalogo', function () {
-            return redirect()->route('empresa.products.index');
-        })->name('catalogo.index');
 
-        // Ventas
-        Route::get('/ventas', [VentaController::class, 'index'])
-            ->name('ventas.index');
+        /*
+        |--------------------------------------------------------------------------
+        | CONFIGURACIÓN EMPRESA (LOGO + COLORES + TEMA)
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/configuracion', [ConfiguracionEmpresaController::class, 'index'])
+            ->name('configuracion.index');
 
-        Route::post('/ventas', [VentaController::class, 'store'])
-            ->name('ventas.store');
+        Route::post('/configuracion', [ConfiguracionEmpresaController::class, 'save'])
+            ->name('configuracion.save');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | USUARIOS
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::get('/usuarios/create', [UsuarioController::class, 'create'])->name('usuarios.create');
+        Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+
+        Route::patch('/usuarios/{user}/toggle', [UsuarioController::class, 'toggle'])->name('usuarios.toggle');
+        Route::patch('/usuarios/{user}/reset-password', [UsuarioController::class, 'resetPassword'])->name('usuarios.reset');
+
+        Route::get('/usuarios/{usuario}/desempeno', [UsuarioController::class, 'desempeno'])->name('usuarios.desempeno');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REPORTES
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/reportes', [ReporteController::class, 'panel'])->name('reportes.panel');
+        Route::get('/reportes/ranking-productos', [ReporteController::class, 'rankingProductos'])->name('reportes.productos');
+        Route::get('/reportes/ranking-clientes', [ReporteController::class, 'rankingClientes'])->name('reportes.clientes');
+        Route::get('/reportes/ventas-fecha', [ReporteController::class, 'ventasPorFecha'])->name('reportes.ventas_fecha');
+        Route::get('/reportes/empresa', [ReporteController::class, 'empresa'])->name('reportes.empresa');
+
+        Route::get('/reportes/export/pdf', [ReporteController::class, 'exportPdf'])->name('reportes.export.pdf');
+        Route::get('/reportes/export/excel', [ReporteController::class, 'exportExcel'])->name('reportes.export.excel');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CATÁLOGO INTERNO
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/catalogo', fn () => redirect()->route('empresa.products.index'))
+            ->name('catalogo.index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VENTAS
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
+        Route::post('/ventas', [VentaController::class, 'store'])->name('ventas.store');
+
 
         /*
         |--------------------------------------------------------------------------
         | PRODUCTOS
         |--------------------------------------------------------------------------
         */
-        Route::resource('products', ProductController::class)
-            ->except(['show', 'destroy']);
+        Route::resource('products', ProductController::class)->except(['show', 'destroy']);
 
-        // Ver imágenes
-        Route::get(
-            'products/{product}/images',
-            [ProductImageController::class, 'create']
-        )->name('products.images.create');
+        Route::get('products/{product}/images/create', [ProductImageController::class, 'create'])->name('products.images.create');
+        Route::post('products/{product}/images', [ProductImageController::class, 'store'])->name('products.images.store');
+        Route::delete('products/{product}/images/{image}', [ProductImageController::class, 'destroy'])->name('products.images.destroy');
 
-        // Subir imágenes
-        Route::post(
-            'products/{product}/images',
-            [ProductImageController::class, 'store']
-        )->name('products.images.store');
-
-        // 🔴 ELIMINAR IMAGEN (CORREGIDO — ahora dentro del grupo)
-        Route::delete(
-            'products/{product}/images/{image}',
-            [ProductImageController::class, 'destroy']
-        )->name('products.images.destroy');
 
         /*
         |--------------------------------------------------------------------------
         | POS
         |--------------------------------------------------------------------------
         */
-        Route::get('/pos', [POSController::class, 'index'])
-            ->name('pos.index');
-
-        Route::post('/pos/checkout', [POSController::class, 'checkout'])
-            ->name('pos.checkout');
+        Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
+        Route::post('/pos/checkout', [POSController::class, 'store'])->name('pos.checkout');
     });
+
 
 /*
 |--------------------------------------------------------------------------
-| Catálogo público (sin login)
+| CATÁLOGO PÚBLICO
 |--------------------------------------------------------------------------
 */
-Route::get('/c/{empresa}', [CatalogController::class, 'index'])
-    ->name('catalog.index');
-
-Route::get('/c/{empresa}/producto/{product}', [CatalogController::class, 'show'])
-    ->name('catalog.show');
-
-    Route::get('/empresa/products/search', [\App\Http\Controllers\Empresa\ProductController::class, 'search'])
-    ->name('empresa.products.search');
+Route::get('/c/{empresa}', [CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/c/{empresa}/producto/{product}', [CatalogController::class, 'show'])->name('catalog.show');
 
 
-Route::post('/empresa/pos', [POSController::class, 'store'])->name('empresa.pos.store');
+/*
+|--------------------------------------------------------------------------
+| APIs INTERNAS
+|--------------------------------------------------------------------------
+*/
+Route::get('/empresa/products/search', [ProductController::class, 'search'])->name('empresa.products.search');
+Route::get('/empresa/dashboard/resumen', [EmpresaDashboardController::class, 'resumen'])->name('empresa.dashboard.resumen');
 
-Route::get('/empresa/dashboard/resumen', [DashboardController::class, 'resumen'])
-    ->name('empresa.dashboard.resumen');
 
-    Route::post('/empresa/pos/checkout', [POSController::class, 'store'])
-    ->name('empresa.pos.checkout');
+/*
+|--------------------------------------------------------------------------
+| CAMBIO DE CONTRASEÑA
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+
+    Route::get('/password', fn () => view('auth.passwords.change'))->name('password.edit');
+    Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
+});

@@ -21,7 +21,14 @@ class EmpresaActivaMiddleware
         }
 
         // -------------------------------------------------
-        // Buscar empresa directamente por ID (más seguro)
+        // El usuario debe tener empresa asignada
+        // -------------------------------------------------
+        if (!$user->empresa_id) {
+            abort(403, 'USUARIO SIN EMPRESA');
+        }
+
+        // -------------------------------------------------
+        // Buscar empresa por ID
         // -------------------------------------------------
         $empresa = Empresa::find($user->empresa_id);
 
@@ -30,7 +37,7 @@ class EmpresaActivaMiddleware
         }
 
         // -------------------------------------------------
-        // Empresa desactivada
+        // Empresa inactiva
         // -------------------------------------------------
         if ((int) $empresa->activo !== 1) {
             abort(403, 'EMPRESA INACTIVA');
@@ -43,6 +50,9 @@ class EmpresaActivaMiddleware
             abort(403, 'EMPRESA VENCIDA');
         }
 
+        // -------------------------------------------------
+        // OK → dejar pasar
+        // -------------------------------------------------
         return $next($request);
     }
 }

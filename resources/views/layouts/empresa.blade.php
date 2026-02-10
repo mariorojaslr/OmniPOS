@@ -13,24 +13,35 @@
         rel="stylesheet"
     >
 
-    {{-- Estilos específicos de cada vista --}}
+    {{-- Estilos específicos --}}
     @stack('styles')
 </head>
 
 <body class="bg-light">
 
 {{-- ======================================================
-    NAVBAR · EMPRESA
+    NAVBAR · EMPRESA / USUARIO
 ====================================================== --}}
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm border-bottom">
+<nav class="navbar navbar-expand-lg shadow-sm border-bottom
+@if(auth()->user()->role === 'usuario')
+    navbar-dark bg-primary
+@else
+    navbar-light bg-white
+@endif
+">
+
     <div class="container-fluid px-4">
 
-        {{-- Logo --}}
-        <a class="navbar-brand fw-bold" href="{{ route('empresa.dashboard') }}">
+        {{-- LOGO --}}
+        <a class="navbar-brand fw-bold
+        @if(auth()->user()->role !== 'usuario') text-dark @else text-white @endif"
+           href="{{ auth()->user()->role === 'usuario'
+                    ? route('empresa.usuario.dashboard')
+                    : route('empresa.dashboard') }}">
             MultiPOS
         </a>
 
-        {{-- Botón mobile --}}
+        {{-- BOTÓN MOBILE --}}
         <button class="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
@@ -45,15 +56,21 @@
             ====================== --}}
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
+                {{-- DASHBOARD --}}
                 <li class="nav-item">
-                    <a class="nav-link"
-                       href="{{ route('empresa.dashboard') }}">
+                    <a class="nav-link
+                    @if(auth()->user()->role !== 'usuario') text-dark @else text-white @endif"
+                       href="{{ auth()->user()->role === 'usuario'
+                                ? route('empresa.usuario.dashboard')
+                                : route('empresa.dashboard') }}">
                         Dashboard
                     </a>
                 </li>
 
+                {{-- PRODUCTOS --}}
                 <li class="nav-item">
-                    <a class="nav-link"
+                    <a class="nav-link
+                    @if(auth()->user()->role !== 'usuario') text-dark @else text-white @endif"
                        href="{{ route('empresa.products.index') }}">
                         Productos
                     </a>
@@ -61,7 +78,8 @@
 
                 {{-- CATÁLOGO --}}
                 <li class="nav-item">
-                    <a class="nav-link"
+                    <a class="nav-link
+                    @if(auth()->user()->role !== 'usuario') text-dark @else text-white @endif"
                        href="{{ route('empresa.catalogo.index') }}">
                         Catálogo
                     </a>
@@ -69,7 +87,8 @@
 
                 {{-- POS --}}
                 <li class="nav-item">
-                    <a class="nav-link fw-semibold"
+                    <a class="nav-link fw-semibold
+                    @if(auth()->user()->role !== 'usuario') text-dark @else text-white @endif"
                        href="{{ route('empresa.pos.index') }}">
                         POS
                     </a>
@@ -78,31 +97,70 @@
             </ul>
 
             {{-- ======================
-                USUARIO
+                USUARIO / SEGURIDAD
             ====================== --}}
             <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle"
+
+                <button class="btn
+                @if(auth()->user()->role === 'usuario')
+                    btn-light
+                @else
+                    btn-outline-secondary
+                @endif
+                dropdown-toggle"
                         data-bs-toggle="dropdown">
                     {{ auth()->user()->name }}
                 </button>
 
                 <ul class="dropdown-menu dropdown-menu-end">
+
+                    {{-- PANEL --}}
+                    @if(auth()->user()->role === 'usuario')
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ route('empresa.usuario.dashboard') }}">
+                                Mi panel usuario
+                            </a>
+                        </li>
+                    @else
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ route('empresa.dashboard') }}">
+                                Panel empresa
+                            </a>
+                        </li>
+
+                        {{-- ⚙️ CONFIGURACIÓN (CORREGIDO) --}}
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ route('empresa.configuracion.index') }}">
+                                ⚙️ Configuración
+                            </a>
+                        </li>
+                    @endif
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    {{-- CAMBIAR CONTRASEÑA --}}
                     <li>
-                        <span class="dropdown-item-text text-muted">
-                            Empresa
-                        </span>
+                        <a class="dropdown-item"
+                           href="{{ route('password.edit') }}">
+                            Cambiar contraseña
+                        </a>
                     </li>
 
                     <li><hr class="dropdown-divider"></li>
 
+                    {{-- LOGOUT --}}
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button class="dropdown-item">
+                            <button class="dropdown-item text-danger">
                                 Cerrar sesión
                             </button>
                         </form>
                     </li>
+
                 </ul>
             </div>
 
@@ -111,7 +169,7 @@
 </nav>
 
 {{-- ======================================================
-    CONTENIDO PRINCIPAL
+    CONTENIDO
 ====================================================== --}}
 <main class="container-fluid px-4 py-4">
     @yield('content')
@@ -122,7 +180,7 @@
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
 
-{{-- Scripts específicos de cada vista --}}
+{{-- Scripts --}}
 @stack('scripts')
 
 </body>
