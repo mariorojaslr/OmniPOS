@@ -1,53 +1,56 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Panel de Empresa
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-10">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+@section('content')
 
-            <div class="bg-white shadow-sm rounded-lg p-6">
+<div class="mb-4">
+    <h1 class="fw-bold text-primary">
+        {{ auth()->user()->empresa->nombre_comercial ?? 'Panel Empresa' }}
+    </h1>
+    <p class="text-muted mb-0">Panel de control de la empresa</p>
+</div>
 
-                <h3 class="text-lg font-bold mb-6">Módulos del Sistema</h3>
+<div class="row g-3">
 
-                <div style="display:flex; gap:15px; flex-wrap:wrap;">
-
-                    <!-- POS -->
-                    <a href="/empresa/pos"
-                       style="padding:14px 20px; background:#0d6efd; color:white; text-decoration:none; border-radius:8px; font-weight:bold;">
-                        🧾 POS
-                    </a>
-
-                    <!-- Productos -->
-                    <a href="/empresa/products"
-                       style="padding:14px 20px; background:#6f42c1; color:white; text-decoration:none; border-radius:8px; font-weight:bold;">
-                        📦 Productos
-                    </a>
-
-                    <!-- Ventas -->
-                    <a href="/ventas"
-                       style="padding:14px 20px; background:#fd7e14; color:white; text-decoration:none; border-radius:8px; font-weight:bold;">
-                        💰 Ventas
-                    </a>
-
-                    <!-- Usuarios -->
-                    <a href="/usuarios"
-                       style="padding:14px 20px; background:#20c997; color:white; text-decoration:none; border-radius:8px; font-weight:bold;">
-                        👤 Usuarios
-                    </a>
-
-                    <!-- REPORTES -->
-                    <a href="{{ route('reportes.empresa') }}"
-                       style="padding:14px 20px; background:#198754; color:white; text-decoration:none; border-radius:8px; font-weight:bold;">
-                        📊 Reportes Empresa
-                    </a>
-
-                </div>
-
+    <!-- POS -->
+    <div class="col-md-3">
+        <a href="{{ route('empresa.pos.index') }}" class="text-decoration-none">
+            <div class="card shadow-sm border-0 h-100 text-center p-3">
+                <h5>🧾 POS</h5>
+                <small class="text-muted">Ventas en tiempo real</small>
             </div>
-
-        </div>
+        </a>
     </div>
-</x-app-layout>
+
+    <!-- PRODUCTOS -->
+    <div class="col-md-3">
+        <a href="{{ route('empresa.products.index') }}" class="text-decoration-none">
+            <div class="card shadow-sm border-0 h-100 text-center p-3">
+                <h5>📦 Productos</h5>
+                <small class="text-muted">Gestión de catálogo</small>
+            </div>
+        </a>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="col-md-3">
+        <a href="{{ route('empresa.clientes.index') }}" class="text-decoration-none">
+            <div class="card shadow-sm border-0 h-100 text-center p-3">
+                <h5>👥 Clientes</h5>
+                <small class="text-muted">Cuentas corrientes</small>
+            </div>
+        </a>
+    </div>
+
+    <!-- REPORTES -->
+    <div class="col-md-3">
+        <a href="{{ route('empresa.reportes.panel') }}" class="text-decoration-none">
+            <div class="card shadow-sm border-0 h-100 text-center p-3">
+                <h5>📊 Reportes</h5>
+                <small class="text-muted">Estadísticas</small>
+            </div>
+        </a>
+    </div>
+
+</div>
+
+@endsection

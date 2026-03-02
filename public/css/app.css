@@ -1,0 +1,133 @@
+/* ======================================================
+   MULTIPOS — BRANDING GLOBAL
+====================================================== */
+
+:root {
+    --color-primario: #2e7d32;
+    --color-secundario: #1976d2;
+    --color-exito: #28a745;
+    --color-alerta: #ffc107;
+    --color-error: #dc3545;
+}
+
+
+/* ================= LOGOS ================= */
+
+.logo-navbar {
+    height: 32px;
+    margin-right: 8px;
+}
+
+
+/* ================= TARJETAS ================= */
+
+.card-soft {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+
+/* ================= NOTIFICACIONES ================= */
+
+.toast {
+    border-radius: 8px;
+}
+
+
+/* ================= FUTURO (función no implementada) ================= */
+
+.card-futuro {
+    background: #ffe6f0;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+
+/* ================= ANIMACIONES SUAVES ================= */
+
+.fade-soft {
+    animation: fadeSoft 0.25s ease;
+}
+
+@keyframes fadeSoft {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ================= EFECTOS HOVER ================= */
+
+.mp-modal-box:hover {
+    transform: scale(1.02);
+}
+
+.fila-blanca td {
+    background-color: #ffffff;
+}
+
+.fila-celeste td {
+    background-color: #eef6ff;
+}
+
+.cliente-row:hover td {
+    background-color: #e2efff;
+}
+
+
+/* =========================================================
+   DARK MODE (PARALELO — NO ACTIVO POR DEFECTO)
+   Se activa agregando class="dark-mode" al <body>
+========================================================= */
+
+.dark-mode {
+    background: #000;
+    color: #fff;
+}
+
+.dark-mode .navbar {
+    background: #000;
+    border-top: 3px solid #fff;
+}
+
+.dark-mode .card {
+    background: #111;
+    color: #fff;
+}
+
+.dark-mode .table {
+    color: #fff;
+    background: #111;
+}
+
+.dark-mode .table thead {
+    background: #000;
+    color: #fff;
+}
+
+.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+    background: #111;
+}
+
+.dark-mode .table-striped tbody tr:nth-of-type(even) {
+    background: #000;
+}
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+}
+
+.dark-mode .dropdown-menu {
+    background: #111;
+    color: #fff;
+}

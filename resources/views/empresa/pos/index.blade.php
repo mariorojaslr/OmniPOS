@@ -19,6 +19,11 @@
 .qty-box input{width:38px;text-align:center;font-size:12px;padding:2px}
 
 .trash-btn{border:1px solid #dc3545;color:#dc3545;background:none;font-size:12px;padding:2px 6px}
+
+.falta{color:#dc3545;font-weight:bold}
+.vuelto{color:#198754;font-weight:bold}
+.saldo{color:#333;font-weight:bold}
+.highlight{background:yellow;font-weight:bold}
 </style>
 
 <div class="row">
@@ -61,7 +66,7 @@
 
 </div>
 
-{{-- MODAL --}}
+{{-- ================= MODAL COBRAR ================= --}}
 <div class="modal fade" id="modalCobrar">
 <div class="modal-dialog modal-dialog-centered modal-lg">
 <div class="modal-content">
@@ -76,6 +81,27 @@
 <strong>Total a cobrar</strong>
 <h2 class="text-success">$ <span id="modalTotal">0.00</span></h2>
 
+<hr>
+
+<div class="mb-3">
+<label class="form-label"><strong>Cliente</strong></label>
+<div class="d-flex justify-content-between align-items-center border rounded p-2" style="background:#f8f9fa">
+<span id="clienteNombre">Consumidor Final</span>
+<button type="button" class="btn btn-sm btn-outline-primary" id="btnBuscarCliente">
+Clientes
+</button>
+</div>
+<input type="hidden" id="cliente_id" value="">
+</div>
+
+<div class="mb-3" id="tipoVentaClienteBox" style="display:none">
+<label class="form-label"><strong>Tipo de venta</strong></label>
+<select id="tipoVentaCliente" class="form-select">
+<option value="contado">Contado</option>
+<option value="cuenta_corriente">Cuenta corriente</option>
+</select>
+</div>
+
 <div class="mb-3">
 <label>Método de pago</label>
 <select id="metodoPago" class="form-select">
@@ -88,11 +114,19 @@
 
 <div class="mb-3">
 <label>Monto recibido</label>
-<input type="text" id="montoPagado" class="form-control" placeholder="Ej: 2x10000 + 5x2000">
-<small class="text-muted">Podés usar: + - x * / (ej: 3x1000 + 2x500)</small>
+<input type="text" id="montoPagado" class="form-control">
+<small class="text-muted">Podés usar: 3x1000 + 2x500</small>
+
+<div class="mt-2 text-primary fw-bold">
+Resultado parcial: $ <span id="resultadoParcial">0</span>
+</div>
 </div>
 
-<strong>Vuelto: $ <span id="vuelto">0.00</span></strong>
+<h4 id="resultadoPago" class="saldo">SALDO 0</h4>
+
+<h4 id="vueltoBox" class="vuelto" style="display:none">
+VUELTO: $ <span id="vueltoValor">0</span>
+</h4>
 
 </div>
 
@@ -105,14 +139,52 @@
 </div>
 </div>
 
+{{-- ================= MODAL CLIENTES ================= --}}
+<div class="modal fade" id="modalBuscarCliente">
+<div class="modal-dialog modal-xl modal-dialog-centered">
+<div class="modal-content">
+
+<div class="modal-header bg-primary text-white">
+<h5 class="modal-title">Seleccionar cliente</h5>
+<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+
+<input type="text" id="buscarClienteInput" class="form-control mb-3"
+placeholder="Buscar por nombre, documento, CUIT o teléfono...">
+
+<div style="max-height:400px;overflow:auto">
+<table class="table table-hover table-bordered">
+<thead class="table-light">
+<tr>
+<th>Nombre</th>
+<th>Documento</th>
+<th>CUIT</th>
+<th>Teléfono</th>
+</tr>
+</thead>
+<tbody id="tablaClientes"></tbody>
+</table>
+</div>
+
+</div>
+
+</div>
+</div>
+</div>
+
 @push('scripts')
 <script>
 
 const products = {!! json_encode($productsData) !!};
+const clientes = {!! json_encode($clientesData ?? []) !!};
 
 let cart={},cols=4,rows=3;
+
 const grid=document.getElementById('productGrid');
 const modalCobrar=new bootstrap.Modal(document.getElementById('modalCobrar'));
+const modalBuscarCliente=new bootstrap.Modal(document.getElementById('modalBuscarCliente'));
 
 /* ================= PRODUCTOS ================= */
 
@@ -126,7 +198,11 @@ if(q)filtered=products.filter(p=>p.name.toLowerCase().includes(q));
 filtered.slice(0,cols*rows).forEach(p=>{
 const card=document.createElement('div');
 card.className='card product-card';
-card.innerHTML=`<img src="${p.img}"><div class="card-body text-center"><strong>${p.name}</strong><div class="text-success">$${p.price}</div></div>`;
+card.innerHTML=`<img src="${p.img}">
+<div class="card-body text-center">
+<strong>${p.name}</strong>
+<div class="text-success">$${p.price}</div>
+</div>`;
 card.onclick=()=>addToCart(p);
 grid.appendChild(card);
 });
@@ -139,15 +215,17 @@ document.getElementById('search').oninput=renderProducts;
 /* ================= CARRITO ================= */
 
 function addToCart(p){
-if(!cart[p.id])cart[p.id]={...p,qty:1};else cart[p.id].qty++;
+if(!cart[p.id]) cart[p.id]={...p,qty:1};
+else cart[p.id].qty++;
 renderCart();
 }
 
 function renderCart(){
 let html='',total=0,i=1;
 Object.values(cart).forEach(p=>{
-const sub=p.qty*p.price;total+=sub;
-html+=`<div class="venta-row">
+const sub=p.qty*p.price; total+=sub;
+html+=`
+<div class="venta-row">
 <div>${i++}</div>
 <div>${p.name}</div>
 <div class="qty-box">
@@ -180,60 +258,150 @@ return Function('"use strict";return ('+expr+')')();
 
 document.getElementById('montoPagado').oninput=()=>{
 const pagado=evaluarExpresion(document.getElementById('montoPagado').value);
+document.getElementById('resultadoParcial').innerText=pagado.toLocaleString();
 const total=parseFloat(document.getElementById('modalTotal').innerText)||0;
-document.getElementById('vuelto').innerText=Math.max(0,pagado-total).toFixed(2);
+const diff=pagado-total;
+const res=document.getElementById('resultadoPago');
+
+if(diff<0){
+res.className='falta';
+res.innerText='FALTA $ '+Math.abs(diff).toLocaleString();
+document.getElementById('vueltoBox').style.display='none';
+}
+else if(diff>0){
+res.className='saldo';
+res.innerText='SALDO 0';
+document.getElementById('vueltoBox').style.display='block';
+document.getElementById('vueltoValor').innerText=diff.toLocaleString();
+}
+else{
+res.className='saldo';
+res.innerText='SALDO 0';
+document.getElementById('vueltoBox').style.display='none';
+}
 };
+
+/* ================= CLIENTES ================= */
+
+document.getElementById('btnBuscarCliente').onclick=()=>{
+renderTablaClientes();
+modalBuscarCliente.show();
+};
+
+
+/* ============= ESTO ES LO QUE CAMBIE YO INICIO  =========== */
+
+function renderTablaClientes(){
+const q=document.getElementById('buscarClienteInput').value?.toLowerCase()||'';
+const tbody=document.getElementById('tablaClientes');
+tbody.innerHTML='';
+
+clientes.forEach(c=>{
+
+let datos=[
+c.name??'',
+c.document??'',   // ESTE ES EL CUIT
+c.phone??''
+];
+
+let coincide=datos.some(d=>d.toLowerCase().includes(q));
+if(q && !coincide) return;
+
+let fila=document.createElement('tr');
+fila.style.cursor='pointer';
+
+fila.innerHTML=`
+<td>${resaltar(c.name??'',q)}</td>
+<td>${resaltar(c.document??'',q)}</td>
+<td>${resaltar(c.phone??'',q)}</td>
+`;
+
+fila.onclick=()=>{
+document.getElementById('cliente_id').value=c.id;
+document.getElementById('clienteNombre').innerText=c.name;
+document.getElementById('tipoVentaClienteBox').style.display='block';
+modalBuscarCliente.hide();
+};
+
+tbody.appendChild(fila);
+});
+}
+
+/* ============= ESTO ES LO QUE CAMBIE YO FINAL  =========== */
+
+
+function resaltar(texto,busqueda){
+if(!busqueda)return texto;
+let regex=new RegExp(`(${busqueda})`,'gi');
+return texto.replace(regex,'<span class="highlight">$1</span>');
+}
+
+document.getElementById('buscarClienteInput').oninput=renderTablaClientes;
 
 /* ================= COBRAR ================= */
 
 document.getElementById('checkout').onclick=()=>{
 if(!Object.keys(cart).length)return alert('Carrito vacío');
 document.getElementById('modalTotal').innerText=document.getElementById('total').innerText;
-document.getElementById('montoPagado').value='';
-document.getElementById('vuelto').innerText='0.00';
 modalCobrar.show();
 };
 
-document.getElementById('confirmarVenta').onclick=()=>{
+/* ================= CONFIRMAR VENTA ================= */
 
-const items=Object.values(cart).map(p=>{
-const subtotal=p.qty*p.price;
-const iva=subtotal*0.21;
-const total=subtotal+iva;
-return{product_id:p.id,cantidad:p.qty,precio:p.price,subtotal_sin_iva:subtotal,iva,total};
+document.getElementById('confirmarVenta').onclick = async function(){
+
+if(!Object.keys(cart).length){
+alert('Carrito vacío');
+return;
+}
+
+const total = parseFloat(document.getElementById('modalTotal').innerText) || 0;
+const pagado = evaluarExpresion(document.getElementById('montoPagado').value);
+
+if(pagado < total){
+alert('Pago insuficiente');
+return;
+}
+
+const items = Object.values(cart).map(p => ({
+product_id: p.id,
+cantidad: p.qty
+}));
+
+const response = await fetch("{{ route('empresa.pos.checkout') }}", {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'X-CSRF-TOKEN': '{{ csrf_token() }}'
+},
+body: JSON.stringify({
+items: items,
+cliente_id: document.getElementById('cliente_id').value || null,
+tipo_venta_cliente: document.getElementById('tipoVentaCliente').value,
+metodo_pago: document.getElementById('metodoPago').value
+})
 });
 
-const totalSinIva=items.reduce((s,i)=>s+i.subtotal_sin_iva,0);
-const totalIva=items.reduce((s,i)=>s+i.iva,0);
-const totalConIva=items.reduce((s,i)=>s+i.total,0);
+const data = await response.json();
 
-const montoPagado=evaluarExpresion(document.getElementById('montoPagado').value);
-const vuelto=Math.max(0,montoPagado-totalConIva);
+if(!data.ok){
+alert('Error al guardar venta');
+return;
+}
 
-fetch("{{ url('/empresa/pos/checkout') }}",{
-method:'POST',
-headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
-body:JSON.stringify({
-items,
-total_sin_iva:totalSinIva,
-total_iva:totalIva,
-total_con_iva:totalConIva,
-metodo_pago:document.getElementById('metodoPago').value,
-monto_pagado:montoPagado,
-vuelto
-})
-})
-.then(r=>r.json())
-.then(r=>{
-if(!r.ok){alert('ERROR AL GUARDAR');return;}
 modalCobrar.hide();
-cart={};
+cart = {};
 renderCart();
-const flash=document.getElementById('ventaFlash');
-flash.style.display='block';
-setTimeout(()=>flash.style.display='none',1200);
-})
-.catch(()=>alert('Error conexión'));
+
+const flash = document.getElementById('ventaFlash');
+flash.style.display = 'block';
+setTimeout(()=> flash.style.display='none',1500);
+
+document.getElementById('montoPagado').value='';
+document.getElementById('cliente_id').value='';
+document.getElementById('clienteNombre').innerText='Consumidor Final';
+document.getElementById('tipoVentaClienteBox').style.display='none';
+
 };
 
 renderProducts();

@@ -10,7 +10,15 @@ class OwnerMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || auth()->user()->empresa_id !== null) {
+        // Verificar autenticación
+        if (!auth()->check()) {
+            abort(403, 'Usuario no autenticado');
+        }
+
+        $user = auth()->user();
+
+        // Verificar rol OWNER (case insensitive)
+        if (!isset($user->role) || strtolower($user->role) !== 'owner') {
             abort(403, 'Acceso solo para Owner');
         }
 

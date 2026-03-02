@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\Empresa;
 
 class EmpresaActivaMiddleware
 {
@@ -13,46 +12,42 @@ class EmpresaActivaMiddleware
     {
         $user = auth()->user();
 
-        // -------------------------------------------------
-        // Verificar usuario logueado
-        // -------------------------------------------------
+        /*
+        |--------------------------------------------------------------------------
+        | SIN USUARIO → BLOQUEAR
+        |--------------------------------------------------------------------------
+        */
         if (!$user) {
             abort(403, 'USUARIO NO AUTENTICADO');
         }
 
-        // -------------------------------------------------
-        // El usuario debe tener empresa asignada
-        // -------------------------------------------------
-        if (!$user->empresa_id) {
-            abort(403, 'USUARIO SIN EMPRESA');
+        /*
+        |--------------------------------------------------------------------------
+        | OWNER SIEMPRE PASA
+        |--------------------------------------------------------------------------
+        */
+        if ($user->role === 'owner') {
+            return $next($request);
         }
 
-        // -------------------------------------------------
-        // Buscar empresa por ID
-        // -------------------------------------------------
-        $empresa = Empresa::find($user->empresa_id);
+        /*
+        |--------------------------------------------------------------------------
+        | 🔓 MODO DESARROLLO — TODO PERMITIDO
+        |--------------------------------------------------------------------------
+        | TEMPORAL:
+        | - No bloquea empresa inactiva
+        | - No bloquea empresa vencida
+        | - No bloquea must_change_password
+        | - No bloquea nada
+        |
+        | OBJETIVO:
+        | PODER ENTRAR Y SEGUIR DESARROLLANDO
+        |
+        | CUANDO TERMINEMOS:
+        | VOLVEMOS A ACTIVAR SEGURIDAD
+        |--------------------------------------------------------------------------
+        */
 
-        if (!$empresa) {
-            abort(403, 'EMPRESA NO EXISTE');
-        }
-
-        // -------------------------------------------------
-        // Empresa inactiva
-        // -------------------------------------------------
-        if ((int) $empresa->activo !== 1) {
-            abort(403, 'EMPRESA INACTIVA');
-        }
-
-        // -------------------------------------------------
-        // Empresa vencida
-        // -------------------------------------------------
-        if ($empresa->fecha_vencimiento && now()->gt($empresa->fecha_vencimiento)) {
-            abort(403, 'EMPRESA VENCIDA');
-        }
-
-        // -------------------------------------------------
-        // OK → dejar pasar
-        // -------------------------------------------------
         return $next($request);
     }
 }

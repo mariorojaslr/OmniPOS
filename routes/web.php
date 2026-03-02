@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -9,12 +10,12 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 
-// OWNER
+// ================= OWNER =================
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboardController;
 use App\Http\Controllers\Owner\EmpresaController;
 use App\Http\Controllers\Owner\EmpresaUserController;
 
-// EMPRESA
+// ================= EMPRESA =================
 use App\Http\Controllers\Empresa\DashboardController as EmpresaDashboardController;
 use App\Http\Controllers\Empresa\ProductController;
 use App\Http\Controllers\Empresa\ProductImageController;
@@ -24,11 +25,15 @@ use App\Http\Controllers\Empresa\UsuarioDashboardController;
 use App\Http\Controllers\Empresa\UsuarioController;
 use App\Http\Controllers\Empresa\ReporteController;
 use App\Http\Controllers\Empresa\ConfiguracionEmpresaController;
+use App\Http\Controllers\Empresa\StockController;
+use App\Http\Controllers\Empresa\ClientController;
+use App\Http\Controllers\Empresa\SupplierController;
+use App\Http\Controllers\Empresa\PurchaseController;   // 👈 agregado limpio
 
-// AUTH
+// ================= AUTH =================
 use App\Http\Controllers\Auth\PasswordController;
 
-// CATÁLOGO
+// ================= CATÁLOGO =================
 use App\Http\Controllers\CatalogController;
 
 
@@ -42,7 +47,7 @@ Route::get('/', fn () => redirect()->route('login'));
 
 /*
 |--------------------------------------------------------------------------
-| AUTH BREEZE
+| AUTH (BREEZE)
 |--------------------------------------------------------------------------
 */
 require __DIR__.'/auth.php';
@@ -61,16 +66,7 @@ Route::middleware('auth')->get('/dashboard', function () {
         return redirect()->route('owner.dashboard');
     }
 
-    if ($user->role === 'empresa') {
-        return redirect()->route('empresa.dashboard');
-    }
-
-    if ($user->role === 'usuario') {
-        return redirect()->route('empresa.usuario.dashboard');
-    }
-
-    Auth::logout();
-    abort(403);
+    return redirect()->route('empresa.dashboard');
 
 })->name('dashboard');
 
@@ -80,12 +76,14 @@ Route::middleware('auth')->get('/dashboard', function () {
 | OWNER
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'owner'])
+Route::middleware(['auth'])
     ->prefix('owner')
     ->name('owner.')
     ->group(function () {
 
-        Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [OwnerDashboardController::class, 'index'])
+            ->name('dashboard')
+            ->middleware('can:isOwner');
 
         Route::resource('empresas', EmpresaController::class)->except(['show']);
 
@@ -122,14 +120,59 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         /*
         |--------------------------------------------------------------------------
-        | CONFIGURACIÓN EMPRESA (LOGO + COLORES + TEMA)
+        | CLIENTES
         |--------------------------------------------------------------------------
         */
-        Route::get('/configuracion', [ConfiguracionEmpresaController::class, 'index'])
-            ->name('configuracion.index');
+        Route::resource('clientes', ClientController::class)->except(['destroy']);
 
-        Route::post('/configuracion', [ConfiguracionEmpresaController::class, 'save'])
-            ->name('configuracion.save');
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROVEEDORES
+        |--------------------------------------------------------------------------
+        */
+        Route::resource('proveedores', SupplierController::class)->except(['destroy']);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | COMPRAS
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/compras', [PurchaseController::class, 'index'])->name('compras.index');
+        Route::get('/compras/create', [PurchaseController::class, 'create'])->name('compras.create');
+        Route::post('/compras', [PurchaseController::class, 'store'])->name('compras.store');
+        Route::get('/compras/{purchase}', [PurchaseController::class, 'show'])->name('compras.show');
+        Route::delete('/compras/{purchase}', [PurchaseController::class, 'destroy'])->name('compras.destroy');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONFIGURACIÓN EMPRESA
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/configuracion', [ConfiguracionEmpresaController::class, 'index'])->name('configuracion.index');
+        Route::post('/configuracion', [ConfiguracionEmpresaController::class, 'save'])->name('configuracion.save');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KARDEX
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/stock/kardex/{product}', [StockController::class, 'kardex'])->name('stock.kardex');
+        Route::get('/stock/kardex/{product}/pdf', [StockController::class, 'exportPdf'])->name('stock.kardex.pdf');
+        Route::get('/stock/kardex/{product}/excel', [StockController::class, 'exportExcel'])->name('stock.kardex.excel');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
+        Route::patch('/stock/{product}', [StockController::class, 'update'])->name('stock.update');
+        Route::post('/stock/config/{product}', [StockController::class, 'config'])->name('stock.config');
 
 
         /*
@@ -140,10 +183,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::get('/usuarios/create', [UsuarioController::class, 'create'])->name('usuarios.create');
         Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
-
         Route::patch('/usuarios/{user}/toggle', [UsuarioController::class, 'toggle'])->name('usuarios.toggle');
         Route::patch('/usuarios/{user}/reset-password', [UsuarioController::class, 'resetPassword'])->name('usuarios.reset');
-
         Route::get('/usuarios/{usuario}/desempeno', [UsuarioController::class, 'desempeno'])->name('usuarios.desempeno');
 
 
@@ -157,7 +198,6 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/reportes/ranking-clientes', [ReporteController::class, 'rankingClientes'])->name('reportes.clientes');
         Route::get('/reportes/ventas-fecha', [ReporteController::class, 'ventasPorFecha'])->name('reportes.ventas_fecha');
         Route::get('/reportes/empresa', [ReporteController::class, 'empresa'])->name('reportes.empresa');
-
         Route::get('/reportes/export/pdf', [ReporteController::class, 'exportPdf'])->name('reportes.export.pdf');
         Route::get('/reportes/export/excel', [ReporteController::class, 'exportExcel'])->name('reportes.export.excel');
 
@@ -167,8 +207,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         | CATÁLOGO INTERNO
         |--------------------------------------------------------------------------
         */
-        Route::get('/catalogo', fn () => redirect()->route('empresa.products.index'))
-            ->name('catalogo.index');
+        Route::get('/catalogo', fn () => redirect()->route('empresa.products.index'))->name('catalogo.index');
 
 
         /*
@@ -186,7 +225,6 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         |--------------------------------------------------------------------------
         */
         Route::resource('products', ProductController::class)->except(['show', 'destroy']);
-
         Route::get('products/{product}/images/create', [ProductImageController::class, 'create'])->name('products.images.create');
         Route::post('products/{product}/images', [ProductImageController::class, 'store'])->name('products.images.store');
         Route::delete('products/{product}/images/{image}', [ProductImageController::class, 'destroy'])->name('products.images.destroy');
@@ -213,11 +251,13 @@ Route::get('/c/{empresa}/producto/{product}', [CatalogController::class, 'show']
 
 /*
 |--------------------------------------------------------------------------
-| APIs INTERNAS
+| API DASHBOARD RESUMEN
 |--------------------------------------------------------------------------
 */
-Route::get('/empresa/products/search', [ProductController::class, 'search'])->name('empresa.products.search');
-Route::get('/empresa/dashboard/resumen', [EmpresaDashboardController::class, 'resumen'])->name('empresa.dashboard.resumen');
+Route::middleware('auth')->get(
+    '/empresa/dashboard/resumen',
+    [EmpresaDashboardController::class, 'resumen']
+)->name('empresa.dashboard.resumen');
 
 
 /*
@@ -226,7 +266,19 @@ Route::get('/empresa/dashboard/resumen', [EmpresaDashboardController::class, 're
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
-
     Route::get('/password', fn () => view('auth.passwords.change'))->name('password.edit');
     Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| LOGOUT UNIVERSAL
+|--------------------------------------------------------------------------
+*/
+Route::get('/logout', function (Request $request) {
+    Auth::guard('web')->logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect()->route('login');
+})->name('logout.get');

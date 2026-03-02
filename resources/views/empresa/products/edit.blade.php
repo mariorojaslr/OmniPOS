@@ -20,6 +20,11 @@
                 @csrf
                 @method('PUT')
 
+                {{-- 🔁 Mantener URL de retorno (Inventario o Productos) --}}
+                @if(request('return'))
+                    <input type="hidden" name="return" value="{{ request('return') }}">
+                @endif
+
                 {{-- Nombre --}}
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Nombre del producto</label>
@@ -64,10 +69,19 @@
 
                 {{-- Acciones --}}
                 <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{{ route('empresa.products.index') }}"
-                       class="btn btn-outline-secondary">
-                        Cancelar
-                    </a>
+
+                    {{-- Cancelar vuelve al origen si existe --}}
+                    @if(request('return'))
+                        <a href="{{ request('return') }}"
+                           class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                    @else
+                        <a href="{{ route('empresa.products.index') }}"
+                           class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                    @endif
 
                     <button class="btn btn-primary">
                         Guardar cambios

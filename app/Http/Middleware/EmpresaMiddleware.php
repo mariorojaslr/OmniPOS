@@ -11,20 +11,34 @@ class EmpresaMiddleware
     {
         $user = auth()->user();
 
+        // ❌ Sin login → prohibido
         if (!$user) {
-            abort(403);
+            abort(403, 'Usuario no autenticado');
         }
 
-        // OWNER no entra
+        /*
+        |--------------------------------------------------------------------------
+        | OWNER NO DEBE ENTRAR A ZONA EMPRESA
+        |--------------------------------------------------------------------------
+        */
         if ($user->role === 'owner') {
-            abort(403);
+            abort(403, 'Owner no puede entrar a zona empresa');
         }
 
-        // EMPRESA y USUARIO pueden usar TODO (sin perder funciones)
+        /*
+        |--------------------------------------------------------------------------
+        | EMPRESA Y USUARIO → OK
+        |--------------------------------------------------------------------------
+        */
         if (in_array($user->role, ['empresa', 'usuario'])) {
             return $next($request);
         }
 
-        abort(403);
+        /*
+        |--------------------------------------------------------------------------
+        | CUALQUIER OTRO CASO → BLOQUEADO
+        |--------------------------------------------------------------------------
+        */
+        abort(403, 'Acceso no permitido');
     }
 }

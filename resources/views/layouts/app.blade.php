@@ -3,162 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ config('app.name', 'MultiPOS') }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap 5 -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    @yield('styles')
 </head>
 
 <body class="bg-light">
 
-<!-- ===========================
-     NAVBAR SUPERIOR
-=========================== -->
+{{-- =========================================================
+   NAVBAR
+========================================================= --}}
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
     <div class="container">
 
-        <!-- LOGO -->
         <a class="navbar-brand fw-bold" href="{{ route('empresa.dashboard') }}">
             MultiPOS
         </a>
 
-        <!-- BOTÓN MOBILE -->
-        <button class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarMain">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <div class="ms-auto d-flex align-items-center gap-3">
 
-        <div class="collapse navbar-collapse" id="navbarMain">
+            @php $empresa = auth()->user()->empresa ?? null; @endphp
 
-            <!-- ===========================
-                 MENÚ IZQUIERDO
-            =========================== -->
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            @if($empresa)
+                <div class="small text-muted text-end">
+                    <div><strong>Empresa:</strong> {{ $empresa->nombre_comercial }}</div>
+                    <div><strong>Usuario:</strong> {{ auth()->user()->name }}</div>
+                </div>
+            @endif
 
-                @auth
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                    {{ auth()->user()->name }}
+                </button>
 
-                    {{-- ===========================
-                         USUARIO EMPRESA
-                    =========================== --}}
-                    @if(auth()->user()->isEmpresa())
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><span class="dropdown-item-text text-muted">{{ auth()->user()->role }}</span></li>
+                    <li><hr></li>
 
-                        <!-- Dashboard Empresa -->
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               href="{{ route('empresa.dashboard') }}">
-                                Dashboard
-                            </a>
-                        </li>
-
-                        <!-- Productos -->
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               href="{{ route('empresa.products.index') }}">
-                                Productos
-                            </a>
-                        </li>
-
-                       <!-- Catálogo -->
-<li class="nav-item">
-    <a class="nav-link"
-       href="{{ route('catalog.index', auth()->user()->empresa_id) }}"
-       target="_blank">
-        Catálogo
-    </a>
-</li>
-
-
-                        <!-- POS (ACTIVO) -->
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               href="{{ route('empresa.pos.index') }}">
-                                POS
-                            </a>
-                        </li>
-
-                    @endif
-
-                    {{-- ===========================
-                         USUARIO OWNER
-                    =========================== --}}
-                    @if(auth()->user()->isOwner())
-
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               href="{{ route('owner.dashboard') }}">
-                                Dashboard
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               href="{{ route('owner.empresas.index') }}">
-                                Empresas
-                            </a>
-                        </li>
-
-                    @endif
-
-                @endauth
-            </ul>
-
-            <!-- ===========================
-                 MENÚ USUARIO (DERECHA)
-            =========================== -->
-            <ul class="navbar-nav ms-auto">
-                @auth
-                    <li class="nav-item dropdown">
-
-                        <button class="btn btn-light dropdown-toggle"
-                                data-bs-toggle="dropdown">
-                            {{ auth()->user()->name }}
-                        </button>
-
-                        <ul class="dropdown-menu dropdown-menu-end">
-
-                            <!-- Tipo de usuario -->
-                            <li>
-                                <span class="dropdown-item-text text-muted">
-                                    {{ auth()->user()->isOwner() ? 'Owner' : 'Empresa' }}
-                                </span>
-                            </li>
-
-                            <li><hr class="dropdown-divider"></li>
-
-                            <!-- Logout -->
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button class="dropdown-item">
-                                        Cerrar sesión
-                                    </button>
-                                </form>
-                            </li>
-
-                        </ul>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('password.edit') }}">
+                            Cambiar contraseña
+                        </a>
                     </li>
-                @endauth
-            </ul>
+
+                    @if(auth()->user()->role === 'empresa')
+                    <li>
+                        <a class="dropdown-item" href="{{ route('empresa.configuracion.index') }}">
+                            Configuración empresa
+                        </a>
+                    </li>
+                    @endif
+
+                    <li><hr></li>
+
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="dropdown-item">Cerrar sesión</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
 
         </div>
     </div>
 </nav>
 
-<!-- ===========================
-     CONTENIDO PRINCIPAL
-=========================== -->
-<main class="container my-5">
+{{-- =========================================================
+   CONTENIDO
+========================================================= --}}
+<main class="container my-4">
     @yield('content')
 </main>
 
-<!-- Bootstrap JS -->
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+{{-- =========================================================
+   MODAL REAL · CAMBIO PASSWORD
+   ✔ Modal centrado
+   ✔ Una vez por día
+   ✔ SIN LABEL FIJO
+========================================================= --}}
+@auth
+@if(auth()->user()->must_change_password)
+
+<div class="modal fade" id="forcePasswordModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+
+            <div class="modal-body text-center p-4">
+
+                <h5 class="fw-bold mb-2">🔐 Seguridad requerida</h5>
+
+                <p class="text-muted mb-4">
+                    Debés cambiar tu contraseña para continuar usando el sistema.
+                </p>
+
+                <div class="d-flex gap-2 justify-content-center">
+
+                    <a href="{{ route('password.edit') }}" class="btn btn-primary">
+                        Cambiar contraseña
+                    </a>
+
+                    <button class="btn btn-outline-secondary" id="recordarBtn">
+                        Recordar luego
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const hoy = new Date().toISOString().slice(0,10);
+    const visto = localStorage.getItem('force_password_seen');
+
+    if (visto !== hoy) {
+        setTimeout(() => {
+            let modal = new bootstrap.Modal(document.getElementById('forcePasswordModal'));
+            modal.show();
+        }, 800);
+    }
+
+    document.getElementById('recordarBtn')?.addEventListener('click', function () {
+        localStorage.setItem('force_password_seen', hoy);
+        bootstrap.Modal.getInstance(document.getElementById('forcePasswordModal')).hide();
+    });
+
+});
 </script>
+
+@endif
+@endauth
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+@yield('scripts')
+@stack('scripts')
 
 </body>
 </html>

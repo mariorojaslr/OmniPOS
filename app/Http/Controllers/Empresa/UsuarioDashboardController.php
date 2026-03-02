@@ -10,51 +10,60 @@ class UsuarioDashboardController extends Controller
 {
     public function index()
     {
-        $user      = Auth::user();
+        // ================= USUARIO ACTUAL =================
+        $user = Auth::user();
+
+        // Seguridad: si no tiene empresa, bloquear acceso
+        if (!$user || !$user->empresa_id) {
+            abort(403);
+        }
+
         $empresaId = $user->empresa_id;
-        $userId    = $user->id;
 
         /*
         |--------------------------------------------------------------------------
-        | MIS VENTAS HOY
+        | IMPORTANTE
+        |--------------------------------------------------------------------------
+        | El sistema ahora usa SIEMPRE:
+        | ventas.total_con_iva
+        | (estructura nueva ya alineada en todas las bases)
         |--------------------------------------------------------------------------
         */
+
+        // ================= VENTAS HOY =================
         $ventasHoy = DB::table('ventas')
             ->where('empresa_id', $empresaId)
-            ->where('user_id', $userId)
+            ->where('user_id', $user->id)
             ->whereDate('created_at', today())
             ->sum('total_con_iva');
 
-        $cantidadHoy = DB::table('ventas')
+        $cantidadVentasHoy = DB::table('ventas')
             ->where('empresa_id', $empresaId)
-            ->where('user_id', $userId)
+            ->where('user_id', $user->id)
             ->whereDate('created_at', today())
             ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | MIS VENTAS MES
-        |--------------------------------------------------------------------------
-        */
+        // ================= VENTAS DEL MES =================
         $ventasMes = DB::table('ventas')
             ->where('empresa_id', $empresaId)
-            ->where('user_id', $userId)
+            ->where('user_id', $user->id)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->sum('total_con_iva');
 
-        $cantidadMes = DB::table('ventas')
+        $cantidadVentasMes = DB::table('ventas')
             ->where('empresa_id', $empresaId)
-            ->where('user_id', $userId)
+            ->where('user_id', $user->id)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
 
-        return view('empresa.usuario.dashboard', compact(
-            'ventasHoy',
-            'cantidadHoy',
-            'ventasMes',
-            'cantidadMes'
-        ));
+        // ================= RETORNAR VISTA =================
+        return view('empresa.usuario.dashboard', [
+            'ventasHoy' => (float) $ventasHoy,
+            'ventasMes' => (float) $ventasMes,
+            'cantidadVentasHoy' => $cantidadVentasHoy,
+            'cantidadVentasMes' => $cantidadVentasMes,
+        ]);
     }
 }

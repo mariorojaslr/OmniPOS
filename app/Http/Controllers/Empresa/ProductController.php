@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Auth;
 class ProductController extends Controller
 {
     /**
+     * =========================================================
      * LISTADO DE PRODUCTOS
+     * =========================================================
      */
     public function index(Request $request)
     {
@@ -23,7 +25,11 @@ class ProductController extends Controller
             $query->where('name', 'like', "%{$buscar}%");
         }
 
-        // Si es búsqueda en vivo (AJAX) → devolver JSON
+        /*
+        |---------------------------------------------------------
+        | BUSQUEDA AJAX (para buscadores en vivo)
+        |---------------------------------------------------------
+        */
         if ($request->ajax() || $request->get('ajax')) {
             return response()->json(
                 $query->orderBy('name')
@@ -32,6 +38,11 @@ class ProductController extends Controller
             );
         }
 
+        /*
+        |---------------------------------------------------------
+        | LISTADO PAGINADO NORMAL
+        |---------------------------------------------------------
+        */
         $products = $query
             ->orderBy('name')
             ->paginate(15)
@@ -41,12 +52,22 @@ class ProductController extends Controller
     }
 
 
+    /**
+     * =========================================================
+     * FORMULARIO CREAR PRODUCTO
+     * =========================================================
+     */
     public function create()
     {
         return view('empresa.products.create');
     }
 
 
+    /**
+     * =========================================================
+     * GUARDAR PRODUCTO
+     * =========================================================
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -61,11 +82,21 @@ class ProductController extends Controller
             'active'     => true,
         ]);
 
-        return redirect()->route('empresa.products.index')
+        /*
+        |---------------------------------------------------------
+        | VOLVER AL LUGAR DE ORIGEN
+        |---------------------------------------------------------
+        */
+        return redirect()->back()
             ->with('success', 'Producto creado correctamente');
     }
 
 
+    /**
+     * =========================================================
+     * EDITAR PRODUCTO
+     * =========================================================
+     */
     public function edit(Product $product)
     {
         if ($product->empresa_id !== Auth::user()->empresa_id) {
@@ -76,6 +107,11 @@ class ProductController extends Controller
     }
 
 
+    /**
+     * =========================================================
+     * ACTUALIZAR PRODUCTO
+     * =========================================================
+     */
     public function update(Request $request, Product $product)
     {
         if ($product->empresa_id !== Auth::user()->empresa_id) {
@@ -90,7 +126,12 @@ class ProductController extends Controller
 
         $product->update($request->only('name', 'price', 'active'));
 
-        return redirect()->route('empresa.products.index')
+        /*
+        |---------------------------------------------------------
+        | VOLVER AL LUGAR DE ORIGEN (Inventario o Productos)
+        |---------------------------------------------------------
+        */
+        return redirect()->back()
             ->with('success', 'Producto actualizado');
     }
 }

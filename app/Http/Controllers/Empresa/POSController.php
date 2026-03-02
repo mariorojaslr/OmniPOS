@@ -5,107 +5,188 @@ namespace App\Http\Controllers\Empresa;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product;
+use App\Models\Client;
+use App\Services\VentaService;
 
 class POSController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | PANTALLA PRINCIPAL POS
+    |--------------------------------------------------------------------------
+    | • Carga productos activos
+    | • Carga clientes activos
+    | • Devuelve datos listos para JS
+    |--------------------------------------------------------------------------
+    */
     public function index()
     {
-        $empresaId = Auth::user()->empresa_id;
+        $user = Auth::user();
+        $empresaId = $user->empresa_id;
 
+        /*
+        |--------------------------------------------------------------------------
+        | PRODUCTOS ACTIVOS
+        |--------------------------------------------------------------------------
+        */
         $products = Product::with('images')
             ->where('empresa_id', $empresaId)
-            ->where('active', 1)
+            ->where(function ($q) {
+                $q->where('active', 1)
+                  ->orWhereNull('active');
+            })
             ->orderBy('name')
             ->get();
 
         $productsData = $products->map(function ($p) {
 
-            $img = optional($p->images->first())->path;
+            $imgPath = optional($p->images->first())->path;
 
             return [
                 'id'    => $p->id,
                 'name'  => $p->name,
                 'price' => (float) $p->price,
-                'img'   => $img
-                    ? asset('storage/'.$img)
+                'stock' => (float) $p->stock, // agregado informativo (no afecta lógica)
+                'img'   => $imgPath
+                    ? asset('storage/' . $imgPath)
                     : asset('images/no-image.png'),
             ];
         });
 
-        return view('empresa.pos.index', compact('productsData'));
+        /*
+        |--------------------------------------------------------------------------
+        | CLIENTES ACTIVOS
+        |--------------------------------------------------------------------------
+        | Se cargan completos para búsqueda avanzada
+        |--------------------------------------------------------------------------
+        */
+        $clientes = Client::where('empresa_id', $empresaId)
+            ->where('active', 1)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+                'phone',
+                'document',       // actualmente usado como CUIT
+                'tax_condition',
+                'email',
+                'credit_limit'
+            ]);
+
+        $clientesData = $clientes->map(function ($c) {
+
+            return [
+                'id'            => $c->id,
+                'name'          => $c->name ?? '',
+                'phone'         => $c->phone ?? '',
+                'document'      => $c->document ?? '', // CUIT real
+                'tax_condition' => $c->tax_condition ?? '',
+                'email'         => $c->email ?? '',
+                'credit_limit'  => $c->credit_limit ?? 0,
+                'saldo'         => method_exists($c, 'saldo') ? $c->saldo() : 0
+            ];
+        });
+
+        return view('empresa.pos.index', compact('productsData', 'clientesData'));
     }
 
-    public function store(Request $request)
+    /*
+    |--------------------------------------------------------------------------
+    | STORE - GUARDAR VENTA DESDE POS
+    |--------------------------------------------------------------------------
+    | • Valida items
+    | • Convierte formato POS → VentaService
+    | • Permite cliente opcional
+    | • Permite contado o cuenta corriente
+    |--------------------------------------------------------------------------
+    */
+    public function store(Request $request, VentaService $ventaService)
     {
         try {
 
-            $empresaId = Auth::user()->empresa_id;
-            $userId    = Auth::id();
+            $user = Auth::user();
 
-            $items = $request->items ?? [];
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDACIÓN BÁSICA
+            |--------------------------------------------------------------------------
+            */
+            $itemsPOS = $request->items ?? [];
+
+            if (!is_array($itemsPOS) || empty($itemsPOS)) {
+                return response()->json([
+                    'ok'    => false,
+                    'error' => 'No hay productos en la venta'
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | CONVERTIR FORMATO POS → VentaService
+            |--------------------------------------------------------------------------
+            */
+            $items = [];
+
+            foreach ($itemsPOS as $item) {
+
+                if (!isset($item['product_id'], $item['cantidad'])) {
+                    continue;
+                }
+
+                $items[] = [
+                    'id'       => (int) $item['product_id'],
+                    'quantity' => (float) $item['cantidad'],
+                ];
+            }
 
             if (empty($items)) {
                 return response()->json([
-                    'ok' => false,
-                    'error' => 'No hay items'
+                    'ok'    => false,
+                    'error' => 'Items inválidos'
                 ]);
             }
 
-            DB::beginTransaction();
+            /*
+            |--------------------------------------------------------------------------
+            | DATOS CLIENTE
+            |--------------------------------------------------------------------------
+            */
+            $clienteId        = $request->cliente_id ?? null;
+            $tipoVentaCliente = $request->tipo_venta_cliente ?? 'contado';
 
-            // ================= CABECERA =================
-            $ventaId = DB::table('ventas')->insertGetId([
-                'empresa_id' => $empresaId,
-                'user_id'    => $userId,
-
-                // ESTRUCTURA REAL
-                'subtotal'   => $request->total_sin_iva ?? 0,
-                'iva'        => $request->total_iva ?? 0,
-                'total'      => $request->total_con_iva ?? 0,
-
-                'cliente_condicion' => 'consumidor_final',
-                'descuento'  => 0,
-                'metodo_pago'=> $request->metodo_pago ?? 'efectivo',
-                'monto_pagado'=> $request->monto_pagado ?? 0,
-                'vuelto'     => $request->vuelto ?? 0,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            // ================= ITEMS =================
-            foreach ($items as $item) {
-
-                DB::table('venta_items')->insert([
-                    'venta_id'       => $ventaId,
-                    'product_id'     => $item['product_id'] ?? null,
-                    'cantidad'       => $item['cantidad'] ?? 1,
-
-                    // ESTRUCTURA REAL
-                    'precio_unitario'=> $item['precio'] ?? 0,
-                    'subtotal'       => $item['total'] ?? 0,
-
-                    'created_at'     => now(),
-                    'updated_at'     => now(),
-                ]);
-            }
-
-            DB::commit();
+            /*
+            |--------------------------------------------------------------------------
+            | REGISTRAR VENTA
+            |--------------------------------------------------------------------------
+            */
+            $venta = $ventaService->registrarVenta(
+                $user,
+                $items,
+                $clienteId,
+                $tipoVentaCliente
+            );
 
             return response()->json([
-                'ok' => true,
-                'venta_id' => $ventaId
+                'ok'        => true,
+                'venta_id'  => $venta->id,
+                'total'     => $venta->total_con_iva,
+                'clienteId' => $clienteId
             ]);
 
         } catch (\Throwable $e) {
 
-            DB::rollBack();
+            Log::error('Error POS STORE', [
+                'message' => $e->getMessage(),
+                'line'    => $e->getLine(),
+                'file'    => $e->getFile()
+            ]);
 
             return response()->json([
-                'ok' => false,
-                'error' => $e->getMessage(),
-                'line'  => $e->getLine()
+                'ok'    => false,
+                'error' => 'Error interno al guardar venta'
             ]);
         }
     }

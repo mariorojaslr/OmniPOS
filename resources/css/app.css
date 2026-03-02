@@ -1,3 +1,320 @@
+/* ======================================================
+   MULTIPOS - SISTEMA GLOBAL DE ESTILOS
+   Laravel 12 + Tailwind + Bootstrap
+   Preparado Multiempresa / SaaS Profesional
+====================================================== */
+
+
+/* ======================================================
+   TAILWIND CORE
+====================================================== */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ======================================================
+   VARIABLES BASE MULTIPOS (Branding Dinámico)
+   Estas podrán ser sobreescritas por empresa
+====================================================== */
+
+:root {
+    --mp-primary: #2563eb;
+    --mp-secondary: #16a34a;
+    --mp-bg: #f4f6f9;
+    /* Futuro: Colores dinámicos por empresa */
+    --mp-success: #10b981;
+    --mp-warning: #facc15;
+    --mp-danger: #ef4444;
+    --mp-shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.08);
+    --mp-shadow-strong: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ======================================================
+   AUTENTICACIÓN (Login / Register)
+====================================================== */
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mp-bg);
+    padding: 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: var(--mp-shadow-soft);
+    padding: 28px;
+}
+
+.auth-logo {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.auth-logo img {
+    height: 48px;
+}
+
+.auth-title {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.auth-input {
+    border-radius: 10px;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    width: 100%;
+}
+
+.auth-input:focus {
+    border-color: var(--mp-primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .15);
+    outline: none;
+}
+
+.auth-btn {
+    width: 100%;
+    border-radius: 10px;
+    background: var(--mp-primary);
+    border: none;
+    padding: 10px;
+    font-weight: 600;
+    color: white;
+    transition: .2s;
+}
+
+.auth-btn:hover {
+    background: #1e4fd6;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 12px;
+    font-size: .9rem;
+}
+
+.auth-error {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: .9rem;
+}
+
+
+/* ======================================================
+   NOTIFICATION SYSTEM (Global SaaS)
+   - Toast sutil
+   - Modal intrusiva
+====================================================== */
+
+
+/* ---------- Toast Container ---------- */
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+
+/* ---------- Toast Base ---------- */
+
+.toast {
+    background: white;
+    color: black;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: var(--mp-shadow-soft);
+    animation: slideIn 0.4s ease;
+    border-left: 5px solid var(--mp-primary);
+}
+
+
+/* Variantes */
+
+.toast-warning {
+    border-left-color: var(--mp-warning);
+}
+
+.toast-danger {
+    border-left-color: var(--mp-danger);
+}
+
+.toast-success {
+    border-left-color: var(--mp-success);
+}
+
+
+/* ---------- Modal Intrusiva ---------- */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.modal-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 420px;
+    box-shadow: var(--mp-shadow-strong);
+    animation: fadeScale 0.3s ease;
+}
+
+.hidden {
+    display: none;
+}
+
+
+/* ======================================================
+   TARJETAS GENERALES (Cards Sistema)
+====================================================== */
+
+.card-soft {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--mp-shadow-soft);
+    padding: 20px;
+}
+
+
+/* Tarjetas futuras (promesas de sistema) */
+
+.card-futuro {
+    background: #ffe6f0;
+    opacity: 0.85;
+    cursor: not-allowed;
+}
+
+
+/* ======================================================
+   ANIMACIONES SUAVES
+====================================================== */
+
+.fade-soft {
+    animation: fadeSoft 0.25s ease;
+}
+
+@keyframes fadeSoft {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeScale {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   MODAL CAMBIO PASSWORD · CARTOON POPUP
+========================================================= */
+
+.mp-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(2px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+
+.mp-modal-box {
+    background: #fff;
+    padding: 28px;
+    border-radius: 14px;
+    width: 420px;
+    max-width: 92%;
+    text-align: center;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s ease;
+}
+
+
+/* efecto suave al pasar mouse */
+
+.mp-modal-box:hover {
+    transform: scale(1.02);
+}
+
+.fila-blanca td {
+    background-color: #ffffff !important;
+}
+
+.fila-celeste td {
+    background-color: #eef6ff !important;
+    /* celeste suave 12% */
+}
+
+.cliente-row:hover td {
+    background-color: #e2efff !important;
+}
+
+
+/* ======================================================
+   FIX DEFINITIVO PAGINADOR LARAVEL (TAILWIND CONFLICT)
+====================================================== */
+
+.pagination svg {
+    width: 14px !important;
+    height: 14px !important;
+    display: inline-block !important;
+}
+
+.pagination {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+}
+
+.pagination a,
+.pagination span {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}

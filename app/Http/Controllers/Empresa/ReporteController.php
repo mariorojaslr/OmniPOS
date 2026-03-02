@@ -50,14 +50,17 @@ class ReporteController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | VENTAS POR FECHA (SIN COLUMNA TOTAL)
+    | VENTAS POR FECHA
     |--------------------------------------------------------------------------
     */
     public function ventasPorFecha()
     {
+        $empresaId = auth()->user()->empresa_id;
+
         $ventas = DB::table('ventas as v')
             ->join('venta_items as vi', 'vi.venta_id', '=', 'v.id')
             ->join('products as p', 'p.id', '=', 'vi.product_id')
+            ->where('v.empresa_id', $empresaId) // 🔴 FILTRO EMPRESA
             ->select(
                 DB::raw('DATE(v.created_at) as fecha'),
                 DB::raw('COUNT(DISTINCT v.id) as cantidad'),
@@ -107,7 +110,7 @@ class ReporteController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | EXPORT EXCEL (NUMÉRICO REAL)
+    | EXPORT EXCEL
     |--------------------------------------------------------------------------
     */
     public function exportExcel()
@@ -159,14 +162,18 @@ class ReporteController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | CONSULTAS
+    | CONSULTAS PRIVADAS
     |--------------------------------------------------------------------------
     */
 
     private function getRankingProductos()
     {
+        $empresaId = auth()->user()->empresa_id;
+
         return DB::table('venta_items')
+            ->join('ventas', 'ventas.id', '=', 'venta_items.venta_id')
             ->join('products', 'products.id', '=', 'venta_items.product_id')
+            ->where('ventas.empresa_id', $empresaId) // 🔴 FILTRO EMPRESA
             ->select(
                 'venta_items.product_id',
                 'products.name as producto_nombre',
@@ -185,9 +192,12 @@ class ReporteController extends Controller
 
     private function getRankingClientes()
     {
+        $empresaId = auth()->user()->empresa_id;
+
         return DB::table('ventas as v')
             ->join('venta_items as vi', 'vi.venta_id', '=', 'v.id')
             ->join('products as p', 'p.id', '=', 'vi.product_id')
+            ->where('v.empresa_id', $empresaId) // 🔴 FILTRO EMPRESA
             ->select(
                 'v.cliente_nombre',
                 DB::raw('COUNT(DISTINCT v.id) as total_compras'),

@@ -11,12 +11,12 @@ class Empresa extends Model
     use HasFactory;
 
     /**
-     * Tabla asociada
+     * TABLA ASOCIADA
      */
     protected $table = 'empresas';
 
     /**
-     * Campos asignables en masa
+     * CAMPOS EDITABLES MASIVAMENTE
      */
     protected $fillable = [
         'nombre_comercial',
@@ -25,33 +25,44 @@ class Empresa extends Model
         'telefono',
         'activo',
         'fecha_vencimiento',
-        'configuracion',
+        'fecha_cierre_ejercicio', // NUEVO (cierre contable anual)
     ];
 
     /**
-     * Casts automáticos
-     * (CLAVE para que funcionen los botones)
+     * CASTS AUTOMÁTICOS
      */
     protected $casts = [
         'activo' => 'boolean',
         'fecha_vencimiento' => 'date',
-        'configuracion' => 'array',
+        'fecha_cierre_ejercicio' => 'date', // NUEVO
     ];
 
+    // =========================================================
+    // RELACIONES
+    // =========================================================
+
     /**
-     * Relación:
-     * una empresa tiene muchos usuarios
+     * CONFIGURACIÓN VISUAL DE LA EMPRESA
      */
-    public function users()
+    public function config()
     {
-        return $this->hasMany(User::class);
+        return $this->hasOne(\App\Models\EmpresaConfig::class, 'empresa_id');
     }
 
     /**
-     * Estado visual de la empresa
-     * - Inactiva
-     * - Vencida
-     * - Activa
+     * USUARIOS QUE PERTENECEN A ESTA EMPRESA
+     */
+    public function users()
+    {
+        return $this->hasMany(\App\Models\User::class, 'empresa_id');
+    }
+
+    // =========================================================
+    // ESTADO DE LA EMPRESA
+    // =========================================================
+
+    /**
+     * DEVUELVE EL ESTADO EN TEXTO
      */
     public function estadoLabel(): string
     {
@@ -67,7 +78,7 @@ class Empresa extends Model
     }
 
     /**
-     * Indica si la empresa está vencida
+     * INDICA SI LA EMPRESA ESTÁ VENCIDA
      */
     public function estaVencida(): bool
     {
@@ -76,8 +87,7 @@ class Empresa extends Model
     }
 
     /**
-     * Renueva la empresa X días hacia adelante
-     * (usado por el botón "Renovar")
+     * RENUEVA LA EMPRESA X DÍAS
      */
     public function renovar(int $dias = 30): void
     {
@@ -88,13 +98,35 @@ class Empresa extends Model
     }
 
     /**
-     * Activa o desactiva la empresa
-     * (usado por el botón toggle)
+     * ACTIVA / DESACTIVA LA EMPRESA
      */
     public function toggleActivo(): void
     {
         $this->update([
             'activo' => ! $this->activo,
         ]);
+    }
+
+    // =========================================================
+    // CONTABILIDAD
+    // =========================================================
+
+    /**
+     * DEVUELVE LA FECHA DE CIERRE CONTABLE FORMATEADA
+     */
+    public function cierreContableLabel(): ?string
+    {
+        return $this->fecha_cierre_ejercicio
+            ? $this->fecha_cierre_ejercicio->format('d/m/Y')
+            : null;
+    }
+
+    /**
+     * INDICA SI LA FECHA ACTUAL YA PASÓ EL CIERRE CONTABLE
+     */
+    public function cierreVencido(): bool
+    {
+        return $this->fecha_cierre_ejercicio instanceof Carbon
+            && $this->fecha_cierre_ejercicio->isPast();
     }
 }

@@ -1,0 +1,263 @@
+<?php
+
+namespace App\Http\Controllers\Empresa;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Supplier;
+use App\Models\SupplierLedger;
+
+class SupplierController extends Controller
+{
+
+    /**
+     * =========================================================
+     * LISTADO DE PROVEEDORES
+     * =========================================================
+     */
+    public function index(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+
+        $perPage = $request->get('perPage', 15);
+        $q       = $request->get('q');
+
+        $query = Supplier::where('empresa_id', $empresaId);
+
+        if (!empty($q)) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%$q%")
+                    ->orWhere('email', 'like', "%$q%")
+                    ->orWhere('phone', 'like', "%$q%")
+                    ->orWhere('document', 'like', "%$q%");
+            });
+        }
+
+        $suppliers = $query
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        return view('empresa.proveedores.index', compact('suppliers'));
+    }
+
+
+    /**
+     * =========================================================
+     * FORM CREAR
+     * =========================================================
+     */
+    public function create()
+    {
+        return view('empresa.proveedores.create');
+    }
+
+
+    /**
+     * =========================================================
+     * GUARDAR PROVEEDOR
+     * =========================================================
+     */
+    public function store(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'phone' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:255',
+            'document' => 'nullable|string|max:20',
+        ]);
+
+        Supplier::create([
+            'empresa_id' => $empresaId,
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'document' => $request->document,
+            'active' => 1
+        ]);
+
+        return redirect()
+            ->route('empresa.proveedores.index')
+            ->with('success', 'Proveedor creado correctamente.');
+    }
+
+
+    /**
+     * =========================================================
+     * CUENTA CORRIENTE PROVEEDOR (MOTOR SQL REAL)
+     * =========================================================
+     */
+    public function show(Request $request, string $id)
+    {
+        $empresaId = auth()->user()->empresa_id;
+
+        $supplier = Supplier::where('empresa_id', $empresaId)
+            ->findOrFail($id);
+
+        $perPage = $request->get('perPage', 25);
+        $fechaCorte = $request->get('corte');
+
+        /**
+         * ================================
+         * SALDO REAL SQL
+         * ================================
+         */
+        $saldoQuery = SupplierLedger::where('empresa_id', $empresaId)
+            ->where('supplier_id', $supplier->id);
+
+        if ($fechaCorte) {
+            $saldoQuery->whereDate('created_at', '<=', $fechaCorte);
+        }
+
+        $saldo = $saldoQuery
+            ->selectRaw("
+                COALESCE(SUM(CASE WHEN type='debit' THEN amount END),0)
+              - COALESCE(SUM(CASE WHEN type='credit' THEN amount END),0)
+              AS saldo
+            ")
+            ->value('saldo');
+
+        /**
+         * ================================
+         * MOVIMIENTOS
+         * ================================
+         */
+        $queryBase = SupplierLedger::where('empresa_id', $empresaId)
+            ->where('supplier_id', $supplier->id)
+            ->when($request->tipo, fn($q) => $q->where('type', $request->tipo))
+            ->when($request->desde, fn($q) => $q->whereDate('created_at', '>=', $request->desde))
+            ->when($request->hasta, fn($q) => $q->whereDate('created_at', '<=', $request->hasta));
+
+        if ($fechaCorte) {
+            $queryBase->whereDate('created_at', '<=', $fechaCorte);
+        }
+
+        $movimientos = $queryBase
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        /**
+         * ================================
+         * SALDO ACUMULADO
+         * ================================
+         */
+        if ($movimientos->count()) {
+
+            $ultimoMovimiento = $movimientos->last();
+
+            $saldoInicial = SupplierLedger::where('empresa_id', $empresaId)
+                ->where('supplier_id', $supplier->id)
+                ->where(function ($q) use ($ultimoMovimiento) {
+                    $q->where('created_at', '<', $ultimoMovimiento->created_at)
+                      ->orWhere(function ($q2) use ($ultimoMovimiento) {
+                          $q2->where('created_at', $ultimoMovimiento->created_at)
+                             ->where('id', '<', $ultimoMovimiento->id);
+                      });
+                })
+                ->selectRaw("
+                    COALESCE(SUM(CASE WHEN type='debit' THEN amount END),0)
+                  - COALESCE(SUM(CASE WHEN type='credit' THEN amount END),0)
+                  AS saldo
+                ")
+                ->value('saldo');
+
+            $saldoTemp = $saldoInicial;
+
+            foreach ($movimientos->reverse() as $m) {
+                $saldoTemp += ($m->type === 'debit') ? $m->amount : -$m->amount;
+
+                $m->saldo_acumulado = $saldoTemp;
+                $m->debe  = $m->type === 'debit' ? $m->amount : null;
+                $m->haber = $m->type === 'credit' ? $m->amount : null;
+            }
+
+            $movimientos->setCollection($movimientos->reverse());
+        }
+
+        /**
+         * ================================
+         * SALDO VENCIDO (30 días)
+         * ================================
+         */
+        $saldoVencido = SupplierLedger::where('empresa_id', $empresaId)
+            ->where('supplier_id', $supplier->id)
+            ->where('type', 'debit')
+            ->where('paid', false)
+            ->whereDate('created_at', '<', now()->subDays(30))
+            ->sum('amount');
+
+        return view('empresa.proveedores.show', compact(
+            'supplier',
+            'movimientos',
+            'saldo',
+            'saldoVencido',
+            'fechaCorte'
+        ));
+    }
+
+
+    /**
+     * =========================================================
+     * EDITAR
+     * =========================================================
+     */
+    public function edit(string $id)
+    {
+        $supplier = Supplier::where('empresa_id', auth()->user()->empresa_id)
+            ->findOrFail($id);
+
+        return view('empresa.proveedores.edit', compact('supplier'));
+    }
+
+
+    /**
+     * =========================================================
+     * ACTUALIZAR
+     * =========================================================
+     */
+    public function update(Request $request, string $id)
+    {
+        $supplier = Supplier::where('empresa_id', auth()->user()->empresa_id)
+            ->findOrFail($id);
+
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'phone' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:255',
+        ]);
+
+        $supplier->update([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'document' => $request->document,
+            'active' => $request->active ?? 1,
+        ]);
+
+        return redirect()
+            ->route('empresa.proveedores.index')
+            ->with('success', 'Proveedor actualizado correctamente.');
+    }
+
+
+    /**
+     * =========================================================
+     * ELIMINAR
+     * =========================================================
+     */
+    public function destroy(string $id)
+    {
+        $supplier = Supplier::where('empresa_id', auth()->user()->empresa_id)
+            ->findOrFail($id);
+
+        $supplier->delete();
+
+        return redirect()
+            ->route('empresa.proveedores.index')
+            ->with('success', 'Proveedor eliminado correctamente.');
+    }
+}

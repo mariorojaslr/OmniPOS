@@ -31,13 +31,14 @@ class EmpresaController extends Controller
             'email'              => 'required|email|unique:users,email',
             'telefono'           => 'nullable|string|max:50',
             'fecha_vencimiento'  => 'nullable|date',
+            'password'           => 'nullable|string|min:6', // 👈 OPCIONAL
         ]);
 
         /*
-         |----------------------------------------------------------
-         | Crear empresa
-         |----------------------------------------------------------
-         */
+        |----------------------------------------------------------
+        | CREAR EMPRESA
+        |----------------------------------------------------------
+        */
         $empresa = Empresa::create([
             'nombre_comercial'  => $data['nombre_comercial'],
             'email'             => $data['email'],
@@ -47,23 +48,42 @@ class EmpresaController extends Controller
         ]);
 
         /*
-         |----------------------------------------------------------
-         | Crear usuario principal de la empresa
-         |----------------------------------------------------------
-         */
+        |----------------------------------------------------------
+        | PASSWORD AUTOMÁTICA SEGURA
+        |----------------------------------------------------------
+        */
+        $passwordPlano = $data['password'] ?? Str::random(10);
+
+        /*
+        |----------------------------------------------------------
+        | CREAR USUARIO PRINCIPAL (ROL EMPRESA)
+        |----------------------------------------------------------
+        */
         User::create([
-            'name'              => $empresa->nombre_comercial,
-            'email'             => $empresa->email,
-            'password'          => Hash::make('12345678'), // password inicial
-            'role'              => 'empresa',              // 👈 CORRECTO
-            'empresa_id'        => $empresa->id,
-            'activo'            => 1,
-            'email_verified_at' => now(),                   // 👈 CLAVE
+            'name'                   => $empresa->nombre_comercial,
+            'email'                  => $empresa->email,
+            'password'               => Hash::make($passwordPlano),
+            'role'                   => 'empresa',
+            'empresa_id'             => $empresa->id,
+            'activo'                 => 1,
+            'must_change_password'   => 1, // 👈 OBLIGAR CAMBIO EN PRIMER LOGIN
+            'email_verified_at'      => now(),
         ]);
+
+        /*
+        |----------------------------------------------------------
+        | MENSAJE CON PASSWORD GENERADA (SOLO SI FUE AUTOMÁTICA)
+        |----------------------------------------------------------
+        */
+        $msg = 'Empresa creada correctamente.';
+
+        if (!isset($data['password'])) {
+            $msg .= ' Password inicial generada: ' . $passwordPlano;
+        }
 
         return redirect()
             ->route('owner.empresas.index')
-            ->with('success', 'Empresa y usuario creados correctamente');
+            ->with('success', $msg);
     }
 
     public function edit(Empresa $empresa)

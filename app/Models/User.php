@@ -10,9 +10,11 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * Campos permitidos para asignación masiva
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | MASS ASSIGNMENT
+    |--------------------------------------------------------------------------
+    */
     protected $fillable = [
         'name',
         'email',
@@ -21,53 +23,72 @@ class User extends Authenticatable
         'empresa_id',
         'activo',
         'email_verified_at',
+        'must_change_password', // 👈 NUEVO
     ];
 
-    /**
-     * Campos ocultos
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | HIDDEN
+    |--------------------------------------------------------------------------
+    */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Casts automáticos
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CASTS
+    |--------------------------------------------------------------------------
+    */
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'activo'            => 'boolean',
+        'email_verified_at'    => 'datetime',
+        'activo'               => 'boolean',
+        'must_change_password' => 'boolean', // 👈 NUEVO
     ];
 
-    /* =========================
-       Roles
-    ========================= */
+    /*
+    |--------------------------------------------------------------------------
+    | ROLES
+    |--------------------------------------------------------------------------
+    */
 
     public function isOwner(): bool
     {
         return $this->role === 'owner';
     }
 
-    /**
-     * Empresa / Usuario (ambos trabajan dentro de una empresa)
-     */
     public function isEmpresa(): bool
+    {
+        return $this->role === 'empresa';
+    }
+
+    public function isUsuario(): bool
+    {
+        return $this->role === 'usuario';
+    }
+
+    public function trabajaEnEmpresa(): bool
     {
         return in_array($this->role, ['empresa', 'usuario']);
     }
 
-    /* =========================
-       Estado
-    ========================= */
+    /*
+    |--------------------------------------------------------------------------
+    | ESTADO
+    |--------------------------------------------------------------------------
+    */
 
     public function estaActivo(): bool
     {
         return $this->activo === true;
     }
 
-    /* =========================
-       Relaciones
-    ========================= */
+    /*
+    |--------------------------------------------------------------------------
+    | RELACIONES
+    |--------------------------------------------------------------------------
+    */
 
     public function empresa()
     {

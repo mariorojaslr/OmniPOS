@@ -50,6 +50,7 @@ FILTRO USUARIOS
                     <th>Nombre</th>
                     <th>Email</th>
                     <th>Estado</th>
+                    <th>Tipo</th> {{-- NUEVA COLUMNA --}}
                     <th width="360">Acciones</th>
                 </tr>
             </thead>
@@ -60,7 +61,9 @@ FILTRO USUARIOS
                     <td class="fw-semibold">{{ $usuario->name }}</td>
                     <td>{{ $usuario->email }}</td>
 
-                    {{-- ESTADO --}}
+                    {{-- =========================================
+                    ESTADO
+                    ========================================== --}}
                     <td>
                         @if($usuario->activo)
                             <span class="badge bg-success">Activo</span>
@@ -69,11 +72,27 @@ FILTRO USUARIOS
                         @endif
                     </td>
 
+                    {{-- =========================================
+                    TIPO DE USUARIO (NUEVO)
+                    ========================================== --}}
+                    <td>
+                        @if($usuario->isOwner())
+                            <span class="badge bg-dark">Owner</span>
+
+                        @elseif($usuario->isEmpresa())
+                            <span class="badge bg-primary">Empresa</span>
+
+                        @else
+                            <span class="badge bg-secondary">Usuario</span>
+                        @endif
+                    </td>
+
+                    {{-- =========================================
+                    ACCIONES
+                    ========================================== --}}
                     <td>
 
-                        {{-- ======================================================
-                        ACTIVAR / DESACTIVAR
-                        ====================================================== --}}
+                        {{-- ACTIVAR / DESACTIVAR --}}
                         <form method="POST"
                               action="{{ route('empresa.usuarios.toggle', $usuario->id) }}"
                               class="d-inline">
@@ -84,9 +103,7 @@ FILTRO USUARIOS
                             </button>
                         </form>
 
-                        {{-- ======================================================
-                        RESET PASSWORD
-                        ====================================================== --}}
+                        {{-- RESET PASSWORD --}}
                         <form method="POST"
                               action="{{ route('empresa.usuarios.reset', $usuario->id) }}"
                               class="d-inline">
@@ -97,9 +114,7 @@ FILTRO USUARIOS
                             </button>
                         </form>
 
-                        {{-- ======================================================
-                        DESEMPEÑO (AHORA ABRE PANTALLA REAL)
-                        ====================================================== --}}
+                        {{-- DESEMPEÑO --}}
                         <a href="{{ route('empresa.usuarios.desempeno', $usuario->id) }}"
                            class="btn btn-sm btn-outline-info">
                             Desempeño
@@ -107,9 +122,10 @@ FILTRO USUARIOS
 
                     </td>
                 </tr>
+
                 @empty
                 <tr>
-                    <td colspan="4" class="text-center py-4 text-muted">
+                    <td colspan="5" class="text-center py-4 text-muted">
                         No hay usuarios cargados
                     </td>
                 </tr>
