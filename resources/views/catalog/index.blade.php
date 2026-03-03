@@ -15,13 +15,14 @@ $secondary = $config->color_secundario ?? '#16a34a';
 
 $mostrarLogo = $config->mostrar_logo ?? true;
 $logo        = $config->logo ?? null;
+
+$cartCount = session('cart') ? count(session('cart')) : 0;
 @endphp
 
 
 <style>
 
-/* ===================== CONTAINER FULL WIDTH ===================== */
-/* Se adapta a cualquier monitor sin quedar angosto */
+/* ================= CONTAINER ================= */
 
 .catalog-app{
     width:100%;
@@ -31,7 +32,7 @@ $logo        = $config->logo ?? null;
 }
 
 
-/* ===================== HEADER ===================== */
+/* ================= HEADER ================= */
 
 .catalog-header{
     background: {{ $primary }};
@@ -46,7 +47,7 @@ $logo        = $config->logo ?? null;
 }
 
 
-/* ===================== SEARCH ===================== */
+/* ================= SEARCH ================= */
 
 .catalog-search input{
     border-radius:30px;
@@ -55,7 +56,7 @@ $logo        = $config->logo ?? null;
 }
 
 
-/* ===================== FILTER BUTTONS ===================== */
+/* ================= FILTER BUTTONS ================= */
 
 .filterBtn{
     border-radius:20px;
@@ -69,7 +70,7 @@ $logo        = $config->logo ?? null;
 }
 
 
-/* ===================== PRODUCT CARD ===================== */
+/* ================= PRODUCT CARD ================= */
 
 .product-card{
     border-radius:16px;
@@ -91,15 +92,14 @@ $logo        = $config->logo ?? null;
 }
 
 
-/* ===================== BADGES ===================== */
+/* ================= BADGES ================= */
 
 .badge-new{background:#0ea5e9;}
 .badge-top{background:#f59e0b;color:#000;}
 .badge-promo{background:#ef4444;}
 
 
-/* ===================== RESPONSIVE GRID ===================== */
-/* MÁS COLUMNAS PARA MONITORES GRANDES */
+/* ================= RESPONSIVE ================= */
 
 @media (min-width:1400px){
     .col-xxl-2{width:16.66%;}
@@ -133,8 +133,8 @@ $logo        = $config->logo ?? null;
             </div>
         </div>
 
-        {{-- ICONOS CLAROS --}}
-        <div class="d-flex gap-2">
+        {{-- ICONOS --}}
+        <div class="d-flex gap-2 align-items-center">
 
             <button class="btn btn-light btn-sm" title="Mi cuenta">
                 👤
@@ -144,9 +144,19 @@ $logo        = $config->logo ?? null;
                 ❤️
             </button>
 
-            <button class="btn btn-light btn-sm" title="Carrito">
+            {{-- CARRITO FUNCIONAL --}}
+            <a href="{{ route('cart.index') }}"
+               class="btn btn-light btn-sm position-relative"
+               title="Carrito">
+
                 🛒
-            </button>
+
+                @if($cartCount > 0)
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ $cartCount }}
+                    </span>
+                @endif
+            </a>
 
         </div>
     </div>
@@ -205,7 +215,6 @@ $logo        = $config->logo ?? null;
         @endphp
 
 
-        {{-- GRID RESPONSIVE REAL --}}
         <div class="
             col-6
             col-sm-6

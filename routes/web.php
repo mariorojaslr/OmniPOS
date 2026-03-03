@@ -19,6 +19,7 @@ use App\Http\Controllers\Owner\EmpresaUserController;
 use App\Http\Controllers\Empresa\DashboardController as EmpresaDashboardController;
 use App\Http\Controllers\Empresa\ProductController;
 use App\Http\Controllers\Empresa\ProductImageController;
+use App\Http\Controllers\Empresa\ProductVideoController; // ✅ NUEVO
 use App\Http\Controllers\Empresa\POSController;
 use App\Http\Controllers\Empresa\VentaController;
 use App\Http\Controllers\Empresa\UsuarioDashboardController;
@@ -28,7 +29,7 @@ use App\Http\Controllers\Empresa\ConfiguracionEmpresaController;
 use App\Http\Controllers\Empresa\StockController;
 use App\Http\Controllers\Empresa\ClientController;
 use App\Http\Controllers\Empresa\SupplierController;
-use App\Http\Controllers\Empresa\PurchaseController;   // 👈 agregado limpio
+use App\Http\Controllers\Empresa\PurchaseController;
 
 // ================= AUTH =================
 use App\Http\Controllers\Auth\PasswordController;
@@ -117,7 +118,6 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/dashboard', [EmpresaDashboardController::class, 'index'])->name('dashboard');
         Route::get('/usuario/dashboard', [UsuarioDashboardController::class, 'index'])->name('usuario.dashboard');
 
-
         /*
         |--------------------------------------------------------------------------
         | CLIENTES
@@ -125,14 +125,12 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         */
         Route::resource('clientes', ClientController::class)->except(['destroy']);
 
-
         /*
         |--------------------------------------------------------------------------
         | PROVEEDORES
         |--------------------------------------------------------------------------
         */
         Route::resource('proveedores', SupplierController::class)->except(['destroy']);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -145,7 +143,6 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/compras/{purchase}', [PurchaseController::class, 'show'])->name('compras.show');
         Route::delete('/compras/{purchase}', [PurchaseController::class, 'destroy'])->name('compras.destroy');
 
-
         /*
         |--------------------------------------------------------------------------
         | CONFIGURACIÓN EMPRESA
@@ -154,26 +151,18 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/configuracion', [ConfiguracionEmpresaController::class, 'index'])->name('configuracion.index');
         Route::post('/configuracion', [ConfiguracionEmpresaController::class, 'save'])->name('configuracion.save');
 
-
         /*
         |--------------------------------------------------------------------------
-        | KARDEX
+        | STOCK / KARDEX
         |--------------------------------------------------------------------------
         */
         Route::get('/stock/kardex/{product}', [StockController::class, 'kardex'])->name('stock.kardex');
         Route::get('/stock/kardex/{product}/pdf', [StockController::class, 'exportPdf'])->name('stock.kardex.pdf');
         Route::get('/stock/kardex/{product}/excel', [StockController::class, 'exportExcel'])->name('stock.kardex.excel');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | STOCK
-        |--------------------------------------------------------------------------
-        */
         Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
         Route::patch('/stock/{product}', [StockController::class, 'update'])->name('stock.update');
         Route::post('/stock/config/{product}', [StockController::class, 'config'])->name('stock.config');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -186,7 +175,6 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::patch('/usuarios/{user}/toggle', [UsuarioController::class, 'toggle'])->name('usuarios.toggle');
         Route::patch('/usuarios/{user}/reset-password', [UsuarioController::class, 'resetPassword'])->name('usuarios.reset');
         Route::get('/usuarios/{usuario}/desempeno', [UsuarioController::class, 'desempeno'])->name('usuarios.desempeno');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -201,34 +189,27 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/reportes/export/pdf', [ReporteController::class, 'exportPdf'])->name('reportes.export.pdf');
         Route::get('/reportes/export/excel', [ReporteController::class, 'exportExcel'])->name('reportes.export.excel');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CATÁLOGO INTERNO
-        |--------------------------------------------------------------------------
-        */
-        Route::get('/catalogo', fn () => redirect()->route('empresa.products.index'))->name('catalogo.index');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | VENTAS
-        |--------------------------------------------------------------------------
-        */
-        Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
-        Route::post('/ventas', [VentaController::class, 'store'])->name('ventas.store');
-
-
         /*
         |--------------------------------------------------------------------------
         | PRODUCTOS
         |--------------------------------------------------------------------------
         */
         Route::resource('products', ProductController::class)->except(['show', 'destroy']);
+
+        // Imágenes
         Route::get('products/{product}/images/create', [ProductImageController::class, 'create'])->name('products.images.create');
         Route::post('products/{product}/images', [ProductImageController::class, 'store'])->name('products.images.store');
         Route::delete('products/{product}/images/{image}', [ProductImageController::class, 'destroy'])->name('products.images.destroy');
 
+        // Videos ✅
+        Route::prefix('products/{product}/videos')
+            ->name('products.videos.')
+            ->group(function () {
+
+                Route::get('/', [ProductVideoController::class, 'index'])->name('index');
+                Route::post('/', [ProductVideoController::class, 'store'])->name('store');
+                Route::delete('/{video}', [ProductVideoController::class, 'destroy'])->name('destroy');
+            });
 
         /*
         |--------------------------------------------------------------------------
@@ -237,6 +218,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         */
         Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
         Route::post('/pos/checkout', [POSController::class, 'store'])->name('pos.checkout');
+
     });
 
 
@@ -248,6 +230,15 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 Route::get('/c/{empresa}', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class, 'show'])->name('catalog.show');
 
+/*
+|--------------------------------------------------------------------------
+| CHECKOUT
+|--------------------------------------------------------------------------
+*/
+use App\Http\Controllers\CheckoutController;
+
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
 /*
 |--------------------------------------------------------------------------
@@ -282,3 +273,10 @@ Route::get('/logout', function (Request $request) {
     $request->session()->regenerateToken();
     return redirect()->route('login');
 })->name('logout.get');
+
+use App\Http\Controllers\CartController;
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');

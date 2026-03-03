@@ -10,7 +10,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-0">Productos</h2>
-            <small class="text-muted">Gestión del catálogo de la empresa</small>
+            <small class="text-muted">Gestión profesional del catálogo</small>
         </div>
 
         <a href="{{ route('empresa.products.create') }}"
@@ -21,53 +21,89 @@
     </div>
 
 
+
     {{-- ======================================================
-        BUSCADOR PROFESIONAL (consulta real a la base)
+        FILTROS
     ======================================================= --}}
     <div class="card shadow-sm border-0 mb-3">
         <div class="card-body">
 
-            <form method="GET" action="{{ route('empresa.products.index') }}">
-                <input type="text"
-                       name="q"
-                       class="form-control"
-                       placeholder="Buscar producto en toda la base..."
-                       value="{{ $buscar ?? '' }}"
-                       autofocus>
-            </form>
+            <div class="row g-3 align-items-center">
+
+                {{-- Buscador --}}
+                <div class="col-md-6">
+                    <input type="text"
+                           id="buscadorProductos"
+                           class="form-control"
+                           placeholder="Buscar producto en esta página..."
+                           autocomplete="off">
+                </div>
+
+                {{-- Selector filas --}}
+                <div class="col-md-3 d-flex align-items-center gap-2">
+                    <label class="small text-muted mb-0">Mostrar</label>
+
+                    <select id="perPageSelect"
+                            class="form-select form-select-sm">
+                        @foreach([10,15,25,50,100] as $size)
+                            <option value="{{ $size }}"
+                                {{ request('per_page',15)==$size ? 'selected' : '' }}>
+                                {{ $size }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <span class="small text-muted">filas</span>
+                </div>
+
+                {{-- Info resultados --}}
+                <div class="col-md-3 text-end small text-muted">
+                    Mostrando {{ $products->firstItem() ?? 0 }}
+                    a {{ $products->lastItem() ?? 0 }}
+                    de {{ $products->total() }} registros
+                </div>
+
+            </div>
 
         </div>
     </div>
 
 
+
     {{-- ======================================================
-        TABLA DE PRODUCTOS
+        TABLA
     ======================================================= --}}
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
 
             <div class="table-responsive">
-                <table class="table align-middle mb-0">
+                <table class="table align-middle mb-0" id="tablaProductos">
                     <thead class="table-light">
                         <tr>
                             <th class="ps-4">Producto</th>
                             <th>Precio</th>
                             <th>Estado</th>
+                            <th>Media</th>
                             <th class="text-end pe-4">Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
+
                         @forelse($products as $product)
                             <tr>
-                                <td class="ps-4">
+
+                                {{-- Nombre --}}
+                                <td class="ps-4 nombre-producto">
                                     {{ $product->name }}
                                 </td>
 
+                                {{-- Precio --}}
                                 <td>
                                     ${{ number_format($product->price, 2, ',', '.') }}
                                 </td>
 
+                                {{-- Estado --}}
                                 <td>
                                     @if($product->active)
                                         <span class="badge bg-success">Activo</span>
@@ -76,7 +112,28 @@
                                     @endif
                                 </td>
 
+                                {{-- Indicadores media --}}
+                                <td>
+
+                                    {{-- Imágenes --}}
+                                    @if($product->images()->count() > 0)
+                                        <span class="badge bg-info">
+                                            {{ $product->images()->count() }} img
+                                        </span>
+                                    @endif
+
+                                    {{-- Videos --}}
+                                    @if($product->tieneVideos())
+                                        <span class="badge bg-dark">
+                                            {{ $product->videos()->count() }} vid
+                                        </span>
+                                    @endif
+
+                                </td>
+
+                                {{-- Acciones --}}
                                 <td class="text-end pe-4">
+
                                     <a href="{{ route('empresa.products.edit', $product) }}"
                                        class="btn btn-sm btn-outline-secondary">
                                         Editar
@@ -86,20 +143,28 @@
                                        class="btn btn-sm btn-outline-primary">
                                         Imágenes
                                     </a>
+
+                                    <a href="{{ route('empresa.products.videos.index', $product) }}"
+                                       class="btn btn-sm btn-outline-dark">
+                                        Videos
+                                    </a>
+
                                 </td>
+
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center py-4 text-muted">
-                                    No se encontraron productos
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    No se encontraron productos.
                                 </td>
                             </tr>
                         @endforelse
+
                     </tbody>
                 </table>
             </div>
 
-            {{-- PAGINACIÓN (mantiene búsqueda activa) --}}
+            {{-- PAGINACIÓN --}}
             <div class="p-3">
                 {{ $products->withQueryString()->links('pagination::bootstrap-5') }}
             </div>
@@ -112,41 +177,55 @@
 
 
 {{-- ======================================================
-   ACTUALIZACIÓN AUTOMÁTICA DEL DASHBOARD
-   (Se mantiene intacto)
+   SCRIPT PROFESIONAL
 ====================================================== --}}
 <script>
-async function actualizarDashboard() {
+document.addEventListener('DOMContentLoaded', function() {
 
-    try {
-        const res = await fetch("{{ route('empresa.dashboard.resumen') }}");
-        const data = await res.json();
+    const buscador = document.getElementById('buscadorProductos');
+    const filas = document.querySelectorAll('#tablaProductos tbody tr');
 
-        if (document.getElementById('ventasHoy'))
-            document.getElementById('ventasHoy').innerText = data.ventas_hoy;
+    buscador.addEventListener('keyup', function() {
 
-        if (document.getElementById('montoHoy'))
-            document.getElementById('montoHoy').innerText = data.monto_hoy;
+        let valor = this.value.toLowerCase();
 
-        if (document.getElementById('ventasSemana'))
-            document.getElementById('ventasSemana').innerText = data.ventas_semana;
+        filas.forEach(function(fila) {
 
-        if (document.getElementById('montoSemana'))
-            document.getElementById('montoSemana').innerText = data.monto_semana;
+            let celdaNombre = fila.querySelector('.nombre-producto');
+            let textoOriginal = celdaNombre.innerText;
+            let textoLower = textoOriginal.toLowerCase();
 
-        if (document.getElementById('ventasMes'))
-            document.getElementById('ventasMes').innerText = data.ventas_mes;
+            if (textoLower.includes(valor)) {
 
-        if (document.getElementById('montoMes'))
-            document.getElementById('montoMes').innerText = data.monto_mes;
+                fila.style.display = '';
 
-    } catch (e) {
-        console.log('Error actualizando dashboard');
-    }
-}
+                if (valor.length > 0) {
+                    const regex = new RegExp(`(${valor})`, 'gi');
+                    celdaNombre.innerHTML = textoOriginal.replace(regex,
+                        '<span class="bg-warning text-dark px-1">$1</span>');
+                } else {
+                    celdaNombre.innerText = textoOriginal;
+                }
 
-setInterval(actualizarDashboard, 3000);
-actualizarDashboard();
+            } else {
+                fila.style.display = 'none';
+            }
+
+        });
+
+    });
+
+    // Cambio de cantidad por página
+    document.getElementById('perPageSelect')
+        .addEventListener('change', function() {
+
+            const params = new URLSearchParams(window.location.search);
+            params.set('per_page', this.value);
+
+            window.location.search = params.toString();
+        });
+
+});
 </script>
 
 @endsection
