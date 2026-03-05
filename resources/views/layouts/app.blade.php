@@ -40,11 +40,16 @@
                 </button>
 
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><span class="dropdown-item-text text-muted">{{ auth()->user()->role }}</span></li>
+                    <li>
+                        <span class="dropdown-item-text text-muted">
+                            {{ auth()->user()->role }}
+                        </span>
+                    </li>
+
                     <li><hr></li>
 
                     <li>
-                        <a class="dropdown-item" href="{{ route('password.edit') }}">
+                        <a class="dropdown-item" href="{{ route('password.request') }}">
                             Cambiar contraseña
                         </a>
                     </li>
@@ -62,7 +67,9 @@
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button class="dropdown-item">Cerrar sesión</button>
+                            <button class="dropdown-item">
+                                Cerrar sesión
+                            </button>
                         </form>
                     </li>
                 </ul>
@@ -81,9 +88,6 @@
 
 {{-- =========================================================
    MODAL REAL · CAMBIO PASSWORD
-   ✔ Modal centrado
-   ✔ Una vez por día
-   ✔ SIN LABEL FIJO
 ========================================================= --}}
 @auth
 @if(auth()->user()->must_change_password)
@@ -102,7 +106,7 @@
 
                 <div class="d-flex gap-2 justify-content-center">
 
-                    <a href="{{ route('password.edit') }}" class="btn btn-primary">
+                    <a href="{{ route('password.request') }}" class="btn btn-primary">
                         Cambiar contraseña
                     </a>
 

@@ -5,28 +5,63 @@ namespace App\Services;
 use App\Models\Venta;
 use App\Models\VentaItem;
 use App\Models\Product;
+use App\Models\Client;
 use App\Models\KardexMovimiento;
 use App\Models\ClientLedger;
+
 use Illuminate\Support\Facades\DB;
 
 class VentaService
 {
+
     /*
     |--------------------------------------------------------------------------
     | REGISTRAR VENTA COMPLETA
     |--------------------------------------------------------------------------
-    | • Guarda venta
-    | • Guarda items
-    | • Descuenta stock automático
-    | • Genera Kardex automático
-    | • Soporta cliente opcional
-    | • Soporta cuenta corriente
-    | • PRECIOS CON IVA INCLUIDO (CORREGIDO)
+    | RESPONSABILIDADES:
+    |
+    | • Crear registro de venta
+    | • Registrar items vendidos
+    | • Descontar stock del producto
+    | • Registrar movimiento en Kardex
+    | • Calcular totales con IVA incluido
+    | • Registrar deuda en cuenta corriente si aplica
+    |
+    | IMPORTANTE
+    | Los precios de productos ya incluyen IVA.
+    | El sistema calcula el desglose hacia abajo.
     |--------------------------------------------------------------------------
     */
+
     public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado'): Venta
     {
         $empresa = $user->empresa;
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLIENTE CONSUMIDOR FINAL AUTOMÁTICO
+        |--------------------------------------------------------------------------
+        | Si el POS no envía cliente se asigna automáticamente
+        | el cliente "Consumidor Final" de la empresa.
+        */
+
+        if (!$clienteId) {
+
+            $cliente = Client::where('empresa_id', $empresa->id)
+                ->where('name', 'Consumidor Final')
+                ->first();
+
+            if ($cliente) {
+                $clienteId = $cliente->id;
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TRANSACCIÓN COMPLETA
+        |--------------------------------------------------------------------------
+        */
 
         return DB::transaction(function () use ($user, $empresa, $items, $clienteId, $tipoVentaCliente) {
 
@@ -34,11 +69,13 @@ class VentaService
             $totalIva    = 0;
             $totalConIva = 0;
 
+
             /*
             |--------------------------------------------------------------------------
-            | CREAR VENTA
+            | CREAR CABECERA DE VENTA
             |--------------------------------------------------------------------------
             */
+
             $venta = Venta::create([
                 'empresa_id'    => $empresa->id,
                 'user_id'       => $user->id,
@@ -48,42 +85,61 @@ class VentaService
                 'total_con_iva' => 0,
             ]);
 
+
             /*
             |--------------------------------------------------------------------------
-            | PROCESAR ITEMS (PRECIO YA INCLUYE IVA)
+            | PROCESAR ITEMS DE LA VENTA
             |--------------------------------------------------------------------------
             */
+
             foreach ($items as $item) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | OBTENER PRODUCTO CON BLOQUEO
+                |--------------------------------------------------------------------------
+                */
 
                 $product = Product::where('id', $item['id'])
                     ->where('empresa_id', $empresa->id)
                     ->lockForUpdate()
                     ->firstOrFail();
 
+
                 $cantidad = (float) $item['quantity'];
+
+                if ($cantidad <= 0) {
+                    throw new \Exception("Cantidad inválida en venta");
+                }
+
 
                 /*
                 |--------------------------------------------------------------------------
                 | PRECIO FINAL (YA INCLUYE IVA)
                 |--------------------------------------------------------------------------
                 */
+
                 $precioFinalUnitario = (float) $product->price;
                 $totalItemConIva     = $precioFinalUnitario * $cantidad;
 
+
                 /*
                 |--------------------------------------------------------------------------
-                | DESGLOSAR IVA HACIA ABAJO
+                | DESGLOSE IVA
                 |--------------------------------------------------------------------------
                 */
+
                 $precioSinIvaUnitario = round($precioFinalUnitario / 1.21, 2);
                 $subtotalItemSinIva   = round($precioSinIvaUnitario * $cantidad, 2);
                 $ivaItem              = round($totalItemConIva - $subtotalItemSinIva, 2);
 
+
                 /*
                 |--------------------------------------------------------------------------
-                | GUARDAR ITEM
+                | REGISTRAR ITEM DE VENTA
                 |--------------------------------------------------------------------------
                 */
+
                 VentaItem::create([
                     'venta_id'                => $venta->id,
                     'product_id'              => $product->id,
@@ -94,58 +150,81 @@ class VentaService
                     'total_item_con_iva'      => $totalItemConIva,
                 ]);
 
+
                 /*
                 |--------------------------------------------------------------------------
                 | DESCONTAR STOCK
                 |--------------------------------------------------------------------------
                 */
+
                 $stockAnterior = (float) $product->stock;
                 $stockNuevo    = $stockAnterior - $cantidad;
+
+                /*
+                |--------------------------------------------------------------------------
+                | PROTECCIÓN INVENTARIO
+                |--------------------------------------------------------------------------
+                */
+
+                if ($stockNuevo < 0) {
+
+                    throw new \Exception(
+                        "Stock insuficiente para el producto: {$product->name}"
+                    );
+                }
 
                 $product->stock = $stockNuevo;
                 $product->save();
 
+
                 /*
                 |--------------------------------------------------------------------------
-                | KARDEX
+                | REGISTRAR MOVIMIENTO EN KARDEX
                 |--------------------------------------------------------------------------
                 */
+
                 KardexMovimiento::create([
                     'empresa_id'       => $empresa->id,
                     'product_id'       => $product->id,
                     'user_id'          => $user->id,
                     'tipo'             => 'salida',
-                    'cantidad'         => $cantidad,
+                    'cantidad'         => -$cantidad,
                     'stock_resultante' => $stockNuevo,
                     'origen'           => 'Venta #' . $venta->id,
                 ]);
+
 
                 /*
                 |--------------------------------------------------------------------------
                 | ACUMULAR TOTALES
                 |--------------------------------------------------------------------------
                 */
+
                 $totalSinIva += $subtotalItemSinIva;
                 $totalIva    += $ivaItem;
                 $totalConIva += $totalItemConIva;
             }
 
+
             /*
             |--------------------------------------------------------------------------
-            | ACTUALIZAR TOTALES
+            | ACTUALIZAR TOTALES DE LA VENTA
             |--------------------------------------------------------------------------
             */
+
             $venta->update([
                 'total_sin_iva' => $totalSinIva,
                 'total_iva'     => $totalIva,
                 'total_con_iva' => $totalConIva,
             ]);
 
+
             /*
             |--------------------------------------------------------------------------
-            | CUENTA CORRIENTE
+            | REGISTRAR CUENTA CORRIENTE
             |--------------------------------------------------------------------------
             */
+
             if ($clienteId && $tipoVentaCliente === 'cuenta_corriente') {
 
                 ClientLedger::create([
@@ -159,7 +238,15 @@ class VentaService
                 ]);
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | RETORNAR VENTA
+            |--------------------------------------------------------------------------
+            */
+
             return $venta;
+
         });
     }
 }

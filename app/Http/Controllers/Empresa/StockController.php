@@ -18,11 +18,11 @@ class StockController extends Controller
     |--------------------------------------------------------------------------
     | LISTADO DE STOCK
     |--------------------------------------------------------------------------
-    | • Usa stock_actual (UNIFICADO)
+    | • Usa products.stock (campo real del sistema)
     | • Multiempresa
-    | • Búsqueda real
+    | • Búsqueda
     | • Filtro por estado
-    | • Paginado dinámico
+    | • Paginado configurable
     |--------------------------------------------------------------------------
     */
     public function index(Request $request)
@@ -39,18 +39,24 @@ class StockController extends Controller
             $query->where('name', 'like', "%{$busqueda}%");
         }
 
-        // FILTROS POR ESTADO USANDO stock_actual
+        /*
+        |--------------------------------------------------------------------------
+        | FILTROS POR ESTADO
+        |--------------------------------------------------------------------------
+        | Se usa products.stock (campo real)
+        */
+
         if ($estado === 'critico') {
-            $query->where('stock_actual', '<=', 0);
+            $query->where('stock', '<=', 0);
         }
 
         if ($estado === 'bajo') {
-            $query->where('stock_actual', '>', 0)
-                  ->whereColumn('stock_actual', '<=', 'stock_min');
+            $query->where('stock', '>', 0)
+                  ->whereColumn('stock', '<=', 'stock_min');
         }
 
         if ($estado === 'ok') {
-            $query->whereColumn('stock_actual', '>', 'stock_min');
+            $query->whereColumn('stock', '>', 'stock_min');
         }
 
         $productos = $query
@@ -58,18 +64,23 @@ class StockController extends Controller
             ->paginate($filas)
             ->withQueryString();
 
-        // CONTADORES GLOBALES
+        /*
+        |--------------------------------------------------------------------------
+        | CONTADORES DE ESTADO
+        |--------------------------------------------------------------------------
+        */
+
         $critico = Product::where('empresa_id', $empresaId)
-            ->where('stock_actual', '<=', 0)
+            ->where('stock', '<=', 0)
             ->count();
 
         $bajo = Product::where('empresa_id', $empresaId)
-            ->where('stock_actual', '>', 0)
-            ->whereColumn('stock_actual', '<=', 'stock_min')
+            ->where('stock', '>', 0)
+            ->whereColumn('stock', '<=', 'stock_min')
             ->count();
 
         $ok = Product::where('empresa_id', $empresaId)
-            ->whereColumn('stock_actual', '>', 'stock_min')
+            ->whereColumn('stock', '>', 'stock_min')
             ->count();
 
         return view('empresa.stock.index', compact(
@@ -138,6 +149,12 @@ class StockController extends Controller
             ->paginate(30)
             ->withQueryString();
 
+        /*
+        |--------------------------------------------------------------------------
+        | DATOS PARA GRÁFICO
+        |--------------------------------------------------------------------------
+        */
+
         $graficoFechas = $movimientos->getCollection()
             ->pluck('created_at')
             ->map(fn($d) => $d->format('d/m H:i'));
@@ -145,7 +162,13 @@ class StockController extends Controller
         $graficoStock = $movimientos->getCollection()
             ->pluck('stock_resultante');
 
-        $alertaMinimo = $product->stock_actual <= $product->stock_min;
+        /*
+        |--------------------------------------------------------------------------
+        | ALERTA DE STOCK
+        |--------------------------------------------------------------------------
+        */
+
+        $alertaMinimo = $product->stock <= $product->stock_min;
 
         return view('empresa.stock.kardex', compact(
             'product',
@@ -221,7 +244,12 @@ class StockController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | MOVIMIENTO MANUAL DE STOCK (UNIFICADO)
+    | MOVIMIENTO MANUAL DE STOCK
+    |--------------------------------------------------------------------------
+    | Tipos:
+    | • entrada
+    | • salida
+    | • ajuste
     |--------------------------------------------------------------------------
     */
     public function movimientoManual(Request $request, Product $product)
@@ -238,17 +266,29 @@ class StockController extends Controller
 
         $cantidad = (float) $request->cantidad;
 
+        /*
+        |--------------------------------------------------------------------------
+        | ACTUALIZAR STOCK REAL
+        |--------------------------------------------------------------------------
+        */
+
         if ($request->tipo === 'entrada') {
-            $product->stock_actual += $cantidad;
+            $product->stock += $cantidad;
         }
         elseif ($request->tipo === 'salida') {
-            $product->stock_actual -= $cantidad;
+            $product->stock -= $cantidad;
         }
         else {
-            $product->stock_actual = $cantidad;
+            $product->stock = $cantidad;
         }
 
         $product->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | REGISTRAR KARDEX
+        |--------------------------------------------------------------------------
+        */
 
         KardexMovimiento::create([
             'empresa_id'       => Auth::user()->empresa_id,
@@ -256,10 +296,11 @@ class StockController extends Controller
             'user_id'          => Auth::id(),
             'tipo'             => $request->tipo,
             'cantidad'         => $cantidad,
-            'stock_resultante' => $product->stock_actual,
+            'stock_resultante' => $product->stock,
             'origen'           => $request->origen ?? 'Movimiento manual',
         ]);
 
         return back()->with('ok', 'Movimiento de stock registrado correctamente');
     }
+
 }

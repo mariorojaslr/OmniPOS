@@ -85,12 +85,14 @@
 
 <div class="mb-3">
 <label class="form-label"><strong>Cliente</strong></label>
+
 <div class="d-flex justify-content-between align-items-center border rounded p-2" style="background:#f8f9fa">
-<span id="clienteNombre">Consumidor Final</span>
+<span id="clienteNombre">CONSUMIDOR FINAL</span>
 <button type="button" class="btn btn-sm btn-outline-primary" id="btnBuscarCliente">
 Clientes
 </button>
 </div>
+
 <input type="hidden" id="cliente_id" value="">
 </div>
 
@@ -114,12 +116,17 @@ Clientes
 
 <div class="mb-3">
 <label>Monto recibido</label>
+
 <input type="text" id="montoPagado" class="form-control">
-<small class="text-muted">Podés usar: 3x1000 + 2x500</small>
+
+<small class="text-muted">
+Podés usar: 3x1000 + 2x500
+</small>
 
 <div class="mt-2 text-primary fw-bold">
 Resultado parcial: $ <span id="resultadoParcial">0</span>
 </div>
+
 </div>
 
 <h4 id="resultadoPago" class="saldo">SALDO 0</h4>
@@ -131,8 +138,19 @@ VUELTO: $ <span id="vueltoValor">0</span>
 </div>
 
 <div class="modal-footer">
-<button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-<button class="btn btn-success" id="confirmarVenta">Confirmar venta</button>
+
+    <button class="btn btn-secondary" data-bs-dismiss="modal">
+        Cancelar
+    </button>
+
+    <button class="btn btn-success" id="confirmarVenta">
+        Confirmar venta
+    </button>
+
+    <button class="btn btn-primary" id="imprimirVenta">
+        Confirmar e imprimir
+    </button>
+
 </div>
 
 </div>
@@ -155,17 +173,21 @@ VUELTO: $ <span id="vueltoValor">0</span>
 placeholder="Buscar por nombre, documento, CUIT o teléfono...">
 
 <div style="max-height:400px;overflow:auto">
+
 <table class="table table-hover table-bordered">
+
 <thead class="table-light">
 <tr>
 <th>Nombre</th>
 <th>Documento</th>
-<th>CUIT</th>
 <th>Teléfono</th>
 </tr>
 </thead>
+
 <tbody id="tablaClientes"></tbody>
+
 </table>
+
 </div>
 
 </div>
@@ -186,26 +208,43 @@ const grid=document.getElementById('productGrid');
 const modalCobrar=new bootstrap.Modal(document.getElementById('modalCobrar'));
 const modalBuscarCliente=new bootstrap.Modal(document.getElementById('modalBuscarCliente'));
 
+let consumidorFinal = clientes.find(c =>
+c.name?.toUpperCase() === 'CONSUMIDOR FINAL'
+);
+
 /* ================= PRODUCTOS ================= */
 
 function renderProducts(){
+
 grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+
 grid.innerHTML='';
+
 const q=document.getElementById('search').value.toLowerCase();
+
 let filtered=products;
-if(q)filtered=products.filter(p=>p.name.toLowerCase().includes(q));
+
+if(q)
+filtered=products.filter(p=>p.name.toLowerCase().includes(q));
 
 filtered.slice(0,cols*rows).forEach(p=>{
+
 const card=document.createElement('div');
+
 card.className='card product-card';
+
 card.innerHTML=`<img src="${p.img}">
 <div class="card-body text-center">
 <strong>${p.name}</strong>
 <div class="text-success">$${p.price}</div>
 </div>`;
+
 card.onclick=()=>addToCart(p);
+
 grid.appendChild(card);
+
 });
+
 }
 
 document.getElementById('cols').oninput=e=>{cols=parseInt(e.target.value)||4;renderProducts();}
@@ -221,64 +260,120 @@ renderCart();
 }
 
 function renderCart(){
+
 let html='',total=0,i=1;
+
 Object.values(cart).forEach(p=>{
-const sub=p.qty*p.price; total+=sub;
+
+const sub=p.qty*p.price;
+
+total+=sub;
+
 html+=`
 <div class="venta-row">
+
 <div>${i++}</div>
+
 <div>${p.name}</div>
+
 <div class="qty-box">
 <button onclick="changeQty(${p.id},-1)">-</button>
 <input value="${p.qty}" onchange="setQty(${p.id},this.value)">
 <button onclick="changeQty(${p.id},1)">+</button>
 </div>
+
 <button class="trash-btn" onclick="removeItem(${p.id})">🗑</button>
-<div class="text-end"><strong>$${sub.toFixed(2)}</strong></div>
+
+<div class="text-end">
+<strong>$${sub.toFixed(2)}</strong>
+</div>
+
 </div>`;
+
 });
+
 document.getElementById('cart').innerHTML=html;
+
 document.getElementById('total').innerText=total.toFixed(2);
+
 }
 
-function changeQty(id,d){cart[id].qty+=d;if(cart[id].qty<=0)delete cart[id];renderCart();}
-function setQty(id,v){v=parseInt(v);if(v<=0)delete cart[id];else cart[id].qty=v;renderCart();}
-function removeItem(id){delete cart[id];renderCart();}
+function changeQty(id,d){
+cart[id].qty+=d;
+if(cart[id].qty<=0)delete cart[id];
+renderCart();
+}
+
+function setQty(id,v){
+v=parseInt(v);
+if(v<=0)delete cart[id];
+else cart[id].qty=v;
+renderCart();
+}
+
+function removeItem(id){
+delete cart[id];
+renderCart();
+}
 
 /* ================= CALCULADORA ================= */
 
 function evaluarExpresion(expr){
+
 try{
+
 expr=expr.toLowerCase().replace(/x/g,'*').replace(/,/g,'.');
+
 expr=expr.replace(/[^0-9\.\+\-\*\/]/g,'');
+
 if(!expr)return 0;
+
 return Function('"use strict";return ('+expr+')')();
+
 }catch{return 0;}
+
 }
 
 document.getElementById('montoPagado').oninput=()=>{
+
 const pagado=evaluarExpresion(document.getElementById('montoPagado').value);
+
 document.getElementById('resultadoParcial').innerText=pagado.toLocaleString();
+
 const total=parseFloat(document.getElementById('modalTotal').innerText)||0;
+
 const diff=pagado-total;
+
 const res=document.getElementById('resultadoPago');
 
 if(diff<0){
+
 res.className='falta';
 res.innerText='FALTA $ '+Math.abs(diff).toLocaleString();
+
 document.getElementById('vueltoBox').style.display='none';
+
 }
+
 else if(diff>0){
+
 res.className='saldo';
 res.innerText='SALDO 0';
+
 document.getElementById('vueltoBox').style.display='block';
 document.getElementById('vueltoValor').innerText=diff.toLocaleString();
+
 }
+
 else{
+
 res.className='saldo';
 res.innerText='SALDO 0';
+
 document.getElementById('vueltoBox').style.display='none';
+
 }
+
 };
 
 /* ================= CLIENTES ================= */
@@ -288,26 +383,24 @@ renderTablaClientes();
 modalBuscarCliente.show();
 };
 
-
-/* ============= ESTO ES LO QUE CAMBIE YO INICIO  =========== */
-
 function renderTablaClientes(){
+
 const q=document.getElementById('buscarClienteInput').value?.toLowerCase()||'';
+
 const tbody=document.getElementById('tablaClientes');
+
 tbody.innerHTML='';
 
 clientes.forEach(c=>{
 
-let datos=[
-c.name??'',
-c.document??'',   // ESTE ES EL CUIT
-c.phone??''
-];
+let datos=[c.name??'',c.document??'',c.phone??''];
 
 let coincide=datos.some(d=>d.toLowerCase().includes(q));
+
 if(q && !coincide) return;
 
 let fila=document.createElement('tr');
+
 fila.style.cursor='pointer';
 
 fila.innerHTML=`
@@ -317,23 +410,31 @@ fila.innerHTML=`
 `;
 
 fila.onclick=()=>{
+
 document.getElementById('cliente_id').value=c.id;
+
 document.getElementById('clienteNombre').innerText=c.name;
+
 document.getElementById('tipoVentaClienteBox').style.display='block';
+
 modalBuscarCliente.hide();
+
 };
 
 tbody.appendChild(fila);
+
 });
+
 }
 
-/* ============= ESTO ES LO QUE CAMBIE YO FINAL  =========== */
-
-
 function resaltar(texto,busqueda){
+
 if(!busqueda)return texto;
+
 let regex=new RegExp(`(${busqueda})`,'gi');
+
 return texto.replace(regex,'<span class="highlight">$1</span>');
+
 }
 
 document.getElementById('buscarClienteInput').oninput=renderTablaClientes;
@@ -341,14 +442,27 @@ document.getElementById('buscarClienteInput').oninput=renderTablaClientes;
 /* ================= COBRAR ================= */
 
 document.getElementById('checkout').onclick=()=>{
-if(!Object.keys(cart).length)return alert('Carrito vacío');
-document.getElementById('modalTotal').innerText=document.getElementById('total').innerText;
+
+if(!Object.keys(cart).length){
+alert('Carrito vacío');
+return;
+}
+
+document.getElementById('modalTotal').innerText=
+document.getElementById('total').innerText;
+
 modalCobrar.show();
+
 };
 
-/* ================= CONFIRMAR VENTA ================= */
 
-document.getElementById('confirmarVenta').onclick = async function(){
+/* ================= CONFIRMAR VENTA (SIN IMPRIMIR) ================= */
+
+const btnConfirmar = document.getElementById('confirmarVenta');
+
+if(btnConfirmar){
+
+btnConfirmar.onclick = async function(){
 
 if(!Object.keys(cart).length){
 alert('Carrito vacío');
@@ -356,11 +470,18 @@ return;
 }
 
 const total = parseFloat(document.getElementById('modalTotal').innerText) || 0;
+
 const pagado = evaluarExpresion(document.getElementById('montoPagado').value);
 
 if(pagado < total){
 alert('Pago insuficiente');
 return;
+}
+
+let clienteID = document.getElementById('cliente_id').value;
+
+if(!clienteID && consumidorFinal){
+clienteID = consumidorFinal.id;
 }
 
 const items = Object.values(cart).map(p => ({
@@ -369,17 +490,23 @@ cantidad: p.qty
 }));
 
 const response = await fetch("{{ route('empresa.pos.checkout') }}", {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json',
-'X-CSRF-TOKEN': '{{ csrf_token() }}'
+
+method:'POST',
+
+headers:{
+'Content-Type':'application/json',
+'X-CSRF-TOKEN':'{{ csrf_token() }}'
 },
-body: JSON.stringify({
-items: items,
-cliente_id: document.getElementById('cliente_id').value || null,
-tipo_venta_cliente: document.getElementById('tipoVentaCliente').value,
-metodo_pago: document.getElementById('metodoPago').value
+
+body:JSON.stringify({
+
+items:items,
+cliente_id:clienteID,
+tipo_venta_cliente:document.getElementById('tipoVentaCliente').value,
+metodo_pago:document.getElementById('metodoPago').value
+
 })
+
 });
 
 const data = await response.json();
@@ -390,19 +517,146 @@ return;
 }
 
 modalCobrar.hide();
-cart = {};
+
+/* LIMPIAR POS */
+
+cart={};
 renderCart();
 
-const flash = document.getElementById('ventaFlash');
-flash.style.display = 'block';
-setTimeout(()=> flash.style.display='none',1500);
+const flash=document.getElementById('ventaFlash');
+
+flash.style.display='block';
+
+setTimeout(()=>flash.style.display='none',1500);
 
 document.getElementById('montoPagado').value='';
 document.getElementById('cliente_id').value='';
-document.getElementById('clienteNombre').innerText='Consumidor Final';
+document.getElementById('clienteNombre').innerText='CONSUMIDOR FINAL';
 document.getElementById('tipoVentaClienteBox').style.display='none';
 
 };
+
+}
+
+
+/* ================= CONFIRMAR + IMPRIMIR ================= */
+
+const btnImprimir = document.getElementById('imprimirVenta');
+
+if(btnImprimir){
+
+btnImprimir.onclick = async function(){
+
+if(!Object.keys(cart).length){
+alert('Carrito vacío');
+return;
+}
+
+const total = parseFloat(document.getElementById('modalTotal').innerText) || 0;
+
+const pagado = evaluarExpresion(document.getElementById('montoPagado').value);
+
+if(pagado < total){
+alert('Pago insuficiente');
+return;
+}
+
+let clienteID = document.getElementById('cliente_id').value;
+
+if(!clienteID && consumidorFinal){
+clienteID = consumidorFinal.id;
+}
+
+const items = Object.values(cart).map(p => ({
+product_id: p.id,
+cantidad: p.qty
+}));
+
+const response = await fetch("{{ route('empresa.pos.checkout') }}", {
+
+method:'POST',
+
+headers:{
+'Content-Type':'application/json',
+'X-CSRF-TOKEN':'{{ csrf_token() }}'
+},
+
+body:JSON.stringify({
+
+items:items,
+cliente_id:clienteID,
+tipo_venta_cliente:document.getElementById('tipoVentaCliente').value,
+metodo_pago:document.getElementById('metodoPago').value
+
+})
+
+});
+
+const data = await response.json();
+
+if(!data.ok){
+alert('Error al guardar venta');
+return;
+}
+
+modalCobrar.hide();
+
+/* ===== IMPRIMIR ===== */
+
+let ticket = `
+MULTIPOS
+---------------------------
+Venta #${data.venta_id}
+
+`;
+
+Object.values(cart).forEach(p=>{
+
+ticket += `${p.name}
+${p.qty} x $${p.price}
+$${(p.qty*p.price).toFixed(2)}
+
+`;
+
+});
+
+ticket += `
+---------------------------
+TOTAL: $${data.total}
+
+Gracias por su compra
+`;
+
+const w = window.open('', 'PRINT', 'height=600,width=350');
+
+w.document.write('<pre>'+ticket+'</pre>');
+w.document.close();
+w.focus();
+w.print();
+w.close();
+
+/* LIMPIAR POS */
+
+cart={};
+renderCart();
+
+const flash=document.getElementById('ventaFlash');
+
+flash.style.display='block';
+
+setTimeout(()=>flash.style.display='none',1500);
+
+document.getElementById('montoPagado').value='';
+document.getElementById('cliente_id').value='';
+document.getElementById('clienteNombre').innerText='CONSUMIDOR FINAL';
+document.getElementById('tipoVentaClienteBox').style.display='none';
+
+};
+
+}
+
+
+/* ================= INICIALIZAR POS ================= */
 
 renderProducts();
 

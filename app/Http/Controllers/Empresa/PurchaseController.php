@@ -18,7 +18,7 @@ class PurchaseController extends Controller
 
     /* =========================================================
        UTILIDAD INTERNA — PARSE NUMÉRICO SEGURO
-       Formato B: 12,500.55
+       Convierte formato B: 12,500.55 a float
     ========================================================= */
     private function parseNumero($valor)
     {
@@ -33,7 +33,7 @@ class PurchaseController extends Controller
 
 
     /* =========================================================
-       LISTADO + KPIs
+       LISTADO DE COMPRAS + KPIs
     ========================================================= */
     public function index(Request $request)
     {
@@ -120,6 +120,7 @@ class PurchaseController extends Controller
 
     /* =========================================================
        GUARDAR COMPRA
+       MOTOR PRINCIPAL DE INVENTARIO
     ========================================================= */
     public function store(Request $request)
     {
@@ -174,10 +175,16 @@ class PurchaseController extends Controller
                 $iva   = (float) ($item['iva'] ?? 0);
                 $final = $this->parseNumero($item['price_con_iva'] ?? 0);
 
+                $productId = $item['product_id'] ?? null;
+
+                if (!$productId) {
+                    throw new \Exception("Producto inválido en la compra");
+                }
+
                 PurchaseItem::create([
                     'empresa_id'  => $empresaId,
                     'purchase_id' => $purchase->id,
-                    'product_id'  => $item['product_id'],
+                    'product_id'  => $productId,
                     'quantity'    => $qty,
                     'cost'        => $base,
                     'iva'         => $iva,
@@ -185,28 +192,35 @@ class PurchaseController extends Controller
                 ]);
 
                 $product = Product::where('empresa_id',$empresaId)
-                    ->where('id', $item['product_id'])
+                    ->where('id', $productId)
                     ->lockForUpdate()
                     ->first();
 
-                if ($product) {
-
-                    $stockDespues = $product->stock_actual + $qty;
-
-                    $product->update([
-                        'stock_actual' => $stockDespues
-                    ]);
-
-                    KardexMovimiento::create([
-                        'empresa_id'        => $empresaId,
-                        'product_id'        => $product->id,
-                        'user_id'           => $userId,
-                        'tipo'              => 'entrada',
-                        'cantidad'          => $qty,
-                        'stock_resultante'  => $stockDespues,
-                        'origen'            => 'COMPRA #' . $purchase->id
-                    ]);
+                if (!$product) {
+                    throw new \Exception("Producto no encontrado ID: ".$productId);
                 }
+
+                /* ======================================================
+                   CORRECCIÓN CRÍTICA INVENTARIO
+                   El sistema usa products.stock
+                ====================================================== */
+
+                $stockActual  = $product->stock ?? 0;
+                $stockDespues = $stockActual + $qty;
+
+                $product->update([
+                    'stock' => $stockDespues
+                ]);
+
+                KardexMovimiento::create([
+                    'empresa_id'        => $empresaId,
+                    'product_id'        => $product->id,
+                    'user_id'           => $userId,
+                    'tipo'              => 'entrada',
+                    'cantidad'          => $qty,
+                    'stock_resultante'  => $stockDespues,
+                    'origen'            => 'COMPRA #' . $purchase->id
+                ]);
             }
 
             if ($tipoPago === 'contado'
@@ -235,13 +249,16 @@ class PurchaseController extends Controller
         } catch (\Throwable $e) {
 
             DB::rollBack();
+
             return back()->with('error', $e->getMessage());
         }
     }
 
 
+
     /* =========================================================
-       BORRAR COMPRA (BORRADO REAL)
+       BORRAR COMPRA
+       REVERSA DE INVENTARIO
     ========================================================= */
     public function destroy($id)
     {
@@ -263,10 +280,12 @@ class PurchaseController extends Controller
                     ->first();
 
                 if ($product) {
-                    $nuevoStock = $product->stock_actual - $item->quantity;
+
+                    $stockActual = $product->stock ?? 0;
+                    $nuevoStock  = $stockActual - $item->quantity;
 
                     $product->update([
-                        'stock_actual' => $nuevoStock
+                        'stock' => $nuevoStock
                     ]);
                 }
 
@@ -277,12 +296,12 @@ class PurchaseController extends Controller
             }
 
             if (DB::getSchemaBuilder()->hasTable('pagos_proveedores')) {
+
                 DB::table('pagos_proveedores')
                     ->where('purchase_id', $purchase->id)
                     ->delete();
             }
 
-            // 🔥 BORRADO REAL
             $purchase->delete();
 
             DB::commit();
@@ -294,13 +313,15 @@ class PurchaseController extends Controller
         } catch (\Throwable $e) {
 
             DB::rollBack();
+
             return back()->with('error', $e->getMessage());
         }
     }
 
 
+
     /* =========================================================
-       VER DETALLE
+       VER DETALLE COMPRA
     ========================================================= */
     public function show($id)
     {

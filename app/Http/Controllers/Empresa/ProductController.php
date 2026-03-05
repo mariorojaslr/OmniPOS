@@ -9,14 +9,15 @@ use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
+
     /*
     |--------------------------------------------------------------------------
     | LISTADO DE PRODUCTOS
     |--------------------------------------------------------------------------
-    | - Búsqueda opcional
-    | - Paginado dinámico (10,15,25,50,100)
-    | - Mantiene querystring
-    | - Seguro multiempresa
+    | • Búsqueda opcional
+    | • Paginado dinámico
+    | • Multiempresa seguro
+    | • Soporte AJAX futuro
     |--------------------------------------------------------------------------
     */
 
@@ -24,41 +25,41 @@ class ProductController extends Controller
     {
         $empresaId = Auth::user()->empresa_id;
 
-        // 🔍 Parámetros
         $buscar  = $request->get('q');
         $perPage = (int) $request->get('per_page', 15);
 
-        // Seguridad para evitar valores raros
-        if (!in_array($perPage, [10, 15, 25, 50, 100])) {
+        // Seguridad paginado
+        if (!in_array($perPage, [10,15,25,50,100])) {
             $perPage = 15;
         }
 
-        // Query base multiempresa
         $query = Product::where('empresa_id', $empresaId);
 
-        // Filtro por nombre
         if (!empty($buscar)) {
             $query->where('name', 'like', "%{$buscar}%");
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Soporte AJAX (por si más adelante lo usamos)
+        | Soporte AJAX
         |--------------------------------------------------------------------------
         */
+
         if ($request->ajax() || $request->get('ajax')) {
+
             return response()->json(
                 $query->orderBy('name')
-                      ->limit(50)
-                      ->get(['id','name','price','active'])
+                    ->limit(50)
+                    ->get(['id','name','price','active'])
             );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Paginado real dinámico
+        | Paginado
         |--------------------------------------------------------------------------
         */
+
         $products = $query
             ->orderBy('name')
             ->paginate($perPage)
@@ -78,6 +79,7 @@ class ProductController extends Controller
     | FORMULARIO CREAR
     |--------------------------------------------------------------------------
     */
+
     public function create()
     {
         return view('empresa.products.create');
@@ -90,6 +92,7 @@ class ProductController extends Controller
     | GUARDAR PRODUCTO
     |--------------------------------------------------------------------------
     */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -99,7 +102,7 @@ class ProductController extends Controller
             'descripcion_larga' => 'nullable|string',
         ]);
 
-        Product::create([
+        $product = Product::create([
             'empresa_id'        => Auth::user()->empresa_id,
             'name'              => $request->name,
             'price'             => $request->price,
@@ -108,13 +111,25 @@ class ProductController extends Controller
             'active'            => true,
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECCIÓN INTELIGENTE
+        |--------------------------------------------------------------------------
+        */
+
         if ($request->action === 'save_return') {
+
+            if ($request->return) {
+                return redirect($request->return)
+                    ->with('success','Producto creado correctamente');
+            }
+
             return redirect()->route('empresa.products.index')
-                ->with('success', 'Producto creado correctamente');
+                ->with('success','Producto creado correctamente');
         }
 
-        return redirect()->back()
-            ->with('success', 'Producto creado correctamente');
+        return redirect()->route('empresa.products.edit', $product)
+            ->with('success','Producto creado correctamente');
     }
 
 
@@ -124,6 +139,7 @@ class ProductController extends Controller
     | EDITAR PRODUCTO
     |--------------------------------------------------------------------------
     */
+
     public function edit(Product $product)
     {
         if ($product->empresa_id !== Auth::user()->empresa_id) {
@@ -139,7 +155,12 @@ class ProductController extends Controller
     |--------------------------------------------------------------------------
     | ACTUALIZAR PRODUCTO
     |--------------------------------------------------------------------------
+    | • Mantiene retorno dinámico
+    | • Compatible con Inventario
+    | • Compatible con Productos
+    |--------------------------------------------------------------------------
     */
+
     public function update(Request $request, Product $product)
     {
         if ($product->empresa_id !== Auth::user()->empresa_id) {
@@ -154,6 +175,12 @@ class ProductController extends Controller
             'descripcion_larga' => 'nullable|string',
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | ACTUALIZAR DATOS
+        |--------------------------------------------------------------------------
+        */
+
         $product->update([
             'name'              => $request->name,
             'price'             => $request->price,
@@ -162,12 +189,43 @@ class ProductController extends Controller
             'descripcion_larga' => $request->descripcion_larga,
         ]);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | DETERMINAR URL DE RETORNO
+        |--------------------------------------------------------------------------
+        */
+
+        $returnUrl = $request->input('return');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BOTÓN: GUARDAR Y VOLVER
+        |--------------------------------------------------------------------------
+        */
+
         if ($request->action === 'save_return') {
+
+            if ($returnUrl) {
+                return redirect($returnUrl)
+                    ->with('success','Producto actualizado correctamente');
+            }
+
             return redirect()->route('empresa.products.index')
-                ->with('success', 'Producto actualizado correctamente');
+                ->with('success','Producto actualizado correctamente');
         }
 
-        return redirect()->back()
-            ->with('success', 'Producto actualizado correctamente');
+
+        /*
+        |--------------------------------------------------------------------------
+        | BOTÓN: GUARDAR
+        | Se queda en edición
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route('empresa.products.edit', $product)
+            ->with('success','Producto actualizado correctamente');
     }
 }

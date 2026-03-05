@@ -2,12 +2,21 @@
 
 @section('content')
 
+{{-- =========================================================
+   CONTROL DE STOCK
+   ========================================================= --}}
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
         <h2 class="fw-bold mb-0">Control de Stock</h2>
         <small class="text-muted">Inventario en tiempo real</small>
     </div>
 </div>
+
+
+{{-- =========================================================
+   KPIs DE INVENTARIO
+   ========================================================= --}}
 
 <div class="row mb-3">
 
@@ -40,6 +49,11 @@
 
 </div>
 
+
+{{-- =========================================================
+   BUSCADOR Y FILTROS
+   ========================================================= --}}
+
 <div class="card shadow-sm mb-3">
     <div class="card-body d-flex gap-3 align-items-center">
 
@@ -68,12 +82,14 @@
                     class="form-select"
                     style="width:150px"
                     onchange="this.form.submit()">
+
                 @foreach([5,10,20,50,100] as $n)
                     <option value="{{ $n }}"
                         {{ request('filas',20)==$n ? 'selected' : '' }}>
                         {{ $n }} filas
                     </option>
                 @endforeach
+
             </select>
 
         </form>
@@ -81,110 +97,195 @@
     </div>
 </div>
 
+
+{{-- =========================================================
+   TABLA DE INVENTARIO
+   ========================================================= --}}
+
 <div class="card shadow-sm border-0">
-    <div class="card-body p-0">
+<div class="card-body p-0">
 
-        <table class="table table-hover mb-0 align-middle text-center">
+<table class="table table-hover mb-0 align-middle text-center">
 
-            <thead class="table-light">
-                <tr>
-                    <th class="text-start">Producto</th>
-                    <th width="120">Stock</th>
-                    <th width="120">Mínimo</th>
-                    <th width="120">Ideal</th>
-                    <th width="140">Estado</th>
-                    <th width="130">Kardex</th>
-                    <th width="140">Acción</th>
-                </tr>
-            </thead>
+<thead class="table-light">
+<tr>
 
-            <tbody>
+<th class="text-start">Producto</th>
+<th width="120">Stock</th>
+<th width="120">Mínimo</th>
+<th width="120">Ideal</th>
+<th width="140">Estado</th>
+<th width="130">Kardex</th>
+<th width="120">Guardar</th>
 
-            @forelse($productos as $p)
+</tr>
+</thead>
 
-                @php
-                    $stock = $p->stock_actual ?? 0;
-                    $min   = $p->stock_min ?? 0;
-                    $ideal = $p->stock_ideal ?? 0;
 
-                    if($stock <= 0) {
-                        $estado = ['CRÍTICO','danger'];
-                    } elseif($stock <= $min) {
-                        $estado = ['BAJO','warning'];
-                    } else {
-                        $estado = ['OK','success'];
-                    }
-                @endphp
+<tbody>
 
-                <tr>
-                    <td class="text-start">
-                        <a href="{{ route('empresa.stock.kardex', $p->id) }}"
-                           class="text-decoration-none fw-semibold text-dark">
-                            {{ $p->name }}
-                        </a>
-                    </td>
+@forelse($productos as $p)
 
-                    <td>{{ number_format($stock,2) }}</td>
-                    <td>{{ number_format($min,2) }}</td>
-                    <td>{{ number_format($ideal,2) }}</td>
+@php
 
-                    <td>
-                        <span class="badge bg-{{ $estado[1] }}">
-                            {{ $estado[0] }}
-                        </span>
-                    </td>
+$stock = $p->stock ?? 0;
+$min   = $p->stock_min ?? 0;
+$ideal = $p->stock_ideal ?? 0;
 
-                    <td>
-                        <a href="{{ route('empresa.stock.kardex', $p->id) }}"
-                           class="btn btn-sm btn-outline-dark">
-                            Kardex
-                        </a>
-                    </td>
+if($stock <= 0){
+    $estado = ['CRÍTICO','danger'];
+}
+elseif($stock <= $min){
+    $estado = ['BAJO','warning'];
+}
+else{
+    $estado = ['OK','success'];
+}
 
-                    <td>
-                        <a href="{{ route('empresa.products.edit', $p->id) }}?return={{ urlencode(request()->fullUrl()) }}"
-                           class="btn btn-sm btn-primary">
-                            Editar
-                        </a>
-                    </td>
-                </tr>
+@endphp
 
-            @empty
-                <tr>
-                    <td colspan="7" class="text-center text-muted py-4">
-                        No hay productos
-                    </td>
-                </tr>
-            @endforelse
 
-            </tbody>
-        </table>
+<tr>
 
-    </div>
+<td class="text-start fw-semibold">
+
+<a href="{{ route('empresa.stock.kardex', $p->id) }}"
+class="text-decoration-none text-dark">
+
+{{ $p->name }}
+
+</a>
+
+</td>
+
+
+<td>
+
+{{ number_format($stock,2) }}
+
+</td>
+
+
+<form method="POST"
+action="{{ route('empresa.stock.config',$p->id) }}">
+
+@csrf
+
+
+<td>
+
+<input type="number"
+step="0.01"
+name="minimo"
+value="{{ $min }}"
+class="form-control form-control-sm text-center">
+
+</td>
+
+
+<td>
+
+<input type="number"
+step="0.01"
+name="ideal"
+value="{{ $ideal }}"
+class="form-control form-control-sm text-center">
+
+</td>
+
+
+<td>
+
+<span class="badge bg-{{ $estado[1] }}">
+{{ $estado[0] }}
+</span>
+
+</td>
+
+
+<td>
+
+<a href="{{ route('empresa.stock.kardex', $p->id) }}"
+class="btn btn-sm btn-outline-dark">
+
+Kardex
+
+</a>
+
+</td>
+
+
+<td>
+
+<button class="btn btn-sm btn-success">
+Guardar
+</button>
+
+</td>
+
+</form>
+
+
+</tr>
+
+
+@empty
+
+<tr>
+<td colspan="7" class="text-center text-muted py-4">
+No hay productos
+</td>
+</tr>
+
+@endforelse
+
+
+</tbody>
+</table>
+
+</div>
 </div>
 
+
+{{-- =========================================================
+   PAGINACIÓN
+   ========================================================= --}}
+
 <div class="mt-3 d-flex justify-content-center">
-    {{ $productos->withQueryString()->links('pagination::bootstrap-5') }}
+
+{{ $productos->withQueryString()->links('pagination::bootstrap-5') }}
+
 </div>
 
 @endsection
 
+
+
 @section('scripts')
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
 
-    const buscador = document.getElementById("buscador");
-    const form = document.getElementById("formBusqueda");
+document.addEventListener("DOMContentLoaded", function(){
 
-    let timer = null;
+const buscador = document.getElementById("buscador");
+const form = document.getElementById("formBusqueda");
 
-    buscador.addEventListener("keyup", function () {
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-            form.submit();
-        }, 400);
-    });
+let timer = null;
+
+buscador.addEventListener("keyup", function(){
+
+clearTimeout(timer);
+
+timer = setTimeout(function(){
+
+form.submit();
+
+},400);
 
 });
+
+});
+
 </script>
+
 @endsection

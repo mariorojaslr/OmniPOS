@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Product extends Model
 {
+
     /*
     |--------------------------------------------------------------------------
     | CONFIGURACIÓN BÁSICA
+    |--------------------------------------------------------------------------
+    | Definición de la tabla y campos permitidos
+    | El campo oficial de inventario es: stock
     |--------------------------------------------------------------------------
     */
 
@@ -19,19 +23,30 @@ class Product extends Model
         'empresa_id',
         'name',
 
-        // Descripciones marketing
+        // Contenido comercial
         'descripcion_corta',
         'descripcion_larga',
 
+        // Precio final
         'price',
 
-        // Stock
+        // Inventario
         'stock',
         'stock_min',
         'stock_ideal',
 
+        // Estado
         'active'
     ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CASTS
+    |--------------------------------------------------------------------------
+    | Conversiones automáticas de tipos
+    |--------------------------------------------------------------------------
+    */
 
     protected $casts = [
         'price'       => 'float',
@@ -47,17 +62,19 @@ class Product extends Model
     |--------------------------------------------------------------------------
     | GLOBAL SCOPE MULTIEMPRESA
     |--------------------------------------------------------------------------
-    | Todos los productos quedan automáticamente filtrados
-    | por la empresa logueada.
+    | Todos los productos quedan filtrados automáticamente
+    | por la empresa del usuario autenticado.
     |--------------------------------------------------------------------------
     */
 
     protected static function booted()
     {
         static::addGlobalScope('empresa', function (Builder $builder) {
+
             if (auth()->check()) {
                 $builder->where('empresa_id', auth()->user()->empresa_id);
             }
+
         });
     }
 
@@ -75,26 +92,30 @@ class Product extends Model
         return $this->belongsTo(Empresa::class);
     }
 
-    // Imágenes (máximo 5 permitido en controlador)
+
+    // Imágenes del producto
     public function images()
     {
         return $this->hasMany(ProductImage::class);
     }
 
-    // Videos (máximo 3 recomendado)
+
+    // Videos del producto
     public function videos()
     {
         return $this->hasMany(ProductVideo::class)
-                    ->latest();
+            ->latest();
     }
 
-    // Items vendidos (estadísticas / ranking)
+
+    // Items de ventas (ranking / estadísticas)
     public function ventaItems()
     {
         return $this->hasMany(VentaItem::class, 'product_id');
     }
 
-    // Movimientos Kardex
+
+    // Kardex de movimientos
     public function movimientos()
     {
         return $this->hasMany(KardexMovimiento::class, 'product_id');
@@ -109,16 +130,17 @@ class Product extends Model
     */
 
     /**
-     * Verifica si puede agregar más videos.
-     * Límite profesional: 3 por producto.
+     * Determina si puede agregar más videos
+     * límite recomendado: 3
      */
     public function puedeAgregarVideo(): bool
     {
         return $this->videos()->count() < 3;
     }
 
+
     /**
-     * Retorna si tiene videos.
+     * Indica si el producto tiene videos
      */
     public function tieneVideos(): bool
     {
@@ -129,17 +151,26 @@ class Product extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | STOCK — MÉTODOS PROFESIONALES
+    | MOTOR DE INVENTARIO
+    |--------------------------------------------------------------------------
+    | Todas las operaciones de stock pasan por aquí.
+    | Esto garantiza consistencia con Kardex.
     |--------------------------------------------------------------------------
     */
 
+
     /**
-     * Descuenta stock y registra movimiento Kardex
+     * Descontar stock (ventas / POS)
      */
     public function descontarStock($cantidad, $origen = 'VENTA')
     {
+
+        $stockAnterior = $this->stock;
+
         $this->stock = max(0, $this->stock - $cantidad);
+
         $this->save();
+
 
         KardexMovimiento::create([
             'empresa_id'       => $this->empresa_id,
@@ -150,15 +181,23 @@ class Product extends Model
             'stock_resultante' => $this->stock,
             'origen'           => $origen,
         ]);
+
     }
 
+
+
     /**
-     * Aumenta stock y registra movimiento
+     * Aumentar stock (compras / ingresos)
      */
     public function aumentarStock($cantidad, $origen = 'INGRESO')
     {
+
+        $stockAnterior = $this->stock;
+
         $this->stock += $cantidad;
+
         $this->save();
+
 
         KardexMovimiento::create([
             'empresa_id'       => $this->empresa_id,
@@ -169,16 +208,23 @@ class Product extends Model
             'stock_resultante' => $this->stock,
             'origen'           => $origen,
         ]);
+
     }
 
+
+
     /**
-     * Ajuste manual
+     * Ajuste manual de stock
      */
     public function ajustarStock($nuevoStock, $origen = 'AJUSTE')
     {
-        $diferencia   = $nuevoStock - $this->stock;
-        $this->stock  = $nuevoStock;
+
+        $diferencia = $nuevoStock - $this->stock;
+
+        $this->stock = $nuevoStock;
+
         $this->save();
+
 
         KardexMovimiento::create([
             'empresa_id'       => $this->empresa_id,
@@ -189,10 +235,20 @@ class Product extends Model
             'stock_resultante' => $this->stock,
             'origen'           => $origen,
         ]);
+
     }
 
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REGLAS DE INVENTARIO
+    |--------------------------------------------------------------------------
+    */
+
+
     /**
-     * ¿Stock bajo?
+     * Detecta si el stock está bajo
      */
     public function stockBajo(): bool
     {
@@ -207,11 +263,13 @@ class Product extends Model
     |--------------------------------------------------------------------------
     */
 
+
     /**
-     * Estado de stock
+     * Estado del stock
      */
     public function getEstadoStockAttribute(): string
     {
+
         if ($this->stock <= 0) {
             return 'critico';
         }
@@ -221,23 +279,27 @@ class Product extends Model
         }
 
         return 'ok';
+
     }
 
 
 
     /*
     |--------------------------------------------------------------------------
-    | SCOPES ÚTILES
+    | SCOPES
     |--------------------------------------------------------------------------
     */
+
 
     public function scopeActivos($query)
     {
         return $query->where('active', true);
     }
 
+
     public function scopeConStock($query)
     {
         return $query->where('stock', '>', 0);
     }
+
 }

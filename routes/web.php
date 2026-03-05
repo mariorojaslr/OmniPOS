@@ -19,7 +19,7 @@ use App\Http\Controllers\Owner\EmpresaUserController;
 use App\Http\Controllers\Empresa\DashboardController as EmpresaDashboardController;
 use App\Http\Controllers\Empresa\ProductController;
 use App\Http\Controllers\Empresa\ProductImageController;
-use App\Http\Controllers\Empresa\ProductVideoController; // ✅ NUEVO
+use App\Http\Controllers\Empresa\ProductVideoController;
 use App\Http\Controllers\Empresa\POSController;
 use App\Http\Controllers\Empresa\VentaController;
 use App\Http\Controllers\Empresa\UsuarioDashboardController;
@@ -36,7 +36,6 @@ use App\Http\Controllers\Auth\PasswordController;
 
 // ================= CATÁLOGO =================
 use App\Http\Controllers\CatalogController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -196,12 +195,10 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         */
         Route::resource('products', ProductController::class)->except(['show', 'destroy']);
 
-        // Imágenes
         Route::get('products/{product}/images/create', [ProductImageController::class, 'create'])->name('products.images.create');
         Route::post('products/{product}/images', [ProductImageController::class, 'store'])->name('products.images.store');
         Route::delete('products/{product}/images/{image}', [ProductImageController::class, 'destroy'])->name('products.images.destroy');
 
-        // Videos ✅
         Route::prefix('products/{product}/videos')
             ->name('products.videos.')
             ->group(function () {
@@ -209,6 +206,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
                 Route::get('/', [ProductVideoController::class, 'index'])->name('index');
                 Route::post('/', [ProductVideoController::class, 'store'])->name('store');
                 Route::delete('/{video}', [ProductVideoController::class, 'destroy'])->name('destroy');
+
             });
 
         /*
@@ -230,6 +228,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 Route::get('/c/{empresa}', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class, 'show'])->name('catalog.show');
 
+
 /*
 |--------------------------------------------------------------------------
 | CHECKOUT
@@ -239,6 +238,7 @@ use App\Http\Controllers\CheckoutController;
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -253,27 +253,26 @@ Route::middleware('auth')->get(
 
 /*
 |--------------------------------------------------------------------------
-| CAMBIO DE CONTRASEÑA
-|--------------------------------------------------------------------------
-*/
-Route::middleware('auth')->group(function () {
-    Route::get('/password', fn () => view('auth.passwords.change'))->name('password.edit');
-    Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
-});
-
-
-/*
-|--------------------------------------------------------------------------
 | LOGOUT UNIVERSAL
 |--------------------------------------------------------------------------
 */
 Route::get('/logout', function (Request $request) {
+
     Auth::guard('web')->logout();
+
     $request->session()->invalidate();
     $request->session()->regenerateToken();
+
     return redirect()->route('login');
+
 })->name('logout.get');
 
+
+/*
+|--------------------------------------------------------------------------
+| CARRITO
+|--------------------------------------------------------------------------
+*/
 use App\Http\Controllers\CartController;
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
