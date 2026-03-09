@@ -21,12 +21,16 @@
     {{-- TITULO --}}
     <h1 class="fw-bold text-secondary">Acceso restringido</h1>
 
-    {{-- MENSAJE AMIGABLE --}}
-    <p class="text-muted mt-3" style="max-width:420px;">
-        Intentaste ingresar a un área para la cual tu usuario no tiene permisos.
-        <br><br>
-        Todo está funcionando correctamente 👍
-        Simplemente esta sección no está disponible para tu perfil.
+    {{-- MENSAJE AMIGABLE / TÉCNICO --}}
+    <p class="text-muted mt-3" style="max-width:420px; font-size:1.1rem;">
+        @if(isset($exception) && $exception->getMessage() && $exception->getMessage() !== 'This action is unauthorized.')
+            <b class="text-danger">{{ $exception->getMessage() }}</b>
+        @else
+            Intentaste ingresar a un área para la cual tu usuario no tiene permisos.
+            <br><br>
+            Todo está funcionando correctamente 👍
+            Simplemente esta sección no está disponible para tu perfil.
+        @endif
     </p>
 
     {{-- CODIGO TECNICO DISCRETO --}}

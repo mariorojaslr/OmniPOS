@@ -76,7 +76,7 @@ Route::middleware('auth')->get('/dashboard', function () {
 | OWNER
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])
+Route::middleware(['auth', 'owner'])
     ->prefix('owner')
     ->name('owner.')
     ->group(function () {
@@ -96,7 +96,28 @@ Route::middleware(['auth'])
 
         Route::patch('empresas/{empresa}/users/{user}/toggle', [EmpresaUserController::class, 'toggle'])->name('empresas.users.toggle');
         Route::patch('empresas/{empresa}/users/{user}/reset-password', [EmpresaUserController::class, 'resetPassword'])->name('empresas.users.reset');
+        Route::get('empresas/{empresa}/users/{user}/impersonate', [EmpresaUserController::class, 'impersonate'])->name('empresas.users.impersonate');
     });
+
+
+/*
+|--------------------------------------------------------------------------
+| SALIR DEL MODO "ENTRAR COMO USUARIO" (IMPERSONATE)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->get('/impersonate/leave', function (Request $request) {
+    if (session()->has('impersonate_by')) {
+        $ownerId = session()->pull('impersonate_by');
+        $owner = \App\Models\User::find($ownerId);
+        
+        if ($owner) {
+            Auth::login($owner);
+            $request->session()->regenerate();
+            return redirect()->route('owner.dashboard')->with('success', 'Has vuelto a tu cuenta principal de Owner.');
+        }
+    }
+    return redirect()->route('dashboard');
+})->name('impersonate.leave');
 
 
 /*

@@ -22,7 +22,7 @@
 
 $user = auth()->user();
 $empresa = $user->empresa ?? null;
-$config  = $empresa?->configuracion ?? null;
+$config  = $empresa?->config ?? null;
 
 $colorPrimario   = $config?->color_primary   ?? '#0d6efd';
 $colorSecundario = $config?->color_secondary ?? '#6c757d';
@@ -66,8 +66,10 @@ body{
 }
 
 .navbar{
-    background:#0b1a2b !important;
-    border-bottom:1px solid #1f2d3d;
+    background: rgba(11, 26, 43, 0.7) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom:1px solid rgba(31, 45, 61, 0.5);
 }
 
 .navbar .nav-link,
@@ -76,9 +78,12 @@ body{
 }
 
 .card{
-    background:#161b22 !important;
-    border:1px solid #2c3642;
+    background: rgba(22, 27, 34, 0.75) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border:1px solid rgba(44, 54, 66, 0.5);
     color:#e6edf3 !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
 .table{
@@ -163,6 +168,45 @@ input, select, textarea{
 .main-fluid{
     width:100%;
     padding:20px;
+}
+
+/* =========================================================
+   GLASSMORPHISM BASE (MODO CLARO)
+   ========================================================= */
+
+@if(!$modoOscuro)
+.navbar {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.1);
+}
+@endif
+
+/* Cuidar la visual de los botones primary con el color de la empresa */
+.btn-primary {
+    transition: all 0.3s ease !important;
+    background: var(--color-primario) !important;
+    border-color: var(--color-primario) !important;
+}
+.btn-primary:hover {
+    filter: brightness(1.15) !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
 }
 
 </style>
@@ -318,6 +362,17 @@ Configuración empresa
 
 <main class="main-fluid">
 
+{{-- MODO IMPERSONATE ACTIVO --}}
+@if(session()->has('impersonate_by'))
+    <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4 border border-warning shadow-sm">
+        <div>
+            <strong>Modo Mimetización:</strong> Estás navegando la plataforma como <b>{{ auth()->user()->name }}</b> de la empresa <b>{{ $empresa->nombre_comercial ?? '' }}</b>.
+        </div>
+        <a href="{{ route('impersonate.leave') }}" class="btn btn-sm btn-dark">
+            Volver a mi cuenta (Owner)
+        </a>
+    </div>
+@endif
 
 {{-- ERROR --}}
 @if(session('error'))

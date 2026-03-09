@@ -8,7 +8,7 @@
 
         {{-- LOGO MULTIPOS --}}
         <div class="auth-logo">
-            <img src="/logo-multipos.png" alt="MultiPOS">
+            <img src="{{ asset('images/logo-multipos.png') }}" alt="MultiPOS Logo">
         </div>
 
         <h4 class="auth-title">Iniciar sesión</h4>

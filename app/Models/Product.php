@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class Product extends Model
 {
@@ -164,24 +165,20 @@ class Product extends Model
      */
     public function descontarStock($cantidad, $origen = 'VENTA')
     {
+        DB::transaction(function () use ($cantidad, $origen) {
+            $this->stock = max(0, $this->stock - $cantidad);
+            $this->save();
 
-        $stockAnterior = $this->stock;
-
-        $this->stock = max(0, $this->stock - $cantidad);
-
-        $this->save();
-
-
-        KardexMovimiento::create([
-            'empresa_id'       => $this->empresa_id,
-            'product_id'       => $this->id,
-            'user_id'          => auth()->id(),
-            'tipo'             => 'salida',
-            'cantidad'         => $cantidad,
-            'stock_resultante' => $this->stock,
-            'origen'           => $origen,
-        ]);
-
+            KardexMovimiento::create([
+                'empresa_id'       => $this->empresa_id,
+                'product_id'       => $this->id,
+                'user_id'          => auth()->id(),
+                'tipo'             => 'salida',
+                'cantidad'         => $cantidad,
+                'stock_resultante' => $this->stock,
+                'origen'           => $origen,
+            ]);
+        });
     }
 
 
@@ -191,24 +188,20 @@ class Product extends Model
      */
     public function aumentarStock($cantidad, $origen = 'INGRESO')
     {
+        DB::transaction(function () use ($cantidad, $origen) {
+            $this->stock += $cantidad;
+            $this->save();
 
-        $stockAnterior = $this->stock;
-
-        $this->stock += $cantidad;
-
-        $this->save();
-
-
-        KardexMovimiento::create([
-            'empresa_id'       => $this->empresa_id,
-            'product_id'       => $this->id,
-            'user_id'          => auth()->id(),
-            'tipo'             => 'entrada',
-            'cantidad'         => $cantidad,
-            'stock_resultante' => $this->stock,
-            'origen'           => $origen,
-        ]);
-
+            KardexMovimiento::create([
+                'empresa_id'       => $this->empresa_id,
+                'product_id'       => $this->id,
+                'user_id'          => auth()->id(),
+                'tipo'             => 'entrada',
+                'cantidad'         => $cantidad,
+                'stock_resultante' => $this->stock,
+                'origen'           => $origen,
+            ]);
+        });
     }
 
 
@@ -218,24 +211,21 @@ class Product extends Model
      */
     public function ajustarStock($nuevoStock, $origen = 'AJUSTE')
     {
+        DB::transaction(function () use ($nuevoStock, $origen) {
+            $diferencia = $nuevoStock - $this->stock;
+            $this->stock = $nuevoStock;
+            $this->save();
 
-        $diferencia = $nuevoStock - $this->stock;
-
-        $this->stock = $nuevoStock;
-
-        $this->save();
-
-
-        KardexMovimiento::create([
-            'empresa_id'       => $this->empresa_id,
-            'product_id'       => $this->id,
-            'user_id'          => auth()->id(),
-            'tipo'             => 'ajuste',
-            'cantidad'         => $diferencia,
-            'stock_resultante' => $this->stock,
-            'origen'           => $origen,
-        ]);
-
+            KardexMovimiento::create([
+                'empresa_id'       => $this->empresa_id,
+                'product_id'       => $this->id,
+                'user_id'          => auth()->id(),
+                'tipo'             => 'ajuste',
+                'cantidad'         => $diferencia,
+                'stock_resultante' => $this->stock,
+                'origen'           => $origen,
+            ]);
+        });
     }
 
 

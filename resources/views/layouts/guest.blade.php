@@ -10,7 +10,7 @@
     {{-- ======================================================
         FAVICON MULTIPOS
     ====================================================== --}}
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/png">
 
     {{-- ======================================================
         BOOTSTRAP (solo GRID + UTILIDADES)
@@ -43,12 +43,27 @@
 
         html, body {
             height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: #0f172a; /* Fondo oscuro elegante premium */
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #f8fafc;
         }
 
-        body {
-            margin: 0;
-            background: #f4f6f9;
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        /* Fondo dinámico y animado */
+        .premium-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.15), transparent 25%),
+                        radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.15), transparent 25%);
+            animation: bgShift 15s infinite alternate ease-in-out;
+        }
+
+        @keyframes bgShift {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
         }
 
         .guest-wrapper {
@@ -58,11 +73,114 @@
             justify-content: center;
             padding: 20px;
         }
+
+        /* ----- ESTILOS GLASSMORPHISM GLOBALES PARA AUTH ----- */
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .auth-card {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .auth-logo img {
+            max-width: 220px;
+            height: auto;
+            margin-bottom: 25px;
+            filter: drop-shadow(0px 8px 16px rgba(0,0,0,0.4));
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-input {
+            background: rgba(15, 23, 42, 0.5) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+            padding: 12px 15px !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease;
+        }
+
+        .auth-input:focus {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border-color: var(--color-primary) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3) !important;
+        }
+        
+        .auth-input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .auth-btn {
+            background: linear-gradient(135deg, var(--color-primary), #3b82f6);
+            color: #fff;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.5);
+        }
+
+        .auth-links {
+            margin-top: 25px;
+        }
+
+        .auth-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .auth-links a:hover {
+            color: #fff;
+        }
+        
+        .form-check-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+        
+        .auth-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
     </style>
 </head>
 
 <body>
 
+    <div class="premium-bg"></div>
     <div class="guest-wrapper">
         @yield('content')
     </div>

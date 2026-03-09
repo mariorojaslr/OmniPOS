@@ -60,6 +60,27 @@ return [
             'report' => false,
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Bunny.net Storage (API S3 Compatible)
+        |--------------------------------------------------------------------------
+        | Usado para guardar imágenes pesadas y archivos estáticos
+        | Cuando contrates Bunny.net, debes llenar esto en tu .env:
+        | BUNNY_ACCESS_KEY, BUNNY_SECRET_KEY, BUNNY_REGION, BUNNY_BUCKET, BUNNY_URL
+        */
+        'bunny_storage' => [
+            'driver' => 's3',
+            'key' => env('BUNNY_ACCESS_KEY'),
+            'secret' => env('BUNNY_SECRET_KEY'),
+            'region' => env('BUNNY_REGION', 'us-east-1'),
+            'bucket' => env('BUNNY_BUCKET'),
+            // Para Bunny Edge Storage S3: https://ny.storage.bunnycdn.com o el que te asignen:
+            'endpoint' => env('BUNNY_ENDPOINT', 'https://ny.storage.bunnycdn.com'),
+            'url' => env('BUNNY_URL'),
+            'use_path_style_endpoint' => env('BUNNY_USE_PATH_STYLE_ENDPOINT', true),
+            'throw' => false,
+        ],
+
     ],
 
     /*

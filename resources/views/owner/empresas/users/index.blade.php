@@ -25,6 +25,7 @@
                     <tr>
                         <th class="ps-4">Nombre</th>
                         <th>Email</th>
+                        <th>Rol</th>
                         <th>Estado</th>
                         <th class="text-end pe-4">Acciones</th>
                     </tr>
@@ -35,6 +36,11 @@
                     <tr>
                         <td class="ps-4">{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
+                        <td>
+                            <span class="badge bg-primary text-capitalize">
+                                {{ $user->role === 'empresa' ? 'Administrador' : ($user->role === 'usuario' ? 'Empleado/Cajero' : $user->role) }}
+                            </span>
+                        </td>
                         <td>
                             <span class="badge {{ $user->activo ? 'bg-success' : 'bg-secondary' }}">
                                 {{ $user->activo ? 'Activo' : 'Inactivo' }}
@@ -62,11 +68,17 @@
                                 </button>
                             </form>
 
+                            <a href="{{ route('owner.empresas.users.impersonate', [$empresa, $user]) }}"
+                               class="btn btn-sm btn-outline-info ms-1"
+                               title="Entrar al sistema como este usuario">
+                                Entrar
+                            </a>
+
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center text-muted py-4">
+                        <td colspan="5" class="text-center text-muted py-4">
                             Sin usuarios
                         </td>
                     </tr>

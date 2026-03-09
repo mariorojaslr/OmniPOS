@@ -89,4 +89,23 @@ class EmpresaUserController extends Controller
 
         return back()->with('success', "Nuevo password: {$password}");
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ENTRAR COMO USUARIO (Omnipotencia del Owner)
+    |--------------------------------------------------------------------------
+    */
+    public function impersonate(Empresa $empresa, User $user)
+    {
+        abort_if($user->empresa_id !== $empresa->id, 403);
+
+        // Guardar la sesión original del owner
+        session()->put('impersonate_by', auth()->id());
+
+        // Iniciar sesión silenciosamente como este usuario
+        \Illuminate\Support\Facades\Auth::login($user);
+
+        return redirect()->route('dashboard')
+            ->with('success', "Has iniciado sesión como {$user->name} de la empresa {$empresa->nombre_comercial}");
+    }
 }
