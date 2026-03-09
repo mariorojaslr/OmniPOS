@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToEmpresa;
 
 class KardexMovimiento extends Model
 {
+    use BelongsToEmpresa;
+
     protected $table = 'kardex_movimientos';
 
     protected $fillable = [

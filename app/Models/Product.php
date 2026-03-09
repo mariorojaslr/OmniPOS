@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use App\Traits\BelongsToEmpresa;
 
 class Product extends Model
 {
+    use BelongsToEmpresa;
 
     /*
     |--------------------------------------------------------------------------
@@ -61,37 +62,9 @@ class Product extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | GLOBAL SCOPE MULTIEMPRESA
-    |--------------------------------------------------------------------------
-    | Todos los productos quedan filtrados automáticamente
-    | por la empresa del usuario autenticado.
-    |--------------------------------------------------------------------------
-    */
-
-    protected static function booted()
-    {
-        static::addGlobalScope('empresa', function (Builder $builder) {
-
-            if (auth()->check()) {
-                $builder->where('empresa_id', auth()->user()->empresa_id);
-            }
-
-        });
-    }
-
-
-
-    /*
-    |--------------------------------------------------------------------------
     | RELACIONES
     |--------------------------------------------------------------------------
     */
-
-    // Empresa propietaria
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
-    }
 
 
     // Imágenes del producto

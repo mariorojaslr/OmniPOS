@@ -58,11 +58,23 @@
                     {{-- CONDICION IVA --}}
                     <div class="col-md-3">
                         <label class="form-label">Condición fiscal *</label>
-                        <select name="type" class="form-select" required>
+                        <select name="tax_condition" class="form-select" required>
                             <option value="consumidor_final">Consumidor Final</option>
                             <option value="responsable_inscripto">Responsable Inscripto</option>
                             <option value="monotributo">Monotributo</option>
                             <option value="exento">Exento</option>
+                        </select>
+                    </div>
+
+                    {{-- TIPO DE CLIENTE --}}
+                    <div class="col-md-3">
+                        <label class="form-label">Tipo de cliente *</label>
+                        <select name="type" class="form-select" required>
+                            <option value="consumidor_final">Consumidor Final</option>
+                            <option value="minorista" selected>Minorista (Normal)</option>
+                            <option value="mayorista">Mayorista</option>
+                            <option value="revendedor">Revendedor</option>
+                            <option value="amigo">Amigo / VIP</option>
                         </select>
                     </div>
 

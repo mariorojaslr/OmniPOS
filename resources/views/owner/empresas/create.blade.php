@@ -28,9 +28,20 @@
                         <input type="text" name="telefono" class="form-control">
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Fecha de vencimiento</label>
-                        <input type="date" name="fecha_vencimiento" class="form-control">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Plan de Suscripción</label>
+                            <select name="plan_id" class="form-select">
+                                <option value="">Sin Plan asignado</option>
+                                @foreach($planes as $plan)
+                                    <option value="{{ $plan->id }}">{{ $plan->name }} ({{ env('APP_CURRENCY', '$') }} {{ number_format($plan->price, 2) }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Fecha primer vencimiento</label>
+                            <input type="date" name="fecha_vencimiento" class="form-control" title="Cuándo se vence la primera cuota o el plan gratis.">
+                        </div>
                     </div>
 
                     <div class="d-flex justify-content-between">

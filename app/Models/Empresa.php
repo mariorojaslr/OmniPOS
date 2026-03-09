@@ -26,6 +26,9 @@ class Empresa extends Model
         'activo',
         'fecha_vencimiento',
         'fecha_cierre_ejercicio', // NUEVO (cierre contable anual)
+        'plan_id',
+        'status',
+        'ultima_fecha_pago',
     ];
 
     /**
@@ -35,11 +38,27 @@ class Empresa extends Model
         'activo' => 'boolean',
         'fecha_vencimiento' => 'date',
         'fecha_cierre_ejercicio' => 'date', // NUEVO
+        'ultima_fecha_pago' => 'date',
     ];
 
     // =========================================================
     // RELACIONES
+
+    public function supportTickets()
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
+    public function pagos()
+    {
+        return $this->hasMany(SuscripcionPago::class);
+    }
     // =========================================================
+
+    public function plan()
+    {
+        return $this->belongsTo(\App\Models\Plan::class);
+    }
 
     /**
      * CONFIGURACIÓN VISUAL DE LA EMPRESA

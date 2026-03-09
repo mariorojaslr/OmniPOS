@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ClientLedger extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $table = 'client_ledgers';

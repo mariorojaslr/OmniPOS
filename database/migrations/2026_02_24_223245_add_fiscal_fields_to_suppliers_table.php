@@ -10,6 +10,13 @@ return new class extends Migration
     {
         Schema::table('suppliers', function (Blueprint $table) {
 
+            if (!Schema::hasColumn('suppliers', 'name')) {
+                $table->string('name')->after('id');
+            }
+            if (!Schema::hasColumn('suppliers', 'document')) {
+                $table->string('document')->nullable()->after('name');
+            }
+
             $table->string('condicion_iva', 50)
                   ->default('responsable_inscripto')
                   ->after('name');

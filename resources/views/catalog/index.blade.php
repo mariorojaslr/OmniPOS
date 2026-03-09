@@ -287,50 +287,57 @@ $cartCount = session('cart') ? count(session('cart')) : 0;
 
 
 
+    {{-- MENSAJE DE ESTADO VACÍO (Oculto por defecto) --}}
+    <div id="emptyState" class="text-center py-5" style="display: none;">
+        <div class="mb-3" style="font-size: 3rem; opacity: 0.5;">📭</div>
+        <h5 class="text-muted fw-bold">No hay productos que coincidan con este filtro.</h5>
+        <p class="text-secondary small">Intenta buscar otro término o cambiar de categoría.</p>
+        <button class="btn btn-outline-primary btn-sm mt-3" onclick="document.querySelector('[data-filter=\'all\']').click()">
+            Ver todos los productos
+        </button>
+    </div>
+
+</div>
+
 {{-- ================= SEARCH + FILTER SCRIPT ================= --}}
 <script>
 
 const items = document.querySelectorAll('.product-item');
 const sectionTitle = document.getElementById('sectionTitle');
+const emptyState = document.getElementById('emptyState');
 
+function checkEmptyState() {
+    let hasVisible = false;
+    items.forEach(item => {
+        if(item.style.display !== 'none') hasVisible = true;
+    });
+    emptyState.style.display = hasVisible ? 'none' : 'block';
+}
 
 // SEARCH
 document.getElementById('search').addEventListener('keyup', function(){
-
     const value = this.value.toLowerCase();
-
     items.forEach(item=>{
-        item.style.display =
-            item.innerText.toLowerCase().includes(value)
-            ? ''
-            : 'none';
+        item.style.display = item.innerText.toLowerCase().includes(value) ? '' : 'none';
     });
-
+    checkEmptyState();
 });
-
 
 // FILTERS
 document.querySelectorAll('.filterBtn').forEach(btn=>{
-
     btn.addEventListener('click', function(){
-
-        document.querySelectorAll('.filterBtn')
-            .forEach(b=>b.classList.remove('filter-active'));
-
+        document.querySelectorAll('.filterBtn').forEach(b=>b.classList.remove('filter-active'));
         this.classList.add('filter-active');
 
         const filter = this.dataset.filter;
 
         items.forEach(item=>{
-
             if(filter === 'all'){
                 item.style.display = '';
                 return;
             }
-
             const val = item.dataset[filter];
             item.style.display = (val == 1) ? '' : 'none';
-
         });
 
         if(filter==='all') sectionTitle.innerText="Todos los productos";
@@ -338,8 +345,8 @@ document.querySelectorAll('.filterBtn').forEach(btn=>{
         if(filter==='top') sectionTitle.innerText="Más vendidos";
         if(filter==='promo') sectionTitle.innerText="Productos en promoción";
 
+        checkEmptyState();
     });
-
 });
 </script>
 

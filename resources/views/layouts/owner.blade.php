@@ -22,14 +22,14 @@
                 Dashboard
             </a>
 
-            <a href="#"
+            <a href="{{ route('owner.empresas.index') }}"
                class="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
                 Empresas
             </a>
 
-            <a href="#"
+            <a href="{{ route('owner.planes.index') }}"
                class="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
-                Facturación
+                Planes y Facturación
             </a>
 
             <a href="#"

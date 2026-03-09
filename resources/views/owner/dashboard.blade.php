@@ -136,8 +136,8 @@
         </div>
     </div>
 
-    {{-- Row 2: Infraestructura y Consumos (Bunny.net simulado por ahora) --}}
-    <h5 class="fw-bold mb-3 mt-5" style="color: #cbd5e1;">Infraestructura & Nube (Bunny.net)</h5>
+    {{-- Row 2: Infraestructura y Consumos (Nube Privada) --}}
+    <h5 class="fw-bold mb-3 mt-5" style="color: #cbd5e1;">Infraestructura & Nube Privada</h5>
     <div class="row g-4">
         <div class="col-md-3">
             <div class="glass-card stat-card h-100">
@@ -178,19 +178,18 @@
         <div class="col-md-12">
             <div class="glass-card p-4 h-100">
                 <h5 class="fw-bold mb-4" style="color: #cbd5e1;">Acciones Administrativas</h5>
-                
                 <div class="d-flex flex-wrap gap-3">
                     <a href="{{ route('owner.empresas.index') }}" class="action-btn">
                         🏢 Gestionar Clientes y Empresas
                     </a>
-                    <a href="#" class="action-btn" onclick="alert('Módulo de facturación en construcción. ¡Próximamente!');">
+                    <a href="{{ route('owner.facturacion.index') }}" class="action-btn">
                         🧾 Sistema de Facturación
                     </a>
-                    <a href="#" class="action-btn" onclick="alert('Módulo de soporte en construcción. ¡Próximamente!');">
+                    <a href="{{ route('owner.soporte.index') }}" class="action-btn">
                         🎧 Tickets de Soporte
                     </a>
-                    <a href="#" class="action-btn" onclick="alert('Gestor de planes en construcción. ¡Próximamente!');">
-                        ⚙️ Configurar Planes de $25.000
+                    <a href="{{ route('owner.planes.index') }}" class="action-btn">
+                        ⚙️ Configurar Planes de Suscripción
                     </a>
                 </div>
             </div>

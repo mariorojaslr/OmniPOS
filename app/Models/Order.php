@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToEmpresa;
 
 class Order extends Model
 {
+    use BelongsToEmpresa;
+
     protected $fillable = [
         'empresa_id',
         'nombre_cliente',
@@ -29,8 +32,5 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
-    }
+    
 }

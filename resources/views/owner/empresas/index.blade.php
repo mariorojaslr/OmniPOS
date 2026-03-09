@@ -31,6 +31,7 @@
                     <tr>
                         <th class="ps-4">Nombre</th>
                         <th>Email</th>
+                        <th>Plan</th>
                         <th>Vencimiento</th>
                         <th>Estado</th>
                         <th class="text-end pe-4">Acciones</th>
@@ -57,6 +58,13 @@
                         {{-- Email --}}
                         <td>
                             {{ $empresa->email ?? '—' }}
+                        </td>
+
+                        {{-- Plan --}}
+                        <td>
+                            <span class="badge bg-info text-dark">
+                                {{ $empresa->plan->name ?? '-' }}
+                            </span>
                         </td>
 
                         {{-- Fecha de vencimiento --}}

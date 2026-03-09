@@ -93,10 +93,13 @@
         }
 
         .auth-logo img {
-            max-width: 220px;
+            max-width: 180px; /* Reducido un poquito para verse mejor proporcionado */
             height: auto;
-            margin-bottom: 25px;
-            filter: drop-shadow(0px 8px 16px rgba(0,0,0,0.4));
+            margin: 0 auto 25px auto; /* Asegurar centrado absoluto dentro del div */
+            display: block;
+            border-radius: 50%; /* Como la foto con fondo blanco tiene un círculo verde, esto cortará el cuadrado blanco extra de las esquinas */
+            background-color: #fff; /* En caso de que haya transparencias raras, mantener el fondo blanco solo dentro del círculo */
+            box-shadow: 0px 8px 25px rgba(0,0,0,0.5); /* Sombra mejorada para que resalte como bola de cristal */
         }
 
         .auth-title {

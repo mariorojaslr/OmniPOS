@@ -233,13 +233,13 @@ ${{ number_format($product->price,2) }}
                name="quantity"
                value="1"
                min="1"
-               max="{{ $product->stock_actual }}">
+               max="{{ $product->stock }}">
         <button type="button" onclick="changeQty(1)">+</button>
     </div>
 </div>
 
 <div class="stock-info">
-    Stock disponible: {{ $product->stock_actual }}
+    Stock disponible: {{ number_format($product->stock, 2) }}
 </div>
 
 <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">

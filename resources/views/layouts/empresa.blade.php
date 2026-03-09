@@ -70,6 +70,8 @@ body{
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom:1px solid rgba(31, 45, 61, 0.5);
+    position: relative;
+    z-index: 1050;
 }
 
 .navbar .nav-link,
@@ -181,6 +183,8 @@ input, select, textarea{
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 1050;
 }
 
 .card {
@@ -326,6 +330,12 @@ Configuración empresa
 </a>
 </li>
 
+<li>
+<a class="dropdown-item" href="{{ route('empresa.soporte.index') }}">
+🎧 Soporte (Tickets)
+</a>
+</li>
+
 @endif
 
 
@@ -364,11 +374,13 @@ Configuración empresa
 
 {{-- MODO IMPERSONATE ACTIVO --}}
 @if(session()->has('impersonate_by'))
-    <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4 border border-warning shadow-sm">
-        <div>
-            <strong>Modo Mimetización:</strong> Estás navegando la plataforma como <b>{{ auth()->user()->name }}</b> de la empresa <b>{{ $empresa->nombre_comercial ?? '' }}</b>.
+    <div class="alert alert-warning shadow-lg" style="position: fixed; bottom: 25px; left: 25px; z-index: 9999; max-width: 300px; padding: 15px; font-size: 0.85rem; border-radius: 12px; border: 1px solid #e0a800;">
+        <div class="mb-2" style="line-height: 1.4;">
+            <strong>Modo Mimetización:</strong><br>
+            Estás como <b>{{ auth()->user()->name }}</b> <br>
+            ({{ $empresa->nombre_comercial ?? '' }})
         </div>
-        <a href="{{ route('impersonate.leave') }}" class="btn btn-sm btn-dark">
+        <a href="{{ route('impersonate.leave') }}" class="btn btn-sm btn-dark w-100" style="font-weight: 600;">
             Volver a mi cuenta (Owner)
         </a>
     </div>

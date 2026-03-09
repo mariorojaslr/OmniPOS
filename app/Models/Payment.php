@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToEmpresa;
 
 class Payment extends Model
 {
+    use BelongsToEmpresa;
+
     protected $fillable = [
         'empresa_id',
         'client_id',
@@ -19,8 +22,5 @@ class Payment extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
-    }
+    
 }

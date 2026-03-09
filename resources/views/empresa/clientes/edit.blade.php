@@ -52,13 +52,26 @@
                                value="{{ old('document', $cliente->document) }}">
                     </div>
 
+                    {{-- Condición --}}
+                    <div class="col-md-3">
+                        <label class="form-label">Condición Fiscal</label>
+                        <select name="tax_condition" class="form-select">
+                            <option value="consumidor_final" {{ $cliente->tax_condition=='consumidor_final'?'selected':'' }}>Consumidor Final</option>
+                            <option value="responsable_inscripto" {{ $cliente->tax_condition=='responsable_inscripto'?'selected':'' }}>Responsable Inscripto</option>
+                            <option value="monotributo" {{ $cliente->tax_condition=='monotributo'?'selected':'' }}>Monotributo</option>
+                            <option value="exento" {{ $cliente->tax_condition=='exento'?'selected':'' }}>Exento</option>
+                        </select>
+                    </div>
+
                     {{-- Tipo --}}
-                    <div class="col-md-6">
-                        <label class="form-label">Condición</label>
+                    <div class="col-md-3">
+                        <label class="form-label">Tipo de Cliente</label>
                         <select name="type" class="form-select">
                             <option value="consumidor_final" {{ $cliente->type=='consumidor_final'?'selected':'' }}>Consumidor Final</option>
-                            <option value="responsable_inscripto" {{ $cliente->type=='responsable_inscripto'?'selected':'' }}>Responsable Inscripto</option>
-                            <option value="monotributo" {{ $cliente->type=='monotributo'?'selected':'' }}>Monotributo</option>
+                            <option value="minorista" {{ $cliente->type=='minorista'?'selected':'' }}>Minorista</option>
+                            <option value="mayorista" {{ $cliente->type=='mayorista'?'selected':'' }}>Mayorista</option>
+                            <option value="revendedor" {{ $cliente->type=='revendedor'?'selected':'' }}>Revendedor</option>
+                            <option value="amigo" {{ $cliente->type=='amigo'?'selected':'' }}>Amigo / VIP</option>
                         </select>
                     </div>
 

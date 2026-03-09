@@ -60,6 +60,7 @@ class UsuarioDashboardController extends Controller
 
         // ================= RETORNAR VISTA =================
         return view('empresa.usuario.dashboard', [
+            'empresa' => $user->empresa,
             'ventasHoy' => (float) $ventasHoy,
             'ventasMes' => (float) $ventasMes,
             'cantidadVentasHoy' => $cantidadVentasHoy,

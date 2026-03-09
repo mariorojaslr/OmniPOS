@@ -8,6 +8,7 @@ use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -62,7 +63,16 @@ class ProductImageController extends Controller
                 })
                 ->toJpeg(80);
 
+            // "Modo Paranoico": Guardar físico local (Respaldo)
             Storage::disk('public')->put("$path/$filename", $image);
+
+            // Guardar en BunnyCDN (Almacenamiento primario en la nube)
+            try {
+                Storage::disk('bunny_storage')->put("$path/$filename", $image);
+            } catch (\Exception $e) {
+                // Si Bunny falla, reportamos pero la imagen ya está a salvo en local
+                Log::error('Fallo al subir a BunnyCDN: ' . $e->getMessage());
+            }
 
             ProductImage::create([
                 'product_id' => $product->id,
@@ -89,8 +99,15 @@ class ProductImageController extends Controller
             abort(403);
         }
 
-        // Borra archivo físico
+        // Borra archivo físico (Respaldo)
         Storage::disk('public')->delete($image->path);
+
+        // Intenta borrar de BunnyCDN (Nube)
+        try {
+            Storage::disk('bunny_storage')->delete($image->path);
+        } catch (\Exception $e) {
+            Log::error('Fallo al eliminar de BunnyCDN: ' . $e->getMessage());
+        }
 
         $wasMain = $image->is_main;
 

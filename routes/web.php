@@ -14,9 +14,13 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboardController;
 use App\Http\Controllers\Owner\EmpresaController;
 use App\Http\Controllers\Owner\EmpresaUserController;
+use App\Http\Controllers\Owner\PlanController;
+use App\Http\Controllers\Owner\SuscripcionPagoController;
+use App\Http\Controllers\Owner\SupportTicketController as OwnerSupportTicketController;
 
 // ================= EMPRESA =================
 use App\Http\Controllers\Empresa\DashboardController as EmpresaDashboardController;
+use App\Http\Controllers\Empresa\SupportTicketController;
 use App\Http\Controllers\Empresa\ProductController;
 use App\Http\Controllers\Empresa\ProductImageController;
 use App\Http\Controllers\Empresa\ProductVideoController;
@@ -66,6 +70,10 @@ Route::middleware('auth')->get('/dashboard', function () {
         return redirect()->route('owner.dashboard');
     }
 
+    if ($user->role === 'usuario') {
+        return redirect()->route('empresa.usuario.dashboard');
+    }
+
     return redirect()->route('empresa.dashboard');
 
 })->name('dashboard');
@@ -86,6 +94,13 @@ Route::middleware(['auth', 'owner'])
             ->middleware('can:isOwner');
 
         Route::resource('empresas', EmpresaController::class)->except(['show']);
+        Route::resource('planes', PlanController::class)->except(['show'])->parameters(['planes' => 'plan']);
+        
+        Route::get('suscripciones', [SuscripcionPagoController::class, 'index'])->name('facturacion.index');
+        Route::get('suscripciones/create', [SuscripcionPagoController::class, 'create'])->name('facturacion.create');
+        Route::post('suscripciones', [SuscripcionPagoController::class, 'store'])->name('facturacion.store');
+        
+        Route::resource('soporte', OwnerSupportTicketController::class)->names('soporte');
 
         Route::patch('empresas/{empresa}/toggle', [EmpresaController::class, 'toggleStatus'])->name('empresas.toggle');
         Route::patch('empresas/{empresa}/renovar', [EmpresaController::class, 'renovar'])->name('empresas.renovar');
@@ -165,11 +180,13 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         /*
         |--------------------------------------------------------------------------
-        | CONFIGURACIÓN EMPRESA
+        | CONFIGURACIÓN EMPRESA Y SOPORTE
         |--------------------------------------------------------------------------
         */
         Route::get('/configuracion', [ConfiguracionEmpresaController::class, 'index'])->name('configuracion.index');
         Route::post('/configuracion', [ConfiguracionEmpresaController::class, 'save'])->name('configuracion.save');
+
+        Route::resource('soporte', SupportTicketController::class)->names('soporte');
 
         /*
         |--------------------------------------------------------------------------

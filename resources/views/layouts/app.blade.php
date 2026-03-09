@@ -69,19 +69,22 @@
 
         /* Menú Dropdown Dark */
         .dropdown-menu-dark-custom {
-            background: rgba(30, 41, 59, 0.95);
+            background: rgba(15, 23, 42, 0.98);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            z-index: 1050 !important;
         }
-        .dropdown-menu-dark-custom .dropdown-item {
-            color: #cbd5e1;
+        .dropdown-menu-dark-custom .dropdown-item,
+        .dropdown-menu-dark-custom .dropdown-item-text {
+            color: #f8fafc !important;
             transition: all 0.2s;
         }
         .dropdown-menu-dark-custom .dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
         }
         .dropdown-menu-dark-custom .dropdown-divider {
             border-top-color: rgba(255,255,255,0.1);
@@ -133,7 +136,7 @@
 
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark-custom">
                     <li>
-                        <span class="dropdown-item-text text-muted">
+                        <span class="dropdown-item-text">
                             {{ auth()->user()->role === 'owner' ? 'Propietario / Master' : (auth()->user()->role === 'empresa' ? 'Administrador' : 'Empleado / Cajero') }}
                         </span>
                     </li>
@@ -146,7 +149,20 @@
                         </a>
                     </li>
 
+                    @if(auth()->user()->role === 'owner')
+                    <li>
+                        <a class="dropdown-item fw-bold text-primary" href="{{ route('owner.dashboard') }}">
+                            Panel de Control Owner
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()->role === 'empresa')
+                    <li>
+                        <a class="dropdown-item" href="{{ route('empresa.dashboard') }}">
+                            Panel de la Empresa
+                        </a>
+                    </li>
                     <li>
                         <a class="dropdown-item" href="{{ route('empresa.configuracion.index') }}">
                             Configuración empresa

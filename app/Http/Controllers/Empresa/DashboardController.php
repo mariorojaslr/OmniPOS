@@ -13,14 +13,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        /*
-        |----------------------------------------------------------------------
-        | EMPRESA ACTUAL DEL USUARIO
-        |----------------------------------------------------------------------
-        | Eliminamos dependencia de session('empresa') que provocaba 403
-        | Ahora siempre usamos la empresa del usuario autenticado
-        */
         $user = Auth::user();
+        
+        // Evadir if role = usuario
+        if ($user->role === 'usuario') {
+            return redirect()->route('empresa.usuario.dashboard');
+        }
+
         $empresaId = $user->empresa_id;
 
         if (!$empresaId) {

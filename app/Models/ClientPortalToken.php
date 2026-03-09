@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToEmpresa;
 
 class ClientPortalToken extends Model
 {
+    use BelongsToEmpresa;
+
     protected $fillable = [
         'empresa_id',
         'client_id',
@@ -16,10 +19,7 @@ class ClientPortalToken extends Model
        RELACIONES MULTIEMPRESA
     ========================== */
 
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
-    }
+    
 
     public function client()
     {

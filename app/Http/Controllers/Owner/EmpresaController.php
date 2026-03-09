@@ -15,13 +15,14 @@ class EmpresaController extends Controller
     public function index()
     {
         return view('owner.empresas.index', [
-            'empresas' => Empresa::orderBy('nombre_comercial')->get(),
+            'empresas' => Empresa::with('plan')->orderBy('nombre_comercial')->get(),
         ]);
     }
 
     public function create()
     {
-        return view('owner.empresas.create');
+        $planes = \App\Models\Plan::where('is_active', true)->get();
+        return view('owner.empresas.create', compact('planes'));
     }
 
     public function store(Request $request)
@@ -32,6 +33,7 @@ class EmpresaController extends Controller
             'telefono'           => 'nullable|string|max:50',
             'fecha_vencimiento'  => 'nullable|date',
             'password'           => 'nullable|string|min:6', // 👈 OPCIONAL
+            'plan_id'            => 'nullable|exists:plans,id',
         ]);
 
         /*
@@ -44,6 +46,8 @@ class EmpresaController extends Controller
             'email'             => $data['email'],
             'telefono'          => $data['telefono'] ?? null,
             'fecha_vencimiento' => $data['fecha_vencimiento'] ?? null,
+            'plan_id'           => $data['plan_id'] ?? null,
+            'status'            => 'activa',
             'activo'            => true,
         ]);
 
@@ -88,7 +92,8 @@ class EmpresaController extends Controller
 
     public function edit(Empresa $empresa)
     {
-        return view('owner.empresas.edit', compact('empresa'));
+        $planes = \App\Models\Plan::where('is_active', true)->get();
+        return view('owner.empresas.edit', compact('empresa', 'planes'));
     }
 
     public function update(Request $request, Empresa $empresa)
@@ -98,6 +103,8 @@ class EmpresaController extends Controller
             'email'             => 'nullable|email',
             'telefono'          => 'nullable|string|max:50',
             'fecha_vencimiento' => 'nullable|date',
+            'plan_id'           => 'nullable|exists:plans,id',
+            'status'            => 'required|string|in:activa,suspendida,mora',
         ]);
 
         $empresa->update($data);

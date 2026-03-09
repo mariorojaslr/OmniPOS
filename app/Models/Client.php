@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToEmpresa;
 
 class Client extends Model
 {
+    use BelongsToEmpresa;
     /**
      * CAMPOS EDITABLES MASIVAMENTE
      */
@@ -25,14 +27,6 @@ class Client extends Model
     // =========================================================
     // RELACIONES
     // =========================================================
-
-    /**
-     * EMPRESA A LA QUE PERTENECE
-     */
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
-    }
 
     /**
      * MOVIMIENTOS DE CUENTA CORRIENTE
