@@ -66,14 +66,27 @@ class ProductImageController extends Controller
             // "Modo Paranoico": Guardar físico local (Respaldo)
             Storage::disk('public')->put("$path/$filename", $image->toString());
 
-            // Guardar en BunnyCDN (Almacenamiento primario en la nube)
+            // Guardar en BunnyCDN (API REST directa via HTTPS para Evitar Bloqueos FTP de Hostinger)
             $bunnySuccess = true;
             try {
-                Storage::disk('bunny_storage')->put("$path/$filename", $image->toString());
+                $bunnyKey = env('BUNNY_PASSWORD'); // El Password principal es el API AccessKey
+                $bunnyZone = env('BUNNY_USERNAME'); // gente-piola
+                $bunnyHost = env('BUNNY_HOSTNAME'); // ny.storage.bunnycdn.com
+
+                $bunnyApiUrl = "https://{$bunnyHost}/{$bunnyZone}/$path/$filename";
+
+                $response = \Illuminate\Support\Facades\Http::withHeaders([
+                    'AccessKey' => $bunnyKey,
+                    'Content-Type' => 'image/jpeg'
+                ])->withBody($image->toString(), 'image/jpeg')->put($bunnyApiUrl);
+
+                if (!$response->successful()) {
+                    Log::error("Fallo HTTP a BunnyCDN: " . $response->body());
+                    $bunnySuccess = false;
+                }
             }
             catch (\Exception $e) {
-                // Si Bunny falla, reportamos pero la imagen ya está a salvo en local
-                Log::error('Fallo al subir a BunnyCDN: ' . $e->getMessage());
+                Log::error('Excepción al subir a BunnyCDN: ' . $e->getMessage());
                 $bunnySuccess = false;
             }
 
@@ -111,10 +124,18 @@ class ProductImageController extends Controller
 
         // Intenta borrar de BunnyCDN (Nube)
         try {
-            Storage::disk('bunny_storage')->delete($image->path);
+            $bunnyKey = env('BUNNY_PASSWORD');
+            $bunnyZone = env('BUNNY_USERNAME');
+            $bunnyHost = env('BUNNY_HOSTNAME');
+
+            $bunnyApiUrl = "https://{$bunnyHost}/{$bunnyZone}/{$image->path}";
+
+            \Illuminate\Support\Facades\Http::withHeaders([
+                'AccessKey' => $bunnyKey,
+            ])->delete($bunnyApiUrl);
         }
         catch (\Exception $e) {
-            Log::error('Fallo al eliminar de BunnyCDN: ' . $e->getMessage());
+            Log::error('Fallo al eliminar de BunnyCDN HTTP: ' . $e->getMessage());
         }
 
         $wasMain = $image->is_main;
