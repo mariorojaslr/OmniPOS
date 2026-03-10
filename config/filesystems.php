@@ -71,12 +71,12 @@ return [
             'driver' => 'ftp',
             'host' => env('BUNNY_HOSTNAME', 'ny.storage.bunnycdn.com'),
             'username' => env('BUNNY_USERNAME', 'gente-piola'),
-            'password' => env('BUNNY_PASSWORD'),
+            'password' => env('BUNNY_PASSWORD', '8b078c5f-ad56-4ad8-a4a7b28e775f-63eb-4d16'),
             'port' => env('BUNNY_PORT', 21),
             'passive' => env('BUNNY_PASSIVE', true),
-            'ssl' => env('BUNNY_SSL', true), // o false si hay problemas de certificado
+            'ssl' => env('BUNNY_SSL', true),
             'timeout' => env('BUNNY_TIMEOUT', 30),
-            'url' => env('BUNNY_PULL_ZONE_URL', ''),
+            'url' => env('BUNNY_PULL_ZONE_URL', 'https://gentepiola.b-cdn.net'),
         ],
 
     ],
