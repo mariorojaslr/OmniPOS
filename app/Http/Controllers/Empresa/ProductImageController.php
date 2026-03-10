@@ -15,10 +15,10 @@ use Intervention\Image\Drivers\Gd\Driver;
 class ProductImageController extends Controller
 {
     /*
-    |--------------------------------------------------------------------------
-    | Pantalla de imágenes del producto
-    |--------------------------------------------------------------------------
-    */
+     |--------------------------------------------------------------------------
+     | Pantalla de imágenes del producto
+     |--------------------------------------------------------------------------
+     */
     public function create(Product $product)
     {
         $this->authorizeProduct($product);
@@ -27,16 +27,16 @@ class ProductImageController extends Controller
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Subir imágenes
-    |--------------------------------------------------------------------------
-    */
+     |--------------------------------------------------------------------------
+     | Subir imágenes
+     |--------------------------------------------------------------------------
+     */
     public function store(Request $request, Product $product)
     {
         $this->authorizeProduct($product);
 
         $request->validate([
-            'images'   => 'required',
+            'images' => 'required',
             'images.*' => 'image|max:5120',
         ]);
 
@@ -58,38 +58,45 @@ class ProductImageController extends Controller
             $image = $manager
                 ->read($file)
                 ->resize(800, 800, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })
                 ->toJpeg(80);
 
             // "Modo Paranoico": Guardar físico local (Respaldo)
-            Storage::disk('public')->put("$path/$filename", $image);
+            Storage::disk('public')->put("$path/$filename", $image->toString());
 
             // Guardar en BunnyCDN (Almacenamiento primario en la nube)
+            $bunnySuccess = true;
             try {
-                Storage::disk('bunny_storage')->put("$path/$filename", $image);
-            } catch (\Exception $e) {
+                Storage::disk('bunny_storage')->put("$path/$filename", $image->toString());
+            }
+            catch (\Exception $e) {
                 // Si Bunny falla, reportamos pero la imagen ya está a salvo en local
                 Log::error('Fallo al subir a BunnyCDN: ' . $e->getMessage());
+                $bunnySuccess = false;
             }
 
             ProductImage::create([
                 'product_id' => $product->id,
-                'path'       => "$path/$filename",
-                'is_main'    => $product->images()->count() === 0,
-                'order'      => $index,
+                'path' => "$path/$filename",
+                'is_main' => $product->images()->count() === 0,
+                'order' => $index,
             ]);
         }
 
-        return back()->with('success', 'Imágenes subidas correctamente');
+        if (!$bunnySuccess) {
+            return back()->with('success', 'Imagen guardada localmente, pero falló la conexión FTP con BunnyCDN. Revisa el .env y limpia caché.');
+        }
+
+        return back()->with('success', 'Imágenes subidas correctamente a BunnyCDN');
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | ELIMINAR IMAGEN
-    |--------------------------------------------------------------------------
-    */
+     |--------------------------------------------------------------------------
+     | ELIMINAR IMAGEN
+     |--------------------------------------------------------------------------
+     */
     public function destroy(Product $product, ProductImage $image)
     {
         $this->authorizeProduct($product);
@@ -105,7 +112,8 @@ class ProductImageController extends Controller
         // Intenta borrar de BunnyCDN (Nube)
         try {
             Storage::disk('bunny_storage')->delete($image->path);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             Log::error('Fallo al eliminar de BunnyCDN: ' . $e->getMessage());
         }
 
@@ -115,10 +123,10 @@ class ProductImageController extends Controller
         $image->delete();
 
         /*
-        |----------------------------------------------------------
-        | Si borraste la imagen principal → asigna otra
-        |----------------------------------------------------------
-        */
+         |----------------------------------------------------------
+         | Si borraste la imagen principal → asigna otra
+         |----------------------------------------------------------
+         */
         if ($wasMain) {
             $newMain = $product->images()->orderBy('order')->first();
             if ($newMain) {
@@ -127,25 +135,25 @@ class ProductImageController extends Controller
         }
 
         /*
-        |----------------------------------------------------------
-        | Reordenar imágenes
-        |----------------------------------------------------------
-        */
+         |----------------------------------------------------------
+         | Reordenar imágenes
+         |----------------------------------------------------------
+         */
         $product->images()
             ->orderBy('id')
             ->get()
             ->each(function ($img, $index) {
-                $img->update(['order' => $index]);
-            });
+            $img->update(['order' => $index]);
+        });
 
         return back()->with('success', 'Imagen eliminada correctamente');
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Seguridad empresa
-    |--------------------------------------------------------------------------
-    */
+     |--------------------------------------------------------------------------
+     | Seguridad empresa
+     |--------------------------------------------------------------------------
+     */
     private function authorizeProduct(Product $product)
     {
         if ($product->empresa_id !== Auth::user()->empresa_id) {
