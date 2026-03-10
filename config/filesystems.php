@@ -3,30 +3,30 @@
 return [
 
     /*
-    |--------------------------------------------------------------------------
-    | Default Filesystem Disk
-    |--------------------------------------------------------------------------
-    |
-    | Here you may specify the default filesystem disk that should be used
-    | by the framework. The "local" disk, as well as a variety of cloud
-    | based disks are available to your application for file storage.
-    |
-    */
+     |--------------------------------------------------------------------------
+     | Default Filesystem Disk
+     |--------------------------------------------------------------------------
+     |
+     | Here you may specify the default filesystem disk that should be used
+     | by the framework. The "local" disk, as well as a variety of cloud
+     | based disks are available to your application for file storage.
+     |
+     */
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
-    |--------------------------------------------------------------------------
-    | Filesystem Disks
-    |--------------------------------------------------------------------------
-    |
-    | Below you may configure as many filesystem disks as necessary, and you
-    | may even configure multiple disks for the same driver. Examples for
-    | most supported storage drivers are configured here for reference.
-    |
-    | Supported drivers: "local", "ftp", "sftp", "s3"
-    |
-    */
+     |--------------------------------------------------------------------------
+     | Filesystem Disks
+     |--------------------------------------------------------------------------
+     |
+     | Below you may configure as many filesystem disks as necessary, and you
+     | may even configure multiple disks for the same driver. Examples for
+     | most supported storage drivers are configured here for reference.
+     |
+     | Supported drivers: "local", "ftp", "sftp", "s3"
+     |
+     */
 
     'disks' => [
 
@@ -41,7 +41,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/') . '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -61,38 +61,36 @@ return [
         ],
 
         /*
-        |--------------------------------------------------------------------------
-        | Bunny.net Storage (API S3 Compatible)
-        |--------------------------------------------------------------------------
-        | Usado para guardar imágenes pesadas y archivos estáticos
-        | Cuando contrates Bunny.net, debes llenar esto en tu .env:
-        | BUNNY_ACCESS_KEY, BUNNY_SECRET_KEY, BUNNY_REGION, BUNNY_BUCKET, BUNNY_URL
-        */
+         |--------------------------------------------------------------------------
+         | Bunny.net Storage (Vía FTP)
+         |--------------------------------------------------------------------------
+         | Usado para guardar imágenes pesadas y archivos estáticos
+         | Datos sacados del panel FTP & API de Bunny
+         */
         'bunny_storage' => [
-            'driver' => 's3',
-            'key' => env('BUNNY_ACCESS_KEY'),
-            'secret' => env('BUNNY_SECRET_KEY'),
-            'region' => env('BUNNY_REGION', 'us-east-1'),
-            'bucket' => env('BUNNY_BUCKET'),
-            // Para Bunny Edge Storage S3: https://ny.storage.bunnycdn.com o el que te asignen:
-            'endpoint' => env('BUNNY_ENDPOINT', 'https://ny.storage.bunnycdn.com'),
-            'url' => env('BUNNY_URL'),
-            'use_path_style_endpoint' => env('BUNNY_USE_PATH_STYLE_ENDPOINT', true),
-            'throw' => false,
+            'driver' => 'ftp',
+            'host' => env('BUNNY_HOSTNAME', 'ny.storage.bunnycdn.com'),
+            'username' => env('BUNNY_USERNAME', 'gente-piola'),
+            'password' => env('BUNNY_PASSWORD'),
+            'port' => env('BUNNY_PORT', 21),
+            'passive' => env('BUNNY_PASSIVE', true),
+            'ssl' => env('BUNNY_SSL', true), // o false si hay problemas de certificado
+            'timeout' => env('BUNNY_TIMEOUT', 30),
+            'url' => env('BUNNY_PULL_ZONE_URL', ''),
         ],
 
     ],
 
     /*
-    |--------------------------------------------------------------------------
-    | Symbolic Links
-    |--------------------------------------------------------------------------
-    |
-    | Here you may configure the symbolic links that will be created when the
-    | `storage:link` Artisan command is executed. The array keys should be
-    | the locations of the links and the values should be their targets.
-    |
-    */
+     |--------------------------------------------------------------------------
+     | Symbolic Links
+     |--------------------------------------------------------------------------
+     |
+     | Here you may configure the symbolic links that will be created when the
+     | `storage:link` Artisan command is executed. The array keys should be
+     | the locations of the links and the values should be their targets.
+     |
+     */
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
