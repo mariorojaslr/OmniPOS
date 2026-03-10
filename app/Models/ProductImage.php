@@ -21,7 +21,7 @@ class ProductImage extends Model
     public function getUrlAttribute()
     {
         $imgPath = $this->path;
-        $bunnyUrl = env('BUNNY_PULL_ZONE_URL');
+        $bunnyUrl = env('BUNNY_PULL_ZONE_URL') ?: config('filesystems.disks.bunny_storage.url');
 
         if (\Illuminate\Support\Str::startsWith($imgPath, ['http://', 'https://'])) {
             return $imgPath;
