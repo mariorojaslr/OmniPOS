@@ -32,12 +32,12 @@ class MigrateImagesToBunny extends Command
         $images = ProductImage::all();
         $this->info("Se encontraron " . $images->count() . " imágenes registradas en la base de datos.");
 
-        $bunnyKey = env('BUNNY_PASSWORD'); // El Password principal es el API AccessKey
-        $bunnyZone = env('BUNNY_USERNAME'); // Ej: gente-piola
-        $bunnyHost = env('BUNNY_HOSTNAME'); // Ej: ny.storage.bunnycdn.com
+        $bunnyKey = env('BUNNY_PASSWORD') ?: config('filesystems.disks.bunny_storage.password');
+        $bunnyZone = env('BUNNY_USERNAME') ?: config('filesystems.disks.bunny_storage.username');
+        $bunnyHost = env('BUNNY_HOSTNAME') ?: config('filesystems.disks.bunny_storage.host');
 
-        if (!$bunnyKey || !$bunnyZone || !$bunnyHost) {
-            $this->error("Faltan las credenciales de BunnyCDN en el archivo .env");
+        if (empty($bunnyKey) || empty($bunnyZone) || empty($bunnyHost)) {
+            $this->error("Faltan las credenciales de BunnyCDN en el archivo .env. Asegúrate de haber guardado el nuevo .env con las variables BUNNY_PASSWORD, BUNNY_USERNAME, etc.");
             return;
         }
 
