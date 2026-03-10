@@ -22,18 +22,14 @@ class ProductImage extends Model
     {
         $imgPath = $this->path;
 
-        $bunnyUrl = env('BUNNY_PULL_ZONE_URL');
-        if (empty($bunnyUrl)) {
-            $bunnyUrl = config('filesystems.disks.bunny_storage.url');
-        }
-
+        // Si ya es una URL absoluta, la devolvemos
         if (\Illuminate\Support\Str::startsWith($imgPath, ['http://', 'https://'])) {
             return $imgPath;
         }
-        elseif ($bunnyUrl) {
-            return rtrim($bunnyUrl, '/') . '/' . ltrim($imgPath, '/');
-        }
 
+        // FORZADO A LOCAL PARA PRODUCCIÓN: 
+        // Desactivamos temporalmente la carga desde BunnyCDN para el cliente
+        // hasta que resolvamos 100% los bloqueos en Staging.
         return asset('storage/' . $imgPath);
     }
 }

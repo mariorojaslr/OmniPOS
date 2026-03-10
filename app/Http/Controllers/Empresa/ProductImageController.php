@@ -98,11 +98,7 @@ class ProductImageController extends Controller
             ]);
         }
 
-        if (!$bunnySuccess) {
-            return back()->with('success', 'Imagen guardada localmente, pero falló la conexión FTP con BunnyCDN. Revisa el .env y limpia caché.');
-        }
-
-        return back()->with('success', 'Imágenes subidas correctamente a BunnyCDN');
+        return back()->with('success', 'Imágenes subidas correctamente');
     }
 
     /*
