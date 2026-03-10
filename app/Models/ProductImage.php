@@ -27,9 +27,9 @@ class ProductImage extends Model
             return $imgPath;
         }
 
-        // FORZADO A LOCAL PARA PRODUCCIÓN: 
-        // Desactivamos temporalmente la carga desde BunnyCDN para el cliente
-        // hasta que resolvamos 100% los bloqueos en Staging.
-        return asset('storage/' . $imgPath);
+        // FORZADO A LOCAL:
+        // Usamos una ruta relativa absoluta desde el dominio actual para evitar 
+        // bloqueos Mixed Content si el .env de Hostinger tiene APP_URL con http://
+        return '/storage/' . ltrim($imgPath, '/');
     }
 }
