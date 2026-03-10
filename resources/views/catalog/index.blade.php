@@ -231,7 +231,7 @@ $cartCount = session('cart') ? count(session('cart')) : 0;
 
                 {{-- IMAGE --}}
                 @if($mainImage)
-                    <img src="{{ Str::startsWith($mainImage->path, ['http://', 'https://']) ? $mainImage->path : asset('storage/'.$mainImage->path) }}" class="w-100 product-image">
+                    <img src="{{ $mainImage->url }}" class="w-100 product-image">
                 @else
                     <div class="bg-light d-flex align-items-center justify-content-center product-image">
                         Sin imagen
