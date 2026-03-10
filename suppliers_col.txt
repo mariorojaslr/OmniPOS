@@ -1,0 +1,3 @@
+id	bigint(20) unsigned	NO	PRI	NULL	auto_increment
+created_at	timestamp	YES		NULL	
+updated_at	timestamp	YES		NULL	

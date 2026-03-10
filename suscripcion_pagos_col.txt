@@ -1,0 +1,11 @@
+id	bigint(20) unsigned	NO	PRI	NULL	auto_increment
+empresa_id	bigint(20) unsigned	NO	MUL	NULL	
+plan_id	bigint(20) unsigned	YES	MUL	NULL	
+monto	decimal(10,2)	NO		NULL	
+fecha_pago	date	NO		NULL	
+metodo	varchar(255)	NO		manual	
+estado	varchar(255)	NO		aprobado	
+nro_comprobante	varchar(255)	YES		NULL	
+notas	text	YES		NULL	
+created_at	timestamp	YES		NULL	
+updated_at	timestamp	YES		NULL	

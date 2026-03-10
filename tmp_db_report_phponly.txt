@@ -1,0 +1,32 @@
+=== REPORTE DE SALUD DE BASE DE DATOS ===
+
+TABLAS VACÍAS (Potencialmente sin uso o limpias):
+- accounts
+- carts
+- cart_items
+- client_accounts
+- client_ledgers
+- empresa_config
+- orders
+- order_items
+- payments
+- product_videos
+- purchases
+- purchase_items
+- stock_movimientos
+- supplier_accounts
+- supplier_ledgers
+- transports
+
+TABLAS CON DATOS ACTIVOS:
+- clients (9 registros)
+- empresas (9 registros)
+- kardex_movimientos (228 registros)
+- products (644 registros)
+- product_images (83 registros)
+- sales (151 registros)
+- sale_items (222 registros)
+- suppliers (1 registros)
+- users (38 registros)
+- ventas (157 registros)
+- venta_items (228 registros)

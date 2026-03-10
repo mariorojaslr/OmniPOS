@@ -456,204 +456,108 @@ modalCobrar.show();
 };
 
 
-/* ================= CONFIRMAR VENTA (SIN IMPRIMIR) ================= */
+/* ================= COBRAR ACCIONES ================= */
 
-const btnConfirmar = document.getElementById('confirmarVenta');
+async function procesarVenta(imprimir = false) {
+    if(!Object.keys(cart).length){
+        alert('Carrito vacío');
+        return;
+    }
 
-if(btnConfirmar){
+    const total = parseFloat(document.getElementById('modalTotal').innerText) || 0;
+    const pagado = evaluarExpresion(document.getElementById('montoPagado').value);
 
-btnConfirmar.onclick = async function(){
+    // Permitir pagos menores si es cuenta corriente
+    const tipoVenta = document.getElementById('tipoVentaCliente').value;
+    if(tipoVenta === 'contado' && pagado < total){
+        alert('Pago insuficiente para venta al contado');
+        return;
+    }
 
-if(!Object.keys(cart).length){
-alert('Carrito vacío');
-return;
+    let clienteID = document.getElementById('cliente_id').value;
+
+    if(!clienteID && consumidorFinal){
+        clienteID = consumidorFinal.id;
+    }
+
+    const items = Object.values(cart).map(p => ({
+        product_id: p.id,
+        cantidad: p.qty
+    }));
+
+    try {
+        const response = await fetch("{{ route('empresa.pos.checkout') }}", {
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json',
+                'X-CSRF-TOKEN':'{{ csrf_token() }}'
+            },
+            body:JSON.stringify({
+                items:items,
+                cliente_id:clienteID,
+                tipo_venta_cliente:document.getElementById('tipoVentaCliente') ? document.getElementById('tipoVentaCliente').value : 'contado',
+                metodo_pago:document.getElementById('metodoPago').value
+            })
+        });
+
+        const data = await response.json();
+
+        if(!data.ok){
+            alert('Error al guardar venta: ' + (data.error || 'Error desconocido'));
+            return;
+        }
+
+        modalCobrar.hide();
+
+        if (imprimir) {
+            let ticket = `
+            MULTIPOS
+            ---------------------------
+            Venta #${data.venta_id}
+            
+            `;
+
+            Object.values(cart).forEach(p=>{
+                ticket += `${p.name}\n`;
+                ticket += `${p.qty} x $${p.price}\n`;
+                ticket += `$${(p.qty*p.price).toFixed(2)}\n\n`;
+            });
+
+            ticket += `
+            ---------------------------
+            TOTAL: $${data.total}
+            
+            Gracias por su compra
+            `;
+
+            const w = window.open('', 'PRINT', 'height=600,width=350');
+            w.document.write('<pre>'+ticket+'</pre>');
+            w.document.close();
+            w.focus();
+            w.print();
+            w.close();
+        }
+
+        /* LIMPIAR POS */
+        cart={};
+        renderCart();
+
+        const flash=document.getElementById('ventaFlash');
+        flash.style.display='block';
+        setTimeout(()=>flash.style.display='none', 1500);
+
+        document.getElementById('montoPagado').value='';
+        document.getElementById('cliente_id').value='';
+        document.getElementById('clienteNombre').innerText='CONSUMIDOR FINAL';
+        document.getElementById('tipoVentaClienteBox').style.display='none';
+
+    } catch(err) {
+        alert('Error en conexión: ' + err.message);
+    }
 }
 
-const total = parseFloat(document.getElementById('modalTotal').innerText) || 0;
-
-const pagado = evaluarExpresion(document.getElementById('montoPagado').value);
-
-if(pagado < total){
-alert('Pago insuficiente');
-return;
-}
-
-let clienteID = document.getElementById('cliente_id').value;
-
-if(!clienteID && consumidorFinal){
-clienteID = consumidorFinal.id;
-}
-
-const items = Object.values(cart).map(p => ({
-product_id: p.id,
-cantidad: p.qty
-}));
-
-const response = await fetch("{{ route('empresa.pos.checkout') }}", {
-
-method:'POST',
-
-headers:{
-'Content-Type':'application/json',
-'X-CSRF-TOKEN':'{{ csrf_token() }}'
-},
-
-body:JSON.stringify({
-
-items:items,
-cliente_id:clienteID,
-tipo_venta_cliente:document.getElementById('tipoVentaCliente').value,
-metodo_pago:document.getElementById('metodoPago').value
-
-})
-
-});
-
-const data = await response.json();
-
-if(!data.ok){
-alert('Error al guardar venta');
-return;
-}
-
-modalCobrar.hide();
-
-/* LIMPIAR POS */
-
-cart={};
-renderCart();
-
-const flash=document.getElementById('ventaFlash');
-
-flash.style.display='block';
-
-setTimeout(()=>flash.style.display='none',1500);
-
-document.getElementById('montoPagado').value='';
-document.getElementById('cliente_id').value='';
-document.getElementById('clienteNombre').innerText='CONSUMIDOR FINAL';
-document.getElementById('tipoVentaClienteBox').style.display='none';
-
-};
-
-}
-
-
-/* ================= CONFIRMAR + IMPRIMIR ================= */
-
-const btnImprimir = document.getElementById('imprimirVenta');
-
-if(btnImprimir){
-
-btnImprimir.onclick = async function(){
-
-if(!Object.keys(cart).length){
-alert('Carrito vacío');
-return;
-}
-
-const total = parseFloat(document.getElementById('modalTotal').innerText) || 0;
-
-const pagado = evaluarExpresion(document.getElementById('montoPagado').value);
-
-if(pagado < total){
-alert('Pago insuficiente');
-return;
-}
-
-let clienteID = document.getElementById('cliente_id').value;
-
-if(!clienteID && consumidorFinal){
-clienteID = consumidorFinal.id;
-}
-
-const items = Object.values(cart).map(p => ({
-product_id: p.id,
-cantidad: p.qty
-}));
-
-const response = await fetch("{{ route('empresa.pos.checkout') }}", {
-
-method:'POST',
-
-headers:{
-'Content-Type':'application/json',
-'X-CSRF-TOKEN':'{{ csrf_token() }}'
-},
-
-body:JSON.stringify({
-
-items:items,
-cliente_id:clienteID,
-tipo_venta_cliente:document.getElementById('tipoVentaCliente').value,
-metodo_pago:document.getElementById('metodoPago').value
-
-})
-
-});
-
-const data = await response.json();
-
-if(!data.ok){
-alert('Error al guardar venta');
-return;
-}
-
-modalCobrar.hide();
-
-/* ===== IMPRIMIR ===== */
-
-let ticket = `
-MULTIPOS
----------------------------
-Venta #${data.venta_id}
-
-`;
-
-Object.values(cart).forEach(p=>{
-
-ticket += `${p.name}
-${p.qty} x $${p.price}
-$${(p.qty*p.price).toFixed(2)}
-
-`;
-
-});
-
-ticket += `
----------------------------
-TOTAL: $${data.total}
-
-Gracias por su compra
-`;
-
-const w = window.open('', 'PRINT', 'height=600,width=350');
-
-w.document.write('<pre>'+ticket+'</pre>');
-w.document.close();
-w.focus();
-w.print();
-w.close();
-
-/* LIMPIAR POS */
-
-cart={};
-renderCart();
-
-const flash=document.getElementById('ventaFlash');
-
-flash.style.display='block';
-
-setTimeout(()=>flash.style.display='none',1500);
-
-document.getElementById('montoPagado').value='';
-document.getElementById('cliente_id').value='';
-document.getElementById('clienteNombre').innerText='CONSUMIDOR FINAL';
-document.getElementById('tipoVentaClienteBox').style.display='none';
-
-};
-
-}
+document.getElementById('confirmarVenta').onclick = () => procesarVenta(false);
+document.getElementById('imprimirVenta').onclick = () => procesarVenta(true);
 
 
 /* ================= INICIALIZAR POS ================= */

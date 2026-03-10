@@ -118,6 +118,12 @@
             MultiPOS Central
         </a>
 
+        @if(auth()->user()->role === 'owner' && !request()->routeIs('owner.dashboard'))
+            <a href="{{ route('owner.dashboard') }}" class="btn btn-sm text-white ms-3 px-3 shadow-none" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px;">
+                <i class="me-1">⬅️</i> Volver al Owner Dashboard
+            </a>
+        @endif
+
         <div class="ms-auto d-flex align-items-center gap-3">
 
             @php $empresa = auth()->user()->empresa ?? null; @endphp

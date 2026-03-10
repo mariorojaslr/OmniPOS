@@ -1,0 +1,5 @@
+id	bigint(20) unsigned	NO	PRI	NULL	auto_increment
+product_id	bigint(20) unsigned	NO	MUL	NULL	
+youtube_url	varchar(255)	NO		NULL	
+created_at	timestamp	YES		NULL	
+updated_at	timestamp	YES		NULL	

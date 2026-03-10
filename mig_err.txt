@@ -1,0 +1,6 @@
+
+   INFO  Running migrations.  
+
+  2026_03_09_120854_add_columns_to_suscripcion_pagos_table  12.36ms DONE
+  2026_03_09_121159_create_support_tickets_table  72.02ms DONE
+
