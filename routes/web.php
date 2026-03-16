@@ -13,6 +13,7 @@ use App\Http\Controllers\Owner\EmpresaUserController;
 use App\Http\Controllers\Owner\PlanController;
 use App\Http\Controllers\Owner\SuscripcionPagoController;
 use App\Http\Controllers\Owner\SupportTicketController as OwnerSupportTicketController;
+use App\Http\Controllers\Owner\SystemUpdateController;
 
 // ================= EMPRESA =================
 use App\Http\Controllers\Empresa\DashboardController as EmpresaDashboardController;
