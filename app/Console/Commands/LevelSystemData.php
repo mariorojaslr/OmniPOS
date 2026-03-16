@@ -16,7 +16,7 @@ class LevelSystemData extends Command
      * The name and signature of the console command.
      * @var string
      */
-    protected $signature = 'db:level-data {--empresa= : ID de la empresa a omitir (opcional)}';
+    protected $signature = 'db:level-data {--empresa= : ID de la empresa a omitir (opcional)} {--debug : Muestra conteos de tablas}';
 
     /**
      * The console command description.
@@ -30,10 +30,20 @@ class LevelSystemData extends Command
     public function handle()
     {
         $omitEmpresaId = $this->option('empresa');
+        $debug = $this->option('debug');
         
         $this->info("------------------------------------------------------------");
         $this->info("🚀 INICIANDO NIVELACIÓN DE DATOS - MULTIPOS");
         $this->info("------------------------------------------------------------");
+
+        if ($debug) {
+            $this->warn("DEBUG: Conteo total de registros en la DB:");
+            $this->line("Ventas: " . Venta::count());
+            $this->line("Ventas (Items): " . VentaItem::count());
+            $this->line("Productos: " . Product::count());
+            $this->line("Items Compra: " . PurchaseItem::count());
+            $this->info("------------------------------------------------------------");
+        }
         
         if ($omitEmpresaId) {
             $this->warn("⚠️  Omitiendo Empresa ID: $omitEmpresaId (Pruebas/Demo)");
