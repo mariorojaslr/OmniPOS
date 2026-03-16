@@ -31,17 +31,15 @@ class ProductImage extends Model
             return $imgPath;
         }
 
-        // Logística para Bunny.net
-        $bunnyUrl = env('BUNNY_URL'); // e.g. https://gente-piola.b-cdn.net
-        $useBunny = env('BUNNY_ENABLED', true); // Permitir desactivarlo desde .env
+        // Soportamos BUNNY_URL (local) y BUNNY_PULL_ZONE_URL (staging/producción)
+        $bunnyUrl = env('BUNNY_URL') ?: env('BUNNY_PULL_ZONE_URL');
+        $useBunny = env('BUNNY_ENABLED', true);
 
         if ($useBunny && $bunnyUrl) {
             return rtrim($bunnyUrl, '/') . '/' . ltrim($imgPath, '/');
         }
 
-        // FALLBACK A LOCAL:
-        // Usamos una ruta relativa absoluta desde el dominio actual para evitar 
-        // bloqueos Mixed Content
+        // FALLBACK A LOCAL
         return '/storage/' . ltrim($imgPath, '/');
     }
 }

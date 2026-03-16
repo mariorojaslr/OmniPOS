@@ -42,10 +42,18 @@ class VentaController extends Controller
             abort(403);
         }
 
-        $venta->load(['items.product', 'user', 'cliente']);
+        $venta->load([
+            'items.product',
+            'items.variant',
+            'user',
+            'cliente'
+        ]);
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa'));
-        
-        return $pdf->stream("Venta_{$venta->id}.pdf");
+        $empresa->load('config');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("Comprobante_{$venta->numero_comprobante}.pdf");
     }
 }

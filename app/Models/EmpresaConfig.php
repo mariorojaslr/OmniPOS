@@ -32,8 +32,8 @@ class EmpresaConfig extends Model
             return $this->logo;
         }
 
-        // Logística para Bunny.net
-        $bunnyUrl = env('BUNNY_URL');
+        // Soportamos BUNNY_URL (local) y BUNNY_PULL_ZONE_URL (staging/producción)
+        $bunnyUrl = env('BUNNY_URL') ?: env('BUNNY_PULL_ZONE_URL');
         $useBunny = env('BUNNY_ENABLED', true);
 
         if ($useBunny && $bunnyUrl) {
