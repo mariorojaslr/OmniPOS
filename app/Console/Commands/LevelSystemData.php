@@ -96,9 +96,17 @@ class LevelSystemData extends Command
                     if($omitEmpresaId) $q->where('empresa_id', '!=', $omitEmpresaId);
                 });
 
-                $itemsQuery->each(function ($item) use (&$countItemsVenta, $debug) {
-                    // Detectar precio/total de cualquier lado
-                    // Hostinger puede tener nombres antiguos como 'precio_unitario' o 'subtotal'
+                if ($debug) {
+                    try {
+                        $columns = collect(DB::select("DESCRIBE venta_items"))->pluck('Field')->toArray();
+                        $this->line("DEBUG: Columnas reales de venta_items: " . implode(', ', $columns));
+                    } catch (\Exception $e) {
+                        $this->warn("No se pudo describir la tabla venta_items.");
+                    }
+                }
+
+                $itemsQuery->with(['product', 'venta'])->each(function ($item) use (&$countItemsVenta, $debug) {
+                    // 1. Detectar precio/total de cualquier lado
                     if ($debug && $countItemsVenta < 3) {
                         $this->line("DEBUG: Item #{$item->id} full data: " . json_encode($item->getAttributes()));
                     }
@@ -106,10 +114,24 @@ class LevelSystemData extends Command
                     $totalItem = (float)($item->total_item_con_iva ?: $item->total ?: $item->subtotal ?: $item->precio ?: $item->precio_unitario ?: 0);
                     $cantidad  = (float)$item->cantidad;
 
-                    // Si el totalItem sigue siendo 0 pero la cantidad > 0, 
-                    // intentamos reconstruir desde el precio_unitario * cantidad si existiera
-                    if ($totalItem <= 0 && (float)$item->precio_unitario > 0) {
-                        $totalItem = (float)$item->precio_unitario * $cantidad;
+                    // 2. FALLBACK 1: Si es 0, intentar recuperar del producto actual
+                    if ($totalItem <= 0 && $item->product) {
+                        $totalItem = (float)$item->product->price * $cantidad;
+                        if ($debug && $countItemsVenta < 10) {
+                            $this->line("DEBUG: Item #{$item->id} -> Recuperado de Producto ({$item->product->name}): $totalItem");
+                        }
+                    }
+
+                    // 3. FALLBACK 2: Si sigue siendo 0 y la venta solo tiene 1 item, heredar el total de la venta
+                    if ($totalItem <= 0 && $item->venta && $item->venta->total > 0) {
+                        // Solo si es el único item para evitar duplicar totales
+                        $itemsCount = VentaItem::where('venta_id', $item->venta_id)->count();
+                        if ($itemsCount === 1) {
+                            $totalItem = (float)$item->venta->total;
+                            if ($debug && $countItemsVenta < 10) {
+                                $this->line("DEBUG: Item #{$item->id} -> Heredado de Venta Global: $totalItem");
+                            }
+                        }
                     }
 
                     if ($totalItem > 0 && $cantidad > 0) {
@@ -117,7 +139,7 @@ class LevelSystemData extends Command
                         $item->precio_unitario_sin_iva = round($baseTotal / $cantidad, 2);
                         $item->subtotal_item_sin_iva   = round($baseTotal, 2);
                         $item->iva_item                = round($totalItem - $baseTotal, 2);
-                        $item->total_item_con_iva      = $totalItem; // Estandarizamos
+                        $item->total_item_con_iva      = $totalItem;
                         $item->save();
                         $countItemsVenta++;
                     }
