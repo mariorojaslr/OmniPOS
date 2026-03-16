@@ -58,16 +58,19 @@ class LevelSystemData extends Command
                 if ($omitEmpresaId) $ventasQuery->where('empresa_id', '!=', $omitEmpresaId);
                 
                 $countVentas = 0;
-                $ventasQuery->each(function ($venta) use (&$countVentas) {
-                    // En producción el total real está en total_con_iva o total
-                    $total = (float)($venta->total_con_iva ?? $venta->total ?? 0);
+                $ventasQuery->each(function ($venta) use (&$countVentas, $debug) {
+                    // Agresivo: intentamos obtener el total de cualquier columna posible
+                    $total = (float)($venta->total_con_iva ?? $venta->total ?? $venta->total_venta ?? 0);
                     
+                    if ($debug && $countVentas === 0) {
+                        $this->line("DEBUG: Primera venta ID {$venta->id} - Datos: " . json_encode($venta->only(['total', 'total_con_iva', 'subtotal', 'iva'])));
+                    }
+
                     if ($total > 0) {
                         $subtotal = $total / 1.21;
                         $venta->subtotal = round($subtotal, 2);
                         $venta->iva      = round($total - $subtotal, 2);
-                        // Aseguramos que 'total' también tenga el valor
-                        $venta->total    = $total; 
+                        $venta->total    = $total; // Estandarizamos
                         $venta->save();
                         $countVentas++;
                     }
@@ -80,7 +83,7 @@ class LevelSystemData extends Command
                 VentaItem::whereHas('venta', function($q) use ($omitEmpresaId){
                     if($omitEmpresaId) $q->where('empresa_id', '!=', $omitEmpresaId);
                 })->each(function ($item) use (&$countItemsVenta) {
-                    $total_item = (float)$item->total_item_con_iva;
+                    $total_item = (float)($item->total_item_con_iva ?? $item->total ?? $item->subtotal ?? 0);
                     if ($total_item > 0 && (float)$item->cantidad > 0) {
                         $base_total = $total_item / 1.21;
                         $item->precio_unitario_sin_iva = round($base_total / $item->cantidad, 2);
@@ -92,58 +95,47 @@ class LevelSystemData extends Command
                 });
                 $this->info("✔ $countItemsVenta items de venta nivelados.");
 
-                // 3. NIVELAR COMPRAS (Costos)
-                $this->comment("3/4 Procesando Items de Compra...");
-                $countItemsCompra = 0;
-                PurchaseItem::whereHas('purchase', function($q) use ($omitEmpresaId){
-                    if($omitEmpresaId) $q->where('empresa_id', '!=', $omitEmpresaId);
-                })->each(function ($item) use (&$countItemsCompra) {
-                    // En producción el 'cost' guardado era el final. 
-                    // Lo movemos a base + iva.
-                    $costFinal = (float)$item->cost;
-                    if ($costFinal > 0) {
-                        $costBase = $costFinal / 1.21;
-                        $item->cost = round($costBase, 2);
-                        $item->iva  = round($costFinal - $costBase, 2);
-                        $item->save();
-                        $countItemsCompra++;
-                    }
-                });
-                $this->info("✔ $countItemsCompra items de compra nivelados.");
-
-                // 4. SINCRONIZAR STOCK (Variantes -> Producto)
-                $this->comment("4/4 Sincronizando Stock con Variantes y Kardex...");
+                // 3. NIVELAR PRODUCTOS (Precios y Stocks)
+                $this->comment("3/4 Procesando Catálogo de Productos...");
                 $productsQuery = Product::query();
                 if ($omitEmpresaId) $productsQuery->where('empresa_id', '!=', $omitEmpresaId);
+                
+                $countProdPrecios = 0;
+                $countProdStock = 0;
 
-                $countProducts = 0;
-                $productsQuery->with('variants')->each(function ($product) use (&$countProducts) {
+                $productsQuery->with('variants')->each(function ($product) use (&$countProdPrecios, &$countProdStock) {
+                    // Nivelar Precio si tiene cargado el price (final)
+                    $precioFinal = (float)($product->price ?? $product->precio ?? 0);
+                    if ($precioFinal > 0) {
+                        $product->precio_sin_iva = round($precioFinal / 1.21, 2);
+                        $product->save();
+                        $countProdPrecios++;
+                    }
+
+                    // Nivelar Stock si tiene variantes
                     if ($product->variants->count() > 0) {
                         $oldStock = (float)$product->stock;
                         $newStock = (float)$product->variants->sum('stock');
                         
                         if ($oldStock != $newStock) {
-                            $diff = $newStock - $oldStock;
-                            
-                            // Actualizar producto
                             $product->stock = $newStock;
                             $product->save();
-
-                            // Crear movimiento de Kardex explicativo
+                            
                             \App\Models\KardexMovimiento::create([
                                 'empresa_id'       => $product->empresa_id,
                                 'product_id'       => $product->id,
-                                'user_id'          => auth()->id() ?? 1, // Default to 1 if console
-                                'tipo'             => $diff > 0 ? 'entrada' : 'salida',
-                                'cantidad'         => $diff,
+                                'user_id'          => 1, 
+                                'tipo'             => 'entrada',
+                                'cantidad'         => abs($newStock - $oldStock),
                                 'stock_resultante' => $newStock,
-                                'origen'           => "AJUSTE DE NIVELACIÓN (Sincronización con Variantes)",
+                                'origen'           => "AJUSTE DE NIVELACIÓN",
                             ]);
+                            $countProdStock++;
                         }
-                        $countProducts++;
                     }
                 });
-                $this->info("✔ $countProducts productos sincronizados.");
+                $this->info("✔ $countProdPrecios precios de productos nivelados.");
+                $this->info("✔ $countProdStock stocks sincronizados con variantes.");
 
             });
 
