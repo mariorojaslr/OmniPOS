@@ -293,6 +293,12 @@ Catálogo
 <a class="nav-link" href="{{ route('empresa.reportes.panel') }}">Reportes</a>
 </li>
 
+<li class="nav-item">
+<a class="nav-link text-warning fw-bold" href="{{ route('empresa.novedades') }}">
+🔥 Novedades
+</a>
+</li>
+
 </ul>
 
 

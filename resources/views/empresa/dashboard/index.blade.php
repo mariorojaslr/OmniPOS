@@ -132,6 +132,37 @@ $secondary = $config->color_secundario ?? '#16a34a';
         </div>
     </div>
 
+    {{-- ======================================================
+        NOTIFICACIONES / TAREAS PENDIENTES
+    ====================================================== --}}
+    @if(count($reminders) > 0)
+    <div class="row mb-5">
+        <div class="col-12">
+            <h5 class="fw-bold mb-3 text-secondary">Acciones Sugeridas</h5>
+            <div class="row g-3">
+                @foreach($reminders as $rem)
+                <div class="col-md-6">
+                    <div class="glass-panel" style="border-left: 5px solid {{ $rem['type'] == 'warning' ? '#f59e0b' : '#3b82f6' }}; padding: 1rem 1.5rem;">
+                        <div class="d-flex align-items-center">
+                            <div class="fs-2 me-3">{{ $rem['icon'] }}</div>
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-0 {{ $rem['type'] == 'warning' ? 'text-warning' : 'text-primary' }}">
+                                    {{ $rem['title'] }}
+                                </h6>
+                                <p class="small mb-2 text-muted">{{ $rem['message'] }}</p>
+                                <a href="{{ $rem['link'] }}" class="btn btn-sm py-1 px-3" style="background: {{ $rem['type'] == 'warning' ? '#f59e0b' : '#3b82f6' }}; color: white; border-radius: 8px; font-size: 0.75rem;">
+                                    {{ $rem['btn'] }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
+
 
     {{-- ======================================================
         BLOQUE 1 · MÉTRICAS COMERCIALES (HOY/MES)

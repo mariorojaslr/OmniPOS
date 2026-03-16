@@ -322,4 +322,116 @@ class ClientController extends Controller
             ->route('empresa.clientes.index')
             ->with('success', 'Cliente eliminado correctamente.');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXPORTAR CLIENTES (CSV con ;)
+    |--------------------------------------------------------------------------
+    */
+    public function export()
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $clientes = Client::where('empresa_id', $empresaId)->get();
+
+        $filename = "clientes_empresa_{$empresaId}_" . date('Y-m-d') . ".csv";
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($clientes) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
+
+            fputcsv($file, ['ID', 'Nombre', 'Email', 'Teléfono', 'Documento/CUIT', 'Tipo', 'Condición IVA'], ';');
+
+            foreach ($clientes as $c) {
+                fputcsv($file, [
+                    $c->id,
+                    $c->name,
+                    $c->email,
+                    $c->phone,
+                    $c->document,
+                    $c->type,
+                    $c->tax_condition
+                ], ';');
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORTAR CLIENTES (CSV con ;)
+    |--------------------------------------------------------------------------
+    */
+    public function import(Request $request)
+    {
+        $request->validate(['csv_file' => 'required|file']);
+        $empresaId = auth()->user()->empresa_id;
+
+        $file = $request->file('csv_file');
+        $handle = fopen($file->getRealPath(), 'r');
+        
+        $bom = fread($handle, 3);
+        if ($bom !== "\xEF\xBB\xBF") rewind($handle);
+
+        fgetcsv($handle, 1000, ';'); // Cabecera
+
+        $countCreated = 0;
+        $countUpdated = 0;
+
+        while (($row = fgetcsv($handle, 1000, ';')) !== FALSE) {
+            if (count($row) < 2) continue;
+
+            $id       = !empty($row[0]) ? $row[0] : null;
+            $nombre   = trim($row[1]);
+            $email    = trim($row[2] ?? '');
+            $telefono = trim($row[3] ?? '');
+            $documento = trim($row[4] ?? '');
+            $tipo     = trim($row[5] ?? 'Final');
+            $iva      = trim($row[6] ?? 'Consumidor Final');
+
+            $client = null;
+            if ($id) {
+                $client = Client::where('empresa_id', $empresaId)->find($id);
+            }
+            
+            if (!$client && !empty($documento)) {
+                $client = Client::where('empresa_id', $empresaId)
+                    ->where('document', $documento)
+                    ->first();
+            }
+
+            if (!$client && !empty($email)) {
+                $client = Client::where('empresa_id', $empresaId)
+                    ->where('email', $email)
+                    ->first();
+            }
+
+            $data = [
+                'name'  => $nombre,
+                'email' => $email,
+                'phone' => $telefono,
+                'document' => $documento,
+                'type'     => $tipo,
+                'tax_condition' => $iva,
+                'active' => 1
+            ];
+
+            if ($client) {
+                $client->update($data);
+                $countUpdated++;
+            } else {
+                Client::create(array_merge($data, ['empresa_id' => $empresaId]));
+                $countCreated++;
+            }
+        }
+
+        fclose($handle);
+
+        return back()->with('success', "Proceso terminado: {$countCreated} creados, {$countUpdated} actualizados.");
+    }
 }

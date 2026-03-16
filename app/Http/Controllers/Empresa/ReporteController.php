@@ -157,6 +157,10 @@ class ReporteController extends Controller
             ];
         }
 
+        if (!class_exists('Maatwebsite\Excel\Facades\Excel')) {
+            return back()->with('error', 'La librería de exportación a Excel no está instalada en este entorno. Por favor, contacte el soporte técnico o use el formato PDF.');
+        }
+
         return Excel::download(new ArrayExport($data), 'reporte.xlsx');
     }
 

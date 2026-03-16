@@ -191,6 +191,9 @@
                     <a href="{{ route('owner.planes.index') }}" class="action-btn">
                         ⚙️ Configurar Planes de Suscripción
                     </a>
+                    <a href="{{ route('owner.updates.index') }}" class="action-btn">
+                        🔥 Gestionar Novedades (Timeline)
+                    </a>
                 </div>
             </div>
         </div>

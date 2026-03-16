@@ -13,9 +13,54 @@
             <small class="text-muted">Gestión de clientes y cuentas corrientes</small>
         </div>
 
-        <a href="{{ route('empresa.clientes.create') }}" class="btn btn-primary">
-            Nuevo cliente
-        </a>
+        <div class="d-flex gap-2">
+            {{-- Botón Amarillo de Exportación (Planilla) --}}
+            <a href="{{ route('empresa.clientes.export') }}" 
+               class="btn btn-warning d-flex align-items-center gap-2 text-dark fw-bold shadow-sm">
+                <i class="bi bi-download"></i>
+                Bajar Planilla
+            </a>
+
+            {{-- Botón de Importación --}}
+            <button type="button" 
+                    class="btn btn-outline-secondary d-flex align-items-center gap-2 shadow-sm"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#importModalClientes">
+                <i class="bi bi-upload"></i>
+                Importar
+            </button>
+
+            <a href="{{ route('empresa.clientes.create') }}" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+                <i class="bi bi-plus-circle"></i>
+                Nuevo cliente
+            </a>
+        </div>
+    </div>
+
+    {{-- MODAL IMPORTACIÓN CLIENTES --}}
+    <div class="modal fade" id="importModalClientes" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="{{ route('empresa.clientes.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Importar Clientes</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info small">
+                            Suba un archivo CSV con separador de campos <strong>";" (punto y coma)</strong> para actualizar o crear clientes.
+                            El sistema detectará duplicados por <strong>DNI/CUIT</strong> o <strong>Email</strong>.
+                        </div>
+                        <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Subir y Procesar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 
     {{-- =========================================================

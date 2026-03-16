@@ -297,4 +297,112 @@ class ProductController extends Controller
             ->route('empresa.products.edit', $product)
             ->with('success','Producto actualizado correctamente');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXPORTAR PRODUCTOS (CSV con ;)
+    |--------------------------------------------------------------------------
+    */
+    public function export()
+    {
+        $empresaId = Auth::user()->empresa_id;
+        $products = Product::where('empresa_id', $empresaId)->get();
+
+        $filename = "productos_empresa_{$empresaId}_" . date('Y-m-d') . ".csv";
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($products) {
+            $file = fopen('php://output', 'w');
+            
+            // BOM para Excel (UTF-8)
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            // Encabezados
+            fputcsv($file, ['ID', 'Nombre', 'Precio', 'Stock Actual', 'Activo (1/0)'], ';');
+
+            foreach ($products as $p) {
+                fputcsv($file, [
+                    $p->id,
+                    $p->name,
+                    $p->price,
+                    $p->stock,
+                    $p->active ? 1 : 0
+                ], ';');
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORTAR PRODUCTOS (CSV con ;)
+    |--------------------------------------------------------------------------
+    */
+    public function import(Request $request)
+    {
+        $request->validate(['csv_file' => 'required|file']);
+        $empresaId = Auth::user()->empresa_id;
+
+        $file = $request->file('csv_file');
+        $handle = fopen($file->getRealPath(), 'r');
+        
+        // Omitir BOM si existe
+        $bom = fread($handle, 3);
+        if ($bom !== "\xEF\xBB\xBF") rewind($handle);
+
+        // Omitir cabecera
+        fgetcsv($handle, 1000, ';');
+
+        $countCreated = 0;
+        $countUpdated = 0;
+
+        while (($row = fgetcsv($handle, 1000, ';')) !== FALSE) {
+            if (count($row) < 2) continue;
+
+            $id     = !empty($row[0]) ? $row[0] : null;
+            $nombre = trim($row[1]);
+            $precio = (float) str_replace(',', '.', $row[2] ?? 0);
+            $stock  = (float) ($row[3] ?? 0);
+            $active = (int) ($row[4] ?? 1);
+
+            // Buscar por ID o por Nombre (para evitar duplicados)
+            $product = null;
+            if ($id) {
+                $product = Product::where('empresa_id', $empresaId)->find($id);
+            }
+            
+            if (!$product) {
+                $product = Product::where('empresa_id', $empresaId)
+                    ->where('name', $nombre)
+                    ->first();
+            }
+
+            if ($product) {
+                $product->update([
+                    'price'  => $precio,
+                    'stock'  => $stock,
+                    'active' => $active
+                ]);
+                $countUpdated++;
+            } else {
+                Product::create([
+                    'empresa_id' => $empresaId,
+                    'name'   => $nombre,
+                    'price'  => $precio,
+                    'stock'  => $stock,
+                    'active' => $active
+                ]);
+                $countCreated++;
+            }
+        }
+
+        fclose($handle);
+
+        return back()->with('success', "Proceso terminado: {$countCreated} creados, {$countUpdated} actualizados.");
+    }
 }

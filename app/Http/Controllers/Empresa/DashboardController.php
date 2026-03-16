@@ -86,12 +86,45 @@ class DashboardController extends Controller
 
         /*
         |----------------------------------------------------------------------
+        | SISTEMA DE ALERTAS / RECORDATORIOS (NUEVO)
+        |----------------------------------------------------------------------
+        */
+        $empresa = $user->empresa;
+        $reminders = [];
+
+        // 1. Alerta Fiscal/Config
+        if (!$empresa->cuit || !$empresa->condicion_iva || !$empresa->config?->logo) {
+            $reminders[] = [
+                'type' => 'warning',
+                'icon' => '⚙️',
+                'title' => 'Perfil Incompleto',
+                'message' => 'Por favor, complete sus datos fiscales y suba su logo en Configuración.',
+                'link' => route('empresa.configuracion.index'),
+                'btn' => 'Ir a Configuración'
+            ];
+        }
+
+        // 2. Alerta Stock Inicial
+        $comprasCount = \App\Models\Purchase::where('empresa_id', $empresaId)->count();
+        if ($productosCount > 0 && $comprasCount === 0) {
+            $reminders[] = [
+                'type' => 'info',
+                'icon' => '📦',
+                'title' => 'Carga de Stock Pendiente',
+                'message' => 'Recomendamos cargar su stock inicial creando un proveedor "Carga Inicial" y registrando una Factura de Compra.',
+                'link' => route('empresa.compras.index'),
+                'btn' => 'Registrar Compra'
+            ];
+        }
+
+        /*
+        |----------------------------------------------------------------------
         | RENDER DASHBOARD
         |----------------------------------------------------------------------
         */
 
         return view('empresa.dashboard.index', [
-            'empresa' => $user->empresa,   // relación Eloquent
+            'empresa' => $empresa,
             'ventasHoy' => $ventasHoy,
             'ventasMes' => $ventasMes,
             'cantidadVentasHoy' => $cantidadVentasHoy,
@@ -101,6 +134,13 @@ class DashboardController extends Controller
             'stockBajo' => $stockBajo,
             'pedidosPendientes' => $pedidosPendientes,
             'pedidosTotales' => $pedidosTotales,
+            'reminders' => $reminders,
         ]);
+    }
+
+    public function novedades()
+    {
+        $updates = \App\Models\SystemUpdate::orderByDesc('publish_date')->get();
+        return view('empresa.updates.index', compact('updates'));
     }
 }

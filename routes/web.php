@@ -77,6 +77,7 @@ Route::middleware(['auth', 'owner'])
 
         Route::resource('empresas', EmpresaController::class)->except(['show']);
         Route::resource('planes', PlanController::class)->except(['show'])->parameters(['planes' => 'plan']);
+        Route::resource('updates', SystemUpdateController::class);
 
         Route::get('suscripciones', [SuscripcionPagoController::class , 'index'])->name('facturacion.index');
         Route::get('suscripciones/create', [SuscripcionPagoController::class , 'create'])->name('facturacion.create');
@@ -126,12 +127,15 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      */
         Route::get('/dashboard', [EmpresaDashboardController::class , 'index'])->name('dashboard');
         Route::get('/usuario/dashboard', [UsuarioDashboardController::class , 'index'])->name('usuario.dashboard');
+        Route::get('/novedades', [EmpresaDashboardController::class , 'novedades'])->name('novedades');
 
         /*
      |--------------------------------------------------------------------------
      | CLIENTES
      |--------------------------------------------------------------------------
      */
+        Route::get('clientes/export', [ClientController::class , 'export'])->name('clientes.export');
+        Route::post('clientes/import', [ClientController::class , 'import'])->name('clientes.import');
         Route::resource('clientes', ClientController::class)->except(['destroy']);
 
         /*
@@ -205,6 +209,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      | PRODUCTOS
      |--------------------------------------------------------------------------
      */
+        Route::get('products/export', [ProductController::class , 'export'])->name('products.export');
+        Route::post('products/import', [ProductController::class , 'import'])->name('products.import');
         Route::resource('products', ProductController::class)->except(['show', 'destroy']);
 
         Route::get('products/{product}/images/create', [ProductImageController::class , 'create'])->name('products.images.create');
