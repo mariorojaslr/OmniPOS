@@ -24,8 +24,9 @@ class CheckoutController extends Controller
         }
 
         // Resolver empresa desde primer producto
-        $firstProductId = array_key_first($cart);
-        $product = Product::with('empresa')->find($firstProductId);
+        $firstItem = reset($cart);
+        $productId = $firstItem['product_id'] ?? array_key_first($cart);
+        $product = Product::with('empresa')->find($productId);
         $empresa = $product ? $product->empresa : Empresa::first();
 
         return view('catalog.checkout', compact('cart','empresa'));
@@ -78,14 +79,15 @@ class CheckoutController extends Controller
         ]);
 
         // Crear items
-        foreach($cart as $productId => $item) {
+        foreach($cart as $id => $item) {
 
             OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $productId,
-                'precio' => $item['price'],
-                'cantidad' => $item['quantity'],
-                'subtotal' => $item['price'] * $item['quantity'],
+                'order_id'   => $order->id,
+                'product_id' => $item['product_id'],
+                'variant_id' => $item['variant_id'] ?? null,
+                'precio'     => $item['price'],
+                'cantidad'   => $item['quantity'],
+                'subtotal'   => $item['price'] * $item['quantity'],
             ]);
         }
 
