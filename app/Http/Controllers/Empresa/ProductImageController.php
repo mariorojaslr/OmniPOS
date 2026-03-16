@@ -69,9 +69,9 @@ class ProductImageController extends Controller
             // Guardar en BunnyCDN (API REST directa via HTTPS para Evitar Bloqueos FTP de Hostinger)
             $bunnySuccess = true;
             try {
-                $bunnyKey = env('BUNNY_PASSWORD'); // El Password principal es el API AccessKey
-                $bunnyZone = env('BUNNY_USERNAME'); // gente-piola
-                $bunnyHost = env('BUNNY_HOSTNAME'); // ny.storage.bunnycdn.com
+                $bunnyKey  = config('services.bunny.password');
+                $bunnyZone = config('services.bunny.username');
+                $bunnyHost = config('services.bunny.hostname');
 
                 $bunnyApiUrl = "https://{$bunnyHost}/{$bunnyZone}/$path/$filename";
 
@@ -120,9 +120,9 @@ class ProductImageController extends Controller
 
         // Intenta borrar de BunnyCDN (Nube)
         try {
-            $bunnyKey = env('BUNNY_PASSWORD');
-            $bunnyZone = env('BUNNY_USERNAME');
-            $bunnyHost = env('BUNNY_HOSTNAME');
+            $bunnyKey  = config('services.bunny.password');
+            $bunnyZone = config('services.bunny.username');
+            $bunnyHost = config('services.bunny.hostname');
 
             $bunnyApiUrl = "https://{$bunnyHost}/{$bunnyZone}/{$image->path}";
 

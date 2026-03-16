@@ -33,9 +33,9 @@ class EmpresaConfig extends Model
             return $this->logo;
         }
 
-        // Soportamos BUNNY_URL (local) y BUNNY_PULL_ZONE_URL (staging/producción)
-        $bunnyUrl = env('BUNNY_URL') ?: env('BUNNY_PULL_ZONE_URL');
-        $useBunny = env('BUNNY_ENABLED', true);
+        // Soportamos configuración vía config/services.php
+        $bunnyUrl = config('services.bunny.url');
+        $useBunny = config('services.bunny.enabled');
 
         if ($useBunny && $bunnyUrl) {
             return rtrim($bunnyUrl, '/') . '/' . ltrim($this->logo, '/');
