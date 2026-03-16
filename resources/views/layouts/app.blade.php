@@ -150,7 +150,7 @@
                     <li><hr></li>
 
                     <li>
-                        <a class="dropdown-item" href="{{ route('password.request') }}">
+                        <a class="dropdown-item" href="{{ route('password.edit') }}">
                             Cambiar contraseña
                         </a>
                     </li>
@@ -220,7 +220,7 @@
 
                 <div class="d-flex gap-2 justify-content-center">
 
-                    <a href="{{ route('password.request') }}" class="btn btn-primary">
+                    <a href="{{ route('password.edit') }}" class="btn btn-primary">
                         Cambiar contraseña
                     </a>
 

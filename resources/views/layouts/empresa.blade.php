@@ -318,8 +318,8 @@ Catálogo
 
 {{-- Cambiar contraseña --}}
 <li>
-<a class="dropdown-item" href="{{ url('/password') }}">
-Cambiar contraseña
+<a class="dropdown-item" href="{{ route('password.edit') }}">
+    Cambiar contraseña
 </a>
 </li>
 

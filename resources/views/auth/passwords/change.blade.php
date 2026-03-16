@@ -1,25 +1,24 @@
-@extends('layouts.app')
+@extends(auth()->user()->role === 'owner' ? 'layouts.app' : 'layouts.empresa')
 
 @section('content')
 
-<div class="container" style="max-width:520px">
+<div class="container" style="max-width:520px; margin-top: 50px;">
 
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0 {{ auth()->user()->role === 'owner' ? 'glass-card' : '' }}">
         <div class="card-body p-4">
 
-            <h4 class="mb-3">Cambiar contraseña</h4>
+            <h4 class="mb-3 fw-bold">🔐 Cambiar contraseña</h4>
             <p class="text-muted mb-4">
-                Ingresá tu contraseña actual y luego la nueva.
+                Ingresá tu contraseña actual y luego la nueva para mantener tu cuenta segura.
             </p>
 
             @if (session('status') === 'password-updated')
-                <div class="alert alert-success">
+                <div class="alert alert-success border-0 shadow-sm mb-4">
                     ✔ Contraseña actualizada correctamente
                 </div>
             @endif
 
-            {{-- 👇 IMPORTANTE: action /password --}}
-            <form method="POST" action="/password">
+            <form method="POST" action="{{ route('password.update') }}">
                 @csrf
                 @method('PUT')
 
