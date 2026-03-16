@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Empresa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\ProductCombo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -146,7 +148,15 @@ class ProductController extends Controller
             abort(403);
         }
 
-        return view('empresa.products.edit', compact('product'));
+        $product->load(['variants', 'comboItems']);
+
+        // Todos los productos de la empresa (para armar combos)
+        $allProducts = Product::where('empresa_id', Auth::user()->empresa_id)
+            ->where('id', '!=', $product->id)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('empresa.products.edit', compact('product', 'allProducts'));
     }
 
 
@@ -181,13 +191,67 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        $productType   = $request->input('product_type', 'normal');
+        $hasVariants   = $productType === 'variants';
+        $isCombo       = $productType === 'combo';
+
         $product->update([
             'name'              => $request->name,
             'price'             => $request->price,
             'active'            => $request->active,
             'descripcion_corta' => $request->descripcion_corta,
             'descripcion_larga' => $request->descripcion_larga,
+            'has_variants'      => $hasVariants,
+            'is_combo'          => $isCombo,
         ]);
+
+        // ===== GUARDAR VARIANTES =====
+        if ($hasVariants && $request->filled('variantes')) {
+            foreach ($request->variantes as $key => $data) {
+                if (str_starts_with((string)$key, 'new_')) {
+                    // Nueva variante
+                    if (!empty($data['size']) || !empty($data['color'])) {
+                        ProductVariant::create([
+                            'product_id' => $product->id,
+                            'size'       => $data['size'] ?? null,
+                            'color'      => $data['color'] ?? null,
+                            'price'      => $data['price'] ?? $product->price,
+                            'stock'      => $data['stock'] ?? 0,
+                        ]);
+                    }
+                } else {
+                    // Actualizar existente
+                    ProductVariant::where('id', $key)
+                        ->where('product_id', $product->id)
+                        ->update([
+                            'size'  => $data['size'] ?? null,
+                            'color' => $data['color'] ?? null,
+                            'price' => $data['price'] ?? $product->price,
+                            'stock' => $data['stock'] ?? 0,
+                        ]);
+                }
+            }
+        } elseif (!$hasVariants) {
+            // Si ya no es de variantes, limpiar
+            ProductVariant::where('product_id', $product->id)->delete();
+        }
+
+        // ===== GUARDAR COMBO =====
+        if ($isCombo && $request->filled('combo_items')) {
+            // Limpiar combo actual y recrear
+            ProductCombo::where('parent_product_id', $product->id)->delete();
+            foreach ($request->combo_items as $data) {
+                if (!empty($data['child_id'])) {
+                    ProductCombo::create([
+                        'parent_product_id' => $product->id,
+                        'child_product_id'  => $data['child_id'],
+                        'quantity'          => $data['quantity'] ?? 1,
+                    ]);
+                }
+            }
+        } elseif (!$isCombo) {
+            ProductCombo::where('parent_product_id', $product->id)->delete();
+        }
 
 
         /*
