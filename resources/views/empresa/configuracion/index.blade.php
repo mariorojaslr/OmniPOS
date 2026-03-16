@@ -133,7 +133,11 @@
                         <label class="form-label fw-semibold">Punto de Venta</label>
                         <input type="number" name="punto_venta" value="{{ $empresa->punto_venta ?? 1 }}" class="form-control">
                     </div>
-                    <div class="col-md-8 mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold">Próximo Número de Factura</label>
+                        <input type="number" name="proximo_numero_factura" value="{{ $empresa->proximo_numero_factura ?? 1 }}" class="form-control">
+                    </div>
+                    <div class="col-md-4 mb-3">
                         <label class="form-label fw-semibold">Dirección Fiscal</label>
                         <input type="text" name="direccion_fiscal" value="{{ $empresa->direccion_fiscal }}" class="form-control">
                     </div>
@@ -214,16 +218,15 @@ document.getElementById('configForm').addEventListener('submit', function(e){
     })
     .then(r => r.json())
     .then(res => {
-
         if(res.success){
             let box = document.getElementById('okBox');
             box.classList.remove('d-none');
-
-            setTimeout(() => {
-                box.classList.add('d-none');
-            }, 2000);
+            setTimeout(() => { box.classList.add('d-none'); }, 3000);
+        } else {
+            alert('Error al guardar: ' + (res.error || 'Desconocido'));
         }
-    });
+    })
+    .catch(err => alert('Error de red: ' + err));
 });
 
 </script>

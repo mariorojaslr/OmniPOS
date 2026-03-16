@@ -4,321 +4,277 @@
     <meta charset="utf-8">
     <title>Comprobante Nº {{ $venta->numero_comprobante }}</title>
     <style>
+        @page { margin: 1cm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Helvetica', sans-serif;
             font-size: 10px;
-            color: #000;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .header-container {
+            width: 100%;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .header-left {
+            width: 45%;
             padding: 15px;
+            float: left;
+            min-height: 100px;
         }
 
-        /* ====== CABECERA ====== */
-        .cabecera {
-            width: 100%;
-            border: 1.5px solid #000;
-            margin-bottom: 4px;
-            display: table;
-        }
-        .cab-izq {
-            display: table-cell;
-            width: 42%;
-            padding: 8px;
-            vertical-align: middle;
-            border-right: 1.5px solid #000;
-        }
-        .cab-centro {
-            display: table-cell;
+        .header-center {
             width: 10%;
+            position: absolute;
+            left: 45%;
+            top: 0;
             text-align: center;
-            vertical-align: middle;
-            border-right: 1.5px solid #000;
-            padding: 8px;
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
+            border-bottom: 1px solid #333;
+            height: 60px;
+            background: #fff;
+            z-index: 10;
         }
-        .cab-der {
-            display: table-cell;
-            width: 48%;
-            padding: 8px;
-            vertical-align: middle;
+
+        .header-right {
+            width: 45%;
+            padding: 15px;
+            float: right;
             text-align: right;
+            min-height: 100px;
         }
 
-        /* Logo */
-        .logo-empresa img { max-height: 55px; }
-        .logo-empresa p { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
-
-        /* Empresa datos izq */
-        .empresa-datos { font-size: 9px; line-height: 1.6; }
-        .empresa-nombre { font-weight: bold; font-size: 12px; margin-bottom: 3px; }
-
-        /* Caja X */
-        .caja-x {
-            border: 2px solid #000;
-            font-size: 28px;
+        .letter-box {
+            font-size: 30px;
             font-weight: bold;
-            padding: 6px 14px;
-            display: inline-block;
-            margin-bottom: 4px;
+            margin-top: 5px;
         }
-        .tipo-x-label { font-size: 8px; }
 
-        /* Datos derecha */
-        .comp-titulo { font-size: 16px; font-weight: bold; color: #1a56e8; letter-spacing: 0.5px; }
-        .comp-numero { font-size: 14px; font-weight: bold; color: #1a56e8; margin: 2px 0; }
-        .comp-fecha  { font-size: 13px; font-weight: bold; margin: 2px 0; }
-        .fiscal-info { font-size: 8px; margin-top: 4px; color: #333; }
-
-        /* ====== CLIENTE ====== */
-        .bloque-cliente {
-            border: 1.5px solid #000;
-            border-top: none;
-            padding: 5px 8px;
-            margin-bottom: 4px;
+        .letter-sub {
+            font-size: 7px;
+            line-height: 1;
         }
-        .fila-cliente {
-            display: table;
+
+        .logo {
+            max-width: 180px;
+            max-height: 80px;
+            margin-bottom: 10px;
+        }
+
+        .company-name {
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .invoice-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .invoice-number {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .info-table {
             width: 100%;
-            margin-bottom: 3px;
-        }
-        .cel-cliente {
-            display: table-cell;
-            font-size: 9px;
-            line-height: 1.6;
-        }
-        .cel-cliente strong { font-size: 9px; }
-        .cel-50 { width: 50%; }
-        .cel-33 { width: 33.3%; }
-
-        /* ====== OBSERVACIONES ====== */
-        .observaciones {
-            border: 1.5px solid #000;
-            border-top: none;
-            padding: 4px 8px;
-            font-size: 9px;
-            min-height: 18px;
-            margin-bottom: 4px;
+            margin-bottom: 20px;
+            border-collapse: collapse;
         }
 
-        /* ====== TABLA ITEMS ====== */
-        .tabla-items {
+        .info-table td {
+            padding: 5px;
+            border: 1px solid #333;
+        }
+
+        .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 4px;
-            font-size: 9px;
+            margin-bottom: 20px;
         }
-        .tabla-items thead th {
-            background: #e8e8e8;
-            border: 1px solid #000;
-            padding: 4px 5px;
-            text-align: center;
-            font-size: 9px;
-            font-weight: bold;
+
+        .items-table th {
+            background-color: #f2f2f2;
+            padding: 8px;
+            border: 1px solid #333;
+            text-align: left;
         }
-        .tabla-items tbody td {
-            border-left: 1px solid #000;
-            border-right: 1px solid #000;
+
+        .items-table td {
+            padding: 8px;
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
             border-bottom: 0.5px solid #ccc;
-            padding: 3px 5px;
-            font-size: 9px;
-            vertical-align: top;
         }
-        .tabla-items tbody tr:last-child td {
-            border-bottom: 1px solid #000;
-        }
-        .text-center { text-align: center; }
-        .text-right  { text-align: right; }
-        .col-desc  { width: 55%; }
-        .col-cant  { width: 8%; }
-        .col-precio{ width: 12%; }
-        .col-desc2 { width: 8%; }
-        .col-sub   { width: 17%; }
 
-        /* ====== TOTALES ====== */
-        .bloque-totales {
-            width: 100%;
-            display: table;
-            margin-top: 6px;
+        .items-table tr.last-row td {
+            border-bottom: 1px solid #333;
         }
-        .tot-espacio { display: table-cell; width: 58%; }
-        .tot-tabla   { display: table-cell; width: 42%; }
-        .tabla-totales {
+
+        .totals-container {
             width: 100%;
-            border: 1.5px solid #000;
+            float: right;
+        }
+
+        .totals-table {
+            width: 35%;
+            float: right;
             border-collapse: collapse;
-            font-size: 10px;
         }
-        .tabla-totales td {
-            padding: 4px 8px;
-            border-bottom: 1px solid #ccc;
+
+        .totals-table td {
+            padding: 8px;
+            border: 1px solid #333;
         }
-        .tabla-totales tr:last-child td {
-            border-bottom: none;
+
+        .totals-table .total-row {
             font-weight: bold;
-            font-size: 12px;
-            border-top: 1.5px solid #000;
+            font-size: 14px;
         }
-        .tw-bold { font-weight: bold; }
+
+        .clearfix {
+            clear: both;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 8px;
+            color: #777;
+        }
     </style>
 </head>
 <body>
 
-{{-- ======= CABECERA ======= --}}
-<div class="cabecera">
+    <div class="header-container">
+        <div class="header-left">
+            @php
+                $logoUrl = optional($empresa->config)->logo_url;
+                // Para DomPDF usaremos public_path si es local o base64 si es remoto por seguridad
+                $logoPath = '';
+                if ($empresa->config && $empresa->config->logo) {
+                    if (str_starts_with($empresa->config->logo, 'http')) {
+                        $logoPath = $empresa->config->logo;
+                    } else {
+                        $logoPath = public_path('storage/' . $empresa->config->logo);
+                    }
+                }
+            @endphp
 
-    {{-- IZQUIERDA: Logo + Datos empresa --}}
-    <div class="cab-izq">
-        @if($empresa->config && $empresa->config->logo)
-            <div class="logo-empresa">
-                <img src="{{ public_path('storage/' . $empresa->config->logo) }}" alt="Logo">
+            @if($logoPath && (file_exists($logoPath) || str_starts_with($logoPath, 'http')))
+                <img src="{{ $logoPath }}" class="logo" alt="Logo">
+            @else
+                <span class="company-name">{{ strtoupper($empresa->nombre_comercial ?? $empresa->razon_social) }}</span>
+            @endif
+
+            <p><strong>Razón Social:</strong> {{ $empresa->razon_social }}</p>
+            <p><strong>Dirección:</strong> {{ $empresa->direccion_fiscal ?? $empresa->direccion }}</p>
+            <p><strong>Teléfono:</strong> {{ $empresa->telefono }}</p>
+        </div>
+
+        <div class="header-center">
+            <div class="letter-box">X</div>
+            <div class="letter-sub">DOC. NO VÁLIDO<br>COMO FACTURA</div>
+        </div>
+
+        <div class="header-right">
+            <h1 class="invoice-title">COMPROBANTE</h1>
+            <p class="invoice-number">Nº {{ $venta->numero_comprobante }}</p>
+            <p><strong>Fecha:</strong> {{ $venta->created_at->format('d/m/Y') }}</p>
+            <div style="margin-top: 10px; font-size: 9px;">
+                <p><strong>CUIT:</strong> {{ $empresa->cuit }}</p>
+                <p><strong>IIBB:</strong> {{ $empresa->iibb }}</p>
+                <p><strong>Inicio de Actividades:</strong> {{ $empresa->inicio_actividades ? \Carbon\Carbon::parse($empresa->inicio_actividades)->format('d/m/Y') : '-' }}</p>
+                <p><strong>Condición IVA:</strong> {{ $empresa->condicion_iva }}</p>
             </div>
-        @else
-            <p class="empresa-nombre">{{ strtoupper($empresa->nombre_comercial) }}</p>
-        @endif
-
-        <div class="empresa-datos" style="margin-top: 4px;">
-            <strong>{{ strtoupper($empresa->razon_social ?? $empresa->nombre_comercial) }}</strong><br>
-            {{ $empresa->direccion_fiscal ?? $empresa->direccion }}<br>
-            TEL: {{ $empresa->telefono ?? '' }}
         </div>
+        <div class="clearfix"></div>
     </div>
 
-    {{-- CENTRO: Letra del comprobante --}}
-    <div class="cab-centro">
-        <div class="caja-x">X</div><br>
-        <span class="tipo-x-label">COMP. NO<br>RESPALDADO<br>FISCALMENTE</span>
-    </div>
-
-    {{-- DERECHA: Datos comprobante --}}
-    <div class="cab-der">
-        <div class="comp-titulo">COMPROBANTE</div>
-        <div class="comp-numero">Nº {{ $venta->numero_comprobante }}</div>
-        <div class="comp-fecha">FECHA: {{ $venta->created_at->format('d/m/Y') }}</div>
-        <div class="fiscal-info">
-            {{ $empresa->condicion_iva ?? 'MONOTRIBUTISTA' }}
-            @if($empresa->cuit) &nbsp; CUIT: {{ $empresa->cuit }} @endif<br>
-            @if($empresa->inicio_actividades) INICIO ACT.: {{ $empresa->inicio_actividades }} @endif
-            @if($empresa->iibb) &nbsp; ING. BRUTOS: {{ $empresa->iibb }} @endif
-        </div>
-    </div>
-
-</div>
-
-{{-- ======= DATOS CLIENTE ======= --}}
-<div class="bloque-cliente">
-    <div class="fila-cliente">
-        <div class="cel-cliente cel-50">
-            <strong>SEÑOR/ES:</strong> {{ optional($venta->cliente)->name ?? 'CONSUMIDOR FINAL' }}
-        </div>
-        <div class="cel-cliente cel-50">
-            <strong>IVA:</strong> {{ optional($venta->cliente)->condicion_iva ?? 'CONSUMIDOR FINAL' }}
-        </div>
-    </div>
-    <div class="fila-cliente">
-        <div class="cel-cliente cel-50">
-            <strong>DOMICILIO:</strong> {{ optional($venta->cliente)->address ?? '' }}
-        </div>
-        <div class="cel-cliente cel-50">
-            <strong>LOCALIDAD:</strong> {{ optional($venta->cliente)->city ?? '' }}
-        </div>
-    </div>
-    <div class="fila-cliente">
-        <div class="cel-cliente cel-33">
-            <strong>CUIT:</strong> {{ optional($venta->cliente)->document ?? '' }}
-        </div>
-        <div class="cel-cliente cel-33">
-            <strong>PROVINCIA:</strong> {{ optional($venta->cliente)->province ?? '' }}
-        </div>
-        <div class="cel-cliente cel-33">
-            <strong>CORREO ELECTRÓNICO:</strong> {{ optional($venta->cliente)->email ?? '' }}
-        </div>
-    </div>
-    <div class="fila-cliente">
-        <div class="cel-cliente cel-50">
-            <strong>VENDEDOR:</strong> {{ optional($venta->user)->name ?? '' }}
-        </div>
-        <div class="cel-cliente cel-25">
-            <strong>CONDICIÓN PAGO:</strong> {{ ucfirst($venta->metodo_pago ?? 'Contado') }}
-        </div>
-        <div class="cel-cliente cel-25">
-            <strong>FECHA VENCIMIENTO:</strong>
-        </div>
-    </div>
-</div>
-
-{{-- ======= OBSERVACIONES ======= --}}
-<div class="observaciones">
-    <strong>OBSERVACIONES:</strong>
-</div>
-
-{{-- ======= TABLA DE ITEMS ======= --}}
-<table class="tabla-items">
-    <thead>
+    <table class="info-table">
         <tr>
-            <th class="col-desc">Descripción</th>
-            <th class="col-cant text-center">Cant.</th>
-            <th class="col-precio text-right">Precio Uni.</th>
-            <th class="col-desc2 text-center">% Desc</th>
-            <th class="col-sub text-right">Sub Total</th>
+            <td width="60%"><strong>Cliente:</strong> {{ optional($venta->cliente)->name ?? 'Consumidor Final' }}</td>
+            <td width="40%"><strong>CUIT/DNI:</strong> {{ optional($venta->cliente)->document ?? '99-99999999-9' }}</td>
         </tr>
-    </thead>
-    <tbody>
-        @foreach($venta->items as $item)
-        @php
-            $precioUni = $item->total_item_con_iva / $item->cantidad;
-            $desc = 0; // Sin descuento por ahora
-            $subtotal = $item->total_item_con_iva;
-        @endphp
         <tr>
-            <td class="col-desc">
-                @if($item->product->sku ?? '')
-                    <strong>{{ $item->product->sku }}</strong> -
-                @endif
-                {{ $item->product->name }}
-                @if($item->variant)
-                    <br><small>Talle: {{ $item->variant->size }} / Color: {{ $item->variant->color }}</small>
-                @endif
-            </td>
-            <td class="col-cant text-center">{{ number_format($item->cantidad, 2) }}</td>
-            <td class="col-precio text-right">{{ number_format($precioUni, 2, ',', '.') }}</td>
-            <td class="col-desc2 text-center">{{ number_format($desc, 2) }}</td>
-            <td class="col-sub text-right">{{ number_format($subtotal, 2, ',', '.') }}</td>
+            <td><strong>Dirección:</strong> {{ optional($venta->cliente)->address ?? '-' }}</td>
+            <td><strong>Condición IVA:</strong> {{ optional($venta->cliente)->condicion_iva ?? 'Consumidor Final' }}</td>
         </tr>
-        @endforeach
-
-        {{-- Filas vacías para completar espacio --}}
-        @php $filas_llenas = count($venta->items); $filas_blank = max(0, 20 - $filas_llenas); @endphp
-        @for($i = 0; $i < $filas_blank; $i++)
         <tr>
-            <td class="col-desc">&nbsp;</td>
-            <td class="col-cant">&nbsp;</td>
-            <td class="col-precio">&nbsp;</td>
-            <td class="col-desc2">&nbsp;</td>
-            <td class="col-sub">&nbsp;</td>
+            <td><strong>Localidad:</strong> {{ optional($venta->cliente)->city ?? '-' }}</td>
+            <td><strong>Condición de Pago:</strong> {{ ucfirst($venta->metodo_pago ?? 'Contado') }}</td>
         </tr>
-        @endfor
-    </tbody>
-</table>
+    </table>
 
-{{-- ======= TOTALES ======= --}}
-<div class="bloque-totales">
-    <div class="tot-espacio"></div>
-    <div class="tot-tabla">
-        <table class="tabla-totales">
+    <table class="items-table">
+        <thead>
             <tr>
-                <td>SUBTOTAL:</td>
-                <td class="text-right">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
+                <th width="10%">Cantidad</th>
+                <th width="50%">Descripción</th>
+                <th width="20%">Precio Unit.</th>
+                <th width="20%">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($venta->items as $index => $item)
+                <tr class="{{ $index === count($venta->items) - 1 ? 'last-row' : '' }}">
+                    <td>{{ number_format($item->cantidad, 2) }}</td>
+                    <td>
+                        {{ $item->product->name }}
+                        @if($item->variant)
+                           <br><small style="color: #666;">Variante: {{ $item->variant->size }} / {{ $item->variant->color }}</small>
+                        @endif
+                    </td>
+                    <td>$ {{ number_format($item->total_item_con_iva / $item->cantidad, 2, ',', '.') }}</td>
+                    <td>$ {{ number_format($item->total_item_con_iva, 2, ',', '.') }}</td>
+                </tr>
+            @endforeach
+            
+            {{-- Espacio para que la tabla sea larga --}}
+            @php $extraRows = 15 - count($venta->items); @endphp
+            @for($i = 0; $i < $extraRows; $i++)
+                <tr class="{{ $i === $extraRows - 1 ? 'last-row' : '' }}">
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+            @endfor
+        </tbody>
+    </table>
+
+    <div class="totals-container">
+        <table class="totals-table">
+            <tr>
+                <td>Subtotal</td>
+                <td>$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
             </tr>
             <tr>
-                <td>DESCUENTO:</td>
-                <td class="text-right">$ 0,00</td>
+                <td>Descuento</td>
+                <td>$ 0,00</td>
             </tr>
-            <tr>
-                <td class="tw-bold">TOTAL:</td>
-                <td class="text-right tw-bold">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
+            <tr class="total-row">
+                <td>TOTAL</td>
+                <td>$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
             </tr>
         </table>
+        <div class="clearfix"></div>
     </div>
-</div>
+
+    <div class="footer">
+        <p>Software de Gestión MultiPOS - www.gentepiola.net</p>
+    </div>
 
 </body>
 </html>

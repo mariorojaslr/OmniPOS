@@ -25,20 +25,30 @@ class Empresa extends Model
         'telefono',
         'activo',
         'fecha_vencimiento',
-        'fecha_cierre_ejercicio', // NUEVO (cierre contable anual)
+        'fecha_cierre_ejercicio',
         'plan_id',
         'status',
         'ultima_fecha_pago',
+        // Datos fiscales
+        'cuit',
+        'condicion_iva',
+        'iibb',
+        'punto_venta',
+        'proximo_numero_factura',
+        'direccion_fiscal',
+        'dia_cierre_periodo',
+        'config_pasarelas',
     ];
 
     /**
      * CASTS AUTOMÁTICOS
      */
     protected $casts = [
-        'activo' => 'boolean',
-        'fecha_vencimiento' => 'date',
-        'fecha_cierre_ejercicio' => 'date', // NUEVO
-        'ultima_fecha_pago' => 'date',
+        'activo'                 => 'boolean',
+        'fecha_vencimiento'      => 'date',
+        'fecha_cierre_ejercicio' => 'date',
+        'ultima_fecha_pago'      => 'date',
+        'config_pasarelas'       => 'array',
     ];
 
     // =========================================================

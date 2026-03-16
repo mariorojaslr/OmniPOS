@@ -64,7 +64,10 @@ class VentaService
         |--------------------------------------------------------------------------
         */
 
-        return DB::transaction(function () use ($user, $empresa, $items, $clienteId, $tipoVentaCliente, $tipoComprobante) {
+        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante) {
+
+            // Re-obtener empresa con bloqueo para asegurar número correlativo único
+            $empresaActual = \App\Models\Empresa::where('id', $user->empresa_id)->lockForUpdate()->first();
 
             $totalSinIva = 0;
             $totalIva    = 0;
@@ -77,10 +80,10 @@ class VentaService
             |--------------------------------------------------------------------------
             */
 
-            $numeroComprobante = $this->generarNumeroComprobante($empresa, $tipoComprobante);
+            $numeroComprobante = $this->generarNumeroComprobante($empresaActual, $tipoComprobante);
 
             $venta = Venta::create([
-                'empresa_id'         => $empresa->id,
+                'empresa_id'         => $empresaActual->id,
                 'user_id'            => $user->id,
                 'client_id'          => $clienteId,
                 'tipo_comprobante'   => $tipoComprobante,
@@ -89,6 +92,10 @@ class VentaService
                 'total_iva'          => 0,
                 'total_con_iva'      => 0,
             ]);
+
+            // Incrementar el próximo número en la empresa
+            $empresaActual->proximo_numero_factura++;
+            $empresaActual->save();
 
 
             /*
@@ -110,7 +117,7 @@ class VentaService
                 $cantidad  = (float) $item['quantity'];
 
                 $product = Product::where('id', $productId)
-                    ->where('empresa_id', $empresa->id)
+                    ->where('empresa_id', $empresaActual->id)
                     ->lockForUpdate()
                     ->firstOrFail();
 
@@ -208,7 +215,7 @@ class VentaService
             if ($clienteId && $tipoVentaCliente === 'cuenta_corriente') {
 
                 ClientLedger::create([
-                    'empresa_id'  => $empresa->id,
+                    'empresa_id'  => $empresaActual->id,
                     'client_id'   => $clienteId,
                     'user_id'     => $user->id,
                     'type'        => 'debit',
@@ -232,19 +239,7 @@ class VentaService
     protected function generarNumeroComprobante($empresa, $tipo)
     {
         $pv = str_pad($empresa->punto_venta ?? 1, 5, '0', STR_PAD_LEFT);
-        
-        $ultimaVenta = Venta::where('empresa_id', $empresa->id)
-            ->where('tipo_comprobante', $tipo)
-            ->orderBy('id', 'desc')
-            ->first();
-            
-        $next = 1;
-        if ($ultimaVenta && $ultimaVenta->numero_comprobante) {
-            $parts = explode('-', $ultimaVenta->numero_comprobante);
-            if (count($parts) === 2) {
-                $next = (int) $parts[1] + 1;
-            }
-        }
+        $next = $empresa->proximo_numero_factura ?? 1;
         
         return $pv . '-' . str_pad($next, 8, '0', STR_PAD_LEFT);
     }

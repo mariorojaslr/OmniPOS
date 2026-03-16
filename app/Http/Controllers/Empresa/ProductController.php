@@ -231,6 +231,11 @@ class ProductController extends Controller
                         ]);
                 }
             }
+
+            // ✅ Actualizar stock del producto padre = suma de todas las variantes
+            $stockTotal = ProductVariant::where('product_id', $product->id)->sum('stock');
+            $product->update(['stock' => $stockTotal]);
+
         } elseif (!$hasVariants) {
             // Si ya no es de variantes, limpiar
             ProductVariant::where('product_id', $product->id)->delete();
