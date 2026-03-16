@@ -48,7 +48,7 @@
                     </div>
 
                     {{-- Precio --}}
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <label class="form-label fw-semibold">Precio</label>
                         <input type="number"
                                step="0.01"
@@ -61,6 +61,19 @@
                         @error('price')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    {{-- Rubro --}}
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Rubro</label>
+                        <select name="rubro_id" class="form-select">
+                            <option value="">-- Sin Rubro --</option>
+                            @foreach($rubros as $rubro)
+                                <option value="{{ $rubro->id }}" @selected(old('rubro_id') == $rubro->id)>
+                                    {{ $rubro->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
 
                 </div>

@@ -256,8 +256,16 @@ input, select, textarea{
 <a class="nav-link" href="{{ route('empresa.dashboard') }}">Panel</a>
 </li>
 
-<li class="nav-item">
-<a class="nav-link" href="{{ route('empresa.products.index') }}">Productos</a>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+        Productos
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ route('empresa.products.index') }}">Listado / Alta</a></li>
+        <li><a class="dropdown-item" href="{{ route('empresa.rubros.index') }}">Gestionar Rubros</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{ route('empresa.products.bulk-price-update') }}">Actualización de Precios</a></li>
+    </ul>
 </li>
 
 <li class="nav-item">

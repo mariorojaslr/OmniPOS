@@ -8,6 +8,7 @@ use App\Models\ProductVariant;
 use App\Models\ProductCombo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Rubro;
 
 class ProductController extends Controller
 {
@@ -84,7 +85,8 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('empresa.products.create');
+        $rubros = Rubro::orderBy('nombre')->get();
+        return view('empresa.products.create', compact('rubros'));
     }
 
 
@@ -108,6 +110,7 @@ class ProductController extends Controller
             'empresa_id'        => Auth::user()->empresa_id,
             'name'              => $request->name,
             'price'             => $request->price,
+            'rubro_id'          => $request->rubro_id,
             'descripcion_corta' => $request->descripcion_corta,
             'descripcion_larga' => $request->descripcion_larga,
             'active'            => true,
@@ -150,13 +153,15 @@ class ProductController extends Controller
 
         $product->load(['variants', 'comboItems']);
 
+        $rubros = Rubro::orderBy('nombre')->get();
+
         // Todos los productos de la empresa (para armar combos)
         $allProducts = Product::where('empresa_id', Auth::user()->empresa_id)
             ->where('id', '!=', $product->id)
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('empresa.products.edit', compact('product', 'allProducts'));
+        return view('empresa.products.edit', compact('product', 'allProducts', 'rubros'));
     }
 
 
@@ -198,6 +203,7 @@ class ProductController extends Controller
         $product->update([
             'name'              => $request->name,
             'price'             => $request->price,
+            'rubro_id'          => $request->rubro_id,
             'active'            => $request->active,
             'descripcion_corta' => $request->descripcion_corta,
             'descripcion_larga' => $request->descripcion_larga,

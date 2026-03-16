@@ -33,6 +33,8 @@ use App\Http\Controllers\Empresa\ClientController;
 use App\Http\Controllers\Empresa\SupplierController;
 use App\Http\Controllers\Empresa\PurchaseController;
 use App\Http\Controllers\Empresa\OrderController;
+use App\Http\Controllers\Empresa\RubroController;
+use App\Http\Controllers\Empresa\BulkPriceUpdateController;
 
 // ================= AUTH =================
 use App\Http\Controllers\Auth\PasswordController;
@@ -207,27 +209,28 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         /*
      |--------------------------------------------------------------------------
-     | PRODUCTOS
+     | PRODUCTOS Y RUBROS
      |--------------------------------------------------------------------------
      */
         Route::get('products/export', [ProductController::class , 'export'])->name('products.export');
         Route::post('products/import', [ProductController::class , 'import'])->name('products.import');
+        
+        // Actualización masiva de precios
+        Route::get('products/bulk-price-update', [BulkPriceUpdateController::class, 'index'])->name('products.bulk-price-update');
+        Route::post('products/bulk-price-update', [BulkPriceUpdateController::class, 'update'])->name('products.bulk-price-update.update');
+
         Route::resource('products', ProductController::class)->except(['show', 'destroy']);
+        Route::resource('rubros', RubroController::class);
 
         Route::get('products/{product}/images/create', [ProductImageController::class , 'create'])->name('products.images.create');
         Route::post('products/{product}/images', [ProductImageController::class , 'store'])->name('products.images.store');
         Route::delete('products/{product}/images/{image}', [ProductImageController::class , 'destroy'])->name('products.images.destroy');
 
-        Route::prefix('products/{product}/videos')
-            ->name('products.videos.')
-            ->group(function () {
-
+        Route::group(['prefix' => 'products/{product}/videos', 'as' => 'products.videos.'], function () {
             Route::get('/', [ProductVideoController::class , 'index'])->name('index');
             Route::post('/', [ProductVideoController::class , 'store'])->name('store');
             Route::delete('/{video}', [ProductVideoController::class , 'destroy'])->name('destroy');
-
-        }
-        );
+        });
 
         /*
      |--------------------------------------------------------------------------

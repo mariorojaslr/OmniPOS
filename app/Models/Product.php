@@ -40,7 +40,10 @@ class Product extends Model
         // Estado
         'active',
         'has_variants',
-        'is_combo'
+        'is_combo',
+
+        // Categorización
+        'rubro_id'
     ];
 
 
@@ -68,6 +71,11 @@ class Product extends Model
     | RELACIONES
     |--------------------------------------------------------------------------
     */
+
+    public function rubro()
+    {
+        return $this->belongsTo(Rubro::class);
+    }
 
     // Variantes (Talles / Colores)
     public function variants()

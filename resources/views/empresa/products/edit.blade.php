@@ -89,6 +89,19 @@
                     </div>
 
 
+                    {{-- RUBRO --}}
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Rubro</label>
+                        <select name="rubro_id" class="form-select">
+                            <option value="">-- Sin Rubro --</option>
+                            @foreach($rubros as $rubro)
+                                <option value="{{ $rubro->id }}" @selected(old('rubro_id', $product->rubro_id) == $rubro->id)>
+                                    {{ $rubro->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     {{-- ESTADO --}}
                     <div class="col-md-2">
                         <label class="form-label fw-semibold">
