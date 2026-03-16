@@ -49,12 +49,15 @@ class LevelSystemData extends Command
                 
                 $countVentas = 0;
                 $ventasQuery->each(function ($venta) use (&$countVentas) {
-                    // Calculamos subtotal e IVA desde el Total Final
-                    $total = (float)$venta->total;
+                    // En producción el total real está en total_con_iva o total
+                    $total = (float)($venta->total_con_iva ?? $venta->total ?? 0);
+                    
                     if ($total > 0) {
                         $subtotal = $total / 1.21;
                         $venta->subtotal = round($subtotal, 2);
                         $venta->iva      = round($total - $subtotal, 2);
+                        // Aseguramos que 'total' también tenga el valor
+                        $venta->total    = $total; 
                         $venta->save();
                         $countVentas++;
                     }
