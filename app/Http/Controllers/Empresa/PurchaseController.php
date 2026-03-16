@@ -220,21 +220,17 @@ class PurchaseController extends Controller
                 }
             }
 
-            if ($tipoPago === 'contado'
-                && DB::getSchemaBuilder()->hasTable('pagos_proveedores')) {
-
-                DB::table('pagos_proveedores')
-                    ->where('purchase_id', $purchase->id)
-                    ->delete();
-
-                DB::table('pagos_proveedores')->insert([
-                    'empresa_id'  => $empresaId,
-                    'purchase_id' => $purchase->id,
-                    'monto'       => $total,
-                    'forma_pago'  => 'efectivo',
-                    'created_at'  => now(),
-                    'updated_at'  => now()
-                ]);
+            // REGISTRAR EN CUENTA CORRIENTE DEL PROVEEDOR
+            $supplier = Supplier::find($request->supplier_id);
+            if ($supplier) {
+                if ($tipoPago === 'credito') {
+                    // Aumentar deuda
+                    $supplier->registrarCompra($total, "Compra #{$purchase->id} - {$purchase->invoice_type} {$purchase->invoice_number}");
+                } else {
+                    // Si es contado, registramos la compra (deuda) y el pago inmediatamente (haber)
+                    $supplier->registrarCompra($total, "Compra #{$purchase->id} - Pago Contado");
+                    $supplier->registrarPago($total, "Pago de Compra #{$purchase->id}");
+                }
             }
 
             DB::commit();
