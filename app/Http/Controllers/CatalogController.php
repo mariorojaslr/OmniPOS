@@ -74,7 +74,7 @@ class CatalogController extends Controller
             abort(404);
         }
 
-        $product->load('images');
+        $product->load(['images', 'variants', 'videos']);
 
         return view('catalog.show', compact('empresa', 'product'));
     }

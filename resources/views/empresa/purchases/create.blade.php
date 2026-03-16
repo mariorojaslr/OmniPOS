@@ -149,6 +149,7 @@
 @section('scripts')
 <script>
 
+const products = {!! $products->toJson() !!};
 let index = 0;
 const ivaRate = 0.21;
 
@@ -208,12 +209,18 @@ function agregarFila(){
 
     row.innerHTML = `
         <td>
-            <select name="items[${index}][product_id]" class="form-select" required>
+            <select name="items[${index}][product_id]" class="form-select product-select" required onchange="handleProductChange(this, ${index})">
                 <option value="">Producto</option>
                 @foreach($products as $product)
                     <option value="{{ $product->id }}">{{ $product->name }}</option>
                 @endforeach
             </select>
+            <div class="variant-wrapper mt-2" style="display:none;" id="variant_wrapper_${index}">
+                <label class="small fw-bold">Variante (Talle/Color):</label>
+                <select name="items[${index}][variant_id]" class="form-select form-select-sm variant-select" id="variant_select_${index}">
+                    <option value="">Seleccionar variante</option>
+                </select>
+            </div>
         </td>
 
         <td>
@@ -256,6 +263,31 @@ function agregarFila(){
     row.querySelector(".precioSinIva").addEventListener("blur",()=>calcularDesdeBase(row));
     row.querySelector(".precioConIva").addEventListener("blur",()=>calcularDesdeFinal(row));
     row.querySelector(".cantidad").addEventListener("input",()=>recalcularFila(row));
+}
+
+function handleProductChange(select, idx){
+    const productId = select.value;
+    const wrapper = document.getElementById(`variant_wrapper_${idx}`);
+    const vSelect = document.getElementById(`variant_select_${idx}`);
+
+    // Reset
+    vSelect.innerHTML = '<option value="">Seleccionar variante</option>';
+    wrapper.style.display = 'none';
+    vSelect.required = false;
+
+    if(!productId) return;
+
+    const product = products.find(p => p.id == productId);
+    if(product && product.has_variants && product.variants.length > 0){
+        wrapper.style.display = 'block';
+        vSelect.required = true;
+        product.variants.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v.id;
+            opt.innerText = `${v.size} / ${v.color} (Stock: ${v.stock})`;
+            vSelect.appendChild(opt);
+        });
+    }
 }
 
 function calcularDesdeBase(row){

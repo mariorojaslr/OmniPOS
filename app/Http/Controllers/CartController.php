@@ -48,37 +48,53 @@ class CartController extends Controller
     */
     public function add(Request $request, Product $product)
     {
-        $quantity = (int) $request->input('quantity', 1);
+        $quantity  = (int) $request->input('quantity', 1);
+        $variantId = $request->input('variant_id');
 
         if ($quantity < 1) {
             return back()->with('success', 'Cantidad inválida');
         }
 
-        // Validar contra stock real
-        if ($quantity > $product->stock_actual) {
+        $variant = null;
+        if ($variantId) {
+            $variant = \App\Models\ProductVariant::find($variantId);
+            if (!$variant || $variant->product_id !== $product->id) {
+                return back()->with('success', 'Variante inválida');
+            }
+        }
+
+        // Validar contra stock real (variante o producto base)
+        $stockDisponible = $variant ? $variant->stock : $product->stock;
+
+        if ($quantity > $stockDisponible) {
             return back()->with('success', 'No hay suficiente stock disponible');
         }
 
         $cart = session()->get('cart', []);
+        
+        // El ID del carrito será compuesto si hay variante: "PROD_ID-VAR_ID"
+        $cartKey = $variantId ? $product->id . '-' . $variantId : $product->id;
 
-        if (isset($cart[$product->id])) {
+        if (isset($cart[$cartKey])) {
 
-            $newQuantity = $cart[$product->id]['quantity'] + $quantity;
+            $newQuantity = $cart[$cartKey]['quantity'] + $quantity;
 
-            if ($newQuantity > $product->stock_actual) {
+            if ($newQuantity > $stockDisponible) {
                 return back()->with('success', 'Stock insuficiente');
             }
 
-            $cart[$product->id]['quantity'] = $newQuantity;
+            $cart[$cartKey]['quantity'] = $newQuantity;
 
         } else {
 
-            $cart[$product->id] = [
-                "name"     => $product->name,
-                "price"    => $product->price,
-                "quantity" => $quantity,
-                "image"    => optional($product->images->first())->path,
-                "stock"    => $product->stock_actual
+            $cart[$cartKey] = [
+                "product_id" => $product->id,
+                "variant_id" => $variantId,
+                "name"       => $product->name . ($variant ? " ({$variant->size} / {$variant->color})" : ""),
+                "price"      => $variant ? ($variant->price ?: $product->price) : $product->price,
+                "quantity"   => $quantity,
+                "image"      => optional($product->images->first())->url,
+                "stock"      => $stockDisponible
             ];
         }
 

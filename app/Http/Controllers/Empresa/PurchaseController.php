@@ -112,7 +112,7 @@ class PurchaseController extends Controller
         $empresaId = auth()->user()->empresa_id;
 
         $suppliers = Supplier::where('empresa_id', $empresaId)->get();
-        $products  = Product::where('empresa_id', $empresaId)->get();
+        $products  = Product::where('empresa_id', $empresaId)->with('variants')->get();
 
         return view('empresa.purchases.create', compact('suppliers','products'));
     }
@@ -176,6 +176,7 @@ class PurchaseController extends Controller
                 $final = $this->parseNumero($item['price_con_iva'] ?? 0);
 
                 $productId = $item['product_id'] ?? null;
+                $variantId = $item['variant_id'] ?? null;
 
                 if (!$productId) {
                     throw new \Exception("Producto inválido en la compra");
@@ -185,6 +186,7 @@ class PurchaseController extends Controller
                     'empresa_id'  => $empresaId,
                     'purchase_id' => $purchase->id,
                     'product_id'  => $productId,
+                    'variant_id'  => $variantId,
                     'quantity'    => $qty,
                     'cost'        => $base,
                     'iva'         => $iva,
@@ -200,27 +202,22 @@ class PurchaseController extends Controller
                     throw new \Exception("Producto no encontrado ID: ".$productId);
                 }
 
-                /* ======================================================
-                   CORRECCIÓN CRÍTICA INVENTARIO
-                   El sistema usa products.stock
-                ====================================================== */
-
-                $stockActual  = $product->stock ?? 0;
-                $stockDespues = $stockActual + $qty;
-
-                $product->update([
-                    'stock' => $stockDespues
-                ]);
-
-                KardexMovimiento::create([
-                    'empresa_id'        => $empresaId,
-                    'product_id'        => $product->id,
-                    'user_id'           => $userId,
-                    'tipo'              => 'entrada',
-                    'cantidad'          => $qty,
-                    'stock_resultante'  => $stockDespues,
-                    'origen'            => 'COMPRA #' . $purchase->id
-                ]);
+                if ($variantId) {
+                    $variant = \App\Models\ProductVariant::where('product_id', $productId)
+                        ->where('id', $variantId)
+                        ->lockForUpdate()
+                        ->first();
+                    
+                    if ($variant) {
+                        $variant->aumentarStock($qty, 'COMPRA #' . $purchase->id);
+                        // El método aumentarStock en el model Variant ya debería sincronizar con el padre si lo programamos así,
+                        // pero por seguridad recalculamos el stock del padre aquí.
+                        $product->stock = \App\Models\ProductVariant::where('product_id', $productId)->sum('stock');
+                        $product->save();
+                    }
+                } else {
+                    $product->aumentarStock($qty, 'COMPRA #' . $purchase->id);
+                }
             }
 
             if ($tipoPago === 'contado'

@@ -220,10 +220,32 @@ ${{ number_format($product->price,2) }}
 <p>{{ $product->descripcion_corta }}</p>
 @endif
 
-<form method="POST" action="{{ route('cart.add', $product) }}">
+<form id="addToCartForm" method="POST" action="{{ route('cart.add', $product) }}">
 @csrf
 
-<div class="quantity-wrapper">
+<input type="hidden" name="variant_id" id="variantIdInput">
+
+@if($product->has_variants && $product->variants->count() > 0)
+    <div class="variants-section mt-4">
+        <div class="fw-bold mb-2">Seleccione una opción</div>
+        <div class="row g-2">
+            @foreach($product->variants as $v)
+                <div class="col-6 col-md-4">
+                    <button type="button" 
+                            class="btn btn-outline-dark btn-sm w-100 variant-btn"
+                            data-id="{{ $v->id }}"
+                            data-price="{{ $v->price ?: $product->price }}"
+                            data-stock="{{ $v->stock }}"
+                            onclick="selectVariant(this)">
+                        {{ $v->size }} / {{ $v->color }}
+                    </button>
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
+
+<div class="quantity-wrapper mt-4">
     <div class="fw-bold">Cantidad</div>
 
     <div class="quantity-box">
@@ -239,12 +261,17 @@ ${{ number_format($product->price,2) }}
 </div>
 
 <div class="stock-info">
-    Stock disponible: {{ number_format($product->stock, 2) }}
+    Stock disponible: <span id="displayStock">{{ number_format($product->stock, 2) }}</span>
 </div>
 
-<button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
-Agregar al carrito
+<button type="submit" id="addToCartBtn" class="btn btn-primary btn-lg w-100 mt-4" 
+        {{ $product->has_variants ? 'disabled' : '' }}>
+    Agregar al carrito
 </button>
+
+@if($product->has_variants)
+    <p id="variantWarning" class="text-danger small mt-1">Por favor, seleccione una variante antes de agregar.</p>
+@endif
 
 </form>
 
@@ -278,14 +305,39 @@ Agregar al carrito
 
 <script>
 function changeImage(element){
-document.getElementById('mainImage').src = element.src;
-document.querySelectorAll('.thumbnail').forEach(img=>img.classList.remove('active-thumb'));
-element.classList.add('active-thumb');
+    document.getElementById('mainImage').src = element.src;
+    document.querySelectorAll('.thumbnail').forEach(img=>img.classList.remove('active-thumb'));
+    element.classList.add('active-thumb');
+}
+
+function selectVariant(btn){
+    // Highlight
+    document.querySelectorAll('.variant-btn').forEach(b => b.classList.replace('btn-dark', 'btn-outline-dark'));
+    btn.classList.replace('btn-outline-dark', 'btn-dark');
+
+    // Data
+    const id = btn.dataset.id;
+    const price = parseFloat(btn.dataset.price);
+    const stock = parseFloat(btn.dataset.stock);
+
+    // Update UI
+    document.getElementById('variantIdInput').value = id;
+    document.querySelector('.price').innerText = '$' + price.toLocaleString('en-US', {minimumFractionDigits: 2});
+    document.getElementById('displayStock').innerText = stock.toFixed(2);
+    
+    const qtyInput = document.getElementById('quantityInput');
+    qtyInput.max = stock;
+    if(parseInt(qtyInput.value) > stock) qtyInput.value = stock;
+
+    // Enable button
+    document.getElementById('addToCartBtn').disabled = false;
+    const warning = document.getElementById('variantWarning');
+    if(warning) warning.style.display = 'none';
 }
 
 function changeQty(amount){
     const input = document.getElementById('quantityInput');
-    const max = parseInt(input.max);
+    const max = parseInt(input.max) || 99999;
     let current = parseInt(input.value) || 1;
 
     current += amount;
