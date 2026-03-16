@@ -39,7 +39,7 @@ class ProductImage extends Model
             return rtrim($bunnyUrl, '/') . '/' . ltrim($imgPath, '/');
         }
 
-        // FALLBACK A LOCAL
-        return '/storage/' . ltrim($imgPath, '/');
+        // FALLBACK A LOCAL (Usando ruta de emergencia para Hostinger/Symlinks)
+        return route('local.media', ['path' => ltrim($imgPath, '/')]);
     }
 }

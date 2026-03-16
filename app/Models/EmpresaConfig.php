@@ -41,7 +41,7 @@ class EmpresaConfig extends Model
             return rtrim($bunnyUrl, '/') . '/' . ltrim($this->logo, '/');
         }
 
-        return asset('storage/' . $this->logo);
+        return route('local.media', ['path' => ltrim($this->logo, '/')]);
     }
 
     public function empresa()
