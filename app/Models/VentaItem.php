@@ -9,6 +9,7 @@ class VentaItem extends Model
     protected $fillable = [
         'venta_id',
         'product_id',
+        'variant_id',
         'cantidad',
         'precio_unitario_sin_iva',
         'subtotal_item_sin_iva',
@@ -19,5 +20,15 @@ class VentaItem extends Model
     public function venta()
     {
         return $this->belongsTo(Venta::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 }

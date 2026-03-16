@@ -66,8 +66,10 @@ class POSController extends Controller
 
                 'stock' => (float) $p->stock,
 
-                'img'   => $imgPath
-                    ? asset('storage/'.$imgPath)
+                'has_variants' => (bool) $p->has_variants,
+                'variants'     => $p->variants,
+                'img'          => $p->images->first()
+                    ? $p->images->first()->url
                     : asset('images/no-image.png'),
             ];
         });
@@ -191,6 +193,7 @@ class POSController extends Controller
 
             $clienteId        = $request->input('cliente_id');
             $tipoVentaCliente = $request->input('tipo_venta_cliente', 'contado');
+            $tipoComprobante  = $request->input('tipo_comprobante', 'ticket');
 
 
             /*
@@ -203,15 +206,17 @@ class POSController extends Controller
                 $user,
                 $items,
                 $clienteId,
-                $tipoVentaCliente
+                $tipoVentaCliente,
+                $tipoComprobante
             );
 
 
             return response()->json([
-                'ok'        => true,
-                'venta_id'  => $venta->id,
-                'total'     => $venta->total_con_iva,
-                'clienteId' => $clienteId
+                'ok'               => true,
+                'venta_id'         => $venta->id,
+                'total'            => $venta->total_con_iva,
+                'clienteId'        => $clienteId,
+                'tipo_comprobante' => $venta->tipo_comprobante
             ]);
 
         } catch (\Throwable $e) {

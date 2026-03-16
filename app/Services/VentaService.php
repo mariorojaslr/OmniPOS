@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Client;
 use App\Models\KardexMovimiento;
 use App\Models\ClientLedger;
+use App\Models\ProductVariant;
 
 use Illuminate\Support\Facades\DB;
 
@@ -33,7 +34,7 @@ class VentaService
     |--------------------------------------------------------------------------
     */
 
-    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado'): Venta
+    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket'): Venta
     {
         $empresa = $user->empresa;
 
@@ -63,7 +64,7 @@ class VentaService
         |--------------------------------------------------------------------------
         */
 
-        return DB::transaction(function () use ($user, $empresa, $items, $clienteId, $tipoVentaCliente) {
+        return DB::transaction(function () use ($user, $empresa, $items, $clienteId, $tipoVentaCliente, $tipoComprobante) {
 
             $totalSinIva = 0;
             $totalIva    = 0;
@@ -76,13 +77,17 @@ class VentaService
             |--------------------------------------------------------------------------
             */
 
+            $numeroComprobante = $this->generarNumeroComprobante($empresa, $tipoComprobante);
+
             $venta = Venta::create([
-                'empresa_id'    => $empresa->id,
-                'user_id'       => $user->id,
-                'client_id'     => $clienteId,
-                'total_sin_iva' => 0,
-                'total_iva'     => 0,
-                'total_con_iva' => 0,
+                'empresa_id'         => $empresa->id,
+                'user_id'            => $user->id,
+                'client_id'          => $clienteId,
+                'tipo_comprobante'   => $tipoComprobante,
+                'numero_comprobante' => $numeroComprobante,
+                'total_sin_iva'      => 0,
+                'total_iva'          => 0,
+                'total_con_iva'      => 0,
             ]);
 
 
@@ -100,13 +105,17 @@ class VentaService
                 |--------------------------------------------------------------------------
                 */
 
-                $product = Product::where('id', $item['id'])
+                $productId = $item['id'];
+                $variantId = $item['variant_id'] ?? null;
+                $cantidad  = (float) $item['quantity'];
+
+                $product = Product::where('id', $productId)
                     ->where('empresa_id', $empresa->id)
                     ->lockForUpdate()
                     ->firstOrFail();
 
+                $variant = $variantId ? ProductVariant::find($variantId) : null;
 
-                $cantidad = (float) $item['quantity'];
 
                 if ($cantidad <= 0) {
                     throw new \Exception("Cantidad inválida en venta");
@@ -119,7 +128,7 @@ class VentaService
                 |--------------------------------------------------------------------------
                 */
 
-                $precioFinalUnitario = (float) $product->price;
+                $precioFinalUnitario = (float) ($variant ? ($variant->price ?: $product->price) : $product->price);
                 $totalItemConIva     = $precioFinalUnitario * $cantidad;
 
 
@@ -143,6 +152,7 @@ class VentaService
                 VentaItem::create([
                     'venta_id'                => $venta->id,
                     'product_id'              => $product->id,
+                    'variant_id'              => $variantId,
                     'cantidad'                => $cantidad,
                     'precio_unitario_sin_iva' => $precioSinIvaUnitario,
                     'subtotal_item_sin_iva'   => $subtotalItemSinIva,
@@ -153,45 +163,15 @@ class VentaService
 
                 /*
                 |--------------------------------------------------------------------------
-                | DESCONTAR STOCK
+                | DESCONTAR STOCK (Incluye variantes, combos y Kardex)
                 |--------------------------------------------------------------------------
                 */
 
-                $stockAnterior = (float) $product->stock;
-                $stockNuevo    = $stockAnterior - $cantidad;
-
-                /*
-                |--------------------------------------------------------------------------
-                | PROTECCIÓN INVENTARIO
-                |--------------------------------------------------------------------------
-                */
-
-                if ($stockNuevo < 0) {
-
-                    throw new \Exception(
-                        "Stock insuficiente para el producto: {$product->name}"
-                    );
+                if ($variant) {
+                    $variant->descontarStock($cantidad, 'Venta #' . $venta->id);
+                } else {
+                    $product->descontarStock($cantidad, 'Venta #' . $venta->id);
                 }
-
-                $product->stock = $stockNuevo;
-                $product->save();
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | REGISTRAR MOVIMIENTO EN KARDEX
-                |--------------------------------------------------------------------------
-                */
-
-                KardexMovimiento::create([
-                    'empresa_id'       => $empresa->id,
-                    'product_id'       => $product->id,
-                    'user_id'          => $user->id,
-                    'tipo'             => 'salida',
-                    'cantidad'         => -$cantidad,
-                    'stock_resultante' => $stockNuevo,
-                    'origen'           => 'Venta #' . $venta->id,
-                ]);
 
 
                 /*
@@ -248,5 +228,24 @@ class VentaService
             return $venta;
 
         });
+    }
+    protected function generarNumeroComprobante($empresa, $tipo)
+    {
+        $pv = str_pad($empresa->punto_venta ?? 1, 5, '0', STR_PAD_LEFT);
+        
+        $ultimaVenta = Venta::where('empresa_id', $empresa->id)
+            ->where('tipo_comprobante', $tipo)
+            ->orderBy('id', 'desc')
+            ->first();
+            
+        $next = 1;
+        if ($ultimaVenta && $ultimaVenta->numero_comprobante) {
+            $parts = explode('-', $ultimaVenta->numero_comprobante);
+            if (count($parts) === 2) {
+                $next = (int) $parts[1] + 1;
+            }
+        }
+        
+        return $pv . '-' . str_pad($next, 8, '0', STR_PAD_LEFT);
     }
 }

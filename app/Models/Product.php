@@ -38,7 +38,9 @@ class Product extends Model
         'stock_ideal',
 
         // Estado
-        'active'
+        'active',
+        'has_variants',
+        'is_combo'
     ];
 
 
@@ -51,13 +53,14 @@ class Product extends Model
     */
 
     protected $casts = [
-        'price'       => 'float',
-        'stock'       => 'float',
-        'stock_min'   => 'float',
-        'stock_ideal' => 'float',
-        'active'      => 'boolean',
+        'price'        => 'float',
+        'stock'        => 'float',
+        'stock_min'    => 'float',
+        'stock_ideal'  => 'float',
+        'active'       => 'boolean',
+        'has_variants' => 'boolean',
+        'is_combo'     => 'boolean',
     ];
-
 
 
     /*
@@ -65,6 +68,18 @@ class Product extends Model
     | RELACIONES
     |--------------------------------------------------------------------------
     */
+
+    // Variantes (Talles / Colores)
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    // Items del combo (Si este producto es un combo)
+    public function comboItems()
+    {
+        return $this->hasMany(ProductCombo::class, 'parent_product_id');
+    }
 
 
     // Imágenes del producto
@@ -139,6 +154,17 @@ class Product extends Model
     public function descontarStock($cantidad, $origen = 'VENTA')
     {
         DB::transaction(function () use ($cantidad, $origen) {
+            
+            // Si es un combo, descontamos de los hijos
+            if ($this->is_combo) {
+                foreach ($this->comboItems as $item) {
+                    $childProduct = $item->child;
+                    if ($childProduct) {
+                        $childProduct->descontarStock($item->quantity * $cantidad, $origen . " (Combo: {$this->name})");
+                    }
+                }
+            }
+
             $this->stock = max(0, $this->stock - $cantidad);
             $this->save();
 
@@ -147,7 +173,7 @@ class Product extends Model
                 'product_id'       => $this->id,
                 'user_id'          => auth()->id(),
                 'tipo'             => 'salida',
-                'cantidad'         => $cantidad,
+                'cantidad'         => -$cantidad,
                 'stock_resultante' => $this->stock,
                 'origen'           => $origen,
             ]);

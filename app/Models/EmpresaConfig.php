@@ -21,6 +21,28 @@ class EmpresaConfig extends Model
     | RELACIÓN CON EMPRESA
     |--------------------------------------------------------------------------
     */
+    public function getLogoUrlAttribute()
+    {
+        if (!$this->logo) {
+            return asset('images/no-logo.png');
+        }
+
+        // Si ya es una URL absoluta, la devolvemos
+        if (\Illuminate\Support\Str::startsWith($this->logo, ['http://', 'https://'])) {
+            return $this->logo;
+        }
+
+        // Logística para Bunny.net
+        $bunnyUrl = env('BUNNY_URL');
+        $useBunny = env('BUNNY_ENABLED', true);
+
+        if ($useBunny && $bunnyUrl) {
+            return rtrim($bunnyUrl, '/') . '/' . ltrim($this->logo, '/');
+        }
+
+        return asset('storage/' . $this->logo);
+    }
+
     public function empresa()
     {
         return $this->belongsTo(\App\Models\Empresa::class);

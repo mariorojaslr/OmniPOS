@@ -16,14 +16,11 @@ class ConfiguracionEmpresaController extends Controller
     */
     public function index()
     {
-        // ⚠️ Usar SIEMPRE el empresa_id del usuario autenticado
-        $empresaId = auth()->user()->empresa_id;
+        $user = auth()->user();
+        $empresa = $user->empresa;
+        $config = $empresa->config;
 
-        $config = DB::table('empresa_config')
-            ->where('empresa_id', $empresaId)
-            ->first();
-
-        return view('empresa.configuracion.index', compact('config'));
+        return view('empresa.configuracion.index', compact('config', 'empresa'));
     }
 
     /*
@@ -34,11 +31,10 @@ class ConfiguracionEmpresaController extends Controller
     public function save(Request $request)
     {
         try {
+            $user = auth()->user();
+            $empresa = $user->empresa;
 
-            // ⚠️ Empresa siempre desde el usuario logueado
-            $empresaId = auth()->user()->empresa_id;
-
-            if (!$empresaId) {
+            if (!$empresa) {
                 return response()->json([
                     'success' => false,
                     'error'   => 'Empresa no identificada'
@@ -54,7 +50,31 @@ class ConfiguracionEmpresaController extends Controller
                 'color_primary'   => 'nullable|string|max:20',
                 'color_secondary' => 'nullable|string|max:20',
                 'theme'           => 'nullable|in:light,dark',
-                'logo'            => 'nullable|image|max:2048'
+                'logo'            => 'nullable|image|max:2048',
+                
+                // Fiscales
+                'cuit'                 => 'nullable|string|max:20',
+                'condicion_iva'        => 'nullable|string|max:100',
+                'iibb'                 => 'nullable|string|max:50',
+                'punto_venta'          => 'nullable|integer',
+                'direccion_fiscal'     => 'nullable|string|max:255',
+                'dia_cierre_periodo'   => 'nullable|integer|min:0|max:31',
+                'pasarelas'            => 'nullable|array',
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTUALIZAR EMPRESA (FISCAL)
+            |--------------------------------------------------------------------------
+            */
+            $empresa->update([
+                'cuit'               => $request->cuit,
+                'condicion_iva'      => $request->condicion_iva,
+                'iibb'               => $request->iibb,
+                'punto_venta'        => $request->punto_venta ?? 1,
+                'direccion_fiscal'   => $request->direccion_fiscal,
+                'dia_cierre_periodo' => $request->dia_cierre_periodo ?? 0,
+                'config_pasarelas'   => $request->pasarelas ?? [],
             ]);
 
             /*
@@ -63,48 +83,33 @@ class ConfiguracionEmpresaController extends Controller
             |--------------------------------------------------------------------------
             */
             $logoPath = null;
-
             if ($request->hasFile('logo')) {
-
-                // eliminar logo anterior si existe
-                $oldLogo = DB::table('empresa_config')
-                    ->where('empresa_id', $empresaId)
-                    ->value('logo');
-
-                if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
-                    Storage::disk('public')->delete($oldLogo);
+                $config = $empresa->config;
+                if ($config && $config->logo && Storage::disk('public')->exists($config->logo)) {
+                    Storage::disk('public')->delete($config->logo);
                 }
-
                 $logoPath = $request->file('logo')->store('logos', 'public');
             }
 
             /*
             |--------------------------------------------------------------------------
-            | DATOS
+            | ACTUALIZAR CONFIG (VISUAL)
             |--------------------------------------------------------------------------
             */
-            $data = [
-                'empresa_id'      => $empresaId,
+            $configData = [
                 'color_primary'   => $request->color_primary ?? '#1f6feb',
                 'color_secondary' => $request->color_secondary ?? '#0d1117',
                 'theme'           => $request->theme ?? 'light',
-                'updated_at'      => now(),
             ];
 
             if ($logoPath) {
-                $data['logo'] = $logoPath;
+                $configData['logo'] = $logoPath;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | UPSERT
-            |--------------------------------------------------------------------------
-            */
-            DB::table('empresa_config')
-                ->updateOrInsert(
-                    ['empresa_id' => $empresaId],
-                    $data
-                );
+            $empresa->config()->updateOrCreate(
+                ['empresa_id' => $empresa->id],
+                $configData
+            );
 
             return response()->json([
                 'success' => true,

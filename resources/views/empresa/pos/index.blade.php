@@ -115,6 +115,20 @@ Clientes
 </div>
 
 <div class="mb-3">
+<label class="form-label"><strong>Tipo de Comprobante</strong></label>
+<div class="d-flex gap-3">
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="tipoComprobante" id="tipoTicket" value="ticket" checked>
+        <label class="form-check-label" for="tipoTicket">Ticket (Térmico)</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="tipoComprobante" id="tipoFactura" value="factura">
+        <label class="form-check-label" for="tipoFactura">Factura / Comprobante</label>
+    </div>
+</div>
+</div>
+
+<div class="mb-3">
 <label>Monto recibido</label>
 
 <input type="text" id="montoPagado" class="form-control">
@@ -191,9 +205,23 @@ placeholder="Buscar por nombre, documento, CUIT o teléfono...">
 </div>
 
 </div>
+</div>
+</div>
+</div>
 
-</div>
-</div>
+{{-- ================= MODAL VARIACIONES ================= --}}
+<div class="modal fade" id="modalVariante" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Seleccionar Variante</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" id="variantList">
+                {{-- Se llena con JS --}}
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -207,6 +235,7 @@ let cart={},cols=4,rows=3;
 const grid=document.getElementById('productGrid');
 const modalCobrar=new bootstrap.Modal(document.getElementById('modalCobrar'));
 const modalBuscarCliente=new bootstrap.Modal(document.getElementById('modalBuscarCliente'));
+const modalVariante=new bootstrap.Modal(document.getElementById('modalVariante'));
 
 let consumidorFinal = clientes.find(c =>
 c.name?.toUpperCase() === 'CONSUMIDOR FINAL'
@@ -254,9 +283,13 @@ document.getElementById('search').oninput=renderProducts;
 /* ================= CARRITO ================= */
 
 function addToCart(p){
-if(!cart[p.id]) cart[p.id]={...p,qty:1};
-else cart[p.id].qty++;
-renderCart();
+    if (p.has_variants && p.variants && p.variants.length > 0) {
+        showVariantsModal(p);
+        return;
+    }
+    if(!cart[p.id]) cart[p.id]={...p,qty:1};
+    else cart[p.id].qty++;
+    renderCart();
 }
 
 function renderCart(){
@@ -269,26 +302,27 @@ const sub=p.qty*p.price;
 
 total+=sub;
 
-html+=`
-<div class="venta-row">
+        const id = p.variant_id ? `v${p.variant_id}` : p.id;
+        html+=`
+        <div class="venta-row">
 
-<div>${i++}</div>
+        <div>${i++}</div>
 
-<div>${p.name}</div>
+        <div>${p.name}</div>
 
-<div class="qty-box">
-<button onclick="changeQty(${p.id},-1)">-</button>
-<input value="${p.qty}" onchange="setQty(${p.id},this.value)">
-<button onclick="changeQty(${p.id},1)">+</button>
-</div>
+        <div class="qty-box">
+        <button onclick="changeQty('${id}',-1)">-</button>
+        <input value="${p.qty}" onchange="setQty('${id}',this.value)">
+        <button onclick="changeQty('${id}',1)">+</button>
+        </div>
 
-<button class="trash-btn" onclick="removeItem(${p.id})">🗑</button>
+        <button class="trash-btn" onclick="removeItem('${id}')">🗑</button>
 
-<div class="text-end">
-<strong>$${sub.toFixed(2)}</strong>
-</div>
+        <div class="text-end">
+        <strong>$${sub.toFixed(2)}</strong>
+        </div>
 
-</div>`;
+        </div>`;
 
 });
 
@@ -299,21 +333,72 @@ document.getElementById('total').innerText=total.toFixed(2);
 }
 
 function changeQty(id,d){
-cart[id].qty+=d;
-if(cart[id].qty<=0)delete cart[id];
-renderCart();
+    if(cart[id]){
+        cart[id].qty+=d;
+        if(cart[id].qty<=0)delete cart[id];
+        renderCart();
+    }
 }
 
 function setQty(id,v){
-v=parseInt(v);
-if(v<=0)delete cart[id];
-else cart[id].qty=v;
-renderCart();
+    v=parseInt(v);
+    if(cart[id]){
+        if(v<=0)delete cart[id];
+        else cart[id].qty=v;
+        renderCart();
+    }
 }
 
 function removeItem(id){
-delete cart[id];
-renderCart();
+    delete cart[id];
+    renderCart();
+}
+
+/**
+ * Muestra el modal de variantes para elegir talle/color
+ */
+function showVariantsModal(p) {
+    const list = document.getElementById('variantList');
+    list.innerHTML = '';
+    
+    p.variants.forEach(v => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-light w-100 text-start p-3 border-bottom rounded-0';
+        btn.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Talle:</strong> ${v.size || '-'} | <strong>Color:</strong> ${v.color || '-'}
+                </div>
+                <div class="fw-bold text-success">$${parseFloat(v.price || p.price).toFixed(2)}</div>
+            </div>
+        `;
+        btn.onclick = () => {
+            selectVariant(p, v);
+            modalVariante.hide();
+        };
+        list.appendChild(btn);
+    });
+    
+    modalVariante.show();
+}
+
+/**
+ * Agrega la variante específica al carrito
+ */
+function selectVariant(p, v) {
+    const variantId = `v${v.id}`;
+    if(cart[variantId]){
+        cart[variantId].qty++;
+    } else {
+        cart[variantId] = {
+            id: p.id,
+            variant_id: v.id,
+            name: `${p.name} (${v.size || ''} ${v.color || ''})`,
+            price: parseFloat(v.price || p.price),
+            qty: 1
+        };
+    }
+    renderCart();
 }
 
 /* ================= CALCULADORA ================= */
@@ -496,7 +581,8 @@ async function procesarVenta(imprimir = false) {
                 items:items,
                 cliente_id:clienteID,
                 tipo_venta_cliente:document.getElementById('tipoVentaCliente') ? document.getElementById('tipoVentaCliente').value : 'contado',
-                metodo_pago:document.getElementById('metodoPago').value
+                metodo_pago:document.getElementById('metodoPago').value,
+                tipo_comprobante: document.querySelector('input[name="tipoComprobante"]:checked').value
             })
         });
 
@@ -510,32 +596,36 @@ async function procesarVenta(imprimir = false) {
         modalCobrar.hide();
 
         if (imprimir) {
-            let ticket = `
-            MULTIPOS
-            ---------------------------
-            Venta #${data.venta_id}
-            
-            `;
+            if (data.tipo_comprobante === 'factura') {
+                window.open("{{ url('empresa/ventas') }}/" + data.venta_id + "/pdf", '_blank');
+            } else {
+                let ticket = `
+                MULTIPOS
+                ---------------------------
+                Venta #${data.venta_id}
+                
+                `;
 
-            Object.values(cart).forEach(p=>{
-                ticket += `${p.name}\n`;
-                ticket += `${p.qty} x $${p.price}\n`;
-                ticket += `$${(p.qty*p.price).toFixed(2)}\n\n`;
-            });
+                Object.values(cart).forEach(p=>{
+                    ticket += `${p.name}\n`;
+                    ticket += `${p.qty} x $${p.price}\n`;
+                    ticket += `$${(p.qty*p.price).toFixed(2)}\n\n`;
+                });
 
-            ticket += `
-            ---------------------------
-            TOTAL: $${data.total}
-            
-            Gracias por su compra
-            `;
+                ticket += `
+                ---------------------------
+                TOTAL: $${data.total}
+                
+                Gracias por su compra
+                `;
 
-            const w = window.open('', 'PRINT', 'height=600,width=350');
-            w.document.write('<pre>'+ticket+'</pre>');
-            w.document.close();
-            w.focus();
-            w.print();
-            w.close();
+                const w = window.open('', 'PRINT', 'height=600,width=350');
+                w.document.write('<pre>'+ticket+'</pre>');
+                w.document.close();
+                w.focus();
+                w.print();
+                w.close();
+            }
         }
 
         /* LIMPIAR POS */

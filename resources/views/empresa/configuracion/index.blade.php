@@ -107,6 +107,76 @@
 
                 </div>
 
+                <hr class="my-4">
+
+                <h5 class="mb-3">📄 Datos Fiscales</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold">CUIT</label>
+                        <input type="text" name="cuit" value="{{ $empresa->cuit }}" class="form-control">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold">Condición IVA</label>
+                        <select name="condicion_iva" class="form-select">
+                            <option value="">Seleccionar...</option>
+                            <option value="Responsable Inscripto" {{ $empresa->condicion_iva == 'Responsable Inscripto' ? 'selected' : '' }}>Responsable Inscripto</option>
+                            <option value="Monotributista" {{ $empresa->condicion_iva == 'Monotributista' ? 'selected' : '' }}>Monotributista</option>
+                            <option value="Exento" {{ $empresa->condicion_iva == 'Exento' ? 'selected' : '' }}>Exento</option>
+                            <option value="Consumidor Final" {{ $empresa->condicion_iva == 'Consumidor Final' ? 'selected' : '' }}>Consumidor Final</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold">Ingresos Brutos (IIBB)</label>
+                        <input type="text" name="iibb" value="{{ $empresa->iibb }}" class="form-control">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold">Punto de Venta</label>
+                        <input type="number" name="punto_venta" value="{{ $empresa->punto_venta ?? 1 }}" class="form-control">
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label fw-semibold">Dirección Fiscal</label>
+                        <input type="text" name="direccion_fiscal" value="{{ $empresa->direccion_fiscal }}" class="form-control">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold">Día de cierre de periodo</label>
+                        <input type="number" name="dia_cierre_periodo" value="{{ $empresa->dia_cierre_periodo ?? 0 }}" min="0" max="31" class="form-control">
+                        <small class="text-muted">0 = No definido, 1-31 = Día del mes</small>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h5 class="mb-3">💳 Pasarelas de Pago</h5>
+                @php
+                    $gateways = $empresa->config_pasarelas ?? [];
+                @endphp
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="pasarelas[mercadopago]" value="1" id="mp" {{ isset($gateways['mercadopago']) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="mp">Mercado Pago</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="pasarelas[mobex]" value="1" id="mobex" {{ isset($gateways['mobex']) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="mobex">Mobex</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="pasarelas[paypal]" value="1" id="paypal" {{ isset($gateways['paypal']) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="paypal">PayPal</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="pasarelas[stripe]" value="1" id="stripe" {{ isset($gateways['stripe']) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="stripe">Stripe</label>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="text-end mt-4">
                     <button class="btn btn-primary px-4">
                         💾 Guardar Configuración

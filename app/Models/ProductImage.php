@@ -22,14 +22,26 @@ class ProductImage extends Model
     {
         $imgPath = $this->path;
 
+        if (!$imgPath) {
+            return asset('images/no-image.png');
+        }
+
         // Si ya es una URL absoluta, la devolvemos
         if (\Illuminate\Support\Str::startsWith($imgPath, ['http://', 'https://'])) {
             return $imgPath;
         }
 
-        // FORZADO A LOCAL:
+        // Logística para Bunny.net
+        $bunnyUrl = env('BUNNY_URL'); // e.g. https://gente-piola.b-cdn.net
+        $useBunny = env('BUNNY_ENABLED', true); // Permitir desactivarlo desde .env
+
+        if ($useBunny && $bunnyUrl) {
+            return rtrim($bunnyUrl, '/') . '/' . ltrim($imgPath, '/');
+        }
+
+        // FALLBACK A LOCAL:
         // Usamos una ruta relativa absoluta desde el dominio actual para evitar 
-        // bloqueos Mixed Content si el .env de Hostinger tiene APP_URL con http://
+        // bloqueos Mixed Content
         return '/storage/' . ltrim($imgPath, '/');
     }
 }

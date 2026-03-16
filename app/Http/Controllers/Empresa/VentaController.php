@@ -28,20 +28,24 @@ class VentaController extends Controller
      */
     public function store(Request $request, VentaService $ventaService)
     {
-        $request->validate([
-            'items'              => 'required|array|min:1',
-            'items.*.id'         => 'required|exists:products,id',
-            'items.*.quantity'   => 'required|integer|min:1',
-        ]);
+        // ... (Este método ya existe o se actualizó vía POSController)
+    }
 
-        $venta = $ventaService->registrarVenta(
-            auth()->user(),
-            $request->items
-        );
+    /**
+     * 📑 Generar PDF de la venta
+     */
+    public function pdf(Venta $venta)
+    {
+        $empresa = auth()->user()->empresa;
 
-        return response()->json([
-            'ok'       => true,
-            'venta_id' => $venta->id,
-        ]);
+        if ($venta->empresa_id !== $empresa->id) {
+            abort(403);
+        }
+
+        $venta->load(['items.product', 'user', 'cliente']);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa'));
+        
+        return $pdf->stream("Venta_{$venta->id}.pdf");
     }
 }
