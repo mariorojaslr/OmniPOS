@@ -80,5 +80,14 @@ Este documento es una crónica del crecimiento constante de MultiPOS, detallando
 - **Instrucción:** El sistema está listo para BunnyCDN, pero se mantiene en modo local para garantizar que el cliente siempre vea sus imágenes.
 - **Resultado:** ✅ Fotos visibles y sistema preparado para alta velocidad en el futuro.
 
+### 9. 💳 Notas de Crédito y Devoluciones Automatizadas
+**Hora:** 20:45 (Local)
+- **Funcionalidad:** Implementación de soporte para Notas de Crédito (NC) tanto en el punto de venta (POS) como en compras de proveedores.
+- **Impacto en Inventario:** 
+    - NC de Cliente: Reingresa el stock automáticamente.
+    - NC de Proveedor: Descuenta el stock (devolución).
+- **Impacto Financiero:** Actualización en tiempo real de las Cuentas Corrientes, generando saldos a favor o reduciendo deudas según corresponda.
+- **Resultado:** ✅ Sistema contable y de stock 100% sincronizado para devoluciones.
+
 ---
 *Documentación generada por Antigravity - IA Arquitecto de Software.*
