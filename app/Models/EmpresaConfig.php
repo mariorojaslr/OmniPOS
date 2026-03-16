@@ -14,6 +14,7 @@ class EmpresaConfig extends Model
         'color_primary',
         'color_secondary',
         'theme',
+        'dias_nuevo',
     ];
 
     /*

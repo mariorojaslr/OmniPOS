@@ -51,6 +51,7 @@ class ConfiguracionEmpresaController extends Controller
                 'color_secondary' => 'nullable|string|max:20',
                 'theme'           => 'nullable|in:light,dark',
                 'logo'            => 'nullable|image|max:2048',
+                'dias_nuevo'      => 'nullable|integer|min:1|max:365',
                 
                 // Fiscales
                 'cuit'                 => 'nullable|string|max:20',
@@ -102,6 +103,7 @@ class ConfiguracionEmpresaController extends Controller
                 'color_primary'   => $request->color_primary ?? '#1f6feb',
                 'color_secondary' => $request->color_secondary ?? '#0d1117',
                 'theme'           => $request->theme ?? 'light',
+                'dias_nuevo'      => $request->dias_nuevo ?? 7,
             ];
 
             if ($logoPath) {

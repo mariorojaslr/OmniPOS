@@ -103,6 +103,12 @@
                             El modo oscuro reduce el brillo y mejora la experiencia nocturna.
                         </small>
 
+                        <div class="mt-4">
+                            <label class="form-label fw-semibold">Días de producto "Nuevo"</label>
+                            <input type="number" name="dias_nuevo" value="{{ $config->dias_nuevo ?? 7 }}" min="1" max="365" class="form-control">
+                            <small class="text-muted">Días que permanecerá el cartel de "Nuevo" en el catálogo.</small>
+                        </div>
+
                     </div>
 
                 </div>

@@ -209,7 +209,8 @@ $cartCount = session('cart') ? count(session('cart')) : 0;
             $mainImage = $product->images->where('is_main',1)->first()
                         ?? $product->images->first();
 
-            $isNew   = $product->created_at->diffInDays(now()) <= 7;
+            $diasConfig = $empresa->config->dias_nuevo ?? 7;
+            $isNew   = $product->created_at->diffInDays(now()) <= $diasConfig;
             $isTop   = ($product->sales ?? 0) > 10;
             $isPromo = $product->price < 1000;
         @endphp
