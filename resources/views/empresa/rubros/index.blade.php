@@ -39,14 +39,14 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="btn-group">
-                                    <a href="{{ route('empresa.rubros.edit', $rubro) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ route('empresa.rubros.edit', $rubro) }}" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                                        <i class="fas fa-edit"></i> <span>Editar</span>
                                     </a>
                                     <form action="{{ route('empresa.rubros.destroy', $rubro) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar este rubro?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-trash"></i>
+                                        <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
+                                            <i class="fas fa-trash"></i> <span>Borrar</span>
                                         </button>
                                     </form>
                                 </div>

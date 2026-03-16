@@ -28,7 +28,7 @@ class RubroController extends Controller
         Rubro::create([
             'empresa_id' => auth()->user()->empresa_id,
             'nombre' => $request->nombre,
-            'activo' => true
+            'activo' => $request->boolean('activo', true)
         ]);
 
         return redirect()->route('empresa.rubros.index')->with('success', 'Rubro creado correctamente.');
@@ -45,7 +45,10 @@ class RubroController extends Controller
             'nombre' => 'required|string|max:255',
         ]);
 
-        $rubro->update($request->all());
+        $rubro->update([
+            'nombre' => $request->nombre,
+            'activo' => $request->boolean('activo')
+        ]);
 
         return redirect()->route('empresa.rubros.index')->with('success', 'Rubro actualizado correctamente.');
     }

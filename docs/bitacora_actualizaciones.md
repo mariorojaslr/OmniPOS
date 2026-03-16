@@ -55,5 +55,14 @@ Este documento registra la evolución de la plataforma, detallando las mejoras t
     4. El sistema actualiza todos los artículos seleccionados al instante.
 - **Resultado:** ✅ Agilidad total en la gestión comercial.
 
+### 6. 🐞 Corrección: Error al Editar Rubros
+**Hora:** 19:50 (Local)
+- **Problema:** El sistema arrojaba un error "View not found" al intentar editar un rubro. Además, los botones de acción no eran claros por falta de etiquetas.
+- **Solución:** 
+    - Se creó la vista `edit.blade.php` faltante.
+    - Se mejoró el listado de rubros agregando etiquetas de texto ("Editar", "Borrar") a los botones para mayor claridad.
+    - Se refinó la lógica del controlador para manejar el estado activo/inactivo correctamente.
+- **Resultado:** ✅ Gestión de rubros 100% funcional y más intuitiva.
+
 ---
 *Documentación generada por Antigravity - IA Arquitecto de Software.*
