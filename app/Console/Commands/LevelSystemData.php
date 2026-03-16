@@ -98,12 +98,18 @@ class LevelSystemData extends Command
 
                 $itemsQuery->each(function ($item) use (&$countItemsVenta, $debug) {
                     // Detectar precio/total de cualquier lado
-                    // En algunas versiones antiguas era 'precio' o 'total_item'
-                    $totalItem = (float)($item->total_item_con_iva ?: $item->total ?: $item->subtotal ?: $item->precio ?: 0);
+                    // Hostinger puede tener nombres antiguos como 'precio_unitario' o 'subtotal'
+                    if ($debug && $countItemsVenta < 3) {
+                        $this->line("DEBUG: Item #{$item->id} full data: " . json_encode($item->getAttributes()));
+                    }
+
+                    $totalItem = (float)($item->total_item_con_iva ?: $item->total ?: $item->subtotal ?: $item->precio ?: $item->precio_unitario ?: 0);
                     $cantidad  = (float)$item->cantidad;
 
-                    if ($debug && $countItemsVenta < 5) {
-                        $this->line("DEBUG: Item ID {$item->id} -> Total Detectado: $totalItem | Cant: $cantidad");
+                    // Si el totalItem sigue siendo 0 pero la cantidad > 0, 
+                    // intentamos reconstruir desde el precio_unitario * cantidad si existiera
+                    if ($totalItem <= 0 && (float)$item->precio_unitario > 0) {
+                        $totalItem = (float)$item->precio_unitario * $cantidad;
                     }
 
                     if ($totalItem > 0 && $cantidad > 0) {
