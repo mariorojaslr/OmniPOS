@@ -33,7 +33,7 @@
                 <div class="d-flex align-items-center gap-3">
 
                     @if(!empty($item['image']))
-                        <img src="{{ asset('storage/'.$item['image']) }}"
+                        <img src="{{ $item['image'] }}"
                              width="60"
                              height="60"
                              style="object-fit:cover; border-radius:8px;">

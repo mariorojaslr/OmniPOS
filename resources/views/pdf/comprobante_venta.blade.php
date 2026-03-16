@@ -17,15 +17,14 @@
         /* ====== CABECERA TIPO FACTURA ====== */
         .header-box {
             width: 100%;
-            height: 110px;
+            height: 120px;
             border: 1px solid #000;
             position: relative;
             margin-bottom: 5px;
         }
 
         .header-left {
-            width: 48%;
-            height: 100%;
+            width: 45%;
             padding: 10px;
             float: left;
         }
@@ -33,36 +32,38 @@
         .header-divider {
             position: absolute;
             left: 50%;
-            top: 0;
+            top: 45px; /* Empieza debajo del cuadro X */
             width: 1px;
-            height: 100%;
+            height: 75px;
             background: #000;
         }
 
         .letter-x {
             position: absolute;
             left: 50%;
-            top: 0;
-            transform: translateX(-50%);
+            top: -1px;
+            margin-left: -20px; /* (40px width / 2) */
             width: 40px;
             height: 45px;
             border: 1px solid #000;
-            border-top: none;
             background: #fff;
             text-align: center;
             z-index: 20;
+            display: block;
         }
 
         .letter-x .letter {
             font-size: 24px;
             font-weight: bold;
             margin-top: 2px;
+            display: block;
         }
 
         .letter-x .sub {
             font-size: 5px;
             line-height: 1;
             font-weight: bold;
+            display: block;
         }
 
         .header-right {
