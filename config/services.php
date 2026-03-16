@@ -36,7 +36,7 @@ return [
     ],
 
     'bunny' => [
-        'enabled'      => env('BUNNY_ENABLED', true),
+        'enabled'      => env('BUNNY_ENABLED', false),
         'hostname'     => env('BUNNY_HOSTNAME', 'ny.storage.bunnycdn.com'),
         'username'     => env('BUNNY_USERNAME'),
         'password'     => env('BUNNY_PASSWORD'),
