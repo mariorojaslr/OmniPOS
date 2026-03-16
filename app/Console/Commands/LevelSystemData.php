@@ -59,18 +59,24 @@ class LevelSystemData extends Command
                 
                 $countVentas = 0;
                 $ventasQuery->each(function ($venta) use (&$countVentas, $debug) {
-                    // Agresivo: intentamos obtener el total de cualquier columna posible
-                    $total = (float)($venta->total_con_iva ?? $venta->total ?? $venta->total_venta ?? 0);
+                    // Intentamos obtener el total de cualquier columna
+                    $totalValue = (float)($venta->total_con_iva ?: $venta->total ?: $venta->total_venta ?: 0);
+                    $ivaValue   = (float)$venta->iva;
+
+                    // CASO ESPECIAL HOSTINGER: Si total es 0 pero hay IVA, reconstruimos el total
+                    if ($totalValue <= 0 && $ivaValue > 0) {
+                        $totalValue = round($ivaValue / (0.21 / 1.21), 2);
+                    }
                     
-                    if ($debug && $countVentas === 0) {
-                        $this->line("DEBUG: Primera venta ID {$venta->id} - Datos: " . json_encode($venta->only(['total', 'total_con_iva', 'subtotal', 'iva'])));
+                    if ($debug && $countVentas < 5) {
+                        $this->line("DEBUG: Venta ID {$venta->id} - Total Detectado: $totalValue - IVA: $ivaValue");
                     }
 
-                    if ($total > 0) {
-                        $subtotal = $total / 1.21;
+                    if ($totalValue > 0) {
+                        $subtotal = $totalValue / 1.21;
                         $venta->subtotal = round($subtotal, 2);
-                        $venta->iva      = round($total - $subtotal, 2);
-                        $venta->total    = $total; // Estandarizamos
+                        $venta->iva      = round($totalValue - $subtotal, 2);
+                        $venta->total    = $totalValue; 
                         $venta->save();
                         $countVentas++;
                     }
