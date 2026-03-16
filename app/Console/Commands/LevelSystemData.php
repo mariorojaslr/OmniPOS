@@ -50,7 +50,7 @@ class LevelSystemData extends Command
         }
 
         try {
-            DB::transaction(function () use ($omitEmpresaId) {
+            DB::transaction(function () use ($omitEmpresaId, $debug) {
                 
                 // 1. NIVELAR VENTAS (Cabecera)
                 $this->comment("1/4 Procesando Cabeceras de Ventas...");
