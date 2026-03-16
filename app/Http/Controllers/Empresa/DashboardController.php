@@ -117,6 +117,16 @@ class DashboardController extends Controller
             ];
         }
 
+        // 3. Alerta de Reporte de Errores / Soporte
+        $reminders[] = [
+            'type' => 'danger',
+            'icon' => '🛡️',
+            'title' => '¿Encontró un problema?',
+            'message' => 'Ayúdenos a mejorar: si detecta cualquier error o anomalía, por favor genere un Ticket de Soporte adjuntando capturas de pantalla, comentarios y el detalle del error manifestado.',
+            'link' => route('empresa.soporte.index'),
+            'btn' => 'Generar Ticket de Soporte'
+        ];
+
         /*
         |----------------------------------------------------------------------
         | RENDER DASHBOARD
