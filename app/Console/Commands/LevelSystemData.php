@@ -91,15 +91,27 @@ class LevelSystemData extends Command
                 // 2. NIVELAR ITEMS DE VENTA (Detalle)
                 $this->comment("2/4 Procesando Detalle de Ventas (Items)...");
                 $countItemsVenta = 0;
-                VentaItem::whereHas('venta', function($q) use ($omitEmpresaId){
+                
+                $itemsQuery = VentaItem::whereHas('venta', function($q) use ($omitEmpresaId){
                     if($omitEmpresaId) $q->where('empresa_id', '!=', $omitEmpresaId);
-                })->each(function ($item) use (&$countItemsVenta) {
-                    $total_item = (float)($item->total_item_con_iva ?? $item->total ?? $item->subtotal ?? 0);
-                    if ($total_item > 0 && (float)$item->cantidad > 0) {
-                        $base_total = $total_item / 1.21;
-                        $item->precio_unitario_sin_iva = round($base_total / $item->cantidad, 2);
-                        $item->subtotal_item_sin_iva   = round($base_total, 2);
-                        $item->iva_item                = round($total_item - $base_total, 2);
+                });
+
+                $itemsQuery->each(function ($item) use (&$countItemsVenta, $debug) {
+                    // Detectar precio/total de cualquier lado
+                    // En algunas versiones antiguas era 'precio' o 'total_item'
+                    $totalItem = (float)($item->total_item_con_iva ?: $item->total ?: $item->subtotal ?: $item->precio ?: 0);
+                    $cantidad  = (float)$item->cantidad;
+
+                    if ($debug && $countItemsVenta < 5) {
+                        $this->line("DEBUG: Item ID {$item->id} -> Total Detectado: $totalItem | Cant: $cantidad");
+                    }
+
+                    if ($totalItem > 0 && $cantidad > 0) {
+                        $baseTotal = $totalItem / 1.21;
+                        $item->precio_unitario_sin_iva = round($baseTotal / $cantidad, 2);
+                        $item->subtotal_item_sin_iva   = round($baseTotal, 2);
+                        $item->iva_item                = round($totalItem - $baseTotal, 2);
+                        $item->total_item_con_iva      = $totalItem; // Estandarizamos
                         $item->save();
                         $countItemsVenta++;
                     }
