@@ -40,7 +40,7 @@ return [
         'hostname'     => env('BUNNY_HOSTNAME', 'ny.storage.bunnycdn.com'),
         'username'     => env('BUNNY_USERNAME'),
         'password'     => env('BUNNY_PASSWORD'),
-        'url'          => env('BUNNY_URL') ?: env('BUNNY_PULL_ZONE_URL'),
+        'url'          => env('BUNNY_URL') ?: env('BUNNY_PULL_ZONE_URL', 'https://gentepiola.b-cdn.net'),
     ],
 
 ];
