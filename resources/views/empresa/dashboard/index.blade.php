@@ -216,6 +216,21 @@ $secondary = $config->color_secundario ?? '#16a34a';
             </div>
         </div>
 
+        {{-- PEDIDOS CATALOGO NUEVO --}}
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="glass-panel text-center pb-4" style="border: 2px solid {{ $pedidosPendientes > 0 ? '#f59e0b' : 'transparent' }};">
+                <div class="stat-label">Ventas por Catálogo</div>
+                <div class="stat-value mb-1 {{ $pedidosPendientes > 0 ? 'text-warning' : '' }}">
+                    {{ $pedidosPendientes }}
+                </div>
+                <div class="small text-muted mb-3">Pedidos Pendientes</div>
+                <a href="{{ route('empresa.orders.index') }}" class="btn btn-sm btn-dark w-100 mb-1">
+                    Gestionar Pedidos
+                </a>
+                <div class="x-small text-muted" style="font-size: 0.7rem;">{{ $pedidosTotales }} totales registrados</div>
+            </div>
+        </div>
+
         {{-- REPORTES --}}
         <div class="col-xl-3 col-lg-6 col-md-6">
             <div class="glass-panel text-center pb-4">

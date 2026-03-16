@@ -74,6 +74,18 @@ class DashboardController extends Controller
 
         /*
         |----------------------------------------------------------------------
+        | BLOQUE CATALOGO (PEDIDOS)
+        |----------------------------------------------------------------------
+        */
+        $pedidosPendientes = \App\Models\Order::where('empresa_id', $empresaId)
+            ->where('estado', 'pendiente')
+            ->count();
+
+        $pedidosTotales = \App\Models\Order::where('empresa_id', $empresaId)->count();
+
+
+        /*
+        |----------------------------------------------------------------------
         | RENDER DASHBOARD
         |----------------------------------------------------------------------
         */
@@ -87,6 +99,8 @@ class DashboardController extends Controller
             'clientesCount' => $clientesCount,
             'productosCount' => $productosCount,
             'stockBajo' => $stockBajo,
+            'pedidosPendientes' => $pedidosPendientes,
+            'pedidosTotales' => $pedidosTotales,
         ]);
     }
 }

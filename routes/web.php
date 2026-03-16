@@ -31,6 +31,7 @@ use App\Http\Controllers\Empresa\StockController;
 use App\Http\Controllers\Empresa\ClientController;
 use App\Http\Controllers\Empresa\SupplierController;
 use App\Http\Controllers\Empresa\PurchaseController;
+use App\Http\Controllers\Empresa\OrderController;
 
 // ================= AUTH =================
 use App\Http\Controllers\Auth\PasswordController;
@@ -228,6 +229,17 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      */
         Route::get('/pos', [POSController::class , 'index'])->name('pos.index');
         Route::post('/pos/checkout', [POSController::class , 'store'])->name('pos.checkout');
+
+        /*
+     |--------------------------------------------------------------------------
+     | PEDIDOS POR CATÁLOGO
+     |--------------------------------------------------------------------------
+     */
+        Route::get('/pedidos', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/pedidos/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/pedidos/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::get('/pedidos/{order}/etiqueta', [OrderController::class, 'printLabel'])->name('orders.label');
+        Route::get('/pedidos/{order}/picking', [OrderController::class, 'printPicking'])->name('orders.picking');
 
     });
 
