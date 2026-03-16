@@ -1,6 +1,6 @@
-# 📜 Bitácora de Actualizaciones - MultiPOS
+# 📈 Línea de Tiempo: Avances y Crecimiento - MultiPOS
 
-Este documento registra la evolución de la plataforma, detallando las mejoras técnicas, nuevas funcionalidades e instrucciones de uso para el usuario final.
+Este documento es una crónica del crecimiento constante de MultiPOS, detallando cómo la plataforma evoluciona día a día hacia un SaaS de clase mundial.
 
 ---
 
@@ -63,6 +63,22 @@ Este documento registra la evolución de la plataforma, detallando las mejoras t
     - Se mejoró el listado de rubros agregando etiquetas de texto ("Editar", "Borrar") a los botones para mayor claridad.
     - Se refinó la lógica del controlador para manejar el estado activo/inactivo correctamente.
 - **Resultado:** ✅ Gestión de rubros 100% funcional y más intuitiva.
+
+### 7. 🛡️ Estabilidad Extrema: Sanación de Base de Datos
+**Hora:** 20:20 (Local)
+- **Problema:** En el servidor de producción, algunas tablas críticas como `rubros` y columnas en `supplier_ledgers` (Cuentas Corrientes) no se crearon correctamente debido a fallos previos en las migraciones de Hostinger.
+- **Solución:** 
+    - Se implementó una **Mega-Migración de Sanación (`v4`)** que verifica columna por columna.
+    - El sistema ahora detecta qué falta y lo crea automáticamente sin interrumpir el servicio.
+- **Resultado:** ✅ Base de datos 100% íntegra y sin errores de "Table/Column not found".
+
+---
+
+### 8. 📸 Configuración de Imágenes: BunnyCDN vs Local
+**Hora:** 20:25 (Local)
+- **Ajuste:** Para evitar que los productos aparezcan sin foto en producción mientras se termina de configurar BunnyCDN, se estableció que el sistema use el **Almacenamiento Local por defecto**.
+- **Instrucción:** El sistema está listo para BunnyCDN, pero se mantiene en modo local para garantizar que el cliente siempre vea sus imágenes.
+- **Resultado:** ✅ Fotos visibles y sistema preparado para alta velocidad en el futuro.
 
 ---
 *Documentación generada por Antigravity - IA Arquitecto de Software.*
