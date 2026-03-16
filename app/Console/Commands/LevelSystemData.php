@@ -59,24 +59,29 @@ class LevelSystemData extends Command
                 
                 $countVentas = 0;
                 $ventasQuery->each(function ($venta) use (&$countVentas, $debug) {
-                    // Intentamos obtener el total de cualquier columna
-                    $totalValue = (float)($venta->total_con_iva ?: $venta->total ?: $venta->total_venta ?: 0);
-                    $ivaValue   = (float)$venta->iva;
+                    // Valor base: intentamos sacar el total de donde sea
+                    $total_con_iva = (float)$venta->total_con_iva;
+                    $total_normal  = (float)$venta->total;
+                    $ivaValue      = (float)$venta->iva;
 
-                    // CASO ESPECIAL HOSTINGER: Si total es 0 pero hay IVA, reconstruimos el total
-                    if ($totalValue <= 0 && $ivaValue > 0) {
-                        $totalValue = round($ivaValue / (0.21 / 1.21), 2);
+                    $totalFinal = $total_con_iva > 0 ? $total_con_iva : ($total_normal > 0 ? $total_normal : 0);
+
+                    // CASO EMERGENCIA: Si no hay total pero hay IVA (pasa en registros corruptos de Hostinger)
+                    // Reconstruimos: Total = IVA / 0.1735... (o mas simple, Subtotal = IVA / 0.21)
+                    if ($totalFinal <= 0 && $ivaValue > 0) {
+                        $sub = $ivaValue / 0.21;
+                        $totalFinal = round($sub + $ivaValue, 2);
                     }
                     
-                    if ($debug && $countVentas < 5) {
-                        $this->line("DEBUG: Venta ID {$venta->id} - Total Detectado: $totalValue - IVA: $ivaValue");
+                    if ($debug && $countVentas < 10) {
+                        $this->line("DEBUG: Venta #{$venta->id} -> Total Detectado: $totalFinal | IVA Original: $ivaValue");
                     }
 
-                    if ($totalValue > 0) {
-                        $subtotal = $totalValue / 1.21;
+                    if ($totalFinal > 0) {
+                        $subtotal = $totalFinal / 1.21;
                         $venta->subtotal = round($subtotal, 2);
-                        $venta->iva      = round($totalValue - $subtotal, 2);
-                        $venta->total    = $totalValue; 
+                        $venta->iva      = round($totalFinal - $subtotal, 2);
+                        $venta->total    = $totalFinal; 
                         $venta->save();
                         $countVentas++;
                     }
