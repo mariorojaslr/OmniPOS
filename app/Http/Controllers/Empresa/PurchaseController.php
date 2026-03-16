@@ -202,6 +202,14 @@ class PurchaseController extends Controller
                     throw new \Exception("Producto no encontrado ID: ".$productId);
                 }
 
+                /*
+                |--------------------------------------------------------------------------
+                | MOVIMIENTO DE STOCK (Invertido si es NC)
+                |--------------------------------------------------------------------------
+                */
+
+                $esNC = ($request->invoice_type === 'NC' || $request->invoice_type === 'nota_credito');
+
                 if ($variantId) {
                     $variant = \App\Models\ProductVariant::where('product_id', $productId)
                         ->where('id', $variantId)
@@ -209,27 +217,39 @@ class PurchaseController extends Controller
                         ->first();
                     
                     if ($variant) {
-                        $variant->aumentarStock($qty, 'COMPRA #' . $purchase->id);
-                        // El método aumentarStock en el model Variant ya debería sincronizar con el padre si lo programamos así,
-                        // pero por seguridad recalculamos el stock del padre aquí.
+                        if ($esNC) {
+                            $variant->descontarStock($qty, 'Nota de Crédito Proveedor #' . $purchase->id);
+                        } else {
+                            $variant->aumentarStock($qty, 'COMPRA #' . $purchase->id);
+                        }
+                        // Sincronizar stock padre
                         $product->stock = \App\Models\ProductVariant::where('product_id', $productId)->sum('stock');
                         $product->save();
                     }
                 } else {
-                    $product->aumentarStock($qty, 'COMPRA #' . $purchase->id);
+                    if ($esNC) {
+                        $product->descontarStock($qty, 'Nota de Crédito Proveedor #' . $purchase->id);
+                    } else {
+                        $product->aumentarStock($qty, 'COMPRA #' . $purchase->id);
+                    }
                 }
             }
 
             // REGISTRAR EN CUENTA CORRIENTE DEL PROVEEDOR
             $supplier = Supplier::find($request->supplier_id);
             if ($supplier) {
-                if ($tipoPago === 'credito') {
-                    // Aumentar deuda
-                    $supplier->registrarCompra($total, "Compra #{$purchase->id} - {$purchase->invoice_type} {$purchase->invoice_number}");
+                if ($esNC) {
+                    // NC de proveedor -> Menos deuda para nosotros (Haber/Credit)
+                    $supplier->registrarPago($total, "NC #{$purchase->invoice_number} - Devolución/Crédito");
                 } else {
-                    // Si es contado, registramos la compra (deuda) y el pago inmediatamente (haber)
-                    $supplier->registrarCompra($total, "Compra #{$purchase->id} - Pago Contado");
-                    $supplier->registrarPago($total, "Pago de Compra #{$purchase->id}");
+                    if ($tipoPago === 'credito') {
+                        // Aumentar deuda
+                        $supplier->registrarCompra($total, "Compra #{$purchase->id} - {$purchase->invoice_type} {$purchase->invoice_number}");
+                    } else {
+                        // Si es contado, registramos la compra (deuda) y el pago inmediatamente (haber)
+                        $supplier->registrarCompra($total, "Compra #{$purchase->id} - Pago Contado");
+                        $supplier->registrarPago($total, "Pago de Compra #{$purchase->id}");
+                    }
                 }
             }
 

@@ -48,6 +48,7 @@
                     <option value="A">Factura A</option>
                     <option value="B">Factura B</option>
                     <option value="C">Factura C</option>
+                    <option value="NC">Nota de Crédito</option>
                     <option value="T">Ticket</option>
                 </select>
             </div>

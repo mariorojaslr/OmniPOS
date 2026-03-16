@@ -119,11 +119,15 @@ Clientes
 <div class="d-flex gap-3">
     <div class="form-check">
         <input class="form-check-input" type="radio" name="tipoComprobante" id="tipoTicket" value="ticket" checked>
-        <label class="form-check-label" for="tipoTicket">Ticket (Térmico)</label>
+        <label class="form-check-label" for="tipoTicket">Ticket</label>
     </div>
     <div class="form-check">
         <input class="form-check-input" type="radio" name="tipoComprobante" id="tipoFactura" value="factura">
-        <label class="form-check-label" for="tipoFactura">Factura / Comprobante</label>
+        <label class="form-check-label" for="tipoFactura">Factura</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="tipoComprobante" id="tipoNC" value="NC">
+        <label class="form-check-label" for="tipoNC" class="text-danger fw-bold">Nota de Crédito (Devolución)</label>
     </div>
 </div>
 </div>

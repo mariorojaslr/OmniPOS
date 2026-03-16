@@ -170,14 +170,24 @@ class VentaService
 
                 /*
                 |--------------------------------------------------------------------------
-                | DESCONTAR STOCK (Incluye variantes, combos y Kardex)
+                | MOVIMIENTO DE STOCK (Invertido si es NC)
                 |--------------------------------------------------------------------------
                 */
 
+                $esNC = ($tipoComprobante === 'NC' || $tipoComprobante === 'nota_credito');
+
                 if ($variant) {
-                    $variant->descontarStock($cantidad, 'Venta #' . $venta->id);
+                    if ($esNC) {
+                        $variant->aumentarStock($cantidad, 'Nota de Crédito #' . $venta->id);
+                    } else {
+                        $variant->descontarStock($cantidad, 'Venta #' . $venta->id);
+                    }
                 } else {
-                    $product->descontarStock($cantidad, 'Venta #' . $venta->id);
+                    if ($esNC) {
+                        $product->aumentarStock($cantidad, 'Nota de Crédito #' . $venta->id);
+                    } else {
+                        $product->descontarStock($cantidad, 'Venta #' . $venta->id);
+                    }
                 }
 
 
@@ -210,6 +220,8 @@ class VentaService
             |--------------------------------------------------------------------------
             | REGISTRAR CUENTA CORRIENTE
             |--------------------------------------------------------------------------
+            | NC -> Saldo a favor del cliente (Credit)
+            | Venta -> Deuda del cliente (Debit)
             */
 
             if ($clienteId && $tipoVentaCliente === 'cuenta_corriente') {
@@ -218,10 +230,10 @@ class VentaService
                     'empresa_id'  => $empresaActual->id,
                     'client_id'   => $clienteId,
                     'user_id'     => $user->id,
-                    'type'        => 'debit',
+                    'type'        => $esNC ? 'credit' : 'debit',
                     'amount'      => $totalConIva,
-                    'paid'        => 0,
-                    'description' => 'Venta POS #' . $venta->id,
+                    'paid'        => $esNC ? 1 : 0, // Las NC se consideran "cerradas"
+                    'description' => ($esNC ? 'Nota de Crédito #' : 'Venta POS #') . $venta->id,
                 ]);
             }
 
