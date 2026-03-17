@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>MultiPOS | Owner</title>
+    <link rel="icon" href="{{ asset('favicon.png') }}">
     @vite(['resources/css/app.css','resources/js/app.js'])
 </head>
 

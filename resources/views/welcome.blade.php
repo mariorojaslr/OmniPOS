@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" href="{{ asset('favicon.png') }}">
     
     <style>
         :root {
@@ -328,11 +329,16 @@
     </div>
 
     <nav>
-        <a href="#" class="logo">MultiPOS</a>
+        <a href="#" class="logo">
+            <img src="{{ asset('images/promo/logo.png') }}" alt="MultiPOS Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
+            MultiPOS
+        </a>
         <div class="nav-links">
             <a href="#features">Funciones</a>
             <a href="#pos">Punto de Venta</a>
             <a href="#gastos">Finanzas</a>
+            <a href="#logistica">Logística</a>
+            <a href="#reportes">Reportes</a>
             <a href="{{ route('login') }}" class="btn-cta">Acceder al Sistema</a>
         </div>
     </nav>
@@ -407,6 +413,51 @@
             </div>
             <div class="showcase-image">
                 <img src="{{ asset('images/promo/gastos.png') }}" alt="Gestión de Gastos">
+            </div>
+        </div>
+        <div class="showcase-row" id="logistica">
+            <div class="showcase-text">
+                <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">#03 LOGÍSTICA</span>
+                <h2>Inventario Bajo Control</h2>
+                <p>Olvidate de las sorpresas. Nuestro motor de alertas te avisa antes de que te quedes sin stock. Gestioná rubros, marcas y ubicaciones con total precisión.</p>
+                <ul style="list-style: none; margin-top: 1.5rem; color: var(--text-dim);">
+                    <li style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Alertas de Stock Crítico</li>
+                    <li style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Actualización Masiva de Precios</li>
+                    <li><i class="bi bi-check2-circle me-2 text-primary"></i> Gestión de Múltiples Depósitos</li>
+                </ul>
+            </div>
+            <div class="showcase-image">
+                <img src="{{ asset('images/promo/logistica.png') }}" alt="Logística MultiPOS">
+            </div>
+        </div>
+
+        <div class="showcase-row" id="reportes">
+            <div class="showcase-text">
+                <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">#04 ANALÍTICA</span>
+                <h2>Decisiones Basadas en Datos</h2>
+                <p>Accedé a reportes inteligentes de rentabilidad, mejores productos y rendimiento de empleados. Gráficos interactivos de alta calidad que te muestran el camino al crecimiento.</p>
+                <div class="feature-card" style="margin-top: 2rem; padding: 2rem; text-align: left; background: rgba(99, 102, 241, 0.1);">
+                    <p style="color: #fff; font-weight: 600;">"Lo que no se mide, no se mejora. Con MultiPOS medís cada movimiento de tu negocio."</p>
+                </div>
+            </div>
+            <div class="showcase-image">
+                <img src="{{ asset('images/promo/reportes.png') }}" alt="Reportes MultiPOS">
+            </div>
+        </div>
+
+        <div class="showcase-row" id="proveedores">
+            <div class="showcase-text">
+                <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">#05 PROVEEDORES</span>
+                <h2>Relaciones Profesionales</h2>
+                <p>Llevá la cuenta corriente de tus proveedores de forma impecable. Registrá facturas de compra, pagos parciales y notas de crédito de compra sin errores.</p>
+                <ul style="list-style: none; margin-top: 1.5rem; color: var(--text-dim);">
+                    <li style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Libro Mayor de Proveedores</li>
+                    <li style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Control de Deudas Pendientes</li>
+                    <li><i class="bi bi-check2-circle me-2 text-primary"></i> Cuentas Corrientes Impecables</li>
+                </ul>
+            </div>
+            <div class="showcase-image">
+                <img src="{{ asset('images/promo/proveedores.png') }}" alt="Proveedores MultiPOS">
             </div>
         </div>
     </section>
