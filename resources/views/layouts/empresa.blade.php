@@ -36,7 +36,7 @@ $roleName = match($role) {
 
 $modoOscuro = ($config?->theme ?? 'light') === 'dark';
 
-$logo = $config ? $config->logo_url : asset('images/logo-multipos.png');
+$logo = $config ? $config->logo_url : asset('images/promo/logo_horizontal.png');
 @endphp
 
 

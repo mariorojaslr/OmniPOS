@@ -330,8 +330,7 @@
 
     <nav>
         <a href="#" class="logo">
-            <img src="{{ asset('images/promo/logo.png') }}" alt="MultiPOS Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
-            MultiPOS
+            <img src="{{ asset('images/promo/logo_horizontal.png') }}" alt="MultiPOS Logo" style="height: 45px; vertical-align: middle;">
         </a>
         <div class="nav-links">
             <a href="#features">Funciones</a>
