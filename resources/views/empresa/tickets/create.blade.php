@@ -31,10 +31,15 @@
                 <label class="form-label fw-bold">Detalles del problema *</label>
                 <textarea name="message" id="messageArea" class="form-control rounded-3" rows="8" 
                           data-upload-url="{{ route('empresa.soporte.uploadMedia') }}"
-                          placeholder="Explica detalladamente... TIP: ¡Puedes PEGAR capturas de pantalla (Ctrl+V) aquí!" required></textarea>
+                          placeholder="Explica detalladamente... TIP: ¡Puedes PEGAR capturas (Ctrl+V) aquí!" required></textarea>
                 <div class="form-text mt-2 text-muted">
                     <i class="bi bi-info-circle me-1"></i> Puedes copiar una imagen y pegarla directamente en el cuadro de texto.
                 </div>
+            </div>
+
+            <div id="livePreview" class="border rounded-3 p-3 bg-light mb-4 shadow-sm" style="display:none; max-height: 400px; overflow-y: auto;">
+                <label class="small fw-bold text-primary mb-2 d-block">VISTA PREVIA DE TU MENSAJE:</label>
+                <div id="previewContent" class="text-secondary lh-lg"></div>
             </div>
 
             <div class="d-flex gap-3 pt-3">
@@ -52,6 +57,26 @@
 
 @push('scripts')
 <script>
+function updatePreview() {
+    const area = document.getElementById('messageArea');
+    const preview = document.getElementById('livePreview');
+    const content = document.getElementById('previewContent');
+    const text = area.value;
+
+    if (text.trim() === '') {
+        preview.style.display = 'none';
+        return;
+    }
+
+    preview.style.display = 'block';
+    let rendered = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                       .replace(/\n/g, '<br>')
+                       .replace(/!\[.*?\]\((.*?)\)/g, '<img src="$1" class="img-fluid rounded my-2 d-block shadow-sm" style="max-height:300px">');
+    content.innerHTML = rendered;
+}
+
+document.getElementById('messageArea').addEventListener('input', updatePreview);
+
 document.getElementById('messageArea').addEventListener('paste', function (e) {
     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
     for (let index in items) {
@@ -66,6 +91,7 @@ document.getElementById('messageArea').addEventListener('paste', function (e) {
             const textAfter = textarea.value.substring(cursorPosition);
             const placeholder = "\n![Subiendo imagen...]()\n";
             textarea.value = textBefore + placeholder + textAfter;
+            updatePreview();
 
             const formData = new FormData();
             formData.append('image', blob);
@@ -80,10 +106,12 @@ document.getElementById('messageArea').addEventListener('paste', function (e) {
                 if (data.url) {
                     const finalImage = `\n![imagen](${data.url})\n`;
                     textarea.value = textarea.value.replace(placeholder, finalImage);
+                    updatePreview();
                 }
             })
             .catch(err => {
                 textarea.value = textarea.value.replace(placeholder, "\n[Error al subir imagen]\n");
+                updatePreview();
             });
         }
     }

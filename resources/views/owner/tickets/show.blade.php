@@ -77,8 +77,13 @@
                             <label class="form-label fw-bold text-secondary">Respuesta Oficial (Soporte)</label>
                             <textarea name="respuesta_owner" id="replyArea" class="form-control rounded-3 bg-light" rows="10" 
                                       data-upload-url="{{ route('owner.soporte.uploadMedia') }}"
-                                      placeholder="Escribe la respuesta... ¡Puedes PEGAR imágenes (Ctrl+V)!" required>{{ old('respuesta_owner', $ticket->respuesta_owner) }}</textarea>
-                            <small class="text-muted mt-2 d-block">Pega capturas de pantalla directamente aquí para ayudar al cliente.</small>
+                                      placeholder="Pega capturas aquí (Ctrl+V)..." required>{{ old('respuesta_owner', $ticket->respuesta_owner) }}</textarea>
+                            <small class="text-muted mt-2 d-block">Las imágenes pegadas se verán automáticamente en la vista previa de abajo.</small>
+                        </div>
+
+                        <div id="livePreview" class="border rounded-3 p-3 bg-white mb-4 shadow-sm" style="display:none; max-height: 400px; overflow-y: auto;">
+                            <label class="small fw-bold text-primary mb-2 d-block">VISTA PREVIA DE LA RESPUESTA:</label>
+                            <div id="previewContent" class="text-secondary lh-lg"></div>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
@@ -92,6 +97,27 @@
 </div>
 
 <script>
+function updatePreview() {
+    const area = document.getElementById('replyArea');
+    const preview = document.getElementById('livePreview');
+    const content = document.getElementById('previewContent');
+    const text = area.value;
+
+    if (text.trim() === '') {
+        preview.style.display = 'none';
+        return;
+    }
+
+    preview.style.display = 'block';
+    // Simple markdown image render for preview
+    let rendered = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                       .replace(/\n/g, '<br>')
+                       .replace(/!\[.*?\]\((.*?)\)/g, '<img src="$1" class="img-fluid rounded my-2 d-block shadow-sm" style="max-height:300px">');
+    content.innerHTML = rendered;
+}
+
+document.getElementById('replyArea').addEventListener('input', updatePreview);
+
 document.getElementById('replyArea').addEventListener('paste', function (e) {
     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
     for (let index in items) {
@@ -105,6 +131,7 @@ document.getElementById('replyArea').addEventListener('paste', function (e) {
             const textAfter = textarea.value.substring(cursorPosition);
             const placeholder = "\n![Subiendo imagen...]()\n";
             textarea.value = textBefore + placeholder + textAfter;
+            updatePreview();
 
             const formData = new FormData();
             formData.append('image', blob);
@@ -119,13 +146,18 @@ document.getElementById('replyArea').addEventListener('paste', function (e) {
                 if (data.url) {
                     const finalImage = `\n![imagen](${data.url})\n`;
                     textarea.value = textarea.value.replace(placeholder, finalImage);
+                    updatePreview();
                 }
             })
             .catch(err => {
                 textarea.value = textarea.value.replace(placeholder, "\n[Error al subir imagen]\n");
+                updatePreview();
             });
         }
     }
 });
+
+// Inicializar preview si hay texto
+updatePreview();
 </script>
 @endsection

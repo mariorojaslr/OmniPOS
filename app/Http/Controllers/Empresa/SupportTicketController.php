@@ -54,9 +54,11 @@ class SupportTicketController extends Controller
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
             
-            // Guardar en storage local
-            $path = $file->storeAs('public/tickets', $filename);
-            $url = asset('storage/tickets/' . $filename);
+            // Guardar en storage local (public disk)
+            $path = $file->storeAs('tickets', $filename, 'public');
+            
+            // Usar la ruta local.media para máxima compatibilidad en Hostinger
+            $url = route('local.media', ['path' => 'tickets/' . $filename]);
             
             return response()->json(['url' => $url]);
         }
