@@ -10,7 +10,7 @@
     {{-- ======================================================
         FAVICON MULTIPOS
     ====================================================== --}}
-    <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('favicon.png') }}" type="image/png">
 
     {{-- ======================================================
         BOOTSTRAP (solo GRID + UTILIDADES)
@@ -93,13 +93,11 @@
         }
 
         .auth-logo img {
-            max-width: 180px; /* Reducido un poquito para verse mejor proporcionado */
+            max-width: 280px;
             height: auto;
-            margin: 0 auto 25px auto; /* Asegurar centrado absoluto dentro del div */
+            margin: 0 auto 25px auto;
             display: block;
-            border-radius: 50%; /* Como la foto con fondo blanco tiene un círculo verde, esto cortará el cuadrado blanco extra de las esquinas */
-            background-color: #fff; /* En caso de que haya transparencias raras, mantener el fondo blanco solo dentro del círculo */
-            box-shadow: 0px 8px 25px rgba(0,0,0,0.5); /* Sombra mejorada para que resalte como bola de cristal */
+            filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.5));
         }
 
         .auth-title {
