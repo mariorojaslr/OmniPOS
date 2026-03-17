@@ -47,4 +47,20 @@ class SupportTicketController extends Controller
             ->findOrFail($id);
         return view('empresa.tickets.show', compact('ticket'));
     }
+
+    public function uploadMedia(Request $request)
+    {
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            
+            // Guardar en storage local
+            $path = $file->storeAs('public/tickets', $filename);
+            $url = asset('storage/tickets/' . $filename);
+            
+            return response()->json(['url' => $url]);
+        }
+        
+        return response()->json(['error' => 'No se recibió ninguna imagen'], 400);
+    }
 }

@@ -35,4 +35,20 @@ class SupportTicketController extends Controller
 
         return redirect()->route('owner.soporte.index')->with('success', 'Ticket actualizado.');
     }
+
+    public function uploadMedia(Request $request)
+    {
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            
+            // Guardar en storage local
+            $path = $file->storeAs('public/tickets', $filename);
+            $url = asset('storage/tickets/' . $filename);
+            
+            return response()->json(['url' => $url]);
+        }
+        
+        return response()->json(['error' => 'No se recibió ninguna imagen'], 400);
+    }
 }

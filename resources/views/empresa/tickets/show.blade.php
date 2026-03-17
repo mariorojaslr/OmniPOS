@@ -28,7 +28,7 @@
                 </div>
 
                 <h5 class="fw-bold text-dark">{{ $ticket->subject }}</h5>
-                <p class="text-secondary mt-3 lh-lg" style="white-space: pre-wrap;">{{ $ticket->message }}</p>
+                <div class="text-secondary mt-3 lh-lg" style="white-space: pre-wrap;">{!! preg_replace('/!\[.*?\]\((.*?)\)/', '<img src="$1" class="img-fluid rounded shadow-sm my-3 d-block" style="max-height: 500px">', e($ticket->message)) !!}</div>
 
                 <hr class="my-4 border-light">
 
@@ -54,7 +54,7 @@
                     <i class="me-2 text-success">👤</i> 
                     Respuesta del Equipo de Soporte Central
                 </h6>
-                <p class="mb-0 text-secondary lh-lg" style="white-space: pre-wrap;">{{ $ticket->respuesta_owner }}</p>
+                <div class="mb-0 text-secondary lh-lg" style="white-space: pre-wrap;">{!! preg_replace('/!\[.*?\]\((.*?)\)/', '<img src="$1" class="img-fluid rounded shadow-sm my-3 d-block" style="max-height: 500px">', e($ticket->respuesta_owner)) !!}</div>
                 <div class="mt-4 pt-4 border-top border-light text-end">
                     <small class="text-muted">Actualizado: {{ $ticket->updated_at->diffForHumans() }}</small>
                 </div>

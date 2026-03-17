@@ -27,7 +27,7 @@
                     </div>
 
                     <h5 class="fw-bold text-dark">{{ $ticket->subject }}</h5>
-                    <p class="text-secondary mt-3 lh-lg" style="white-space: pre-wrap;">{{ $ticket->message }}</p>
+                    <div class="text-secondary mt-3 lh-lg" style="white-space: pre-wrap;">{!! preg_replace('/!\[.*?\]\((.*?)\)/', '<img src="$1" class="img-fluid rounded shadow-sm my-3 d-block" style="max-height: 500px">', e($ticket->message)) !!}</div>
 
                     <hr class="my-4 text-muted">
 
@@ -47,7 +47,7 @@
             <div class="card shadow-sm border-0 rounded-4 border-start border-4 border-success bg-light">
                 <div class="card-body p-4">
                     <h6 class="fw-bold text-success mb-3"><i class="bi bi-headset me-2"></i>Respuesta de Soporte Técnico</h6>
-                    <p class="mb-0 text-secondary lh-lg" style="white-space: pre-wrap;">{{ $ticket->respuesta_owner }}</p>
+                    <div class="mb-0 text-secondary lh-lg" style="white-space: pre-wrap;">{!! preg_replace('/!\[.*?\]\((.*?)\)/', '<img src="$1" class="img-fluid rounded shadow-sm my-3 d-block" style="max-height: 500px">', e($ticket->respuesta_owner)) !!}</div>
                 </div>
             </div>
             @endif
@@ -75,7 +75,10 @@
 
                         <div class="mb-4">
                             <label class="form-label fw-bold text-secondary">Respuesta Oficial (Soporte)</label>
-                            <textarea name="respuesta_owner" class="form-control rounded-3 bg-light" rows="6" placeholder="Escribe aquí la respuesta oficial que verá el cliente..." required>{{ old('respuesta_owner', $ticket->respuesta_owner) }}</textarea>
+                            <textarea name="respuesta_owner" id="replyArea" class="form-control rounded-3 bg-light" rows="10" 
+                                      data-upload-url="{{ route('owner.soporte.uploadMedia') }}"
+                                      placeholder="Escribe la respuesta... ¡Puedes PEGAR imágenes (Ctrl+V)!" required>{{ old('respuesta_owner', $ticket->respuesta_owner) }}</textarea>
+                            <small class="text-muted mt-2 d-block">Pega capturas de pantalla directamente aquí para ayudar al cliente.</small>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
@@ -87,4 +90,42 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('replyArea').addEventListener('paste', function (e) {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let index in items) {
+        const item = items[index];
+        if (item.kind === 'file' && item.type.includes('image')) {
+            const blob = item.getAsFile();
+            const textarea = e.target;
+            
+            const cursorPosition = textarea.selectionStart;
+            const textBefore = textarea.value.substring(0, cursorPosition);
+            const textAfter = textarea.value.substring(cursorPosition);
+            const placeholder = "\n![Subiendo imagen...]()\n";
+            textarea.value = textBefore + placeholder + textAfter;
+
+            const formData = new FormData();
+            formData.append('image', blob);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            fetch(textarea.dataset.uploadUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.url) {
+                    const finalImage = `\n![imagen](${data.url})\n`;
+                    textarea.value = textarea.value.replace(placeholder, finalImage);
+                }
+            })
+            .catch(err => {
+                textarea.value = textarea.value.replace(placeholder, "\n[Error al subir imagen]\n");
+            });
+        }
+    }
+});
+</script>
 @endsection

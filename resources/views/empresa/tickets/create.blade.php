@@ -29,9 +29,11 @@
 
             <div class="mb-4">
                 <label class="form-label fw-bold">Detalles del problema *</label>
-                <textarea name="message" class="form-control rounded-3" rows="6" placeholder="Explica detalladamente qué estabas haciendo y qué error apareció..." required></textarea>
+                <textarea name="message" id="messageArea" class="form-control rounded-3" rows="8" 
+                          data-upload-url="{{ route('empresa.soporte.uploadMedia') }}"
+                          placeholder="Explica detalladamente... TIP: ¡Puedes PEGAR capturas de pantalla (Ctrl+V) aquí!" required></textarea>
                 <div class="form-text mt-2 text-muted">
-                    Cuanta más información nos proveas, más rápido podremos ayudarte.
+                    <i class="bi bi-info-circle me-1"></i> Puedes copiar una imagen y pegarla directamente en el cuadro de texto.
                 </div>
             </div>
 
@@ -47,4 +49,45 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.getElementById('messageArea').addEventListener('paste', function (e) {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let index in items) {
+        const item = items[index];
+        if (item.kind === 'file' && item.type.includes('image')) {
+            const blob = item.getAsFile();
+            const textarea = e.target;
+            
+            // Placeholder
+            const cursorPosition = textarea.selectionStart;
+            const textBefore = textarea.value.substring(0, cursorPosition);
+            const textAfter = textarea.value.substring(cursorPosition);
+            const placeholder = "\n![Subiendo imagen...]()\n";
+            textarea.value = textBefore + placeholder + textAfter;
+
+            const formData = new FormData();
+            formData.append('image', blob);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            fetch(textarea.dataset.uploadUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.url) {
+                    const finalImage = `\n![imagen](${data.url})\n`;
+                    textarea.value = textarea.value.replace(placeholder, finalImage);
+                }
+            })
+            .catch(err => {
+                textarea.value = textarea.value.replace(placeholder, "\n[Error al subir imagen]\n");
+            });
+        }
+    }
+});
+</script>
+@endpush
 @endsection
