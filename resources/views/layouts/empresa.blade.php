@@ -285,6 +285,10 @@ input, select, textarea{
 </li>
 
 <li class="nav-item">
+<a class="nav-link" href="{{ route('empresa.gastos.index') }}">Gastos</a>
+</li>
+
+<li class="nav-item">
 <a class="nav-link" href="{{ route('catalog.index', $empresa->id ?? 0) }}" target="_blank">
 Catálogo
 </a>

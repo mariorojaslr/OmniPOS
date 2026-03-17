@@ -35,6 +35,8 @@ use App\Http\Controllers\Empresa\PurchaseController;
 use App\Http\Controllers\Empresa\OrderController;
 use App\Http\Controllers\Empresa\RubroController;
 use App\Http\Controllers\Empresa\BulkPriceUpdateController;
+use App\Http\Controllers\Empresa\ExpenseController;
+use App\Http\Controllers\Empresa\ExpenseCategoryController;
 
 // ================= AUTH =================
 use App\Http\Controllers\Auth\PasswordController;
@@ -148,6 +150,15 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      |--------------------------------------------------------------------------
      */
         Route::resource('proveedores', SupplierController::class)->except(['destroy']);
+
+        /*
+      |--------------------------------------------------------------------------
+      | GASTOS / EGRESOS
+      |--------------------------------------------------------------------------
+     */
+        Route::resource('gastos', ExpenseController::class)->names('gastos');
+        Route::post('gastos/upload-media', [ExpenseController::class, 'uploadMedia'])->name('gastos.uploadMedia');
+        Route::resource('gastos-categorias', ExpenseCategoryController::class)->names('gastos_categorias');
 
         /*
      |--------------------------------------------------------------------------
