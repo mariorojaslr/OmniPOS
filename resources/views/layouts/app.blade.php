@@ -114,7 +114,7 @@
     <div class="container">
 
         <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ route('empresa.dashboard') }}">
-            <img src="{{ asset('images/favicon.png') }}" alt="Logo" style="height:35px; width:auto; border-radius: 6px;" class="me-2 shadow">
+            <img src="{{ asset('images/logo_premium.png') }}" alt="Logo" style="height:40px; width:auto; border-radius: 10px;" class="me-2 shadow">
             MultiPOS Central
         </a>
 

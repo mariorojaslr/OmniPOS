@@ -25,7 +25,7 @@ class EmpresaConfig extends Model
     public function getLogoUrlAttribute()
     {
         if (!$this->logo) {
-            return asset('images/no-logo.png');
+            return asset('images/logo_premium.png');
         }
 
         // Si ya es una URL absoluta, la devolvemos
