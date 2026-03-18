@@ -145,11 +145,12 @@ class OrderController extends Controller
         $empresa = auth()->user()->empresa;
 
         // Generar QR (usando un servicio online simple por ahora para evitar dependencias pesadas si no están instaladas)
-        // URL de control interna o simplemente el ID del pedido
+        // Usamos QRServer que es más confiable que Google Charts (deprecated)
         $qrData = route('empresa.orders.show', $order->id);
-        $qrUrl = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" . urlencode($qrData) . "&choe=UTF-8";
+        $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . urlencode($qrData);
 
         $pdf = Pdf::loadView('pdf.order_label', compact('order', 'empresa', 'qrUrl'))
+                  ->setOptions(['isRemoteEnabled' => true, 'chroot' => public_path()])
                   ->setPaper([0, 0, 283.46, 283.46]); // 10x10cm aprox
 
         return $pdf->stream("etiqueta-pedido-{$order->id}.pdf");
