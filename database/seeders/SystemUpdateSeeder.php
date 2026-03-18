@@ -83,5 +83,14 @@ class SystemUpdateSeeder extends Seeder
                 'description' => 'Optimizamos la servidura de medios locales para asegurar que tu logo y colores corporativos se visualicen perfectamente en el Dashboard y configuración, incluso en entornos con restricciones técnicas.',
             ]
         );
+
+        \App\Models\SystemUpdate::updateOrCreate(
+            ['title' => 'Optimización de Logística: Etiquetas QR'],
+            [
+                'publish_date' => '2026-03-18',
+                'type' => 'arreglo',
+                'description' => 'Hemos corregido la generación de códigos QR en las etiquetas de envío (cajas). Ahora el sistema utiliza una API dedicada para garantizar que el QR esté siempre visible y listo para ser escaneado por el control interno.',
+            ]
+        );
     }
 }
