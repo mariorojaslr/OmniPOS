@@ -33,7 +33,7 @@ class EmpresaConfig extends Model
             return $this->logo;
         }
 
-        // Soportamos configuración vía config/services.php
+        // Soportamos configuración vía config/services.php (BunnyCDN)
         $bunnyUrl = config('services.bunny.url');
         $useBunny = config('services.bunny.enabled');
 
@@ -41,7 +41,8 @@ class EmpresaConfig extends Model
             return rtrim($bunnyUrl, '/') . '/' . ltrim($this->logo, '/');
         }
 
-        return route('local.media', ['path' => ltrim($this->logo, '/')]);
+        // Para evitar problemas con APP_URL en .env incorrecto en Hostinger, usamos ruta relativa a la raíz
+        return '/local-media/' . ltrim($this->logo, '/');
     }
 
     public function empresa()

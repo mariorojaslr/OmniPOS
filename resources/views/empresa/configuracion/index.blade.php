@@ -43,7 +43,7 @@
                                 <label class="form-label fw-bold">Logo de Empresa</label>
                                 <div class="border rounded-4 p-4 mb-3 bg-light d-flex align-items-center justify-content-center shadow-inner" style="height: 180px;">
                                     @if($config && $config->logo)
-                                        <img src="{{ asset('storage/'.$config->logo) }}" class="img-fluid rounded shadow-sm" style="max-height:140px">
+                                        <img src="{{ $config->logo_url }}" class="img-fluid rounded shadow-sm" style="max-height:140px">
                                     @else
                                         <div class="text-muted"><i class="bi bi-image h1"></i><br>Sin logo cargado</div>
                                     @endif

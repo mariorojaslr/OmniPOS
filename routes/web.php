@@ -321,7 +321,8 @@ Route::get('/local-media/{path}', function ($path) {
         abort(404);
     }
 
-    $fullPath = storage_path('app/public/' . $path);
+    $fullPath = storage_path('app/public/' . ltrim($path, '/'));
+
     if (!file_exists($fullPath)) {
         // Si no existe lo que pide, mandamos el logo por defecto para que no se vea feo
         $defaultPath = public_path('images/logo_premium.png');
@@ -331,6 +332,23 @@ Route::get('/local-media/{path}', function ($path) {
         abort(404);
     }
 
-    $mimeType = mime_content_type($fullPath);
-    return response()->file($fullPath, ['Content-Type' => $mimeType]);
+    // Usamos una detección de MIME más robusta (no depende de extensiones de PHP que pueden faltar)
+    $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+    $mimes = [
+        'png'  => 'image/png',
+        'jpg'  => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif'  => 'image/gif',
+        'svg'  => 'image/svg+xml',
+        'webp' => 'image/webp'
+    ];
+    $contentType = $mimes[$extension] ?? 'image/png';
+
+    // Desactivamos caché para evitar ver logos viejos tras subir uno nuevo
+    return response()->file($fullPath, [
+        'Content-Type' => $contentType,
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'Pragma' => 'no-cache',
+        'Expires' => '0'
+    ]);
 })->where('path', '.*')->name('local.media');
