@@ -218,6 +218,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/reportes/ranking-productos', [ReporteController::class , 'rankingProductos'])->name('reportes.productos');
         Route::get('/reportes/ranking-clientes', [ReporteController::class , 'rankingClientes'])->name('reportes.clientes');
         Route::get('/reportes/ventas-fecha', [ReporteController::class , 'ventasPorFecha'])->name('reportes.ventas_fecha');
+        Route::get('/reportes/ventas-fecha-detalle', [ReporteController::class , 'ventasDetallePorFecha'])->name('reportes.ventas_detalle');
         Route::get('/reportes/empresa', [ReporteController::class , 'empresa'])->name('reportes.empresa');
         Route::get('/reportes/export/pdf', [ReporteController::class , 'exportPdf'])->name('reportes.export.pdf');
         Route::get('/reportes/export/excel', [ReporteController::class , 'exportExcel'])->name('reportes.export.excel');

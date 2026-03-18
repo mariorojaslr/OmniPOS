@@ -53,32 +53,51 @@ class ConfiguracionEmpresaController extends Controller
                 'logo'            => 'nullable|image|max:2048',
                 'dias_nuevo'      => 'nullable|integer|min:1|max:365',
                 
-                // Fiscales
-                'cuit'                 => 'nullable|string|max:20',
+                // Fiscales / ARCA
+                'arca_cuit'            => 'nullable|string|max:20',
                 'condicion_iva'        => 'nullable|string|max:100',
                 'iibb'                 => 'nullable|string|max:50',
-                'punto_venta'          => 'nullable|integer',
+                'arca_punto_venta'     => 'nullable|integer',
                 'proximo_numero_factura' => 'nullable|integer|min:1',
                 'direccion_fiscal'     => 'nullable|string|max:255',
                 'dia_cierre_periodo'   => 'nullable|integer|min:0|max:31',
+                'arca_ambiente'        => 'nullable|string|in:homologacion,produccion',
+                'arca_certificado'     => 'nullable|file|max:2048',
+                'arca_llave'           => 'nullable|file|max:2048',
+                
                 'pasarelas'            => 'nullable|array',
             ]);
 
             /*
             |--------------------------------------------------------------------------
-            | ACTUALIZAR EMPRESA (FISCAL)
+            | MANEJO DE ARCHIVOS (Certificados ARCA)
             |--------------------------------------------------------------------------
             */
-            $empresa->update([
-                'cuit'               => $request->cuit,
+            $updateData = [
+                'arca_cuit'          => $request->arca_cuit,
                 'condicion_iva'      => $request->condicion_iva,
                 'iibb'               => $request->iibb,
-                'punto_venta'        => $request->punto_venta ?? 1,
+                'arca_punto_venta'   => $request->arca_punto_venta ?? 1,
                 'proximo_numero_factura' => $request->proximo_numero_factura ?? 1,
                 'direccion_fiscal'   => $request->direccion_fiscal,
                 'dia_cierre_periodo' => $request->dia_cierre_periodo ?? 0,
+                'arca_ambiente'      => $request->arca_ambiente ?? 'homologacion',
                 'config_pasarelas'   => $request->pasarelas ?? [],
-            ]);
+            ];
+
+            if ($request->hasFile('arca_certificado')) {
+                $updateData['arca_certificado'] = $request->file('arca_certificado')->store('certificates', 'local');
+            }
+            if ($request->hasFile('arca_llave')) {
+                $updateData['arca_llave'] = $request->file('arca_llave')->store('certificates', 'local');
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTUALIZAR EMPRESA
+            |--------------------------------------------------------------------------
+            */
+            $empresa->update($updateData);
 
             /*
             |--------------------------------------------------------------------------

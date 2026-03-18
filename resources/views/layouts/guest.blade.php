@@ -98,6 +98,7 @@
             margin: 0 auto 25px auto;
             display: block;
             filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.5));
+            border-radius: 12px;
         }
 
         .auth-title {

@@ -38,6 +38,12 @@ class Empresa extends Model
         'direccion_fiscal',
         'dia_cierre_periodo',
         'config_pasarelas',
+        // ARCA (AFIP)
+        'arca_cuit',
+        'arca_punto_venta',
+        'arca_certificado',
+        'arca_llave',
+        'arca_ambiente',
     ];
 
     /**

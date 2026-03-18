@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Empresa;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ArrayExport;
@@ -72,6 +73,25 @@ class ReporteController extends Controller
             ->get();
 
         return view('empresa.reportes.ventas_fecha', compact('ventas'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DETALLE DE VENTAS POR FECHA (AJAX)
+    |--------------------------------------------------------------------------
+    */
+    public function ventasDetallePorFecha(Request $request)
+    {
+        $fecha = $request->get('fecha');
+        $empresaId = auth()->user()->empresa_id;
+
+        $ventas = \App\Models\Venta::with(['items', 'user'])
+            ->where('empresa_id', $empresaId)
+            ->whereDate('created_at', $fecha)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('empresa.reportes._ventas_detalle_partial', compact('ventas', 'fecha'));
     }
 
     /*

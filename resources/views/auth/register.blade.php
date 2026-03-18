@@ -8,7 +8,7 @@
 
         {{-- LOGO MULTIPOS --}}
         <div class="auth-logo">
-            <img src="{{ asset('images/promo/logo_principal.png') }}" alt="MultiPOS Logo">
+            <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS Logo">
         </div>
 
         <h4 class="auth-title">Crear cuenta</h4>

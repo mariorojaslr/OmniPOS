@@ -12,9 +12,9 @@
 
     <!-- Sidebar -->
     <aside class="w-64 bg-white shadow-lg hidden md:flex flex-col">
-        <div class="p-6 text-xl font-bold border-b">
-            MultiPOS
-            <span class="block text-sm font-normal text-gray-400">Owner Panel</span>
+        <div class="p-6 border-b text-center">
+            <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS Logo" class="mx-auto mb-2" style="max-height: 40px;">
+            <span class="block text-xs font-normal text-gray-400 uppercase tracking-wider">Owner Control Center</span>
         </div>
 
         <nav class="flex-1 p-4 space-y-2">

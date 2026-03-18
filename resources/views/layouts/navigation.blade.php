@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <span class="font-bold text-xl">MultiPOS</span>
+                        <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS" style="height: 38px;">
                     </a>
                 </div>
 
