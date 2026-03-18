@@ -346,4 +346,28 @@ class PurchaseController extends Controller
 
         return view('empresa.purchases.show', compact('purchase'));
     }
+
+    /* =========================================================
+       API — OBTENER ÚLTIMO PRECIO DE COMPRA
+       Para contraste en Nueva Compra
+    ========================================================= */
+    public function getLastPrice($productId, $variantId = null)
+    {
+        $empresaId = auth()->user()->empresa_id;
+
+        $lastItem = PurchaseItem::where('empresa_id', $empresaId)
+            ->where('product_id', $productId);
+
+        if ($variantId && $variantId !== 'null') {
+            $lastItem->where('variant_id', $variantId);
+        } else {
+            $lastItem->whereNull('variant_id');
+        }
+
+        $lastItem = $lastItem->orderByDesc('id')->first();
+
+        return response()->json([
+            'cost' => $lastItem ? (float) $lastItem->cost : 0
+        ]);
+    }
 }

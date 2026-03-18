@@ -11,17 +11,18 @@
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             font-size: 10px;
-            color: #333;
-            line-height: 1.4;
+            color: #222;
+            line-height: 1.5;
             background: #fff;
         }
 
         /* ====== CABECERA PREMIUM ====== */
         .header-box {
             width: 100%;
-            border: 0.5pt solid #333;
-            margin-bottom: 15px;
+            border: 0.6pt solid #222;
+            margin-bottom: 20px;
             position: relative;
+            background: #fff;
         }
 
         .header-left {
@@ -33,41 +34,41 @@
         .header-divider {
             position: absolute;
             left: 50%;
-            top: 50px; /* Debajo del cubo de la X */
+            top: 45px; /* Justo debajo del cuadro X */
             bottom: 0px;
-            width: 0.5pt;
-            background: #333;
+            width: 0.6pt;
+            background: #222;
         }
 
-        /* EL CUADRO DE LA X */
+        /* CUADRO X - DOBLE BORDÉ DISEÑO */
         .letter-container {
             position: absolute;
             left: 50%;
             top: -1px;
-            margin-left: -22.5px; /* (45/2) */
-            width: 45px;
-            height: 50px;
-            border: 0.5pt solid #333;
+            margin-left: -20px;
+            width: 40px;
+            height: 45px;
+            border: 0.6pt solid #222;
             background: #fff;
             text-align: center;
-            z-index: 100;
+            z-index: 200;
         }
 
         .letter-container .letter {
-            font-size: 26px;
-            font-weight: bold;
-            margin-top: 2px;
+            font-size: 28px;
+            font-weight: 900;
+            line-height: 32px;
             display: block;
             color: #000;
         }
 
         .letter-container .sub-text {
-            font-size: 5px;
-            line-height: 1.1;
-            font-weight: bold;
-            padding: 0 2px;
+            font-size: 4.5px;
+            line-height: 1;
+            font-weight: 900;
             display: block;
             text-transform: uppercase;
+            margin-top: -2px;
         }
 
         .header-right {
@@ -78,50 +79,50 @@
         }
 
         .logo {
-            max-width: 180px;
-            max-height: 60px;
-            margin-bottom: 8px;
+            max-width: 160px;
+            max-height: 55px;
+            margin-bottom: 10px;
         }
 
         .company-name {
             font-size: 18px;
             font-weight: 800;
             color: #000;
-            display: block;
-            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+            margin-bottom: 2px;
         }
 
         .company-info {
             font-size: 9px;
-            color: #555;
+            color: #444;
+            line-height: 1.3;
         }
 
         .comp-title {
             font-size: 22px;
-            font-weight: 800;
+            font-weight: 900;
             margin-bottom: 2px;
-            color: #000;
+            color: #111;
             letter-spacing: 1px;
         }
 
         .comp-number {
             font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-weight: 700;
             color: #333;
         }
 
-        /* ====== IDENTIFICACIÓN CLIENTE ====== */
+        /* ====== CLIENTE / DATOS ====== */
         .data-box {
             width: 100%;
-            border: 0.5pt solid #333;
-            margin-bottom: 15px;
+            border: 0.6pt solid #222;
+            margin-bottom: 20px;
             background: #fdfdfd;
         }
 
         .data-row {
             width: 100%;
-            border-bottom: 0.5pt solid #eee;
+            border-bottom: 0.6pt solid #eee;
             clear: both;
         }
 
@@ -132,7 +133,7 @@
         .data-col {
             padding: 8px 12px;
             float: left;
-            border-right: 0.5pt solid #eee;
+            border-right: 0.6pt solid #eee;
         }
 
         .data-col:last-child {
@@ -140,8 +141,8 @@
         }
 
         .label {
-            font-weight: bold;
-            color: #888;
+            font-weight: 800;
+            color: #777;
             font-size: 8px;
             text-transform: uppercase;
             display: block;
@@ -151,30 +152,26 @@
         .val {
             font-size: 11px;
             color: #000;
-            font-weight: 500;
+            font-weight: 600;
         }
 
-        /* ====== TABLA DE PRODUCTOS ====== */
-        .items-container {
-             width: 100%;
-             margin-bottom: 20px;
-        }
-
+        /* ====== TABLA PRODUCTOS ====== */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            border: 0.5pt solid #333;
+            border: 0.6pt solid #222;
+            margin-bottom: 25px;
             table-layout: fixed;
         }
 
         .items-table th {
-            background: #333;
+            background: #111;
             color: #fff;
-            padding: 10px 6px;
+            padding: 10px 8px;
             text-align: center;
-            font-weight: bold;
+            font-weight: 800;
             font-size: 9px;
-            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .items-table td {
@@ -185,64 +182,42 @@
         }
 
         .items-table tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #f8f9fa;
         }
 
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-
-        /* ====== FOOTER / TOTALES ====== */
-        .footer-section {
-            width: 100%;
-        }
-
-        .obs-box {
-            width: 58%;
-            border: 0.5pt solid #333;
-            padding: 12px;
-            min-height: 80px;
-            float: left;
-            font-size: 9px;
-        }
-
+        /* ====== TOTALS ====== */
         .totals-box {
-            width: 40%;
-            border: 0.5pt solid #333;
+            width: 38%;
+            border: 0.6pt solid #222;
             float: right;
-            background: #fff;
         }
 
         .total-item {
             padding: 8px 12px;
-            border-bottom: 0.5pt solid #eee;
+            border-bottom: 0.6pt solid #eee;
             clear: both;
-        }
-
-        .total-item:last-child {
-            border-bottom: none;
         }
 
         .total-item-label {
             float: left;
-            font-weight: bold;
-            color: #666;
-            text-transform: uppercase;
+            font-weight: 700;
             font-size: 9px;
+            color: #555;
+            text-transform: uppercase;
         }
 
         .total-item-val {
             float: right;
-            font-weight: bold;
-            color: #000;
-            font-size: 11px;
+            font-weight: 800;
+            font-size: 12px;
         }
 
         .grand-total {
-            background: #333;
+            background: #111;
             color: #fff;
             padding: 12px;
         }
-        
+
         .grand-total .total-item-label, .grand-total .total-item-val {
             color: #fff;
             font-size: 16px;
@@ -253,10 +228,11 @@
         .footer-legal {
             text-align: center;
             font-size: 9px;
-            color: #aaa;
-            margin-top: 40px;
-            border-top: 0.5pt solid #eee;
+            color: #999;
+            margin-top: 50px;
+            border-top: 0.6pt solid #eee;
             padding-top: 15px;
+            font-style: italic;
         }
     </style>
 </head>
@@ -267,15 +243,18 @@
             @php
                 $logoPath = '';
                 if ($empresa->config && $empresa->config->logo) {
-                    // Intentamos con storage_path para máxima compatibilidad con DomPDF
-                    $logoPath = storage_path('app/public/' . $empresa->config->logo);
-                    if (!file_exists($logoPath)) {
-                        $logoPath = '';
+                    $possible = storage_path('app/public/' . $empresa->config->logo);
+                    if (file_exists($possible)) {
+                        $logoPath = $possible;
                     }
+                }
+                // Si no hay logo de empresa, usamos el premium del sistema por defecto
+                if (!$logoPath) {
+                    $logoPath = public_path('images/logo_premium.png');
                 }
             @endphp
 
-            @if($logoPath)
+            @if($logoPath && file_exists($logoPath))
                 <img src="{{ $logoPath }}" class="logo">
             @else
                 <span class="company-name">{{ strtoupper($empresa->nombre_comercial) }}</span>

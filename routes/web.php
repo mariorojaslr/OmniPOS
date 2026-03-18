@@ -172,6 +172,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('/compras', [PurchaseController::class , 'store'])->name('compras.store');
         Route::get('/compras/{purchase}', [PurchaseController::class , 'show'])->name('compras.show');
         Route::delete('/compras/{purchase}', [PurchaseController::class , 'destroy'])->name('compras.destroy');
+        Route::get('/compras/ultimo-precio/{product}/{variant?}', [PurchaseController::class, 'getLastPrice'])->name('compras.ultimo_precio');
 
         /*
      |--------------------------------------------------------------------------
@@ -318,6 +319,11 @@ Route::get('/local-media/{path}', function ($path) {
 
     $fullPath = storage_path('app/public/' . $path);
     if (!file_exists($fullPath)) {
+        // Si no existe lo que pide, mandamos el logo por defecto para que no se vea feo
+        $defaultPath = public_path('images/logo_premium.png');
+        if (file_exists($defaultPath)) {
+            return response()->file($defaultPath, ['Content-Type' => 'image/png']);
+        }
         abort(404);
     }
 

@@ -77,12 +77,13 @@
             <thead class="table-light text-center">
                 <tr>
                     <th>Producto</th>
-                    <th width="90">Cantidad</th>
-                    <th width="140">Precio s/IVA</th>
-                    <th width="110">IVA</th>
-                    <th width="140">Precio c/IVA</th>
-                    <th width="140">Total</th>
-                    <th width="60"></th>
+                    <th width="120">Últ. Compra</th>
+                    <th width="80">Cantidad</th>
+                    <th width="110">Precio s/IVA</th>
+                    <th width="80">IVA</th>
+                    <th width="110">Precio c/IVA</th>
+                    <th width="100">Total</th>
+                    <th width="50"></th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -218,14 +219,19 @@ function agregarFila(){
             </select>
             <div class="variant-wrapper mt-2" style="display:none;" id="variant_wrapper_${index}">
                 <label class="small fw-bold">Variante (Talle/Color):</label>
-                <select name="items[${index}][variant_id]" class="form-select form-select-sm variant-select" id="variant_select_${index}">
+                <select name="items[${index}][variant_id]" class="form-select form-select-sm variant-select" id="variant_select_${index}" onchange="updateLastPrice(${index})">
                     <option value="">Seleccionar variante</option>
                 </select>
             </div>
         </td>
 
+        <td class="text-center align-middle">
+            <span id="last_price_disp_${index}" class="fw-bold text-muted">—</span>
+            <input type="hidden" id="last_price_val_${index}" value="0">
+        </td>
+
         <td>
-            <input type="number" min="1"
+            <input type="number" min="1" step="0.01"
                    name="items[${index}][quantity]"
                    class="form-control text-end cantidad"
                    value="1">
@@ -235,6 +241,7 @@ function agregarFila(){
             <input type="text"
                    name="items[${index}][price_sin_iva]"
                    class="form-control precioSinIva text-end">
+            <div id="diff_pct_${index}" class="small text-center mt-1 fw-bold" style="display:none;"></div>
         </td>
 
         <td class="text-end align-middle">
@@ -259,11 +266,49 @@ function agregarFila(){
     `;
 
     tbody.appendChild(row);
-    index++;
 
-    row.querySelector(".precioSinIva").addEventListener("blur",()=>calcularDesdeBase(row));
-    row.querySelector(".precioConIva").addEventListener("blur",()=>calcularDesdeFinal(row));
+    const currentIndex = index; // Para closures
+    row.querySelector(".precioSinIva").addEventListener("blur",()=> {
+        calcularDesdeBase(row, currentIndex);
+    });
+    row.querySelector(".precioConIva").addEventListener("blur",()=> {
+        calcularDesdeFinal(row, currentIndex);
+    });
     row.querySelector(".cantidad").addEventListener("input",()=>recalcularFila(row));
+
+    index++;
+}
+
+async function updateLastPrice(idx){
+    const row = document.querySelector(`#tablaItems tbody tr:nth-child(${(idx+1)})`); // Cuidado si borran filas, esto es frágil.
+    // Buscamos mejor por los selectores internos si el IDX cambia, pero index siempre crece.
+
+    const pSelect = document.querySelectorAll('.product-select')[idx];
+    const vSelect = document.querySelectorAll('.variant-select')[idx];
+
+    const pId = pSelect.value;
+    const vId = vSelect ? vSelect.value : null;
+
+    if(!pId) return;
+
+    try {
+        const url = `/empresa/compras/ultimo-precio/${pId}${vId && vId != "" ? "/"+vId : ""}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const cost = data.cost || 0;
+        document.getElementById(`last_price_disp_${idx}`).innerText = cost > 0 ? '$ ' + formatNumero(cost) : '—';
+        document.getElementById(`last_price_val_${idx}`).value = cost;
+
+        // Si ya hay un precio puesto, recalcular diferencia
+        const inputBase = document.querySelectorAll('.precioSinIva')[idx];
+        if(inputBase.value){
+             calcularDesdeBase(inputBase.closest('tr'), idx);
+        }
+
+    } catch(e) {
+        console.error("Error fetching last price", e);
+    }
 }
 
 function handleProductChange(select, idx){
@@ -271,12 +316,15 @@ function handleProductChange(select, idx){
     const wrapper = document.getElementById(`variant_wrapper_${idx}`);
     const vSelect = document.getElementById(`variant_select_${idx}`);
 
-    // Reset
     vSelect.innerHTML = '<option value="">Seleccionar variante</option>';
     wrapper.style.display = 'none';
     vSelect.required = false;
 
-    if(!productId) return;
+    if(!productId) {
+        document.getElementById(`last_price_disp_${idx}`).innerText = '—';
+        document.getElementById(`last_price_val_${idx}`).value = 0;
+        return;
+    }
 
     const product = products.find(p => p.id == productId);
     if(product && product.has_variants && product.variants.length > 0){
@@ -288,10 +336,12 @@ function handleProductChange(select, idx){
             opt.innerText = `${v.size} / ${v.color} (Stock: ${v.stock})`;
             vSelect.appendChild(opt);
         });
+    } else {
+        updateLastPrice(idx);
     }
 }
 
-function calcularDesdeBase(row){
+function calcularDesdeBase(row, idx){
     const base = parseNumero(row.querySelector(".precioSinIva").value);
     if(base <= 0) return;
 
@@ -303,10 +353,29 @@ function calcularDesdeBase(row){
     row.querySelector(".ivaCol").innerText = formatNumero(iva);
     row.querySelector(".ivaInput").value = iva.toFixed(6);
 
+    // Comparativa con último precio
+    const lastPrice = parseFloat(document.getElementById(`last_price_val_${idx}`).value);
+    const diffContainer = document.getElementById(`diff_pct_${idx}`);
+
+    if(lastPrice > 0){
+        const diff = ((base - lastPrice) / lastPrice) * 100;
+        diffContainer.style.display = 'block';
+
+        if(diff > 0){
+             diffContainer.innerHTML = `<span class="text-danger">🔼 ${diff.toFixed(1)}%</span>`;
+        } else if(diff < 0){
+             diffContainer.innerHTML = `<span class="text-success">🔽 ${Math.abs(diff).toFixed(1)}%</span>`;
+        } else {
+             diffContainer.innerHTML = `<span class="text-muted">No varió</span>`;
+        }
+    } else {
+        diffContainer.style.display = 'none';
+    }
+
     recalcularFila(row);
 }
 
-function calcularDesdeFinal(row){
+function calcularDesdeFinal(row, idx){
     const final = parseNumero(row.querySelector(".precioConIva").value);
     if(final <= 0) return;
 
@@ -317,6 +386,25 @@ function calcularDesdeFinal(row){
     row.querySelector(".precioConIva").value = formatNumero(final);
     row.querySelector(".ivaCol").innerText = formatNumero(iva);
     row.querySelector(".ivaInput").value = iva.toFixed(6);
+
+    // Comparativa con último precio
+    const lastPrice = parseFloat(document.getElementById(`last_price_val_${idx}`).value);
+    const diffContainer = document.getElementById(`diff_pct_${idx}`);
+
+    if(lastPrice > 0){
+        const diff = ((base - lastPrice) / lastPrice) * 100;
+        diffContainer.style.display = 'block';
+
+        if(diff > 0){
+             diffContainer.innerHTML = `<span class="text-danger">🔼 ${diff.toFixed(1)}%</span>`;
+        } else if(diff < 0){
+             diffContainer.innerHTML = `<span class="text-success">🔽 ${Math.abs(diff).toFixed(1)}%</span>`;
+        } else {
+             diffContainer.innerHTML = `<span class="text-muted">No varió</span>`;
+        }
+    } else {
+        diffContainer.style.display = 'none';
+    }
 
     recalcularFila(row);
 }
