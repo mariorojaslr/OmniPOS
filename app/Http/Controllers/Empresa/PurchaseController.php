@@ -348,6 +348,42 @@ class PurchaseController extends Controller
     }
 
     /* =========================================================
+       EDITAR DATOS CABECERA 
+    ========================================================= */
+    public function edit($id)
+    {
+        $empresaId = auth()->user()->empresa_id;
+
+        $purchase = Purchase::where('empresa_id', $empresaId)->findOrFail($id);
+        $suppliers = Supplier::where('empresa_id', $empresaId)->get();
+
+        return view('empresa.purchases.edit', compact('purchase','suppliers'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $purchase  = Purchase::where('empresa_id', $empresaId)->findOrFail($id);
+
+        $request->validate([
+            'supplier_id' => 'required',
+            'purchase_date' => 'required|date',
+        ]);
+
+        // Actualizamos los datos básicos (según pedido del usuario)
+        $purchase->update([
+            'supplier_id'    => $request->supplier_id,
+            'purchase_date'  => $request->purchase_date,
+            'invoice_type'   => $request->invoice_type,
+            'invoice_number' => $request->invoice_number,
+        ]);
+
+        return redirect()
+            ->route('empresa.compras.index')
+            ->with('success', 'Comprobante actualizado correctamente. Los totales y stock permanecen inalterados.');
+    }
+
+    /* =========================================================
        API — OBTENER ÚLTIMO PRECIO DE COMPRA
        Para contraste en Nueva Compra
     ========================================================= */

@@ -11,9 +11,14 @@
         <small class="text-muted">Factura registrada</small>
     </div>
 
-    <a href="{{ route('empresa.compras.index') }}" class="btn btn-secondary">
-        Volver
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('empresa.compras.edit', $purchase->id) }}" class="btn btn-outline-secondary">
+            Editar Comprobante
+        </a>
+        <a href="{{ route('empresa.compras.index') }}" class="btn btn-secondary">
+            Volver
+        </a>
+    </div>
 </div>
 
 

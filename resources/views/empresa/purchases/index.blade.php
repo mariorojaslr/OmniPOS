@@ -205,24 +205,15 @@
                     </td>
 
                     <td class="d-flex gap-2">
-
                         <a href="{{ route('empresa.compras.show', $purchase->id) }}"
-                           class="btn btn-sm btn-outline-primary">
+                           class="btn btn-sm btn-outline-primary shadow-sm">
                            Ver
                         </a>
 
-                        <form method="POST"
-                              action="{{ route('empresa.compras.destroy', $purchase->id) }}"
-                              onsubmit="return confirm('¿Eliminar esta compra y revertir stock/pago?');">
-
-                            @csrf
-                            @method('DELETE')
-
-                            <button class="btn btn-sm btn-outline-danger">
-                                Borrar
-                            </button>
-                        </form>
-
+                        <a href="{{ route('empresa.compras.edit', $purchase->id) }}"
+                           class="btn btn-sm btn-outline-secondary shadow-sm">
+                           Editar
+                        </a>
                     </td>
 
                 </tr>

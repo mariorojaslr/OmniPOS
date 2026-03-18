@@ -260,4 +260,22 @@ class SupplierController extends Controller
             ->route('empresa.proveedores.index')
             ->with('success', 'Proveedor eliminado correctamente.');
     }
+
+    /* =========================================================
+       REGISTRAR PAGO MANUAL (CUENTA CORRIENTE)
+    ========================================================= */
+    public function recordPayment(Request $request, $id)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $supplier = Supplier::where('empresa_id', $empresaId)->findOrFail($id);
+
+        $request->validate([
+            'amount'      => 'required|numeric|min:0.01',
+            'description' => 'required|string|max:255',
+        ]);
+
+        $supplier->registrarPago($request->amount, $request->description);
+
+        return back()->with('success', 'Pago registrado correctamente en la cuenta corriente.');
+    }
 }

@@ -171,8 +171,12 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/compras/create', [PurchaseController::class , 'create'])->name('compras.create');
         Route::post('/compras', [PurchaseController::class , 'store'])->name('compras.store');
         Route::get('/compras/{purchase}', [PurchaseController::class , 'show'])->name('compras.show');
+        Route::get('/compras/{purchase}/edit', [PurchaseController::class , 'edit'])->name('compras.edit');
+        Route::put('/compras/{purchase}', [PurchaseController::class , 'update'])->name('compras.update');
         Route::delete('/compras/{purchase}', [PurchaseController::class , 'destroy'])->name('compras.destroy');
         Route::get('/compras/ultimo-precio/{product}/{variant?}', [PurchaseController::class, 'getLastPrice'])->name('compras.ultimo_precio');
+
+        Route::post('/proveedores/{supplier}/pago', [SupplierController::class, 'recordPayment'])->name('proveedores.pago');
 
         /*
      |--------------------------------------------------------------------------
