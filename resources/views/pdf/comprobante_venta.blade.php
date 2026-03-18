@@ -4,47 +4,44 @@
     <meta charset="utf-8">
     <title>Comprobante Nº {{ $venta->numero_comprobante }}</title>
     <style>
-        @page { margin: 0; }
+        @page { 
+            margin: 1cm; 
+            size: A4;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
             font-family: 'Helvetica', 'Arial', sans-serif; 
-            font-size: 9pt; 
+            font-size: 8.5pt; 
             line-height: 1.1; 
             color: #000; 
             background: #fff;
-            padding: 1cm; /* Aire de 1cm a la vuelta requested by USER */
         }
 
         .clearfix { clear: both; }
 
-        /* BORDE EXTERIOR OPCIONAL SI SE QUIERE ENCERRAR TODO COMO EN LAS IMAGENES */
-        .main-container {
-            width: 100%;
-            /* border: 1pt solid #000; */ /* Si quieres un borde a todo el documento descomenta esto */
-        }
-
         /* HEADER BOX */
         .header-box { 
             width: 100%; 
-            border: 1pt solid #000; 
+            border: 0.8pt solid #000; 
             position: relative; 
-            min-height: 160px; 
+            min-height: 140px; 
         }
 
         .header-left { 
             width: 50%; 
             float: left; 
-            padding: 15px 20px; 
+            padding: 10px 15px; 
+            text-align: left;
         }
 
         .header-right { 
             width: 50%; 
             float: right; 
-            padding: 15px 20px; 
+            padding: 10px 15px; 
             text-align: left; 
-            border-left: 1pt solid #000;
-            min-height: 160px;
+            border-left: 0.8pt solid #000;
+            min-height: 140px;
         }
         
         /* CUADRO LETRA CENTRAL */
@@ -52,122 +49,136 @@
             position: absolute;
             left: 50%;
             top: -1px;
-            margin-left: -30px;
-            width: 60px;
-            height: 55px;
-            border: 1pt solid #000;
+            margin-left: -20px;
+            width: 40px;
+            height: 40px;
+            border: 0.8pt solid #000;
             border-top: none;
             background: #fff;
             text-align: center;
             z-index: 100;
         }
-        .letter-container .letter { font-size: 32pt; font-weight: bold; display: block; line-height: 38px; margin-top: 2px; }
-        .letter-container .cod { font-size: 7.5pt; display: block; margin-top: 1px; font-weight: bold; }
+        .letter-container .letter { 
+            font-size: 24pt; 
+            font-weight: bold; 
+            display: block; 
+            line-height: 1; 
+            margin-top: 2px;
+        }
+        .letter-container .cod { 
+            font-size: 6pt; 
+            display: block; 
+            margin-top: -1px; 
+            font-weight: bold;
+        }
 
         /* LOGO / INFO EMISOR */
-        .logo { max-width: 160px; max-height: 60px; margin-bottom: 10px; }
-        .company-name { font-size: 16pt; font-weight: bold; margin-bottom: 5px; }
-        .company-info p { margin-bottom: 3px; font-size: 9.5pt; }
+        .logo { max-width: 140px; max-height: 50px; margin-bottom: 5px; }
+        .company-name { font-size: 13pt; font-weight: bold; margin-bottom: 3px; }
+        .company-info p { margin-bottom: 1px; font-size: 8.5pt; }
 
         /* INFO COMPROBANTE */
-        .doc-title { font-size: 24pt; font-weight: bold; margin-bottom: 10px; text-align: center; letter-spacing: 1.5pt; }
-        .doc-info p { margin-bottom: 4px; font-size: 10pt; }
+        .doc-title { 
+            font-size: 16pt; 
+            font-weight: bold; 
+            margin-bottom: 5px; 
+            text-align: center; 
+            width: 100%;
+            margin-top: 10px; /* Separación del cuadro de la letra */
+        }
+        .doc-info { margin-top: 5px; }
+        .doc-info p { margin-bottom: 2px; font-size: 9pt; }
 
         /* DATOS RECEPTOR */
         .client-box { 
             width: 100%; 
-            border: 1pt solid #000; 
+            border: 0.8pt solid #000; 
             border-top: none; 
-            padding: 12px 20px; 
+            padding: 8px 15px; 
         }
-        .client-row { width: 100%; margin-bottom: 6px; clear: both; }
-        .label { font-weight: bold; margin-right: 5px; }
+        .client-row { width: 100%; margin-bottom: 2px; clear: both; }
+        .label { font-weight: bold; margin-right: 3px; }
 
-        /* TABLA ITEMS - SIN RENGLONES INTERNOS */
+        /* TABLA ITEMS - TOTALMENTE LIMPIA SIN RENGLONES */
         .items-table { 
             width: 100%; 
             border-collapse: collapse; 
-            border: 1pt solid #000; 
+            border: 0.8pt solid #000; 
             border-top: none; 
-            margin-bottom: 15px; 
+            margin-bottom: 10px; 
         }
         .items-table th { 
-            border-bottom: 1pt solid #000; 
-            border-right: 1pt solid #000;
-            padding: 8px 6px; 
-            background: #eee; 
+            border-bottom: 0.8pt solid #000; 
+            padding: 5px; 
+            background: #eeeeee; 
             font-weight: bold; 
             text-align: center; 
-            font-size: 9.5pt;
+            font-size: 9pt;
         }
-        .items-table th:last-child { border-right: none; }
-
         .items-table td { 
-            padding: 4px 10px; 
+            padding: 3px 6px; 
             vertical-align: top; 
-            border-right: 1pt solid #000;
-            font-size: 9.5pt;
-            /* SE ELIMINA EL BORDER-BOTTOM POR PEDIDO DEL USUARIO (SIN RENGLONES) */
+            font-size: 8.5pt;
+            border: none; /* Sin bordes internos */
         }
-        .items-table td:last-child { border-right: none; }
 
         .text-center { text-align: center; }
         .text-right { text-align: right; }
 
+        /* Espaciado para simular columnas sin líneas */
+        .col-id { width: 10%; }
+        .col-desc { width: 50%; }
+        .col-cant { width: 10%; }
+        .col-price { width: 15%; }
+        .col-desc-pct { width: 5%; }
+        .col-subtotal { width: 10%; }
+
         /* FOOTER / TOTALES */
-        .footer-section { width: 100%; margin-top: 10px; border-top: 1pt solid #000; }
+        .footer-section { width: 100%; margin-top: 5px; }
         .obs-box { 
-            width: 62%; 
+            width: 60%; 
             float: left; 
-            padding: 15px; 
-            min-height: 100px; 
-            font-size: 9.5pt; 
-            border-right: 1pt solid #000;
-            border-bottom: 1pt solid #000;
-            border-left: 1pt solid #000;
+            border: 0.8pt solid #000; 
+            padding: 10px; 
+            min-height: 60px; 
+            font-size: 8.5pt; 
         }
         .totals-table { 
             width: 38%; 
             float: right; 
-            border: 1pt solid #000; 
-            border-top: none;
+            border: 0.8pt solid #000; 
             border-collapse: collapse; 
         }
-        .totals-table td { padding: 8px 15px; font-size: 11pt; }
-        .total-row { font-weight: bold; font-size: 14pt; border-top: 1pt solid #000; }
+        .totals-table td { padding: 4px 10px; font-size: 9pt; }
+        .total-row { font-weight: bold; font-size: 11pt; border-top: 0.8pt solid #000; }
 
         /* AFIP PIE */
-        .afip-footer { margin-top: 25px; width: 100%; border-top: 1.2pt solid #000; padding-top: 15px; }
-        .afip-logo { width: 120px; float: left; margin-right: 25px; }
-        .afip-qr { width: 70px; float: left; margin-right: 20px; }
-        .afip-info { float: left; font-size: 8.5pt; line-height: 1.4; padding-top: 8px; width: 50%; }
-        .cae-info { float: right; text-align: right; font-size: 10.5pt; padding-top: 10px; font-weight: bold; }
+        .afip-footer { margin-top: 15px; width: 100%; border-top: 1pt solid #000; padding-top: 10px; }
+        .afip-logo-text { font-size: 18pt; font-weight: 900; float: left; margin-right: 15px; color: #333; }
+        .afip-info { float: left; font-size: 7.5pt; line-height: 1.2; padding-top: 5px; width: 50%; color: #444; }
+        .cae-info { float: right; text-align: right; font-size: 9pt; padding-top: 5px; font-weight: bold; }
         
         .footer-attribution { 
             text-align: center; 
-            margin-top: 40px;
-            font-size: 8.5pt; 
-            color: #666; 
+            margin-top: 20px;
+            font-size: 7.5pt; 
+            color: #777; 
             font-style: italic; 
             width: 100%;
         }
 
-        /* Línea de corte para comprobantes no válidos */
+        /* Línea de corte */
         .cut-line {
-            border-top: 1pt dashed #aaa;
-            margin-top: 25px;
+            border-top: 0.5pt dashed #aaa;
+            margin-top: 20px;
             text-align: center;
-            font-size: 9pt;
-            padding-top: 10px;
-            color: #666;
-            font-weight: bold;
-            letter-spacing: 2px;
+            font-size: 8pt;
+            padding-top: 5px;
+            color: #888;
         }
     </style>
 </head>
 <body>
-
-<div class="main-container">
 
     @php
         $letra = $venta->tipo_comprobante ?? 'X';
@@ -201,8 +212,8 @@
             <div class="company-info">
                 <p><strong>Razón Social:</strong> {{ $empresa->razon_social ?? $empresa->nombre_comercial }}</p>
                 <p><strong>Domicilio:</strong> {{ $empresa->direccion_fiscal ?? '-' }}</p>
-                <p><strong>Tel/Email:</strong> {{ $empresa->telefono }} | {{ $empresa->email }}</p>
-                <p><strong>Cond. IVA:</strong> {{ $empresa->condicion_iva ?? 'Responsable Inscripto' }}</p>
+                <p style="font-size: 7.5pt;"><strong>Tel/Email:</strong> {{ $empresa->telefono }} | {{ $empresa->email }}</p>
+                <p><strong>IVA:</strong> {{ $empresa->condicion_iva ?? 'Responsable Inscripto' }}</p>
             </div>
         </div>
 
@@ -222,13 +233,13 @@
 
     <div class="client-box">
         <div class="client-row">
-            <div style="width: 58%; float: left;"><span class="label">Señor/es:</span> {{ strtoupper(optional($venta->cliente)->name ?? 'CONSUMIDOR FINAL') }}</div>
-            <div style="width: 42%; float: left;"><span class="label">CUIT/DNI:</span> {{ optional($venta->cliente)->document ?? 'CF' }}</div>
+            <div style="width: 55%; float: left;"><span class="label">Señor/es:</span> {{ strtoupper(optional($venta->cliente)->name ?? 'CONSUMIDOR FINAL') }}</div>
+            <div style="width: 45%; float: left;"><span class="label">CUIT/DNI:</span> {{ optional($venta->cliente)->document ?? 'CF' }}</div>
             <div class="clearfix"></div>
         </div>
         <div class="client-row">
-            <div style="width: 58%; float: left;"><span class="label">Domicilio:</span> {{ optional($venta->cliente)->address ?? '-' }}</div>
-            <div style="width: 42%; float: left;"><span class="label">Condición IVA:</span> {{ optional($venta->cliente)->condicion_iva ?? 'Consumidor Final' }}</div>
+            <div style="width: 55%; float: left;"><span class="label">Domicilio:</span> {{ optional($venta->cliente)->address ?? '-' }}</div>
+            <div style="width: 45%; float: left;"><span class="label">Condición IVA:</span> {{ optional($venta->cliente)->condicion_iva ?? 'Consumidor Final' }}</div>
             <div class="clearfix"></div>
         </div>
         <div class="client-row">
@@ -242,12 +253,12 @@
     <table class="items-table">
         <thead>
             <tr>
-                <th width="10%">Cód</th>
-                <th width="45%">Descripción / Concepto</th>
-                <th width="10%">Cant</th>
-                <th width="15%">P. Unit.</th>
-                <th width="8%">% Desc</th>
-                <th width="12%">Subtotal</th>
+                <th class="col-id">Cód</th>
+                <th class="col-desc">Descripción / Concepto</th>
+                <th class="col-cant">Cant</th>
+                <th class="col-price">P. Unit.</th>
+                <th class="col-desc-pct">%</th>
+                <th class="col-subtotal">Subtotal</th>
             </tr>
         </thead>
         <tbody>
@@ -262,22 +273,17 @@
                     </td>
                     <td class="text-center">{{ number_format($item->cantidad, 2, ',', '.') }}</td>
                     <td class="text-right">$ {{ number_format($item->total_item_con_iva / $item->cantidad, 2, ',', '.') }}</td>
-                    <td class="text-center">0,00</td>
+                    <td class="text-center">0</td>
                     <td class="text-right">$ {{ number_format($item->total_item_con_iva, 2, ',', '.') }}</td>
                 </tr>
             @endforeach
             
-            {{-- SE QUITAN RENGLONES VACÍOS PARA AHORRAR ESPACIO SI ES LARGA --}}
-            {{-- Solo si es muy corta agregamos un poco de espacio --}}
-            @if(count($venta->items) < 10)
-                @for($i=0; $i < (10 - count($venta->items)); $i++)
+            {{-- Espaciado mínimo para que la factura no se vea vacía si hay pocos items --}}
+            @php $minRows = 12 - count($venta->items); @endphp
+            @if($minRows > 0)
+                @for($i=0; $i < $minRows; $i++)
                     <tr>
-                        <td style="border-right: 1pt solid #000;">&nbsp;</td>
-                        <td style="border-right: 1pt solid #000;">&nbsp;</td>
-                        <td style="border-right: 1pt solid #000;">&nbsp;</td>
-                        <td style="border-right: 1pt solid #000;">&nbsp;</td>
-                        <td style="border-right: 1pt solid #000;">&nbsp;</td>
-                        <td>&nbsp;</td>
+                        <td colspan="6">&nbsp;</td>
                     </tr>
                 @endfor
             @endif
@@ -296,11 +302,11 @@
                 <td class="text-right">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
             </tr>
             <tr>
-                <td>Bonificación/Descuento:</td>
+                <td>Descuento:</td>
                 <td class="text-right">$ 0,00</td>
             </tr>
             <tr class="total-row">
-                <td>IMPORTE TOTAL:</td>
+                <td>TOTAL:</td>
                 <td class="text-right">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
             </tr>
         </table>
@@ -309,19 +315,14 @@
 
     @if($es_oficial && isset($venta->cae))
         <div class="afip-footer">
-            <div style="float: left; width: 150px;">
-                {{-- Logo AFIP --}}
-                <div style="font-size: 20pt; font-weight: 900; color: #333; letter-spacing: -2px;">AFIP</div>
-                <div style="font-size: 8pt; font-weight: bold; margin-top: -5px;">Comprobante autorizado</div>
-            </div>
-            
+            <div class="afip-logo-text">AFIP</div>
             <div class="afip-info">
+                <strong>Comprobante Autorizado</strong><br>
                 Esta administración general no se responsabiliza por los datos ingresados en el detalle de la operación.
             </div>
-            
             <div class="cae-info">
                 CAE Nro.: {{ $venta->cae }}<br>
-                Fecha Vto. CAE: {{ $venta->cae_vto ? \Carbon\Carbon::parse($venta->cae_vto)->format('d/m/Y') : '-' }}
+                Vto. CAE: {{ $venta->cae_vto ? \Carbon\Carbon::parse($venta->cae_vto)->format('d/m/Y') : '-' }}
             </div>
             <div class="clearfix"></div>
         </div>
@@ -332,10 +333,8 @@
     @endif
 
     <div class="footer-attribution">
-        Sistema MultiPOS SaaS - "El Cerebro de tu Negocio" - www.gentepiola.net
+        Desarrollado por MultiPOS SaaS - El Cerebro de tu Negocio - www.gentepiola.net
     </div>
-
-</div> <!-- main-container -->
 
 </body>
 </html>
