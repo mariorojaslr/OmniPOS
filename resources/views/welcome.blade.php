@@ -89,6 +89,11 @@
             text-decoration: none;
         }
 
+        .logo-rounded {
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
         .nav-links {
             display: flex;
             gap: 2rem;
@@ -328,9 +333,8 @@
         <div class="blob blob-2"></div>
     </div>
 
-    <nav>
         <a href="#" class="logo">
-            <img src="{{ asset('images/promo/logo_horizontal.png') }}" alt="MultiPOS Logo" style="height: 45px; vertical-align: middle;">
+            <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS Logo" class="logo-rounded" style="height: 55px; vertical-align: middle;">
         </a>
         <div class="nav-links">
             <a href="#features">Funciones</a>
