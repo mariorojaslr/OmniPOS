@@ -58,14 +58,13 @@ class ReporteController extends Controller
     {
         $empresaId = auth()->user()->empresa_id;
 
+        // Usamos total_con_iva de la venta directamente — refleja lo cobrado realmente
         $ventas = DB::table('ventas as v')
-            ->join('venta_items as vi', 'vi.venta_id', '=', 'v.id')
-            ->join('products as p', 'p.id', '=', 'vi.product_id')
-            ->where('v.empresa_id', $empresaId) // 🔴 FILTRO EMPRESA
+            ->where('v.empresa_id', $empresaId)
             ->select(
                 DB::raw('DATE(v.created_at) as fecha'),
-                DB::raw('COUNT(DISTINCT v.id) as cantidad'),
-                DB::raw('SUM(vi.cantidad * p.price) as total')
+                DB::raw('COUNT(v.id) as cantidad'),
+                DB::raw('SUM(v.total_con_iva) as total')
             )
             ->groupBy(DB::raw('DATE(v.created_at)'))
             ->orderByDesc(DB::raw('DATE(v.created_at)'))
