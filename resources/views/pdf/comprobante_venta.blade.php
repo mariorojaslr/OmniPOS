@@ -248,16 +248,14 @@
                         $logoPath = $possible;
                     }
                 }
-                // Si no hay logo de empresa, usamos el premium del sistema por defecto
-                if (!$logoPath) {
-                    $logoPath = public_path('images/logo_premium.png');
-                }
             @endphp
 
             @if($logoPath && file_exists($logoPath))
                 <img src="{{ $logoPath }}" class="logo">
             @else
-                <span class="company-name">{{ strtoupper($empresa->nombre_comercial) }}</span>
+                <div style="margin-bottom: 10px;">
+                    <span class="company-name">{{ strtoupper($empresa->nombre_comercial ?? 'EMPRESA') }}</span>
+                </div>
             @endif
 
             <div class="company-info">
