@@ -39,6 +39,12 @@
                 Ingresar
             </button>
 
+            <div class="mt-3">
+                <a href="{{ route('demo.mode') }}" class="btn btn-outline-warning w-100 fw-bold py-2" style="border-radius: 12px; border-width: 2px">
+                    ✨ ACCESO DEMO (PRUEBA)
+                </a>
+            </div>
+
         </form>
 
         <div class="auth-links">

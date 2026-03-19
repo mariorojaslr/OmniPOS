@@ -20,12 +20,19 @@ class DemoController extends Controller
             return back()->with('error', 'La empresa de prueba no está configurada aún.');
         }
 
-        // Encontrar un usuario de esa empresa (normalmente el administrador)
-        $user = User::where('empresa_id', $empresa->id)->first();
+        // Priorizar el usuario con rol 'empresa' (administrador) para mostrar el dashboard completo
+        $user = User::where('empresa_id', $empresa->id)
+                    ->orderByRaw("FIELD(role, 'empresa', 'usuario')")
+                    ->first();
 
         if (!$user) {
-            // Si no hay usuario, creamos uno temporal o devolvemos error
             return back()->with('error', 'No hay usuarios disponibles para la demo.');
+        }
+
+        // AUTO-ACTIVACIÓN: Asegurar que el usuario de prueba siempre esté activo para evitar errores 403
+        if (!$user->activo) {
+            $user->activo = true;
+            $user->save();
         }
 
         // Loguear al usuario

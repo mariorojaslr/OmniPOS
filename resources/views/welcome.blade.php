@@ -129,6 +129,7 @@
             <a href="#experiencia">Experiencia</a>
             <a href="#tecnologia">Tecnología</a>
             <a href="#planes">Planes</a>
+            <a href="{{ route('demo.mode') }}" class="nav-link text-white fw-bold me-2"><i class="bi bi-stars"></i> Demo</a>
             <a href="{{ route('login') }}" class="btn-trial">Ingresar</a>
         </div>
     </nav>
@@ -141,7 +142,7 @@
             <p>La plataforma SaaS definitiva que unifica Ventas, Stock por Escáner y Finanzas con una estética de alto nivel. Diseñado para quienes no se conforman con lo básico.</p>
             <div class="d-flex" style="gap: 15px">
                 <a href="{{ route('register') }}" class="btn-trial" style="background: var(--primary); color: white; padding: 1.2rem 3rem; font-size: 1.1rem">Empezar Ahora</a>
-                <a href="{{ route('demo.mode') }}" class="btn-trial" style="background: rgba(255,255,255,0.05); border: 1px solid #fff; color: white; padding: 1.2rem 3rem; font-size: 1.1rem">Ver Demo</a>
+                <a href="{{ route('demo.mode') }}" class="btn-trial" style="background: rgba(139, 92, 246, 0.1); border: 2px solid var(--primary); color: white; padding: 1.2rem 3rem; font-size: 1.1rem">✨ PROBAR GRATIS / DEMO</a>
             </div>
         </div>
         <div class="hero-img">
