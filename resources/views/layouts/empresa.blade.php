@@ -286,7 +286,7 @@ input, select, textarea{
     </a>
     <ul class="dropdown-menu">
         <li><a class="dropdown-item" href="{{ route('empresa.stock.index') }}">Stock Actual</a></li>
-        <li><a class="dropdown-item fw-bold text-success" href="{{ route('inventory.scan') }}">✨ Escáner Móvil</a></li>
+        <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.inventory_scan') }}">✨ Escáner Móvil</a></li>
     </ul>
 </li>
 

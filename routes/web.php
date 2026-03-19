@@ -27,6 +27,7 @@ Route::get('empresa/ventas/{venta}/pdf', [VentaController::class, 'pdf'])->name(
 use App\Http\Controllers\Empresa\UsuarioDashboardController;
 use App\Http\Controllers\Empresa\UsuarioController;
 use App\Http\Controllers\Empresa\ReporteController;
+use App\Http\Controllers\DemoController;
 use App\Http\Controllers\Empresa\ConfiguracionEmpresaController;
 use App\Http\Controllers\Empresa\StockController;
 use App\Http\Controllers\Empresa\ClientController;
@@ -50,6 +51,8 @@ use App\Http\Controllers\CatalogController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/demo-mode', [DemoController::class, 'enter'])->name('demo.mode');
 
 
 /* |-------------------------------------------------------------------------- | AUTH (BREEZE) |-------------------------------------------------------------------------- */
@@ -248,8 +251,12 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('labels-hub/generate', [LabelController::class, 'generate'])->name('labels.generate');
 
         // INVENTARIO MÓVIL (ESCÁNER)
-        Route::get('inventory/scan', [App\Http\Controllers\Empresa\InventoryController::class, 'index'])->name('inventory.scan');
+        Route::get('inventory/scan', [App\Http\Controllers\Empresa\InventoryController::class, 'index'])->name('inventory_scan');
         Route::post('inventory/adjust', [App\Http\Controllers\Empresa\InventoryController::class, 'adjust'])->name('inventory.adjust');
+        
+        // Sesiones colaborativas
+        Route::post('inventory/start', [App\Http\Controllers\Empresa\InventoryController::class, 'startSession'])->name('inventory.start');
+        Route::post('inventory/stop', [App\Http\Controllers\Empresa\InventoryController::class, 'stopSession'])->name('inventory.stop');
 
         Route::resource('rubros', RubroController::class);
 
@@ -363,3 +370,7 @@ Route::get('/local-media/{path}', function ($path) {
         'Expires' => '0'
     ]);
 })->where('path', '.*')->name('local.media');
+
+// RUTA PÚBLICA PARA ESCANEO POR QR (SIN AUTH)
+Route::get('v/inv/{uuid}', [App\Http\Controllers\Empresa\InventoryController::class, 'guestAccess'])->name('inventory.guest-access');
+Route::post('v/inv/adjust', [App\Http\Controllers\Empresa\InventoryController::class, 'adjust'])->name('inventory.guest-adjust');
