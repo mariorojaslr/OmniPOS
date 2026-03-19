@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('product_variants', function (Blueprint $table) {
-            $table->string('barcode')->nullable()->after('name');
+            $table->string('barcode')->nullable()->after('size');
         });
     }
 
