@@ -280,8 +280,14 @@ input, select, textarea{
 <a class="nav-link" href="{{ route('empresa.compras.index') }}">Compras</a>
 </li>
 
-<li class="nav-item">
-<a class="nav-link" href="{{ route('empresa.stock.index') }}">Inventario</a>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+        Inventario
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ route('empresa.stock.index') }}">Stock Actual</a></li>
+        <li><a class="dropdown-item fw-bold text-success" href="{{ route('inventory.scan') }}">✨ Escáner Móvil</a></li>
+    </ul>
 </li>
 
 <li class="nav-item">

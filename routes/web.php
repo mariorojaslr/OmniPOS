@@ -33,6 +33,8 @@ use App\Http\Controllers\Empresa\ClientController;
 use App\Http\Controllers\Empresa\SupplierController;
 use App\Http\Controllers\Empresa\PurchaseController;
 use App\Http\Controllers\Empresa\OrderController;
+use App\Http\Controllers\Empresa\LabelController;
+use App\Http\Controllers\Empresa\InventoryController;
 use App\Http\Controllers\Empresa\RubroController;
 use App\Http\Controllers\Empresa\BulkPriceUpdateController;
 use App\Http\Controllers\Empresa\ExpenseController;
@@ -244,6 +246,11 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('products/{product}/labels', [LabelController::class, 'printSingle'])->name('products.labels.single');
         Route::get('labels-hub', [LabelController::class, 'index'])->name('labels.index');
         Route::post('labels-hub/generate', [LabelController::class, 'generate'])->name('labels.generate');
+
+        // INVENTARIO MÓVIL (ESCÁNER)
+        Route::get('inventory/scan', [App\Http\Controllers\Empresa\InventoryController::class, 'index'])->name('inventory.scan');
+        Route::post('inventory/adjust', [App\Http\Controllers\Empresa\InventoryController::class, 'adjust'])->name('inventory.adjust');
+
         Route::resource('rubros', RubroController::class);
 
         Route::get('products/{product}/images/create', [ProductImageController::class , 'create'])->name('products.images.create');
