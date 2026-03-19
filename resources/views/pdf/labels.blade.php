@@ -50,13 +50,13 @@
 
         .barcode-container {
             margin-top: 5px;
-            height: 40px;
-            width: 100%;
+            display: inline-block;
+            height: 45px;
+            margin-bottom: 2px;
         }
 
-        .barcode-container svg {
-            width: 100% !important;
-            height: 100% !important;
+        .barcode-container div {
+            margin: 0 auto;
         }
 
         .barcode-text {

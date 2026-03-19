@@ -7,7 +7,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Picqer\Barcode\BarcodeGeneratorSVG;
+use Picqer\Barcode\BarcodeGeneratorHTML;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LabelController extends Controller
@@ -37,7 +37,7 @@ class LabelController extends Controller
         ]);
 
         $empresa = Auth::user()->empresa;
-        $generator = new BarcodeGeneratorSVG();
+        $generator = new BarcodeGeneratorHTML();
         $labels = [];
 
         foreach ($request->items as $itemId) {
@@ -49,7 +49,7 @@ class LabelController extends Controller
                     $labels[] = [
                         'name'    => $product->name,
                         'price'   => number_format($product->price, 2),
-                        'barcode' => $generator->getBarcode($product->barcode, $generator::TYPE_CODE_128, 2, 30),
+                        'barcode' => $generator->getBarcode($product->barcode, $generator::TYPE_CODE_128, 1.5, 35),
                         'code'    => $product->barcode,
                         'empresa' => $empresa->nombre
                     ];
@@ -75,7 +75,7 @@ class LabelController extends Controller
         $empresa = Auth::user()->empresa;
         if ($product->empresa_id !== $empresa->id) abort(403);
         
-        $generator = new BarcodeGeneratorSVG();
+        $generator = new BarcodeGeneratorHTML();
         $labels = [];
         
         // Generamos una hoja con 21 etiquetas (3x7) del mismo producto
@@ -83,7 +83,7 @@ class LabelController extends Controller
             $labels[] = [
                 'name'    => $product->name,
                 'price'   => number_format($product->price, 2),
-                'barcode' => $generator->getBarcode($product->barcode, $generator::TYPE_CODE_128, 2, 40),
+                'barcode' => $generator->getBarcode($product->barcode, $generator::TYPE_CODE_128, 1.5, 35),
                 'code'    => $product->barcode,
                 'empresa' => $empresa->nombre
             ];
