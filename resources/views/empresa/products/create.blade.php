@@ -63,8 +63,24 @@
                         @enderror
                     </div>
 
-                    {{-- Rubro --}}
+                    {{-- Código de Barras --}}
                     <div class="col-md-2">
+                        <label class="form-label fw-semibold">Código de Barras</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted">🏷️</span>
+                            <input type="text"
+                                   name="barcode"
+                                   class="form-control @error('barcode') is-invalid @enderror"
+                                   placeholder="EAN, UPC..."
+                                   value="{{ old('barcode') }}">
+                        </div>
+                        @error('barcode')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- Rubro --}}
+                    <div class="col-md-12">
                         <label class="form-label fw-semibold">Rubro</label>
                         <select name="rubro_id" class="form-select">
                             <option value="">-- Sin Rubro --</option>

@@ -14,6 +14,13 @@
         </div>
 
         <div class="d-flex gap-2">
+            {{-- Botón Etiquetas --}}
+            <a href="{{ route('empresa.labels.index') }}" 
+               class="btn btn-outline-dark d-flex align-items-center gap-2 shadow-sm">
+                <i class="bi bi-tag"></i>
+                Etiquetas
+            </a>
+
             {{-- Botón Amarillo de Exportación (Planilla) --}}
             <a href="{{ route('empresa.products.export') }}" 
                class="btn btn-warning d-flex align-items-center gap-2 text-dark fw-bold shadow-sm">
@@ -124,6 +131,7 @@
                     <thead class="table-light">
                         <tr>
                             <th class="ps-4">Producto</th>
+                            <th>Código</th>
                             <th>Precio</th>
                             <th>Estado</th>
                             <th>Media</th>
@@ -137,8 +145,20 @@
                             <tr>
 
                                 {{-- Nombre --}}
-                                <td class="ps-4 nombre-producto">
-                                    {{ $product->name }}
+                                <td class="ps-4">
+                                    <div class="nombre-producto fw-bold">{{ $product->name }}</div>
+                                    @if($product->rubro)
+                                        <small class="text-muted">{{ $product->rubro->nombre }}</small>
+                                    @endif
+                                </td>
+
+                                {{-- Código --}}
+                                <td>
+                                    @if($product->barcode)
+                                        <code class="text-dark bg-light px-2 py-1 rounded small border">{{ $product->barcode }}</code>
+                                    @else
+                                        <span class="text-muted small italic">S/C</span>
+                                    @endif
                                 </td>
 
                                 {{-- Precio --}}
@@ -176,6 +196,14 @@
 
                                 {{-- Acciones --}}
                                 <td class="text-end pe-4">
+
+                                    {{-- Imprimir Etiquetas Rápido --}}
+                                    <a href="{{ route('empresa.products.labels.single', $product) }}"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-dark"
+                                       title="Imprimir Etiquetas">
+                                        🏷️
+                                    </a>
 
                                     <a href="{{ route('empresa.products.edit', $product) }}"
                                        class="btn btn-sm btn-outline-secondary">

@@ -241,6 +241,9 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('products/bulk-price-update', [BulkPriceUpdateController::class, 'update'])->name('products.bulk-price-update.update');
 
         Route::resource('products', ProductController::class)->except(['show', 'destroy']);
+        Route::get('products/{product}/labels', [LabelController::class, 'printSingle'])->name('products.labels.single');
+        Route::get('labels-hub', [LabelController::class, 'index'])->name('labels.index');
+        Route::post('labels-hub/generate', [LabelController::class, 'generate'])->name('labels.generate');
         Route::resource('rubros', RubroController::class);
 
         Route::get('products/{product}/images/create', [ProductImageController::class , 'create'])->name('products.images.create');
@@ -259,6 +262,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      |--------------------------------------------------------------------------
      */
         Route::get('/pos', [POSController::class , 'index'])->name('pos.index');
+        Route::get('/pos/barcode', [POSController::class , 'buscarPorBarcode'])->name('pos.barcode');
         Route::post('/pos/checkout', [POSController::class , 'store'])->name('pos.checkout');
 
         /*

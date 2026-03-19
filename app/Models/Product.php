@@ -43,7 +43,10 @@ class Product extends Model
         'is_combo',
 
         // Categorización
-        'rubro_id'
+        'rubro_id',
+
+        // Código de barras
+        'barcode'
     ];
 
 

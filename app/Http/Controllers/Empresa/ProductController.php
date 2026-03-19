@@ -102,6 +102,7 @@ class ProductController extends Controller
         $request->validate([
             'name'              => 'required|string|max:255',
             'price'             => 'required|numeric|min:0',
+            'barcode'           => 'nullable|string|max:100',
             'descripcion_corta' => 'nullable|string',
             'descripcion_larga' => 'nullable|string',
         ]);
@@ -110,10 +111,11 @@ class ProductController extends Controller
             'empresa_id'        => Auth::user()->empresa_id,
             'name'              => $request->name,
             'price'             => $request->price,
+            'barcode'           => $request->barcode,
             'rubro_id'          => $request->rubro_id,
+            'active'            => true,
             'descripcion_corta' => $request->descripcion_corta,
             'descripcion_larga' => $request->descripcion_larga,
-            'active'            => true,
         ]);
 
         /*
@@ -186,6 +188,7 @@ class ProductController extends Controller
             'name'              => 'required|string|max:255',
             'price'             => 'required|numeric|min:0',
             'active'            => 'required|boolean',
+            'barcode'           => 'nullable|string|max:100',
             'descripcion_corta' => 'nullable|string',
             'descripcion_larga' => 'nullable|string',
         ]);
@@ -203,6 +206,7 @@ class ProductController extends Controller
         $product->update([
             'name'              => $request->name,
             'price'             => $request->price,
+            'barcode'           => $request->barcode,
             'rubro_id'          => $request->rubro_id,
             'active'            => $request->active,
             'descripcion_corta' => $request->descripcion_corta,
@@ -221,6 +225,7 @@ class ProductController extends Controller
                             'product_id' => $product->id,
                             'size'       => $data['size'] ?? null,
                             'color'      => $data['color'] ?? null,
+                            'barcode'    => $data['barcode'] ?? null,
                             'price'      => $data['price'] ?? $product->price,
                             'stock'      => $data['stock'] ?? 0,
                         ]);
@@ -230,10 +235,11 @@ class ProductController extends Controller
                     ProductVariant::where('id', $key)
                         ->where('product_id', $product->id)
                         ->update([
-                            'size'  => $data['size'] ?? null,
-                            'color' => $data['color'] ?? null,
-                            'price' => $data['price'] ?? $product->price,
-                            'stock' => $data['stock'] ?? 0,
+                            'size'    => $data['size'] ?? null,
+                            'color'   => $data['color'] ?? null,
+                            'barcode' => $data['barcode'] ?? null,
+                            'price'   => $data['price'] ?? $product->price,
+                            'stock'   => $data['stock'] ?? 0,
                         ]);
                 }
             }

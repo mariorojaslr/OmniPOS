@@ -13,18 +13,35 @@
 .venta-body{flex:1;overflow-y:auto}
 
 .venta-row{display:grid;grid-template-columns:30px 1fr 130px 40px 110px;align-items:center;padding:6px 8px;font-size:14px}
-.venta-row:nth-child(odd){background:#eaf3ff}
+.venta-row:nth-child(odd){background:#f0f7ff}
 
 .qty-box{display:flex;gap:4px;justify-content:center}
-.qty-box input{width:38px;text-align:center;font-size:12px;padding:2px}
+.qty-box input{width:38px;text-align:center;font-size:12px;padding:2px;border:1px solid #ced4da;border-radius:4px}
 
-.trash-btn{border:1px solid #dc3545;color:#dc3545;background:none;font-size:12px;padding:2px 6px}
+.trash-btn{border:1px solid #dc3545;color:#dc3545;background:none;font-size:12px;padding:2px 6px;border-radius:4px;transition:.2s}
+.trash-btn:hover{background:#dc3545;color:#fff}
 
 .falta{color:#dc3545;font-weight:bold}
 .vuelto{color:#198754;font-weight:bold}
 .saldo{color:#333;font-weight:bold}
 .highlight{background:yellow;font-weight:bold}
+
+/* Scanner Effects */
+.barcode-status{transition:.3s;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+.status-ready{color:#198754}
+.status-busy{color:#ffc107}
+
+.scanner-overlay{position:fixed;top:0;left:0;width:100%;height:4px;background:#ff0000;box-shadow:0 0 10px #ff0000;z-index:9999;display:none;animation:laser-scan 2s infinite ease-in-out}
+@keyframes laser-scan{0%{top:0}50%{top:100%}100%{top:0}}
+
+.scan-pulse{animation:pulse-green 2s infinite}
+@keyframes pulse-green{
+    0%{box-shadow:0 0 0 0 rgba(25,135,84,0.4)}
+    70%{box-shadow:0 0 0 10px rgba(25,135,84,0)}
+    100%{box-shadow:0 0 0 0 rgba(25,135,84,0)}
+}
 </style>
+<div class="scanner-overlay" id="laserLine"></div>
 
 <div class="row">
 
@@ -47,7 +64,22 @@
 
 </div>
 
-<input type="text" id="search" class="form-control mb-3" placeholder="🔍 Buscar producto...">
+<div class="d-flex gap-3 mb-3">
+    <div class="flex-grow-1 position-relative">
+        <input type="text" id="search" class="form-control" placeholder="🔍 Buscar producto por nombre...">
+    </div>
+    <div class="position-relative">
+        <input type="text" id="barcodeInput" class="form-control bg-dark text-white border-success" 
+               placeholder="⌨️ Escanear código..." style="width:200px">
+        <div id="barcodeStatus" class="barcode-status position-absolute mt-1" style="right:0">
+            <span class="status-ready">● Escáner Listo</span>
+        </div>
+    </div>
+    <button class="btn btn-outline-dark" id="btnCameraScan" title="Escanear con cámara">
+        📷
+    </button>
+</div>
+
 <div id="productGrid" class="product-grid"></div>
 
 </div>
@@ -211,6 +243,27 @@ placeholder="Buscar por nombre, documento, CUIT o teléfono...">
 </div>
 </div>
 </div>
+</div>
+
+{{-- ================= MODAL CÁMARA SCANNER ================= --}}
+<div class="modal fade" id="modalCamera" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:15px; overflow:hidden">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title font-monospace"><span class="text-success">●</span> Escáner Móvil</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0 bg-black">
+                <div id="reader" style="width: 100%; border:0"></div>
+                <div class="position-absolute top-50 start-50 translate-middle w-75 h-50 border border-success border-2 rounded-3" 
+                     style="pointer-events:none; box-shadow: 0 0 0 1000px rgba(0,0,0,0.5)">
+                </div>
+            </div>
+            <div class="modal-footer bg-dark border-0 justify-content-center">
+                <small class="text-secondary font-monospace">Alineá el código dentro del recuadro</small>
+            </div>
+        </div>
+    </div>
 </div>
 
 {{-- ================= MODAL VARIACIONES ================= --}}
@@ -654,10 +707,207 @@ document.getElementById('confirmarVenta').onclick = () => procesarVenta(false);
 document.getElementById('imprimirVenta').onclick = () => procesarVenta(true);
 
 
+
+/* ================= BARCODE SCANNER LOGIC ================= */
+
+const barcodeInput = document.getElementById('barcodeInput');
+const barcodeStatus = document.getElementById('barcodeStatus');
+const laserLine = document.getElementById('laserLine');
+
+// Sonido de escaneo exitoso (Base64 Bip corto)
+const beepSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTdvT18AZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZ=");
+
+// Mantener el foco en el input de barcode (opcional)
+document.addEventListener('keydown', (e) => {
+    // Si no estamos en un input de búsqueda o modal, enfocamos el scanner
+    if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        barcodeInput.focus();
+    }
+});
+
+barcodeInput.onkeypress = async (e) => {
+    if (e.key === 'Enter') {
+        const code = barcodeInput.value.trim();
+        if (!code) return;
+
+        barcodeInput.value = '';
+        barcodeInput.disabled = true;
+        barcodeStatus.innerHTML = '<span class="status-busy">⏳ Buscando...</span>';
+        
+        // Animación de láser
+        laserLine.style.display = 'block';
+        setTimeout(() => laserLine.style.display = 'none', 800);
+
+        try {
+            const res = await fetch(`{{ route('empresa.pos.barcode') }}?barcode=${code}`);
+            const data = await res.json();
+
+            if (data.ok) {
+                // Pip!
+                beepSound.play();
+                
+                // Si es un producto base o variante ya resuelta por el controlador
+                if (data.variant_id) {
+                    // Es una variante específica
+                    const cartId = `v${data.variant_id}`;
+                    if(cart[cartId]) cart[cartId].qty++;
+                    else {
+                        cart[cartId] = {
+                            id: data.product_id,
+                            variant_id: data.variant_id,
+                            name: data.name,
+                            price: data.price,
+                            qty: 1
+                        };
+                    }
+                } else {
+                    // Es un producto normal o combo
+                    if(!cart[data.product_id]) {
+                        cart[data.product_id] = {
+                            id: data.product_id,
+                            name: data.name,
+                            price: data.price,
+                            qty: 1
+                        };
+                    } else {
+                        cart[data.product_id].qty++;
+                    }
+                }
+                
+                // Efecto visual en el carrito
+                document.getElementById('cart').classList.add('scan-pulse');
+                setTimeout(() => document.getElementById('cart').classList.remove('scan-pulse'), 1000);
+
+                renderCart();
+            } else {
+                console.warn("Producto no encontrado:", code);
+                // Aquí podrías disparar un sonido de error si quieres
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            barcodeInput.disabled = false;
+            barcodeInput.focus();
+            barcodeStatus.innerHTML = '<span class="status-ready">● Escáner Listo</span>';
+        }
+    }
+};
+
+
+/* ================= CAMERA SCANNER LOGIC ================= */
+
+let html5QrCode = null;
+const modalCamera = new bootstrap.Modal(document.getElementById('modalCamera'));
+
+document.getElementById('btnCameraScan').onclick = () => {
+    modalCamera.show();
+    
+    // Pequeño delay para que el modal termine de animar antes de iniciar cámara
+    setTimeout(() => {
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("reader");
+        }
+        
+        const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+        
+        // Intentar usar cámara trasera por defecto
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            config,
+            (decodedText) => {
+                // Éxito: Procesar código
+                console.log("Cámara detectó:", decodedText);
+                
+                // Simular el proceso del input normal
+                processScannerCode(decodedText);
+                
+                // Feedback táctil (vibrate)
+                if (navigator.vibrate) navigator.vibrate(100);
+                
+                // Cerrar modal automáticamente tras éxito
+                modalCamera.hide();
+            },
+            (errorMessage) => {
+                // Aquí se disparan errores persistentes mientras busca, ignoramos
+            }
+        ).catch((err) => {
+            alert("Error al iniciar cámara: " + err);
+        });
+    }, 500);
+};
+
+// Detener cámara al cerrar modal
+document.getElementById('modalCamera').addEventListener('hidden.bs.modal', () => {
+    if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().then(() => {
+            console.log("Cámara detenida.");
+        }).catch(err => console.error("Error al detener cámara:", err));
+    }
+});
+
+/**
+ * Función centralizada para procesar un código venga de donde venga
+ */
+async function processScannerCode(code) {
+    if (!code) return;
+    
+    barcodeStatus.innerHTML = '<span class="status-busy">⏳ Buscando...</span>';
+    laserLine.style.display = 'block';
+    setTimeout(() => laserLine.style.display = 'none', 800);
+
+    try {
+        const res = await fetch(`{{ route('empresa.pos.barcode') }}?barcode=${code}`);
+        const data = await res.json();
+
+        if (data.ok) {
+            beepSound.play();
+            
+            if (data.variant_id) {
+                const cartId = `v${data.variant_id}`;
+                if(cart[cartId]) cart[cartId].qty++;
+                else {
+                    cart[cartId] = {
+                        id: data.product_id,
+                        variant_id: data.variant_id,
+                        name: data.name,
+                        price: data.price,
+                        qty: 1
+                    };
+                }
+            } else {
+                if(!cart[data.product_id]) {
+                    cart[data.product_id] = {
+                        id: data.product_id,
+                        name: data.name,
+                        price: data.price,
+                        qty: 1
+                    };
+                } else {
+                    cart[data.product_id].qty++;
+                }
+            }
+            
+            document.getElementById('cart').classList.add('scan-pulse');
+            setTimeout(() => document.getElementById('cart').classList.remove('scan-pulse'), 1000);
+            renderCart();
+        } else {
+            console.warn("No encontrado:", code);
+        }
+    } catch (err) {
+        console.error(err);
+    } finally {
+        barcodeStatus.innerHTML = '<span class="status-ready">● Escáner Listo</span>';
+    }
+}
+
 /* ================= INICIALIZAR POS ================= */
-
 renderProducts();
+barcodeInput.focus();
 
+</script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+// La lógica ya fue integrada arriba, eliminamos el script duplicado
 </script>
 @endpush
 

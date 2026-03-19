@@ -70,22 +70,14 @@
 
                     {{-- PRECIO --}}
                     <div class="col-md-2">
-                        <label class="form-label fw-semibold">
-                            Precio
-                        </label>
+                        <label class="form-label fw-semibold">Precio</label>
+                        <input type="number" step="0.01" name="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $product->price) }}" required>
+                    </div>
 
-                        <input type="number"
-                               step="0.01"
-                               name="price"
-                               class="form-control @error('price') is-invalid @enderror"
-                               value="{{ old('price', $product->price) }}"
-                               required>
-
-                        @error('price')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
+                    {{-- BARCODE --}}
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Código de Barras</label>
+                        <input type="text" name="barcode" class="form-control @error('barcode') is-invalid @enderror" value="{{ old('barcode', $product->barcode) }}" placeholder="EAN-13...">
                     </div>
 
 
@@ -220,7 +212,8 @@
                             <tr>
                                 <th>Talle</th>
                                 <th>Color</th>
-                                <th>Precio</th>
+                                <th>Código Barras</th>
+                                <th>Precio (opc)</th>
                                 <th>Stock</th>
                                 <th width="50"></th>
                             </tr>
@@ -230,6 +223,7 @@
                             <tr>
                                 <td><input type="text" name="variantes[{{ $v->id }}][size]"  class="form-control form-control-sm" value="{{ $v->size }}"></td>
                                 <td><input type="text" name="variantes[{{ $v->id }}][color]" class="form-control form-control-sm" value="{{ $v->color }}"></td>
+                                <td><input type="text" name="variantes[{{ $v->id }}][barcode]" class="form-control form-control-sm text-center" value="{{ $v->barcode }}" placeholder="EAN..."></td>
                                 <td><input type="number" step="0.01" name="variantes[{{ $v->id }}][price]" class="form-control form-control-sm" value="{{ $v->price }}"></td>
                                 <td><input type="number" name="variantes[{{ $v->id }}][stock]" class="form-control form-control-sm" value="{{ $v->stock }}"></td>
                                 <td class="text-center">
@@ -347,7 +341,8 @@ function agregarVariante() {
     tr.innerHTML = `
         <td><input type="text" name="variantes[new_${variantIdx}][size]"  class="form-control form-control-sm" placeholder="Ej: XL"></td>
         <td><input type="text" name="variantes[new_${variantIdx}][color]" class="form-control form-control-sm" placeholder="Ej: Azul"></td>
-        <td><input type="number" step="0.01" name="variantes[new_${variantIdx}][price]" class="form-control form-control-sm" placeholder="0.00"></td>
+        <td><input type="text" name="variantes[new_${variantIdx}][barcode]" class="form-control form-control-sm text-center" placeholder="EAN..."></td>
+        <td><input type="number" step="0.01" name="variantes[new_${variantIdx}][price]" class="form-control form-control-sm" placeholder="Precio"></td>
         <td><input type="number" name="variantes[new_${variantIdx}][stock]" class="form-control form-control-sm" placeholder="0"></td>
         <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()">✕</button></td>
     `;

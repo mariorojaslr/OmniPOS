@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Client;
 use App\Services\VentaService;
 
@@ -232,5 +233,62 @@ class POSController extends Controller
                 'error' => 'Error interno al guardar venta'
             ]);
         }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUSCAR POR CÓDIGO DE BARRAS
+    |--------------------------------------------------------------------------
+    */
+
+    public function buscarPorBarcode(Request $request)
+    {
+        $barcode   = trim($request->input('barcode', ''));
+        $empresaId = Auth::user()->empresa_id;
+
+        if (empty($barcode)) {
+            return response()->json(['ok' => false, 'error' => 'Código vacío']);
+        }
+
+        // 1️⃣ Buscar en variantes primero
+        $variant = ProductVariant::whereHas('product', fn($q) => $q->where('empresa_id', $empresaId))
+            ->where('barcode', $barcode)
+            ->with('product.images')
+            ->first();
+
+        if ($variant) {
+            $p = $variant->product;
+            return response()->json([
+                'ok'         => true,
+                'type'       => 'variant',
+                'product_id' => $p->id,
+                'variant_id' => $variant->id,
+                'name'       => "{$p->name} ({$variant->size} {$variant->color})",
+                'price'      => (float)($variant->price ?? $p->price),
+                'stock'      => (float)$p->stock,
+                'img'        => $p->images->first()?->url ?? asset('images/no-image.png'),
+            ]);
+        }
+
+        // 2️⃣ Buscar en producto principal
+        $product = Product::where('empresa_id', $empresaId)
+            ->where('barcode', $barcode)
+            ->with('images')
+            ->first();
+
+        if ($product) {
+            return response()->json([
+                'ok'         => true,
+                'type'       => 'product',
+                'product_id' => $product->id,
+                'variant_id' => null,
+                'name'       => $product->name,
+                'price'      => (float)$product->price,
+                'stock'      => (float)$product->stock,
+                'img'        => $product->images->first()?->url ?? asset('images/no-image.png'),
+            ]);
+        }
+
+        return response()->json(['ok' => false, 'error' => 'Producto no encontrado']);
     }
 }
