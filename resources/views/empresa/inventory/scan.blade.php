@@ -119,7 +119,7 @@
         const qty = (mode === 'sum') ? 1 : document.getElementById('inputQuantity').value;
 
         try {
-            const res = await fetch(`{{ route('inventory.adjust') }}`, {
+            const res = await fetch(`{{ route('empresa.inventory_adjust') }}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

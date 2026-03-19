@@ -107,6 +107,23 @@ class ProductController extends Controller
             'descripcion_larga' => 'nullable|string',
         ]);
 
+        $user = Auth::user();
+        $empresa = $user->empresa;
+
+        // LÍMITE DE 100 ARTÍCULOS PARA EMPRESA DE PRUEBA
+        if (str_contains(strtolower($empresa->nombre_comercial), 'prueba')) {
+            $count = Product::where('empresa_id', $user->empresa_id)->count();
+            if ($count >= 100) {
+                // Borrar el más antiguo para dejar espacio
+                $oldest = Product::where('empresa_id', $user->empresa_id)
+                    ->orderBy('created_at', 'asc')
+                    ->first();
+                if ($oldest) {
+                    $oldest->delete();
+                }
+            }
+        }
+
         $product = Product::create([
             'empresa_id'        => Auth::user()->empresa_id,
             'name'              => $request->name,
@@ -402,6 +419,12 @@ class ProductController extends Controller
                 ]);
                 $countUpdated++;
             } else {
+                // CHEQUEO DE LÍMITE DEMO
+                if (str_contains(strtolower(Auth::user()->empresa->nombre_comercial), 'prueba')) {
+                    $total = Product::where('empresa_id', $empresaId)->count();
+                    if ($total >= 100) break; // Detener importación si ya hay 100
+                }
+
                 Product::create([
                     'empresa_id' => $empresaId,
                     'name'   => $nombre,

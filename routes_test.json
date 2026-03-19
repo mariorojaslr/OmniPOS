@@ -1,0 +1,1 @@
+[{"domain":null,"method":"GET|HEAD","uri":"empresa\/inventory\/scan","name":"empresa.inventory.scan","action":"App\\Http\\Controllers\\Empresa\\InventoryController@index","middleware":["web","Illuminate\\Auth\\Middleware\\Authenticate","App\\Http\\Middleware\\EmpresaMiddleware","App\\Http\\Middleware\\EmpresaActivaMiddleware"]}]

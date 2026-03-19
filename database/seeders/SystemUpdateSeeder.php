@@ -92,5 +92,14 @@ class SystemUpdateSeeder extends Seeder
                 'description' => 'Hemos corregido la generación de códigos QR en las etiquetas de envío (cajas). Ahora el sistema utiliza una API dedicada para garantizar que el QR esté siempre visible y listo para ser escaneado por el control interno.',
             ]
         );
+        \App\Models\SystemUpdate::updateOrCreate(
+            ['title' => 'Logística 4.0: Barcode & Inventario Colaborativo'],
+            [
+                'publish_date' => '2026-03-19',
+                'type' => 'nuevo',
+                'image' => 'hero_scanner_mobile.png',
+                'description' => '¡MultiPOS se vuelve profesional! Implementamos el escaneo de código de barras real en el POS y la carga masiva de stock mediante "Sesiones Colaborativas": ahora cualquier colaborador puede usar su celular como un escáner de stock simplemente escaneando un QR temporal. Además, habilitamos el Hub de Etiquetas para generar e imprimir sus propios códigos de barras en formato PDF.',
+            ]
+        );
     }
 }

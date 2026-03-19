@@ -252,11 +252,11 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         // INVENTARIO MÓVIL (ESCÁNER)
         Route::get('inventory/scan', [App\Http\Controllers\Empresa\InventoryController::class, 'index'])->name('inventory_scan');
-        Route::post('inventory/adjust', [App\Http\Controllers\Empresa\InventoryController::class, 'adjust'])->name('inventory.adjust');
+        Route::post('inventory/adjust', [App\Http\Controllers\Empresa\InventoryController::class, 'adjust'])->name('inventory_adjust');
         
         // Sesiones colaborativas
-        Route::post('inventory/start', [App\Http\Controllers\Empresa\InventoryController::class, 'startSession'])->name('inventory.start');
-        Route::post('inventory/stop', [App\Http\Controllers\Empresa\InventoryController::class, 'stopSession'])->name('inventory.stop');
+        Route::post('inventory/start', [App\Http\Controllers\Empresa\InventoryController::class, 'startSession'])->name('inventory_start');
+        Route::post('inventory/stop', [App\Http\Controllers\Empresa\InventoryController::class, 'stopSession'])->name('inventory_stop');
 
         Route::resource('rubros', RubroController::class);
 

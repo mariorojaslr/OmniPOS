@@ -3,490 +3,370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MultiPOS - El Cerebro de tu Negocio</title>
+    <title>MultiPOS - El Futuro de tu Negocio Hoy</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="icon" href="{{ asset('favicon.png') }}">
     
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --accent: #f43f5e;
-            --bg-dark: #0f172a;
-            --glass: rgba(255, 255, 255, 0.05);
+            --primary: #8b5cf6;
+            --primary-dark: #6366f1;
+            --accent: #10b981;
+            --bg-dark: #09090b;
+            --card-bg: rgba(24, 24, 27, 0.8);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
+            --text-main: #fafafa;
+            --text-dim: #a1a1aa;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
+        body { background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; line-height: 1.6; }
 
-        /* --- BACKGROUND ANIMATION --- */
-        .bg-blobs {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .blob {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
-            filter: blur(80px);
-            opacity: 0.15;
-            animation: move 20s infinite alternate;
-        }
-
-        .blob-1 { top: -100px; left: -100px; }
-        .blob-2 { bottom: -100px; right: -100px; animation-delay: -5s; }
-
-        @keyframes move {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(100px, 50px) scale(1.2); }
+        /* --- GRADIENT BG --- */
+        .bg-mesh {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: 
+                radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 55%);
         }
 
         /* --- NAVIGATION --- */
         nav {
-            padding: 1.5rem 10%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            width: 100%;
-            z-index: 100;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
+            padding: 1.2rem 8%; display: flex; justify-content: space-between; align-items: center;
+            position: fixed; width: 100%; z-index: 1000;
+            background: rgba(9, 9, 11, 0.8); backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
         }
 
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-            background: linear-gradient(90deg, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-decoration: none;
-        }
+        .logo { font-size: 1.6rem; font-weight: 800; text-decoration: none; color: white; display: flex; align-items: center; gap: 10px; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: 0.3s; }
+        .nav-links a:hover { color: white; }
 
-        .logo-rounded {
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
+        .btn-trial { background: white; color: black; padding: 0.7rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700; transition: 0.3s; font-size: 0.9rem; }
+        .btn-trial:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
 
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
+        /* --- SECTIONS --- */
+        section { padding: 8rem 8%; }
 
-        .nav-links a {
-            color: var(--text-main);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: 0.3s;
-            opacity: 0.7;
-        }
+        .hero { display: flex; align-items: center; gap: 4rem; min-height: 95vh; }
+        .hero-content { flex: 1.2; }
+        .hero h1 { font-size: 4.5rem; line-height: 1.1; margin-bottom: 1.5rem; font-weight: 900; letter-spacing: -2px; }
+        .hero h1 span { color: var(--primary); }
+        .hero p { font-size: 1.3rem; color: var(--text-dim); margin-bottom: 3rem; max-width: 90%; }
 
-        .nav-links a:hover {
-            opacity: 1;
-            color: var(--primary);
-        }
+        .hero-img { flex: 1; position: relative; }
+        .hero-img img { width: 100%; border-radius: 30px; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); border: 1px solid var(--glass-border); transform: rotate3d(1, -1, 0, 15deg); }
 
-        .btn-cta {
-            background: var(--primary);
-            color: white;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: 0.3s;
-            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5);
-            display: inline-block;
+        /* --- FEATURES GRID --- */
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .feature-card { 
+            background: var(--card-bg); border: 1px solid var(--glass-border); 
+            padding: 3.5rem 2.5rem; border-radius: 35px; transition: 0.4s; position: relative; overflow: hidden;
         }
+        .feature-card:hover { transform: translateY(-10px); border-color: var(--primary); }
+        .feature-card i { font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem; display: block; }
+        .feature-card h3 { font-size: 1.6rem; margin-bottom: 1rem; }
+        .feature-card p { color: var(--text-dim); }
 
-        .btn-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.6);
-            background: var(--primary-dark);
-            color: white;
-        }
+        /* --- MAGIC CARDS (Nuevas Funciones) --- */
+        .magic-section { background: rgba(139, 92, 246, 0.05); border-radius: 60px; padding: 5rem; margin-top: 5rem; }
+        .magic-row { display: flex; align-items: center; gap: 5rem; margin-bottom: 8rem; }
+        .magic-row:last-child { margin-bottom: 0; }
+        .magic-img { flex: 1; border-radius: 25px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+        .magic-img img { width: 100%; transition: 0.5s; }
+        .magic-img:hover img { transform: scale(1.1); }
+        .magic-text { flex: 1; }
+        .magic-text h2 { font-size: 3rem; margin-bottom: 1.5rem; font-weight: 800; }
+        .magic-badge { background: var(--primary); color: white; padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem; display: inline-block; }
 
-        /* --- HERO SECTION --- */
-        section {
-            padding: 8rem 10%;
+        /* --- PRICING --- */
+        .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-top: 4rem; }
+        .price-card { 
+            background: var(--card-bg); border: 1px solid var(--glass-border); 
+            padding: 3rem 2rem; border-radius: 30px; text-align: center; transition: 0.4s;
         }
-
-        .hero {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 90vh;
-        }
-
-        .hero-content {
-            flex: 1;
-            max-width: 600px;
-        }
-
-        .hero-badge {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            color: var(--primary);
-            font-weight: 600;
-            margin-bottom: 2rem;
-            display: inline-block;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            font-weight: 800;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text-dim);
-            margin-bottom: 2.5rem;
-        }
-
-        .hero-image {
-            flex: 1.2;
-            display: flex;
-            justify-content: center;
-            perspective: 1000px;
-        }
-
-        .hero-image img {
-            width: 100%;
-            border-radius: 20px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            transform: rotateY(-15deg) rotateX(10deg);
-            transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .hero-image img:hover {
-            transform: rotateY(0) rotateX(0) scale(1.05);
-        }
-
-        /* --- FEATURES --- */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            padding-top: 4rem;
-        }
-
-        .feature-card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            padding: 3.5rem 2.5rem;
-            border-radius: 35px;
-            transition: 0.4s;
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .feature-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-12px);
-            border-color: var(--primary);
-        }
-
-        .feature-icon {
-            font-size: 2.8rem;
-            color: var(--primary);
-            margin-bottom: 1.8rem;
-            display: block;
-        }
-
-        .feature-card h3 {
-            font-size: 1.6rem;
-            margin-bottom: 1.2rem;
-            font-weight: 700;
-        }
-
-        .feature-card p {
-            color: var(--text-dim);
-            font-size: 1rem;
-            line-height: 1.7;
-        }
-
-        /* --- SHOWCASE --- */
-        .showcase-row {
-            display: flex;
-            align-items: center;
-            gap: 6rem;
-            margin-bottom: 12rem;
-        }
-
-        .showcase-row:nth-child(even) {
-            flex-direction: row-reverse;
-        }
-
-        .showcase-text {
-            flex: 1;
-        }
-
-        .showcase-text h2 {
-            font-size: 3rem;
-            margin-bottom: 1.8rem;
-            font-weight: 800;
-            line-height: 1.2;
-        }
-
-        .showcase-text p {
-            font-size: 1.15rem;
-            color: var(--text-dim);
-            margin-bottom: 2rem;
-        }
-
-        .showcase-image {
-            flex: 1.5;
-        }
-
-        .showcase-image img {
-            width: 100%;
-            border-radius: 28px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.4);
-            transition: 0.5s;
-        }
+        .price-card.featured { border: 2px solid var(--primary); transform: scale(1.05); background: linear-gradient(to bottom, rgba(139, 92, 246, 0.1), var(--card-bg)); }
+        .price-card h4 { font-size: 1.2rem; margin-bottom: 1rem; opacity: 0.7; }
+        .price-card .amount { font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .price-card .amount span { font-size: 1rem; opacity: 0.5; }
         
-        .showcase-image img:hover {
-            transform: scale(1.02);
-            border-color: var(--primary);
+        /* --- AI PLAN MATCHER --- */
+        .ai-matcher { 
+            background: linear-gradient(135deg, #1e1b4b, #09090b); border-radius: 30px; 
+            padding: 4rem; margin-top: 8rem; border: 1px solid var(--primary); text-align: center;
         }
+        .matcher-steps { margin-top: 2rem; display: flex; justify-content: center; gap: 10px; }
+        .step-btn { background: var(--glass); border: 1px solid var(--glass-border); color: white; padding: 1rem 2rem; border-radius: 15px; cursor: pointer; transition: 0.3s; }
+        .step-btn.active { background: var(--primary); border-color: var(--primary); }
 
-        /* --- FOOTER --- */
-        footer {
-            text-align: center;
-            padding: 8rem 10% 4rem;
-            border-top: 1px solid var(--glass-border);
-            background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.05));
-        }
-
-        .footer-cta h2 {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            font-weight: 800;
-        }
-
-        .footer-cta p {
-            margin-bottom: 3rem;
-            color: var(--text-dim);
-            font-size: 1.3rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 1200px) {
-            .hero h1 { font-size: 3.2rem; }
-            section { padding: 6rem 5%; }
-        }
+        /* FOOTER */
+        footer { padding: 6rem 8%; border-top: 1px solid var(--glass-border); text-align: center; }
 
         @media (max-width: 992px) {
-            nav { padding: 1.5rem 5%; }
-            .hero, .showcase-row {
-                flex-direction: column !important;
-                text-align: center;
-                gap: 4rem;
-            }
+            .hero, .magic-row { flex-direction: column; text-align: center; }
             .hero h1 { font-size: 3rem; }
-            .features { grid-template-columns: 1fr; }
-            .hero-image img { width: 100%; transform: none !important; }
-            .nav-links { display: none; }
+            .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+            .img-mockup { transform: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-    </div>
+    <div class="bg-mesh"></div>
 
+    <nav>
         <a href="#" class="logo">
-            <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS Logo" class="logo-rounded" style="height: 55px; vertical-align: middle;">
+            <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS" style="height: 45px"> 
+            MultiPOS
         </a>
         <div class="nav-links">
-            <a href="#features">Funciones</a>
-            <a href="#pos">Punto de Venta</a>
-            <a href="#gastos">Finanzas</a>
-            <a href="#logistica">Logística</a>
-            <a href="#reportes">Reportes</a>
-            <a href="{{ route('login') }}" class="btn-cta">Acceder al Sistema</a>
+            <a href="#experiencia">Experiencia</a>
+            <a href="#tecnologia">Tecnología</a>
+            <a href="#planes">Planes</a>
+            <a href="{{ route('login') }}" class="btn-trial">Ingresar</a>
         </div>
     </nav>
 
-    <section class="hero" id="inicio">
-        <div class="hero-content">
-            <span class="hero-badge">SaaS de Gestión Inteligente v4.0</span>
-            <h1>Liderá tu Negocio al Próximo Nivel</h1>
-            <p>La plataforma definitiva de gestión para emprendedores. Ventas, Stock, Finanzas y Gastos Operativos unificados en una interfaz premium irresistible.</p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="{{ route('login') }}" class="btn-cta">Empezar Ahora Gratis</a>
-                <a href="#features" class="btn-cta" style="background: transparent; border: 1px solid var(--glass-border);">Explorar Funciones</a>
+    {{-- HERO --}}
+    <section class="hero shadow-lg">
+        <div class="hero-content mt-3">
+            <div class="magic-badge animate__animated animate__fadeInLeft">🚀 NUEVA VERSIÓN 4.0</div>
+            <h1>Controlá tu Negocio <span>como un Pro.</span></h1>
+            <p>La plataforma SaaS definitiva que unifica Ventas, Stock por Escáner y Finanzas con una estética de alto nivel. Diseñado para quienes no se conforman con lo básico.</p>
+            <div class="d-flex" style="gap: 15px">
+                <a href="{{ route('register') }}" class="btn-trial" style="background: var(--primary); color: white; padding: 1.2rem 3rem; font-size: 1.1rem">Empezar Ahora</a>
+                <a href="{{ route('demo.mode') }}" class="btn-trial" style="background: rgba(255,255,255,0.05); border: 1px solid #fff; color: white; padding: 1.2rem 3rem; font-size: 1.1rem">Ver Demo</a>
             </div>
         </div>
-        <div class="hero-image">
-            <img src="{{ asset('images/promo/dashboard.png') }}" alt="Dashboard MultiPOS">
+        <div class="hero-img">
+            <img src="{{ asset('images/hero_scanner_mobile.png') }}" class="img-mockup" alt="Scanner Mobile MultiPOS">
         </div>
     </section>
 
-    <section id="features">
-        <div style="text-align: center; margin-bottom: 5rem;">
-            <h2 style="font-size: 3rem; font-weight: 800;">Más que un simple POS</h2>
-            <p style="color: var(--text-dim); font-size: 1.2rem;">Todo lo que necesitás para tener el control absoluto de tu empresa.</p>
+    {{-- LOGISTICS 4.0 SECTION --}}
+    <section id="tecnologia" class="container-fluid py-5" style="background: rgba(46, 204, 113, 0.03);">
+        <div class="container py-5">
+            <div class="row align-items-center mb-5">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <img src="{{ asset('images/hero_scanner_mobile.png') }}" class="img-fluid rounded-4 shadow-lg border border-success" alt="Escaneo Móvil">
+                </div>
+                <div class="col-lg-6 ps-lg-5">
+                    <span class="badge bg-success mb-3">EXCLUSIVO 4.0</span>
+                    <h2 class="display-4 fw-bold mb-4">Magic Scan Pro: <span class="text-success">Tu teléfono es un escáner.</span></h2>
+                    <p class="fs-5 text-muted">Aprovechá la cámara de cualquier celular para vender y cargar stock. Sin cables, sin hardware caro, sin complicaciones. Nuestra tecnología procesa códigos de barras en milisegundos con una precisión industrial.</p>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success fs-4 me-3"></i> <span>Velocidad de respuesta ultrarrápida.</span></li>
+                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success fs-4 me-3"></i> <span>Detección automática de artículos duplicados.</span></li>
+                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success fs-4 me-3"></i> <span>Integración nativa con el Punto de Venta (POS).</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row align-items-center flex-row-reverse mt-5 pt-lg-5">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <img src="{{ asset('images/inventory_sessions_qr.png') }}" class="img-fluid rounded-4 shadow-lg border border-primary" alt="Inventario Colaborativo">
+                </div>
+                <div class="col-lg-6 pe-lg-5">
+                    <span class="badge bg-primary mb-3">NOVEDAD: MULTI-USUARIO</span>
+                    <h2 class="display-4 fw-bold mb-4">Sincronización Colaborativa por <span class="text-primary">QR</span>.</h2>
+                    <p class="fs-5 text-muted">¿Tenés muchos productos por contar? Generá un QR de sesión, entregalo a tus empleados y todos podrán escanear y subir stock al mismo tiempo. Sin necesidad de crear usuarios ni compartir accesos privados.</p>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-qr-code text-primary fs-4 me-3"></i> <span>Acceso temporal y seguro por sesión.</span></li>
+                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-people-fill text-primary fs-4 me-3"></i> <span>Varios operarios escaneando en simultáneo.</span></li>
+                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-printer-fill text-primary fs-4 me-3"></i> <span>Generador y Hub de Etiquetas PDF integrado.</span></li>
+                    </ul>
+                </div>
+            </div>
         </div>
+    </section>
+    {{-- FEATURES GRID --}}
+    <section id="experiencia">
+        <div class="text-center mb-5 mt-5">
+            <h2 class="display-4 fw-bold mb-3">Tu Negocio, Elevado.</h2>
+            <p class="text-muted fs-5">Tecnología de última generación al servicio de tu rentabilidad.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="bi bi-upc-scan"></i>
+                <h3>Magic Scan Pro</h3>
+                <p>Convertí cualquier smartphone en un escáner profesional. Sin cables, sin hardware costoso. Escaneo veloz garantizado.</p>
+            </div>
+            <div class="feature-card">
+                <i class="bi bi-qr-code-scan"></i>
+                <h3>Sincro Colaborativa</h3>
+                <p>Generá QRs temporales para auditorías de inventario masivas. Tus empleados escanean y el stock se ajusta solo.</p>
+            </div>
+            <div class="feature-card">
+                <i class="bi bi-file-earmark-pdf"></i>
+                <h3>Etiquetas Master</h3>
+                <p>Diseño automático de etiquetas con código de barras en formato PDF. Listas para imprimir y pegar en segundos.</p>
+            </div>
+        </div>
+    </section>
+
+    {{-- MAGIC SHOWCASE --}}
+    <section class="magic-section shadow" id="tecnologia">
+        <div class="magic-row">
+            <div class="magic-img shadow-lg">
+                <img src="{{ asset('images/inventory_sessions_qr.png') }}" alt="Collaborative Inventory">
+            </div>
+            <div class="magic-text">
+                <div class="magic-badge">EXCLUSIVO</div>
+                <h2>Auditorías a la Velocidad de la Luz</h2>
+                <p class="fs-5 text-muted mb-4">¿Te toma días hacer inventario? Con MultiPOS habilitás una sesión, imprimís un QR y todo tu equipo empieza a escanear unidades con sus propios teléfonos. Mirás el progreso en tiempo real desde tu despacho.</p>
+                <div class="bg-dark p-4 rounded-4 border border-secondary">
+                    <h5 class="fw-bold mb-2 text-primary">✓ 0% Errores de carga</h5>
+                    <h5 class="fw-bold mb-2 text-primary">✓ 100% Multidispositivo</h5>
+                    <h5 class="fw-bold mb-0 text-primary">✓ Desactivación remota en 1 click</h5>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- AI MATCHER --}}
+    <section class="ai-matcher" id="ai-assistant">
+        <div class="magic-badge" style="background: var(--accent)">INTELIGENCIA ARTIFICIAL</div>
+        <h2 class="display-5 fw-bold mb-3">¿Qué Plan necesitás realmente?</h2>
+        <p class="text-dim fs-5 mb-5">Respondé estas 3 preguntas y nuestro asistente te dirá cuál es la mejor opción para vos.</p>
         
-        <div class="features">
-            <div class="feature-card">
-                <i class="bi bi-lightning-charge feature-icon"></i>
-                <h3>Venta Ultra-Rápida</h3>
-                <p>Interfaz POS diseñada para la velocidad. Cobrá, emití tickets y gestioná devoluciones en segundos sin complicaciones.</p>
-            </div>
-            <div class="feature-card">
-                <i class="bi bi-wallet2 feature-icon"></i>
-                <h3>Gastos Operativos</h3>
-                <p>No pierdas un solo peso. Registrá cada egreso y adjuntá fotos de comprobantes con un simple pegado instantáneo.</p>
-            </div>
-            <div class="feature-card">
-                <i class="bi bi-graph-up-arrow feature-icon"></i>
-                <h3>Reportes Vivos</h3>
-                <p>Visualizá tu utilidad real neta al instante. Gráficos modernos que convierten tus datos en decisiones ganadoras.</p>
+        <div id="ai-content">
+            <div id="question-box" class="p-5 bg-black rounded-4 border border-secondary shadow-lg">
+                <h3 id="question-text" class="mb-5 fw-bold">¿Cuántos locales físicos gestionás hoy?</h3>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <button class="step-btn" onclick="nextQuestion(1, 'solo')">Solo uno</button>
+                    <button class="step-btn" onclick="nextQuestion(1, 'varios')">Entre 2 y 5</button>
+                    <button class="step-btn" onclick="nextQuestion(1, 'franquicia')">Franquicia o +5</button>
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="showcase" id="pos">
-        <div class="showcase-row">
-            <div class="showcase-text">
-                <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">#01 PUNTO DE VENTA</span>
-                <h2>Intuitivo, Veloz y Confiable</h2>
-                <p>Gestioná productos con variantes, combos y categorías personalizadas. MultiPOS se adapta a tu rubro, ya sea gastronomía, indumentaria o retail general.</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left; color: var(--text-dim);">
-                    <div style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Notas de Crédito</div>
-                    <div style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Stock en tiempo real</div>
-                    <div style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Múltiples medios de pago</div>
-                    <div style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Tickets Personalizados</div>
-                </div>
-            </div>
-            <div class="showcase-image">
-                <img src="{{ asset('images/promo/pos.png') }}" alt="POS MultiPOS">
-            </div>
+    {{-- PRICING --}}
+    <section id="planes">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-2">Simplicidad en el Precio.</h2>
+            <p class="text-muted">Elegí la escala que tu negocio merece hoy.</p>
         </div>
-
-        <div class="showcase-row" id="gastos">
-            <div class="showcase-text">
-                <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">#02 FINANZAS</span>
-                <h2>Domá tus Costos Fijos</h2>
-                <p>El primer sistema que entiende que un negocio tiene gastos reales. Cargá sueldos, alquiler y servicios. Adjuntá la foto de la factura al momento haciendo Ctrl+V.</p>
-                <div class="feature-card" style="margin-top: 2rem; padding: 2rem; text-align: left; background: rgba(99, 102, 241, 0.1);">
-                    <p style="color: #fff; font-style: italic; font-size: 1.1rem;">"Desde que usamos MultiPOS dejamos de anotar gastos en cuadernos. Ahora todo está en el sistema con su comprobante digital."</p>
-                    <small style="display: block; margin-top: 1.5rem; opacity: 0.7; font-weight: 600;">— Mario Rojas (Empresario Retail)</small>
-                </div>
-            </div>
-            <div class="showcase-image">
-                <img src="{{ asset('images/promo/gastos.png') }}" alt="Gestión de Gastos">
-            </div>
-        </div>
-        <div class="showcase-row" id="logistica">
-            <div class="showcase-text">
-                <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">#03 LOGÍSTICA</span>
-                <h2>Inventario Bajo Control</h2>
-                <p>Olvidate de las sorpresas. Nuestro motor de alertas te avisa antes de que te quedes sin stock. Gestioná rubros, marcas y ubicaciones con total precisión.</p>
-                <ul style="list-style: none; margin-top: 1.5rem; color: var(--text-dim);">
-                    <li style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Alertas de Stock Crítico</li>
-                    <li style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Actualización Masiva de Precios</li>
-                    <li><i class="bi bi-check2-circle me-2 text-primary"></i> Gestión de Múltiples Depósitos</li>
+        <div class="pricing-grid">
+            <div class="price-card" id="plan-starter">
+                <h4>STARTER</h4>
+                <div class="amount">$25.000 <span>/ mes</span></div>
+                <hr class="my-4 opacity-10">
+                <ul class="list-unstyled text-start small text-dim">
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> 1 Local / Sucursal</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Hasta 500 Productos</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Escaneo Móvil Incluido</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Soporte Básico</li>
                 </ul>
+                <a href="#" class="btn btn-outline-light w-100 rounded-pill mt-4">Comenzar</a>
             </div>
-            <div class="showcase-image">
-                <img src="{{ asset('images/promo/logistica.png') }}" alt="Logística MultiPOS">
-            </div>
-        </div>
-
-        <div class="showcase-row" id="reportes">
-            <div class="showcase-text">
-                <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">#04 ANALÍTICA</span>
-                <h2>Decisiones Basadas en Datos</h2>
-                <p>Accedé a reportes inteligentes de rentabilidad, mejores productos y rendimiento de empleados. Gráficos interactivos de alta calidad que te muestran el camino al crecimiento.</p>
-                <div class="feature-card" style="margin-top: 2rem; padding: 2rem; text-align: left; background: rgba(99, 102, 241, 0.1);">
-                    <p style="color: #fff; font-weight: 600;">"Lo que no se mide, no se mejora. Con MultiPOS medís cada movimiento de tu negocio."</p>
-                </div>
-            </div>
-            <div class="showcase-image">
-                <img src="{{ asset('images/promo/reportes.png') }}" alt="Reportes MultiPOS">
-            </div>
-        </div>
-
-        <div class="showcase-row" id="proveedores">
-            <div class="showcase-text">
-                <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">#05 PROVEEDORES</span>
-                <h2>Relaciones Profesionales</h2>
-                <p>Llevá la cuenta corriente de tus proveedores de forma impecable. Registrá facturas de compra, pagos parciales y notas de crédito de compra sin errores.</p>
-                <ul style="list-style: none; margin-top: 1.5rem; color: var(--text-dim);">
-                    <li style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Libro Mayor de Proveedores</li>
-                    <li style="margin-bottom: 0.8rem;"><i class="bi bi-check2-circle me-2 text-primary"></i> Control de Deudas Pendientes</li>
-                    <li><i class="bi bi-check2-circle me-2 text-primary"></i> Cuentas Corrientes Impecables</li>
+            <div class="price-card featured" id="plan-pro">
+                <h4>PROFESSIONAL</h4>
+                <div class="amount">$45.000 <span>/ mes</span></div>
+                <hr class="my-4 opacity-10">
+                <ul class="list-unstyled text-start small">
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Hasta 3 Sucursales</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Productos Ilimitados</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Sesiones Colaborativas</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Etiquetas PDF Pro</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Soporte Prioritario</li>
                 </ul>
+                <a href="#" class="btn btn-primary w-100 rounded-pill mt-4 fw-bold">Elegir Profesional</a>
             </div>
-            <div class="showcase-image">
-                <img src="{{ asset('images/promo/proveedores.png') }}" alt="Proveedores MultiPOS">
+            <div class="price-card" id="plan-business">
+                <h4>BUSINESS</h4>
+                <div class="amount">$89.000 <span>/ mes</span></div>
+                <hr class="my-4 opacity-10">
+                <ul class="list-unstyled text-start small text-dim">
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Locales Ilimitados</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Streaming de Video Bunny</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Reportes Avanzados</li>
+                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> API de Integración</li>
+                </ul>
+                <a href="#" class="btn btn-outline-light w-100 rounded-pill mt-4">Comenzar</a>
+            </div>
+            <div class="price-card">
+                <h4>ENTERPRISE</h4>
+                <div class="amount">CUSTOM</div>
+                <hr class="my-4 opacity-10">
+                <p class="text-dim">Grandes corporaciones y distribuidoras. Soluciones a medida con infraestructura dedicada.</p>
+                <a href="#" class="btn btn-outline-light w-100 rounded-pill mt-4">Contactar</a>
             </div>
         </div>
     </section>
 
     <footer>
-        <div class="footer-cta">
-            <h2>¿Listo para el gran salto?</h2>
-            <p>Unite a los cientos de negocios que ya están profesionalizando su gestión con la plataforma más potente del mercado.</p>
-            <a href="{{ route('login') }}" class="btn-cta" style="padding: 1.2rem 4rem; font-size: 1.2rem;">Lanzar mi Negocio Ahora</a>
+        <h2 class="fw-bold mb-4">MultiPOS</h2>
+        <p class="text-muted mb-5">El estándar de oro en gestión comercial SaaS.</p>
+        <div class="d-flex justify-content-center gap-4 mb-5">
+            <a href="#" class="text-dim fs-3"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="text-dim fs-3"><i class="bi bi-linkedin"></i></a>
+            <a href="#" class="text-dim fs-3"><i class="bi bi-whatsapp"></i></a>
         </div>
-        <div style="margin-top: 6rem; opacity: 0.5; font-size: 0.9rem;">
-            &copy; 2026 MultiPOS SaaS - El Estándar de Gestión para el Siglo XXI<br>
-            Desarrollado con pasión para emprendedores reales.
-        </div>
+        <p class="small text-muted">&copy; 2026 MultiPOS Cloud Management. Todos los derechos reservados.</p>
     </footer>
 
     <script>
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
+        let currentStep = 1;
+        let answers = {};
+
+        function nextQuestion(step, answer) {
+            answers[step] = answer;
+            const container = document.getElementById('question-box');
+            container.classList.add('animate__animated', 'animate__fadeOutLeft');
+            
+            setTimeout(() => {
+                container.classList.remove('animate__fadeOutLeft');
+                if(step === 1) {
+                    document.getElementById('question-text').innerText = "¿Necesitás que varios empleados ajusten stock a la vez?";
+                    container.innerHTML = `
+                        <h3 id="question-text" class="mb-5 fw-bold">¿Necesitás que varios empleados ajusten stock a la vez?</h3>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <button class="step-btn" onclick="nextQuestion(2, 'si')">Sí, es vital</button>
+                            <button class="step-btn" onclick="nextQuestion(2, 'no')">No, lo hago yo solo</button>
+                        </div>
+                    `;
+                } else if(step === 2) {
+                    processResult();
+                }
+                container.classList.add('animate__animated', 'animate__fadeInRight');
+            }, 300);
+        }
+
+        function processResult() {
+            const container = document.getElementById('question-box');
+            let recommendation = "";
+            let planId = "";
+
+            if(answers[1] === 'solo' && answers[2] === 'no') {
+                recommendation = "Para vos el plan STARTER es perfecto. Tenés todo lo que necesitás sin pagar de más.";
+                planId = "plan-starter";
+            } else {
+                recommendation = "Tu negocio escala rápido. Te recomendamos el plan PROFESSIONAL para activar las sesiones colaborativas.";
+                planId = "plan-pro";
+            }
+
+            container.innerHTML = `
+                <div class="animate__animated animate__zoomIn">
+                    <i class="bi bi-stars fs-1 text-primary mb-3 d-block"></i>
+                    <h3 class="fw-bold mb-4">¡Tenemos tu plan ideal!</h3>
+                    <p class="fs-5 text-muted mb-5">${recommendation}</p>
+                    <a href="#${planId}" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow">VER DETALLES DEL PLAN</a>
+                </div>
+            `;
+
+            // Highlight the recommended plan
+            document.querySelectorAll('.price-card').forEach(c => c.style.opacity = "0.5");
+            document.getElementById(planId).style.opacity = "1";
+            document.getElementById(planId).style.transform = "scale(1.1)";
+            document.getElementById(planId).style.borderColor = "var(--primary)";
+        }
     </script>
 
 </body>
