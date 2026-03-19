@@ -211,6 +211,53 @@
         </div>
     </section>
 
+    {{-- ADVANCED ANALYTICS SECTION --}}
+    <section id="reportes" class="py-5">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6 ps-lg-5">
+                    <span class="badge bg-purple mb-3" style="background: var(--primary)">DASHBOARD 360°</span>
+                    <h2 class="display-4 fw-bold mb-4">Reportes que te hacen <span class="text-primary">Ganar Tiempo.</span></h2>
+                    <p class="fs-5 text-muted">Olvidate de las planillas infinitas. Nuestro panel centralizado te muestra ventas, rentabilidad y ranking de productos en tiempo real con gráficas interactivas de alto impacto.</p>
+                    <div class="row mt-4">
+                        <div class="col-6 mb-3">
+                            <h4 class="fw-bold mb-1">Ventas por Fecha</h4>
+                            <p class="small text-muted">Comparativas anuales y mensuales.</p>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h4 class="fw-bold mb-1">Ranking Pro</h4>
+                            <p class="small text-muted">Descubrí tu top 10 de productos estrella.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <img src="{{ asset('images/promo/reportes.png') }}" class="img-fluid rounded-4 shadow-lg border border-secondary" alt="Reportes MultiPOS">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- SUPPLIERS & EXPENSES --}}
+    <section id="gestion" class="py-5" style="background: rgba(255, 255, 255, 0.02);">
+        <div class="container py-5">
+            <div class="row align-items-center flex-row-reverse">
+                <div class="col-lg-6 pe-lg-5">
+                    <span class="badge bg-info mb-3 text-dark">GESTIÓN INTEGRAL</span>
+                    <h2 class="display-4 fw-bold mb-4">Proveedores y Gastos <span class="text-info">bajo Control.</span></h2>
+                    <p class="fs-5 text-muted">Cargar facturas de compra y controlar gastos fijos nunca fue tan elegante. Vinculá tus egresos a categorías personalizadas y mantené tus finanzas siempre en verde.</p>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-person-badge-fill text-info fs-4 me-3"></i> <span>Directorio detallado de proveedores.</span></li>
+                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-wallet2 text-info fs-4 me-3"></i> <span>Módulo de gastos fijos y variables.</span></li>
+                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-graph-down-arrow text-info fs-4 me-3"></i> <span>Visualización de flujo de caja automático.</span></li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <img src="{{ asset('images/promo/proveedores.png') }}" class="img-fluid rounded-4 shadow-lg border border-info" alt="Gestión de Proveedores">
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- MAGIC SHOWCASE --}}
     <section class="magic-section shadow" id="tecnologia">
         <div class="magic-row">
