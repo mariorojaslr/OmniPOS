@@ -75,6 +75,10 @@ class LabelController extends Controller
         $empresa = Auth::user()->empresa;
         if ($product->empresa_id !== $empresa->id) abort(403);
         
+        if (!$product->barcode) {
+            return back()->with('error', 'Este producto no tiene un código de barras asignado. Por favor cárgalo antes de imprimir.');
+        }
+
         $generator = new BarcodeGeneratorHTML();
         $labels = [];
         
