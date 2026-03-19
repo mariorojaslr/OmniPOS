@@ -31,7 +31,7 @@
                         <div class="row align-items-center mt-3">
                             <div class="col-md-6 text-center">
                                 <div class="p-4 bg-white shadow-sm border rounded-4 d-inline-block mb-3" id="qrContainer">
-                                    {!! QrCode::size(250)->generate(route('inventory.guest-access', $session->uuid)) !!}
+                                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(250)->generate(route('inventory.guest-access', $session->uuid)) !!}
                                 </div>
                                 <div class="mt-2 fw-bold text-success animate__animated animate__pulse animate__infinite">
                                     ● Sesión de Inventario Activa
