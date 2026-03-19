@@ -74,7 +74,30 @@ class ClearEmpresaDataCommand extends Command
                 $this->info("Gastos eliminados.");
             }
 
-            // 5. Borrar Clientes
+            // 5. Borrar Compras y sus detalles
+            if (Schema::hasTable('purchase_items')) {
+                DB::table('purchase_items')->whereIn('purchase_id', function($q) use ($id) {
+                    $q->select('id')->from('purchases')->where('empresa_id', $id);
+                })->delete();
+                DB::table('purchases')->where('empresa_id', $id)->delete();
+                $this->info("Compras eliminadas.");
+            }
+
+            // 6. Borrar Historial de Cuentas Corrientes (Saldos)
+            if (Schema::hasTable('client_ledgers')) {
+                DB::table('client_ledgers')->whereIn('client_id', function($q) use ($id) {
+                    $q->select('id')->from('clients')->where('empresa_id', $id);
+                })->delete();
+                $this->info("Libros de cuentas de clientes limpiados.");
+            }
+            if (Schema::hasTable('supplier_ledgers')) {
+                DB::table('supplier_ledgers')->whereIn('supplier_id', function($q) use ($id) {
+                    $q->select('id')->from('suppliers')->where('empresa_id', $id);
+                })->delete();
+                $this->info("Libros de cuentas de proveedores limpiados.");
+            }
+
+            // 7. Borrar Clientes
             if (Schema::hasTable('clients')) {
                 DB::table('clients')->where('empresa_id', $id)->delete();
                 $this->info("Clientes eliminados.");
