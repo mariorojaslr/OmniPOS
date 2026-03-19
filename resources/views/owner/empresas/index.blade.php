@@ -29,7 +29,8 @@
                 {{-- Cabecera --}}
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-4">Nombre</th>
+                        <th class="ps-4">ID</th>
+                        <th>Nombre</th>
                         <th>Email</th>
                         <th>Plan</th>
                         <th>Vencimiento</th>
@@ -49,9 +50,13 @@
                     @endphp
 
                     <tr>
+                        {{-- ID --}}
+                        <td class="ps-4">
+                            <span class="badge bg-light text-dark">#{{ $empresa->id }}</span>
+                        </td>
 
                         {{-- Nombre comercial --}}
-                        <td class="fw-semibold ps-4">
+                        <td class="fw-semibold">
                             {{ $empresa->nombre_comercial }}
                         </td>
 
