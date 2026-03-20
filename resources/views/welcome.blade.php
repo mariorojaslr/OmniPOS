@@ -120,44 +120,82 @@
 
     <div class="bg-mesh"></div>
 
-    {{-- CARINA FLOATING CHAT WIDGET --}}
-    <div id="carina-widget" class="position-fixed bottom-0 end-0 p-4" style="z-index: 9999;">
-        <!-- Chat Bubble -->
-        <div id="chat-bubble" class="rounded-circle shadow-lg d-flex align-items-center justify-content-center animate__animated animate__bounceIn" style="width: 75px; height: 75px; background: var(--bg-dark); cursor: pointer; border: 3px solid var(--primary);">
-            <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle" style="width: 65px; height: 65px; object-fit: cover;" alt="Carina AI">
-            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle animate__animated animate__pulse animate__infinite"></span>
+    {{-- CARINA FLOATING CHAT WIDGET - REDISEÑO PRO --}}
+    @php
+        // Blindar WhatsApp: Limpiar cualquier espacio, guión o símbolo del .env para el enlace
+        $wa_clean = preg_replace('/[^0-9]/', '', config('platform.whatsapp'));
+    @endphp
+
+    <div id="carina-chat-system" class="position-fixed bottom-0 end-0 p-4" style="z-index: 9999;">
+        
+        <!-- Bubble pulsante -->
+        <div id="chat-bubble" class="rounded-circle shadow-lg d-flex align-items-center justify-content-center animate__animated animate__zoomIn" 
+             style="width: 85px; height: 85px; background: #000; cursor: pointer; border: 2px solid var(--primary); transition: 0.3s transform ease;">
+            <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle" style="width: 75px; height: 75px; object-fit: cover;" alt="Carina AI">
+            <!-- Pulso verde -->
+            <div class="position-absolute translate-middle-x" style="bottom: 0px; left: 50%;">
+                 <span class="badge rounded-pill bg-success border border-white" style="font-size: 0.65rem; padding: 0.3rem 0.6rem">CARINA ✨</span>
+            </div>
         </div>
 
-        <!-- Chat Window (hidden) -->
-        <div id="chat-window" class="card shadow-2xl d-none animate__animated animate__fadeInUp" style="width: 350px; border-radius: 25px; border: 1px solid var(--glass-border); background: #09090b; position: absolute; bottom: 100px; right: 20px;">
-            <div class="card-header border-0 p-4 rounded-top-5 d-flex align-items-center gap-3" style="background: linear-gradient(90deg, var(--bg-dark), #1e1b4b);">
-                <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;" alt="Carina">
+        <!-- Ventana de Chat Pro -->
+        <div id="chat-window" class="card shadow-2xl d-none animate__animated animate__fadeInUp" 
+             style="width: 400px; height: 600px; max-height: 85vh; border-radius: 30px; border: 1px solid var(--glass-border); background: #09090b; position: absolute; bottom: 100px; right: 20px; display: none; flex-direction: column;">
+            
+            <!-- Header Pro -->
+            <div class="card-header border-0 p-4 rounded-top-5 d-flex align-items-center gap-3" style="background: linear-gradient(135deg, #09090b 0%, #1e1b4b 100%); border-bottom: 1px solid rgba(255,255,255,0.05) !important;">
+                <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle border border-primary p-1" style="width: 55px; height: 55px; object-fit: cover;" alt="Carina">
                 <div>
-                    <h5 class="mb-0 fw-bold text-white">Carina AI</h5>
-                    <span class="small text-success">● En línea</span>
+                    <h5 class="mb-0 fw-bold text-white fs-4">Carina <span class="text-primary">AI</span></h5>
+                    <span class="small text-success fw-bold d-flex align-items-center"><i class="bi bi-circle-fill fs-6 me-2" style="font-size: 0.5rem"></i> ASISTENTE ACTIVA</span>
                 </div>
-                <button id="close-chat" class="btn btn-sm ms-auto text-muted fs-4">×</button>
+                <button id="close-chat" class="btn btn-sm ms-auto text-muted fs-3" style="margin-top: -15px">×</button>
             </div>
             
-            <div id="chat-body" class="card-body p-4 overflow-auto text-white-50" style="height: 300px; font-size: 0.95rem;">
-                <div class="mb-3">
-                    <div class="bg-dark p-3 rounded-4 d-inline-block shadow-sm" style="max-width: 85%;">
-                        ¡Hola! Soy <strong class="text-primary">Carina</strong>. 👋 ¿En qué puedo ayudarte hoy para mejorar tu negocio?
+            <!-- Cuerpo del Chat -->
+            <div id="chat-body" class="card-body p-4 overflow-auto scroll-custom" style="flex: 1; font-size: 1rem; scroll-behavior: smooth;">
+                <div class="mb-4">
+                    <div class="bg-dark p-3 rounded-4 d-inline-block shadow-sm border border-secondary" style="max-width: 90%; color: #d1d1d6;">
+                        ¡Hola! Soy <strong class="text-primary">Carina</strong>. ✨ Estoy aquí para ayudarte a que tu negocio sea el mejor de tu ciudad. <br><br>
+                        ¿En qué puedo asesorarte hoy? 😊
                     </div>
                 </div>
                 <div id="chat-interactions"></div>
+                <div id="typing-indicator" class="d-none mb-3">
+                    <span class="badge bg-dark text-muted rounded-pill px-3 py-2 italic border border-secondary animate__animated animate__flash animate__infinite">Carina está escribiendo...</span>
+                </div>
             </div>
 
-            <div class="card-footer border-0 p-3 bg-dark rounded-bottom-5">
+            <!-- Footer / Input -->
+            <div class="card-footer border-0 p-4 bg-dark rounded-bottom-5" style="border-top: 1px solid rgba(255,255,255,0.05) !important;">
                 <div class="input-group">
-                    <input type="text" id="chat-input" class="form-control bg-black border-secondary text-white rounded-start-pill" placeholder="Escribe un mensaje...">
-                    <button id="send-btn" class="btn btn-primary rounded-end-pill px-3">
-                        <i class="bi bi-send-fill"></i>
+                    <input type="text" id="chat-input" class="form-control bg-black border-secondary text-white rounded-start-pill py-3 px-4" placeholder="Hacer una pregunta...">
+                    <button id="send-btn" class="btn btn-primary rounded-end-pill px-4">
+                        <i class="bi bi-send-fill fs-4"></i>
                     </button>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="https://wa.me/{{ $wa_clean }}" target="_blank" class="text-success text-decoration-none small fw-bold">
+                        <i class="bi bi-whatsapp me-1"></i> Ir a WhatsApp Directo
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Scroll Custom CSS -->
+    <style>
+        .scroll-custom::-webkit-scrollbar { width: 5px; }
+        .scroll-custom::-webkit-scrollbar-track { background: transparent; }
+        .scroll-custom::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        
+        @media (max-width: 576px) {
+            #chat-window { width: 92vw !important; right: -5px !important; bottom: 95px !important; height: 75vh !important; }
+            #chat-bubble { width: 70px !important; height: 70px !important; }
+        }
+
+        #chat-bubble:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 0 30px var(--primary); }
+    </style>
 
     <nav>
         <a href="#" class="logo">
@@ -502,27 +540,43 @@
             document.getElementById(planId).style.borderColor = "var(--primary)";
         }
 
-        // CARINA CHAT LOGIC
+        // CARINA CHAT LOGIC - REDISEÑO PRO
         const bubble = document.getElementById('chat-bubble');
         const windowChat = document.getElementById('chat-window');
         const closeChat = document.getElementById('close-chat');
         const sendBtn = document.getElementById('send-btn');
         const chatInput = document.getElementById('chat-input');
         const chatInteractions = document.getElementById('chat-interactions');
+        const typingId = document.getElementById('typing-indicator');
 
-        bubble.onclick = () => windowChat.classList.toggle('d-none');
-        closeChat.onclick = () => windowChat.classList.add('d-none');
+        bubble.onclick = () => {
+             const isHidden = windowChat.style.display === 'none' || windowChat.classList.contains('d-none');
+             if(isHidden) {
+                 windowChat.style.display = 'flex';
+                 windowChat.classList.remove('d-none');
+             } else {
+                 windowChat.style.display = 'none';
+                 windowChat.classList.add('d-none');
+             }
+        };
+
+        closeChat.onclick = () => {
+            windowChat.style.display = 'none';
+            windowChat.classList.add('d-none');
+        };
 
         function addMessage(text, isUser = false) {
             const div = document.createElement('div');
-            div.className = `mb-3 ${isUser ? 'text-end' : ''}`;
+            div.className = `mb-4 animate__animated animate__fadeInUp ${isUser ? 'text-end' : ''}`;
             div.innerHTML = `
-                <div class="${isUser ? 'bg-primary text-white' : 'bg-dark text-white-50'} p-3 rounded-4 d-inline-block shadow-sm" style="max-width: 85%;">
+                <div class="${isUser ? 'bg-primary text-white' : 'bg-dark text-white-50 border border-secondary'} p-3 rounded-4 d-inline-block shadow-sm" style="max-width: 85%; font-size: 1rem;">
                     ${text}
                 </div>
             `;
             chatInteractions.appendChild(div);
-            chatInteractions.parentElement.scrollTop = chatInteractions.parentElement.scrollHeight;
+            // Scroll al final
+            const chatBody = document.getElementById('chat-body');
+            chatBody.scrollTop = chatBody.scrollHeight;
         }
 
         sendBtn.onclick = () => {
@@ -531,8 +585,14 @@
             addMessage(msg, true);
             chatInput.value = '';
             
-            // Bot Logic
+            // Mostrar indicador de escritura
+            typingId.classList.remove('d-none');
+            const chatBody = document.getElementById('chat-body');
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // Lógica de respuesta simulada
             setTimeout(() => {
+                typingId.classList.add('d-none');
                 let response = "¡Qué buena pregunta! Dame un segundo que lo consulto... 🌸";
                 const lower = msg.toLowerCase();
                 
@@ -547,10 +607,10 @@
                 // Sugerir WhatsApp si no es saludo
                 if(!lower.includes('hola')) {
                    setTimeout(() => {
-                       addMessage(`<a href="https://wa.me/{{ config('platform.whatsapp') }}" class="btn btn-sm btn-outline-success rounded-pill mt-2">Seguir por WhatsApp 📱</a>`);
-                   }, 1000);
+                       addMessage(`<a href="https://wa.me/{{ $wa_clean }}" target="_blank" class="btn btn-sm btn-outline-success rounded-pill mt-2 fw-bold px-3 py-2"><i class="bi bi-whatsapp me-2"></i> Seguir por WhatsApp 📱</a>`);
+                   }, 800);
                 }
-            }, 1000);
+            }, 1500);
         };
 
         chatInput.onkeypress = (e) => { if(e.key === 'Enter') sendBtn.click(); };
