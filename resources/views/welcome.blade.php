@@ -120,6 +120,45 @@
 
     <div class="bg-mesh"></div>
 
+    {{-- CARINA FLOATING CHAT WIDGET --}}
+    <div id="carina-widget" class="position-fixed bottom-0 end-0 p-4" style="z-index: 9999;">
+        <!-- Chat Bubble -->
+        <div id="chat-bubble" class="rounded-circle shadow-lg d-flex align-items-center justify-content-center animate__animated animate__bounceIn" style="width: 75px; height: 75px; background: var(--bg-dark); cursor: pointer; border: 3px solid var(--primary);">
+            <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle" style="width: 65px; height: 65px; object-fit: cover;" alt="Carina AI">
+            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle animate__animated animate__pulse animate__infinite"></span>
+        </div>
+
+        <!-- Chat Window (hidden) -->
+        <div id="chat-window" class="card shadow-2xl d-none animate__animated animate__fadeInUp" style="width: 350px; border-radius: 25px; border: 1px solid var(--glass-border); background: #09090b; position: absolute; bottom: 100px; right: 20px;">
+            <div class="card-header border-0 p-4 rounded-top-5 d-flex align-items-center gap-3" style="background: linear-gradient(90deg, var(--bg-dark), #1e1b4b);">
+                <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;" alt="Carina">
+                <div>
+                    <h5 class="mb-0 fw-bold text-white">Carina AI</h5>
+                    <span class="small text-success">● En línea</span>
+                </div>
+                <button id="close-chat" class="btn btn-sm ms-auto text-muted fs-4">×</button>
+            </div>
+            
+            <div id="chat-body" class="card-body p-4 overflow-auto text-white-50" style="height: 300px; font-size: 0.95rem;">
+                <div class="mb-3">
+                    <div class="bg-dark p-3 rounded-4 d-inline-block shadow-sm" style="max-width: 85%;">
+                        ¡Hola! Soy <strong class="text-primary">Carina</strong>. 👋 ¿En qué puedo ayudarte hoy para mejorar tu negocio?
+                    </div>
+                </div>
+                <div id="chat-interactions"></div>
+            </div>
+
+            <div class="card-footer border-0 p-3 bg-dark rounded-bottom-5">
+                <div class="input-group">
+                    <input type="text" id="chat-input" class="form-control bg-black border-secondary text-white rounded-start-pill" placeholder="Escribe un mensaje...">
+                    <button id="send-btn" class="btn btn-primary rounded-end-pill px-3">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <nav>
         <a href="#" class="logo">
             <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS" style="height: 45px"> 
@@ -462,6 +501,59 @@
             document.getElementById(planId).style.transform = "scale(1.1)";
             document.getElementById(planId).style.borderColor = "var(--primary)";
         }
+
+        // CARINA CHAT LOGIC
+        const bubble = document.getElementById('chat-bubble');
+        const windowChat = document.getElementById('chat-window');
+        const closeChat = document.getElementById('close-chat');
+        const sendBtn = document.getElementById('send-btn');
+        const chatInput = document.getElementById('chat-input');
+        const chatInteractions = document.getElementById('chat-interactions');
+
+        bubble.onclick = () => windowChat.classList.toggle('d-none');
+        closeChat.onclick = () => windowChat.classList.add('d-none');
+
+        function addMessage(text, isUser = false) {
+            const div = document.createElement('div');
+            div.className = `mb-3 ${isUser ? 'text-end' : ''}`;
+            div.innerHTML = `
+                <div class="${isUser ? 'bg-primary text-white' : 'bg-dark text-white-50'} p-3 rounded-4 d-inline-block shadow-sm" style="max-width: 85%;">
+                    ${text}
+                </div>
+            `;
+            chatInteractions.appendChild(div);
+            chatInteractions.parentElement.scrollTop = chatInteractions.parentElement.scrollHeight;
+        }
+
+        sendBtn.onclick = () => {
+            const msg = chatInput.value.trim();
+            if(!msg) return;
+            addMessage(msg, true);
+            chatInput.value = '';
+            
+            // Bot Logic
+            setTimeout(() => {
+                let response = "¡Qué buena pregunta! Dame un segundo que lo consulto... 🌸";
+                const lower = msg.toLowerCase();
+                
+                if(lower.includes('hola')) response = "¡Hola! Qué alegría saludarte. Soy Carina, ¿cómo puedo ayudarte hoy? ✨";
+                else if(lower.includes('precio') || lower.includes('plan')) response = "Nuestros planes arrancan en $25.000 ARS y se adaptan a tu crecimiento. ¿Querés que te recomiende uno? 😊";
+                else if(lower.includes('stock') || lower.includes('inventario')) response = "¡El stock es nuestra especialidad! Usamos la cámara de tu celular para que todo sea más fácil. 📱";
+                else if(lower.includes('carina')) response = "¡Esa soy yo! Me encanta conocer gente nueva interesada en mejorar su negocio. ¿Charlamos por WhatsApp? 💖";
+                else response = "Me encantaría contarte más sobre eso por WhatsApp donde puedo darte una atención más personalizada. ¿Te parece bien? 👇";
+
+                addMessage(response);
+                
+                // Sugerir WhatsApp si no es saludo
+                if(!lower.includes('hola')) {
+                   setTimeout(() => {
+                       addMessage(`<a href="https://wa.me/{{ config('platform.whatsapp') }}" class="btn btn-sm btn-outline-success rounded-pill mt-2">Seguir por WhatsApp 📱</a>`);
+                   }, 1000);
+                }
+            }, 1000);
+        };
+
+        chatInput.onkeypress = (e) => { if(e.key === 'Enter') sendBtn.click(); };
     </script>
 
 </body>
