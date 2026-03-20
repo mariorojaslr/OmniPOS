@@ -120,36 +120,26 @@
 
     <div class="bg-mesh"></div>
 
-    {{-- CARINA FLOATING CHAT WIDGET - REDISEÑO PRO --}}
+    {{-- CARINA FLOATING CHAT WIDGET - REDISEÑO PRO CON VOZ E IA --}}
     @php
         // Blindar WhatsApp: Limpiar cualquier espacio, guión o símbolo del .env para el enlace
         $wa_clean = preg_replace('/[^0-9]/', '', config('platform.whatsapp'));
     @endphp
 
-    <div id="carina-chat-system" class="position-fixed bottom-0 end-0 p-4" style="z-index: 9999;">
+    <div id="carina-chat-system" class="position-fixed bottom-0 end-0 p-4 d-flex flex-column align-items-end" style="z-index: 9999;">
         
-        <!-- Bubble pulsante -->
-        <div id="chat-bubble" class="rounded-circle shadow-lg d-flex align-items-center justify-content-center animate__animated animate__zoomIn" 
-             style="width: 85px; height: 85px; background: #000; cursor: pointer; border: 2px solid var(--primary); transition: 0.3s transform ease;">
-            <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle" style="width: 75px; height: 75px; object-fit: cover;" alt="Carina AI">
-            <!-- Pulso verde -->
-            <div class="position-absolute translate-middle-x" style="bottom: 0px; left: 50%;">
-                 <span class="badge rounded-pill bg-success border border-white" style="font-size: 0.65rem; padding: 0.3rem 0.6rem">CARINA ✨</span>
-            </div>
-        </div>
-
         <!-- Ventana de Chat Pro -->
-        <div id="chat-window" class="card shadow-2xl d-none animate__animated animate__fadeInUp" 
-             style="width: 400px; height: 600px; max-height: 85vh; border-radius: 30px; border: 1px solid var(--glass-border); background: #09090b; position: absolute; bottom: 100px; right: 20px; display: none; flex-direction: column;">
+        <div id="chat-window" class="card shadow-2xl animate__animated animate__fadeInUp" 
+             style="width: 400px; height: 600px; max-height: 85vh; border-radius: 30px; border: 1px solid var(--glass-border); background: #09090b; margin-bottom: 20px; display: none; flex-direction: column;">
             
             <!-- Header Pro -->
             <div class="card-header border-0 p-4 rounded-top-5 d-flex align-items-center gap-3" style="background: linear-gradient(135deg, #09090b 0%, #1e1b4b 100%); border-bottom: 1px solid rgba(255,255,255,0.05) !important;">
                 <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle border border-primary p-1" style="width: 55px; height: 55px; object-fit: cover;" alt="Carina">
-                <div>
+                <div class="flex-grow-1">
                     <h5 class="mb-0 fw-bold text-white fs-4">Carina <span class="text-primary">AI</span></h5>
                     <span class="small text-success fw-bold d-flex align-items-center"><i class="bi bi-circle-fill fs-6 me-2" style="font-size: 0.5rem"></i> ASISTENTE ACTIVA</span>
                 </div>
-                <button id="close-chat" class="btn btn-sm ms-auto text-muted fs-3" style="margin-top: -15px">×</button>
+                <button id="close-chat" class="btn btn-sm text-muted fs-3 p-0" style="margin-top: -15px">×</button>
             </div>
             
             <!-- Cuerpo del Chat -->
@@ -161,12 +151,13 @@
                     </div>
                 </div>
                 <div id="chat-interactions"></div>
+                <!-- Indicador de escritura -->
                 <div id="typing-indicator" class="d-none mb-3">
                     <span class="badge bg-dark text-muted rounded-pill px-3 py-2 italic border border-secondary animate__animated animate__flash animate__infinite">Carina está escribiendo...</span>
                 </div>
             </div>
 
-            <!-- Footer / Input -->
+            <!-- Footer / Input Chat -->
             <div class="card-footer border-0 p-4 bg-dark rounded-bottom-5" style="border-top: 1px solid rgba(255,255,255,0.05) !important;">
                 <div class="input-group">
                     <input type="text" id="chat-input" class="form-control bg-black border-secondary text-white rounded-start-pill py-3 px-4" placeholder="Hacer una pregunta...">
@@ -176,9 +167,19 @@
                 </div>
                 <div class="text-center mt-3">
                     <a href="https://wa.me/{{ $wa_clean }}" target="_blank" class="text-success text-decoration-none small fw-bold">
-                        <i class="bi bi-whatsapp me-1"></i> Ir a WhatsApp Directo
+                        <i class="bi bi-whatsapp me-1 text-success"></i> <span class="text-white">Ir a WhatsApp Directo</span>
                     </a>
                 </div>
+            </div>
+        </div>
+
+        <!-- Bubble pulsante -->
+        <div id="chat-bubble" class="rounded-circle shadow-lg d-flex align-items-center justify-content-center animate__animated animate__zoomIn" 
+             style="width: 85px; height: 85px; background: #000; cursor: pointer; border: 2px solid var(--primary); transition: 0.3s transform ease;">
+            <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle" style="width: 75px; height: 75px; object-fit: cover;" alt="Carina AI Chat">
+            <!-- Pulso verde -->
+            <div class="position-absolute translate-middle-x" style="bottom: 0px; left: 50%;">
+                 <span class="badge rounded-pill bg-success border border-white shadow-sm" style="font-size: 0.65rem; padding: 0.3rem 0.6rem">CARINA ✨</span>
             </div>
         </div>
     </div>
@@ -190,7 +191,7 @@
         .scroll-custom::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         
         @media (max-width: 576px) {
-            #chat-window { width: 92vw !important; right: -5px !important; bottom: 95px !important; height: 75vh !important; }
+            #chat-window { width: 92vw !important; right: 0 !important; margin-bottom: 20px !important; height: 75vh !important; }
             #chat-bubble { width: 70px !important; height: 70px !important; }
         }
 
@@ -376,7 +377,7 @@
     <section id="asistente" class="py-5" style="background: linear-gradient(180deg, transparent, rgba(139, 92, 246, 0.05));">
         <div class="container">
             <div class="row align-items-center bg-black border border-secondary p-5 rounded-5 shadow-lg">
-                <div class="col-lg-4 text-center">
+                <div class="col-lg-4 text-center mb-4 mb-lg-0">
                     <div class="position-relative d-inline-block animate__animated animate__pulse animate__infinite">
                         <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle border border-primary p-2 shadow-lg" style="width: 250px; height: 250px; object-fit: cover;" alt="Asistente IA">
                         <div class="position-absolute bottom-0 start-50 translate-middle-x badge bg-success rounded-pill px-4 py-2 border border-black" style="font-size: 0.9rem; margin-bottom: -10px">ESTADO: ONLINE</div>
@@ -387,13 +388,17 @@
                     <h2 class="display-4 fw-bold mb-3">Hola, soy <span class="text-primary text-gradient">Carina</span>, tu asistente virtual.</h2>
                     <p class="fs-4 text-muted mb-4 italic">"Mi voz es amable, dulce y estoy aquí para que MultiPOS sea lo mejor para tu negocio."</p>
                     <p class="fs-5 text-dim mb-5">Carina conoce cada detalle de nuestro sistema. Puede explicarte cómo funciona el stock colaborativo, guiarte en el alta de productos o simplemente charlar sobre qué plan te conviene más hoy para crecer.</p>
-                    <div class="d-flex gap-3">
-                        <a href="https://wa.me/{{ config('platform.whatsapp') }}?text=Hola%20Carina,%20quiero%20conocer%20mas%20de%20MultiPOS" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-lg">
-                            <i class="bi bi-whatsapp me-2"></i> Hablar con Carina
-                        </a>
-                        <button class="btn btn-outline-secondary btn-lg rounded-pill px-5 fw-bold bg-dark">
-                            <i class="bi bi-mic-fill me-2 text-primary anim-voice"></i> Activar Voz
-                        </button>
+                    <div class="row gap-3">
+                        <div class="col-md-5">
+                            <a href="https://wa.me/{{ $wa_clean }}?text=Hola%20Carina,%20quiero%20conocer%20mas%20de%20MultiPOS" class="btn btn-primary btn-lg w-100 rounded-pill px-5 fw-bold shadow-lg">
+                                <i class="bi bi-whatsapp me-2"></i> Hablar con Carina
+                            </a>
+                        </div>
+                        <div class="col-md-5">
+                            <button id="activate-voice-btn" class="btn btn-outline-secondary btn-lg w-100 rounded-pill px-5 fw-bold bg-dark">
+                                <i class="bi bi-volume-up-fill me-2 text-primary"></i> <span id="voice-status">Escuchar a Carina</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -449,21 +454,21 @@
                 <div class="col-md-3">
                     <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
                         <i class="bi bi-telephone fs-1 text-primary"></i>
-                        <h4 class="mt-3">Llamanos</h4>
+                        <h4 class="mt-3 text-white">Llamanos</h4>
                         <p class="text-muted">{{ config('platform.phone') }}</p>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
                         <i class="bi bi-envelope fs-1 text-primary"></i>
-                        <h4 class="mt-3">Email</h4>
+                        <h4 class="mt-3 text-white">Email</h4>
                         <p class="text-muted">{{ config('platform.email') }}</p>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://wa.me/{{ config('platform.whatsapp') }}" class="text-decoration-none">
+                    <a href="https://wa.me/{{ $wa_clean }}" class="text-decoration-none">
                         <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
-                            <i class="bi bi-chat-dots fs-1 text-primary"></i>
+                            <i class="bi bi-whatsapp fs-1 text-success"></i>
                             <h4 class="mt-3 text-white">WhatsApp</h4>
                             <p class="text-muted">Conversá en Vivo</p>
                         </div>
@@ -479,7 +484,7 @@
         <div class="d-flex justify-content-center gap-4 mb-5">
             <a href="#" class="text-dim fs-3 hover-text-primary"><i class="bi bi-instagram"></i></a>
             <a href="#" class="text-dim fs-3 hover-text-primary"><i class="bi bi-linkedin"></i></a>
-            <a href="https://wa.me/{{ config('platform.whatsapp') }}" class="text-dim fs-3 hover-text-primary"><i class="bi bi-whatsapp"></i></a>
+            <a href="https://wa.me/{{ $wa_clean }}" class="text-dim fs-3 hover-text-success"><i class="bi bi-whatsapp"></i></a>
         </div>
         <p class="small text-muted">&copy; 2026 MultiPOS Cloud Management. Todos los derechos reservados.</p>
     </footer>
@@ -540,7 +545,7 @@
             document.getElementById(planId).style.borderColor = "var(--primary)";
         }
 
-        // CARINA CHAT LOGIC - REDISEÑO PRO
+        // CARINA CHAT LOGIC - REDISEÑO PRO CON VOZ E IA
         const bubble = document.getElementById('chat-bubble');
         const windowChat = document.getElementById('chat-window');
         const closeChat = document.getElementById('close-chat');
@@ -548,6 +553,19 @@
         const chatInput = document.getElementById('chat-input');
         const chatInteractions = document.getElementById('chat-interactions');
         const typingId = document.getElementById('typing-indicator');
+        const voiceBtn = document.getElementById('activate-voice-btn');
+        let voiceActive = false;
+
+        // Conocimiento de Carina
+        const kb = {
+            "precio": "Nuestros planes arrancan en solo $25.000 ARS por mes para el plan Starter. Si crecés, el plan Pro vale $45.000 y el Business $89.000 ARS. Todos incluyen escaneo móvil.",
+            "stock": "¡Me encanta el stock! Nuestra tecnología Magic Scan Pro permite que tu teléfono sea un escáner industrial. También podés hacer inventarios colaborativos por QR.",
+            "bunny": "Usamos Bunny.net para que tus videos y fotos de productos vuelen. Tu web será la más rápida del mercado gracias a este almacenamiento especializado.",
+            "hola": "¡Hola! Qué alegría saludarte. Soy Carina, tu asistente digital para que tu negocio crezca con la mejor tecnología. ✨",
+            "carina": "Esa soy yo, tu voz amiga en MultiPOS. Estoy aquí las 24 horas para asesorarte de la forma más dulce y amable.",
+            "franquicia": "Para franquicias tenemos el plan Business con locales ilimitados y reportes avanzados. ¡Es la opción más potetne!",
+            "contacto": "Podés hablar con el dueño de MultiPOS por WhatsApp directo con el botón que te dejo abajo. ¡Te va a atender súper bien! 😊"
+        };
 
         bubble.onclick = () => {
              const isHidden = windowChat.style.display === 'none' || windowChat.classList.contains('d-none');
@@ -564,6 +582,23 @@
             windowChat.style.display = 'none';
             windowChat.classList.add('d-none');
         };
+
+        voiceBtn.onclick = () => {
+            voiceActive = !voiceActive;
+            voiceBtn.classList.toggle('btn-primary');
+            document.getElementById('voice-status').innerText = voiceActive ? "Voz: ACTIVADA 🌸" : "Escuchar a Carina";
+            if(voiceActive) speak("¡Me encanta que quieras escucharme! Ahora te responderé hablando con todo mi cariño.");
+        };
+
+        function speak(text) {
+            if(!voiceActive) return;
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'es-ES';
+            msg.rate = 0.95; // Un poco más lento para ser amable
+            msg.pitch = 1.1; // Un poco más agudo para ser dulce
+            window.speechSynthesis.speak(msg);
+        }
 
         function addMessage(text, isUser = false) {
             const div = document.createElement('div');
@@ -590,27 +625,27 @@
             const chatBody = document.getElementById('chat-body');
             chatBody.scrollTop = chatBody.scrollHeight;
 
-            // Lógica de respuesta simulada
+            // Lógica de respuesta inteligente simulada
             setTimeout(() => {
                 typingId.classList.add('d-none');
-                let response = "¡Qué buena pregunta! Dame un segundo que lo consulto... 🌸";
+                let response = "¡Qué buena pregunta! Me encantaría contarte más sobre ese detalle si hablamos por WhatsApp con una atención personalizada para tu negocio. 🌸";
                 const lower = msg.toLowerCase();
                 
-                if(lower.includes('hola')) response = "¡Hola! Qué alegría saludarte. Soy Carina, ¿cómo puedo ayudarte hoy? ✨";
-                else if(lower.includes('precio') || lower.includes('plan')) response = "Nuestros planes arrancan en $25.000 ARS y se adaptan a tu crecimiento. ¿Querés que te recomiende uno? 😊";
-                else if(lower.includes('stock') || lower.includes('inventario')) response = "¡El stock es nuestra especialidad! Usamos la cámara de tu celular para que todo sea más fácil. 📱";
-                else if(lower.includes('carina')) response = "¡Esa soy yo! Me encanta conocer gente nueva interesada en mejorar su negocio. ¿Charlamos por WhatsApp? 💖";
-                else response = "Me encantaría contarte más sobre eso por WhatsApp donde puedo darte una atención más personalizada. ¿Te parece bien? 👇";
+                // Buscar en KB
+                Object.keys(kb).forEach(key => {
+                    if(lower.includes(key)) response = kb[key];
+                });
 
                 addMessage(response);
+                speak(response);
                 
-                // Sugerir WhatsApp si no es saludo
+                // Sugerir WhatsApp después de un asesoramiento
                 if(!lower.includes('hola')) {
                    setTimeout(() => {
                        addMessage(`<a href="https://wa.me/{{ $wa_clean }}" target="_blank" class="btn btn-sm btn-outline-success rounded-pill mt-2 fw-bold px-3 py-2"><i class="bi bi-whatsapp me-2"></i> Seguir por WhatsApp 📱</a>`);
                    }, 800);
                 }
-            }, 1500);
+            }, 1200);
         };
 
         chatInput.onkeypress = (e) => { if(e.key === 'Enter') sendBtn.click(); };
