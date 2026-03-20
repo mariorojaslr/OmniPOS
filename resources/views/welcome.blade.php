@@ -76,7 +76,23 @@
 
     <div class="bg-mesh"></div>
 
-    @php $wa_clean = preg_replace('/[^0-9]/', '', config('platform.whatsapp')); @endphp
+    @php 
+        $wa_clean = preg_replace('/[^0-9]/', '', config('platform.whatsapp')); 
+        
+        $plan_info = "";
+        foreach($plans as $p) {
+            $storage = ($p->max_storage_mb >= 1024) ? (($p->max_storage_mb/1024) . "GB") : ($p->max_storage_mb . "MB");
+            $plan_info .= "Plan " . $p->name . " por $" . number_format($p->price, 0, ',', '.') . " con " . $p->max_users . " usuarios y " . $storage . " de espacio. ";
+        }
+
+        function formatMB($mb) {
+            if ($mb >= 1024) {
+                $gb = $mb / 1024;
+                return (round($gb) == $gb ? number_format($gb, 0) : number_format($gb, 1)) . 'GB';
+            }
+            return number_format($mb, 0) . 'MB';
+        }
+    @endphp
 
     {{-- NAVBAR RESPONSIVE --}}
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -191,12 +207,17 @@
                 @foreach ($plans as $plan)
                 <div class="col-md-6 col-lg-3">
                     <div class="price-card {{ $plan->name == 'PROFESSIONAL' ? 'featured' : '' }}">
-                        <h4 class="text-uppercase" style="color: #ccc; letter-spacing: 1px">{{ $plan->name }}</h4>
+                        <h4 class="text-uppercase" style="color: #fff; letter-spacing: 1px">{{ $plan->name }}</h4>
                         <div class="amount text-white">${{ number_format($plan->price, 0, ',', '.') }}<span class="fs-6 opacity-50">/mes</span></div>
+                        
+                        @if($plan->description)
+                            <p class="small mt-2 mb-3" style="color: #ccc; font-style: italic;">{{ $plan->description }}</p>
+                        @endif
+
                         <ul class="list-unstyled text-start my-4 py-3 border-top border-bottom border-secondary small" style="color: #f1f1f1;">
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> {{ $plan->max_users }} Usuarios</li>
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> {{ $plan->max_products }} Productos</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> {{ $plan->max_storage_mb }}MB Almacén</li>
+                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> {{ formatMB($plan->max_storage_mb) }} Almacén</li>
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Escaneo Móvil</li>
                         </ul>
                         <a href="{{ route('register') }}" class="btn {{ $plan->name == 'PROFESSIONAL' ? 'btn-primary' : 'btn-outline-light' }} w-100 rounded-pill py-3 fw-bold">Elegir Este Plan</a>
