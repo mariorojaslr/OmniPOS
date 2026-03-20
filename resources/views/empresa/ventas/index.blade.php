@@ -194,73 +194,6 @@
                     </td>
                 </tr>
 
-                {{-- MODAL DETALLE --}}
-                <div class="modal fade" id="modalVenta{{ $venta->id }}" tabindex="-1">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">
-                                    Detalle — {{ $venta->numero_comprobante ?: 'Venta #'.$venta->id }}
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <strong>Fecha:</strong> {{ $venta->created_at->format('d/m/Y H:i') }}<br>
-                                        <strong>Cliente:</strong> {{ optional($venta->cliente)->name ?? 'Consumidor Final' }}<br>
-                                        <strong>Método pago:</strong> {{ ucfirst($venta->metodo_pago ?? '—') }}<br>
-                                    </div>
-                                    <div class="col-md-6 text-end">
-                                        <strong>N° Comprobante:</strong> {{ $venta->numero_comprobante ?: '—' }}<br>
-                                        <strong>Tipo:</strong> {{ ucfirst($venta->tipo_comprobante ?? '—') }}<br>
-                                        <strong>Vendedor:</strong> {{ optional($venta->user)->name ?? '—' }}<br>
-                                    </div>
-                                </div>
-
-                                <table class="table table-sm table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th class="text-center">Cant.</th>
-                                            <th class="text-end">P. Unit.</th>
-                                            <th class="text-end">Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($venta->items as $item)
-                                        <tr>
-                                            <td>
-                                                {{ optional($item->product)->name ?? '—' }}
-                                                @if($item->variant)
-                                                    <small class="text-muted">({{ $item->variant->size }} / {{ $item->variant->color }})</small>
-                                                @endif
-                                            </td>
-                                            <td class="text-center">{{ $item->cantidad }}</td>
-                                            <td class="text-end">$ {{ number_format($item->total_item_con_iva / $item->cantidad, 2, ',', '.') }}</td>
-                                            <td class="text-end fw-bold">$ {{ number_format($item->total_item_con_iva, 2, ',', '.') }}</td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot class="table-light">
-                                        <tr>
-                                            <th colspan="3" class="text-end">TOTAL</th>
-                                            <th class="text-end">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</th>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-
-                            </div>
-                            <div class="modal-footer">
-                                <a href="{{ route('empresa.ventas.pdf', $venta->id) }}" target="_blank" class="btn btn-danger">
-                                    Descargar PDF
-                                </a>
-                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 @empty
                 <tr>
@@ -275,5 +208,77 @@
         {{ $ventas->withQueryString()->links('pagination::bootstrap-5') }}
     </div>
 </div>
+
+{{-- MODALES DETALLE (FUERA DE LA TABLA) --}}
+@foreach($ventas as $venta)
+<div class="modal fade" id="modalVenta{{ $venta->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content text-dark">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">
+                    Detalle — {{ $venta->numero_comprobante ?: 'Venta #'.$venta->id }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row mb-4">
+                    <div class="col-md-6 text-start">
+                        <p class="mb-1"><strong>Fecha:</strong> {{ $venta->created_at->format('d/m/Y H:i') }}</p>
+                        <p class="mb-1"><strong>Cliente:</strong> {{ optional($venta->cliente)->name ?? 'Consumidor Final' }}</p>
+                        <p class="mb-0"><strong>Método pago:</strong> {{ ucfirst($venta->metodo_pago ?? '—') }}</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <p class="mb-1"><strong>N° Comprobante:</strong> {{ $venta->numero_comprobante ?: '—' }}</p>
+                        <p class="mb-1"><strong>Tipo:</strong> {{ ucfirst($venta->tipo_comprobante ?? '—') }}</p>
+                        <p class="mb-0"><strong>Vendedor:</strong> {{ optional($venta->user)->name ?? '—' }}</p>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center" width="80">Cant.</th>
+                                <th class="text-end" width="120">P. Unit.</th>
+                                <th class="text-end" width="120">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($venta->items as $item)
+                            <tr>
+                                <td class="text-start">
+                                    {{ optional($item->product)->name ?? '—' }}
+                                    @if($item->variant)
+                                        <br><small class="text-muted">Variante: {{ $item->variant->size }} / {{ $item->variant->color }}</small>
+                                    @endif
+                                </td>
+                                <td class="text-center">{{ $item->cantidad }}</td>
+                                <td class="text-end">$ {{ number_format($item->total_item_con_iva / $item->cantidad, 2, ',', '.') }}</td>
+                                <td class="text-end fw-bold">$ {{ number_format($item->total_item_con_iva, 2, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="table-light text-end">
+                            <tr>
+                                <th colspan="3">TOTAL</th>
+                                <th class="fw-bold fs-5">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <a href="{{ route('empresa.ventas.pdf', $venta->id) }}" target="_blank" class="btn btn-danger">
+                    <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
 
 @endsection
