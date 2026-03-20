@@ -311,7 +311,7 @@
                     <p class="fs-4 text-muted mb-4 italic">"Mi voz es amable, dulce y estoy aquí para que MultiPOS sea lo mejor para tu negocio."</p>
                     <p class="fs-5 text-dim mb-5">Carina conoce cada detalle de nuestro sistema. Puede explicarte cómo funciona el stock colaborativo, guiarte en el alta de productos o simplemente charlar sobre qué plan te conviene más hoy para crecer.</p>
                     <div class="d-flex gap-3">
-                        <a href="https://wa.me/5491111111111?text=Hola%20Carina,%20quiero%20conocer%20mas%20de%20MultiPOS" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-lg">
+                        <a href="https://wa.me/{{ config('platform.whatsapp') }}?text=Hola%20Carina,%20quiero%20conocer%20mas%20de%20MultiPOS" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-lg">
                             <i class="bi bi-whatsapp me-2"></i> Hablar con Carina
                         </a>
                         <button class="btn btn-outline-secondary btn-lg rounded-pill px-5 fw-bold bg-dark">
@@ -373,22 +373,24 @@
                     <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
                         <i class="bi bi-telephone fs-1 text-primary"></i>
                         <h4 class="mt-3">Llamanos</h4>
-                        <p class="text-muted">+54 9 380 426-2414</p>
+                        <p class="text-muted">{{ config('platform.phone') }}</p>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
                         <i class="bi bi-envelope fs-1 text-primary"></i>
                         <h4 class="mt-3">Email</h4>
-                        <p class="text-muted">info@multipos.app</p>
+                        <p class="text-muted">{{ config('platform.email') }}</p>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
-                        <i class="bi bi-chat-dots fs-1 text-primary"></i>
-                        <h4 class="mt-3">WhatsApp</h4>
-                        <p class="text-muted">Conversá en Vivo</p>
-                    </div>
+                    <a href="https://wa.me/{{ config('platform.whatsapp') }}" class="text-decoration-none">
+                        <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
+                            <i class="bi bi-chat-dots fs-1 text-primary"></i>
+                            <h4 class="mt-3 text-white">WhatsApp</h4>
+                            <p class="text-muted">Conversá en Vivo</p>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -400,7 +402,7 @@
         <div class="d-flex justify-content-center gap-4 mb-5">
             <a href="#" class="text-dim fs-3 hover-text-primary"><i class="bi bi-instagram"></i></a>
             <a href="#" class="text-dim fs-3 hover-text-primary"><i class="bi bi-linkedin"></i></a>
-            <a href="https://wa.me/5493804262414" class="text-dim fs-3 hover-text-primary"><i class="bi bi-whatsapp"></i></a>
+            <a href="https://wa.me/{{ config('platform.whatsapp') }}" class="text-dim fs-3 hover-text-primary"><i class="bi bi-whatsapp"></i></a>
         </div>
         <p class="small text-muted">&copy; 2026 MultiPOS Cloud Management. Todos los derechos reservados.</p>
     </footer>
