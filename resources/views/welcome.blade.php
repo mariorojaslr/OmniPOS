@@ -281,12 +281,13 @@
         const listenBtn = document.getElementById('listen-btn');
         const chatMicBtn = document.getElementById('chat-mic-btn');
         const voicePulse = document.getElementById('voice-pulse');
-        
+
         let voiceActive = false;
 
-        // CEREBRO MAESTRO DE CARINA
+        // CEREBRO MAESTRO DE CARINA - AHORA DINÁMICO DESDE PHP
         const kb = {
-            "precio": "Nuestros precios son los mejores del mercado: Plan STARTER por solo $25.000 ARS/mes, ideal para emprendedores. Plan PROFESSIONAL a $45.000 ARS/mes con stock colaborativo, y el BUSINESS a $89.000 ARS/mes para gestión total de locales. ¿Qué plan te interesa más?",
+            "precio": "Actualmente tenemos estos planes disponibles: {!! $plan_info !!} ¿Cuál se adapta mejor a tu negocio?",
+            "plan": "Tenemos opciones desde la STARTER hasta la BUSINESS. {!! $plan_info !!}",
             "stock": "¡El stock es mi especialidad! Con Magic Scan Pro, usás la cámara de tu iPhone o Android como un escáner industrial. Es tan rápido que podés cargar 100 productos en minutos. Además, varios empleados pueden contar stock al mismo tiempo por QR.",
             "bunny": "Bunny.net es el secreto de nuestra velocidad. Guardamos tus videos y fotos pesadas allí para que tu sistema cargue en menos de 1 segundo, sin importar cuántos archivos tengas. ¡Es tecnología de nivel mundial!",
             "hola": "¡Hola! Soy Carina, tu asistente de éxito en MultiPOS. Estoy aquí para que tu negocio pase al siguiente nivel. ¿Qué duda tenés hoy? ✨",
