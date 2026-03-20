@@ -64,7 +64,7 @@ class VentaController extends Controller
     /**
      * 📑 Generar PDF de la venta
      */
-    public function pdf(Venta $venta)
+    public function pdf(Venta $venta, Request $request)
     {
         $empresa = auth()->user()->empresa;
 
@@ -72,18 +72,41 @@ class VentaController extends Controller
             abort(403);
         }
 
-        $venta->load([
-            'items.product',
-            'items.variant',
-            'user',
-            'cliente'
-        ]);
-
+        $venta->load(['items.product', 'items.variant', 'user', 'cliente']);
         $empresa->load('config');
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa'))
-            ->setPaper('a4', 'portrait');
+        // Determinar formato (A4 o Ticket 80mm)
+        $formato = $request->get('format', 'a4');
+        
+        // Si el tipo de comprobante es ticket, forzamos formato ticket a menos que pidan A4
+        if ($venta->tipo_comprobante === 'ticket' && !$request->has('format')) {
+            $formato = 'ticket';
+        }
 
-        return $pdf->stream("Comprobante_{$venta->numero_comprobante}.pdf");
+        // Lógica de Logo en Base64 para evitar errores de renderizado en servidor
+        $logoBase64 = null;
+        $logoPath   = public_path('images/logo_multipos.png');
+
+        if ($empresa->config && $empresa->config->logo_url) {
+            // Intentar cargar logo personalizado si existe
+            $logoPath = public_path('storage/' . $empresa->config->logo_url);
+        }
+
+        if (file_exists($logoPath)) {
+            $type = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $data = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        }
+
+        if ($formato === 'ticket') {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket_80mm', compact('venta', 'empresa', 'logoBase64'))
+                ->setPaper([0, 0, 226.77, 600], 'portrait'); // 226.77pt = 80mm
+        } else {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa', 'logoBase64'))
+                ->setPaper('a4', 'portrait');
+        }
+
+        $filename = ($venta->numero_comprobante ?: 'Venta_'.$venta->id) . '.pdf';
+        return $pdf->stream($filename);
     }
 }
