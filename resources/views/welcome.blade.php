@@ -295,6 +295,34 @@
         </div>
     </section>
 
+    {{-- AI ASSISTANT SECTION --}}
+    <section id="asistente" class="py-5" style="background: linear-gradient(180deg, transparent, rgba(139, 92, 246, 0.05));">
+        <div class="container">
+            <div class="row align-items-center bg-black border border-secondary p-5 rounded-5 shadow-lg">
+                <div class="col-lg-4 text-center">
+                    <div class="position-relative d-inline-block animate__animated animate__pulse animate__infinite">
+                        <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle border border-primary p-2 shadow-lg" style="width: 250px; height: 250px; object-fit: cover;" alt="Asistente IA">
+                        <div class="position-absolute bottom-0 start-50 translate-middle-x badge bg-success rounded-pill px-4 py-2 border border-black" style="font-size: 0.9rem; margin-bottom: -10px">ESTADO: ONLINE</div>
+                    </div>
+                </div>
+                <div class="col-lg-8 ps-lg-5">
+                    <div class="magic-badge mb-3">TECNOLOGÍA CONECTADA</div>
+                    <h2 class="display-4 fw-bold mb-3">Hola, soy <span class="text-primary text-gradient">Carina</span>, tu asistente virtual.</h2>
+                    <p class="fs-4 text-muted mb-4 italic">"Mi voz es amable, dulce y estoy aquí para que MultiPOS sea lo mejor para tu negocio."</p>
+                    <p class="fs-5 text-dim mb-5">Carina conoce cada detalle de nuestro sistema. Puede explicarte cómo funciona el stock colaborativo, guiarte en el alta de productos o simplemente charlar sobre qué plan te conviene más hoy para crecer.</p>
+                    <div class="d-flex gap-3">
+                        <a href="https://wa.me/5491111111111?text=Hola%20Carina,%20quiero%20conocer%20mas%20de%20MultiPOS" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-lg">
+                            <i class="bi bi-whatsapp me-2"></i> Hablar con Carina
+                        </a>
+                        <button class="btn btn-outline-secondary btn-lg rounded-pill px-5 fw-bold bg-dark">
+                            <i class="bi bi-mic-fill me-2 text-primary anim-voice"></i> Activar Voz
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- PRICING --}}
     <section id="planes">
         <div class="text-center mb-5">
@@ -302,49 +330,66 @@
             <p class="text-muted">Elegí la escala que tu negocio merece hoy.</p>
         </div>
         <div class="pricing-grid">
-            <div class="price-card" id="plan-starter">
-                <h4>STARTER</h4>
-                <div class="amount">$25.000 <span>/ mes</span></div>
-                <hr class="my-4 opacity-10">
-                <ul class="list-unstyled text-start small text-dim">
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> 1 Local / Sucursal</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Hasta 500 Productos</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Escaneo Móvil Incluido</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Soporte Básico</li>
-                </ul>
-                <a href="#" class="btn btn-outline-light w-100 rounded-pill mt-4">Comenzar</a>
-            </div>
-            <div class="price-card featured" id="plan-pro">
-                <h4>PROFESSIONAL</h4>
-                <div class="amount">$45.000 <span>/ mes</span></div>
-                <hr class="my-4 opacity-10">
-                <ul class="list-unstyled text-start small">
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Hasta 3 Sucursales</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Productos Ilimitados</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Sesiones Colaborativas</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Etiquetas PDF Pro</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Soporte Prioritario</li>
-                </ul>
-                <a href="#" class="btn btn-primary w-100 rounded-pill mt-4 fw-bold">Elegir Profesional</a>
-            </div>
-            <div class="price-card" id="plan-business">
-                <h4>BUSINESS</h4>
-                <div class="amount">$89.000 <span>/ mes</span></div>
-                <hr class="my-4 opacity-10">
-                <ul class="list-unstyled text-start small text-dim">
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Locales Ilimitados</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Streaming de Video Bunny</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Reportes Avanzados</li>
-                    <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> API de Integración</li>
-                </ul>
-                <a href="#" class="btn btn-outline-light w-100 rounded-pill mt-4">Comenzar</a>
-            </div>
+            @forelse ($plans as $plan)
+                <div class="price-card {{ $plan->name == 'PROFESSIONAL' ? 'featured' : '' }}" id="plan-{{ $plan->id }}">
+                    <h4>{{ strtoupper($plan->name) }}</h4>
+                    <div class="amount">${{ number_format($plan->price, 0, ',', '.') }} <span>/ mes</span></div>
+                    <hr class="my-4 opacity-10">
+                    <div class="description mb-4 text-dim small">
+                        {{ $plan->description }}
+                    </div>
+                    <ul class="list-unstyled text-start small {{ $plan->name == 'PROFESSIONAL' ? '' : 'text-dim' }}">
+                        <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Hasta {{ $plan->max_users }} Usuarios</li>
+                        <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Hasta {{ $plan->max_products }} Productos</li>
+                        <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> {{ $plan->max_storage_mb }} MB Almacenamiento</li>
+                        <li class="mb-2"><i class="bi bi-check-circle me-2 text-success"></i> Escaneo Móvil Incluido</li>
+                    </ul>
+                    <a href="{{ route('register', ['plan' => $plan->id]) }}" class="btn {{ $plan->name == 'PROFESSIONAL' ? 'btn-primary' : 'btn-outline-light' }} w-100 rounded-pill mt-4">
+                        {{ $plan->name == 'PROFESSIONAL' ? 'Elegir Profesional' : 'Comenzar' }}
+                    </a>
+                </div>
+            @empty
+                <div class="col-12 text-center text-muted">No hay planes disponibles en este momento.</div>
+            @endforelse
+            
+            {{-- Enterprise ALWAYS visible --}}
             <div class="price-card">
                 <h4>ENTERPRISE</h4>
                 <div class="amount">CUSTOM</div>
                 <hr class="my-4 opacity-10">
                 <p class="text-dim">Grandes corporaciones y distribuidoras. Soluciones a medida con infraestructura dedicada.</p>
-                <a href="#" class="btn btn-outline-light w-100 rounded-pill mt-4">Contactar</a>
+                <a href="#contacto" class="btn btn-outline-light w-100 rounded-pill mt-4">Contactar</a>
+            </div>
+        </div>
+    </section>
+
+    {{-- CONTACT SECTION --}}
+    <section id="contacto" class="py-5 mb-5">
+        <div class="container text-center">
+            <h2 class="display-4 fw-bold mb-4">¿Hablamos hoy?</h2>
+            <p class="fs-4 text-dim mb-5">Estamos a un clic de distancia para llevar tu negocio al siguiente nivel.</p>
+            <div class="row justify-content-center">
+                <div class="col-md-3">
+                    <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
+                        <i class="bi bi-telephone fs-1 text-primary"></i>
+                        <h4 class="mt-3">Llamanos</h4>
+                        <p class="text-muted">+54 9 380 426-2414</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
+                        <i class="bi bi-envelope fs-1 text-primary"></i>
+                        <h4 class="mt-3">Email</h4>
+                        <p class="text-muted">info@multipos.app</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-4 bg-black border border-secondary rounded-4 hover-lift">
+                        <i class="bi bi-chat-dots fs-1 text-primary"></i>
+                        <h4 class="mt-3">WhatsApp</h4>
+                        <p class="text-muted">Conversá en Vivo</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -353,9 +398,9 @@
         <h2 class="fw-bold mb-4">MultiPOS</h2>
         <p class="text-muted mb-5">El estándar de oro en gestión comercial SaaS.</p>
         <div class="d-flex justify-content-center gap-4 mb-5">
-            <a href="#" class="text-dim fs-3"><i class="bi bi-instagram"></i></a>
-            <a href="#" class="text-dim fs-3"><i class="bi bi-linkedin"></i></a>
-            <a href="#" class="text-dim fs-3"><i class="bi bi-whatsapp"></i></a>
+            <a href="#" class="text-dim fs-3 hover-text-primary"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="text-dim fs-3 hover-text-primary"><i class="bi bi-linkedin"></i></a>
+            <a href="https://wa.me/5493804262414" class="text-dim fs-3 hover-text-primary"><i class="bi bi-whatsapp"></i></a>
         </div>
         <p class="small text-muted">&copy; 2026 MultiPOS Cloud Management. Todos los derechos reservados.</p>
     </footer>

@@ -28,6 +28,7 @@ use App\Http\Controllers\Empresa\UsuarioDashboardController;
 use App\Http\Controllers\Empresa\UsuarioController;
 use App\Http\Controllers\Empresa\ReporteController;
 use App\Http\Controllers\DemoController;
+use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Empresa\ConfiguracionEmpresaController;
 use App\Http\Controllers\Empresa\StockController;
 use App\Http\Controllers\Empresa\ClientController;
@@ -48,9 +49,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\CatalogController;
 
 /* |-------------------------------------------------------------------------- | RUTA RAÍZ |-------------------------------------------------------------------------- */
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 Route::get('/demo-mode', [DemoController::class, 'enter'])->name('demo.mode');
 
