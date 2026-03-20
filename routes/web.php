@@ -23,7 +23,6 @@ use App\Http\Controllers\Empresa\ProductImageController;
 use App\Http\Controllers\Empresa\ProductVideoController;
 use App\Http\Controllers\Empresa\POSController;
 use App\Http\Controllers\Empresa\VentaController;
-Route::get('empresa/ventas/{venta}/pdf', [VentaController::class, 'pdf'])->name('empresa.ventas.pdf')->middleware(['auth', 'empresa', 'empresa.activa']);
 use App\Http\Controllers\Empresa\UsuarioDashboardController;
 use App\Http\Controllers\Empresa\UsuarioController;
 use App\Http\Controllers\Empresa\ReporteController;
@@ -268,6 +267,14 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
             Route::post('/', [ProductVideoController::class , 'store'])->name('store');
             Route::delete('/{video}', [ProductVideoController::class , 'destroy'])->name('destroy');
         });
+
+        /*
+     |--------------------------------------------------------------------------
+     | VENTAS / COMPROBANTES
+     |--------------------------------------------------------------------------
+     */
+        Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
+        Route::get('/ventas/{venta}/pdf', [VentaController::class, 'pdf'])->name('ventas.pdf');
 
         /*
      |--------------------------------------------------------------------------
