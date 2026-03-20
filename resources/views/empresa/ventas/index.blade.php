@@ -7,12 +7,17 @@
 ========================================================= --}}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="mb-0">Ventas / Comprobantes</h2>
-        <small class="text-muted">Historial completo de ventas del POS</small>
+        <h2 class="mb-0">Administración de Ventas</h2>
+        <small class="text-muted">Historial completo y comprobantes <b>ARCA</b></small>
     </div>
-    <a href="{{ route('empresa.reportes.panel') }}" class="btn btn-outline-secondary btn-sm">
-        📊 Ver Reportes
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('empresa.pos.index') }}" class="btn btn-primary">
+            🛒 Abrir POS
+        </a>
+        <a href="{{ route('empresa.reportes.panel') }}" class="btn btn-outline-secondary">
+            📊 Reportes
+        </a>
+    </div>
 </div>
 
 {{-- =========================================================
@@ -77,11 +82,13 @@
             </div>
 
             <div class="col-md-2">
-                <label class="form-label small mb-1">Tipo</label>
+                <label class="form-label small mb-1">Tipo / ARCA</label>
                 <select name="tipo" class="form-select form-select-sm">
-                    <option value="">Todos</option>
-                    <option value="ticket"   @selected(request('tipo')=='ticket')>Ticket</option>
-                    <option value="factura"  @selected(request('tipo')=='factura')>Factura / Comp.</option>
+                    <option value="">Cualquier tipo</option>
+                    <option value="A"   @selected(request('tipo')=='A')>Factura A</option>
+                    <option value="B"   @selected(request('tipo')=='B')>Factura B</option>
+                    <option value="C"   @selected(request('tipo')=='C')>Factura C</option>
+                    <option value="T"   @selected(request('tipo')=='T')>Ticket</option>
                 </select>
             </div>
 

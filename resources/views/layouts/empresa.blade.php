@@ -268,40 +268,31 @@ input, select, textarea{
     </ul>
 </li>
 
-<li class="nav-item">
-<a class="nav-link" href="{{ route('empresa.clientes.index') }}">Clientes</a>
-</li>
 
 <li class="nav-item">
-<a class="nav-link" href="{{ route('empresa.proveedores.index') }}">Proveedores</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" href="{{ route('empresa.compras.index') }}">Compras</a>
+<a class="nav-link fw-bold text-primary" href="{{ route('empresa.pos.index') }}">🛒 PUNTO DE VENTA (POS)</a>
 </li>
 
 <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-        Inventario
+        Ventas
     </a>
     <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="{{ route('empresa.stock.index') }}">Stock Actual</a></li>
-        <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.inventory_scan') }}">✨ Escáner Móvil</a></li>
+        <li><a class="dropdown-item" href="{{ route('empresa.ventas.index') }}">📋 Historial / Listado</a></li>
+        <li><a class="dropdown-item" href="{{ route('empresa.clientes.index') }}">👥 Clientes</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item disabled" href="#">✍️ Venta Manual (Próximamente)</a></li>
     </ul>
 </li>
 
-<li class="nav-item">
-<a class="nav-link" href="{{ route('empresa.gastos.index') }}">Gastos</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" href="{{ route('catalog.index', $empresa->id ?? 0) }}" target="_blank">
-Catálogo
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" href="{{ route('empresa.pos.index') }}">POS / Ventas</a>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+        Compras
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ route('empresa.compras.index') }}">🛒 Historial de Compras</a></li>
+        <li><a class="dropdown-item" href="{{ route('empresa.proveedores.index') }}">🚛 Proveedores</a></li>
+    </ul>
 </li>
 
 <li class="nav-item">
