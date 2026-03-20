@@ -76,7 +76,7 @@ class InventoryController extends Controller
             return "Esta sesión de inventario ya no existe o ha sido cerrada por el administrador.";
         }
 
-        // Guardamos el pase en la sesión de Laravel 
+        // Guardamos el pase en la sesión de MultiPOS 
         session(['inventory_guest_session' => $session->uuid]);
         session(['empresa_id' => $session->empresa_id]);
 

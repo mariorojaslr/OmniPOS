@@ -1,6 +1,6 @@
 /* ======================================================
    MULTIPOS - SISTEMA GLOBAL DE ESTILOS
-   Laravel 12 + Tailwind + Bootstrap
+    MultiPOS 12 + Tailwind + Bootstrap
    Preparado Multiempresa / SaaS Profesional
 ====================================================== */
 
@@ -296,7 +296,7 @@
 
 
 /* ======================================================
-   FIX DEFINITIVO PAGINADOR LARAVEL (TAILWIND CONFLICT)
+   FIX DEFINITIVO PAGINADOR MULTIPOS (TAILWIND CONFLICT)
 ====================================================== */
 
 .pagination svg {
