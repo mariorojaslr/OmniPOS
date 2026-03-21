@@ -18,6 +18,7 @@ class Order extends Model
 
     protected $fillable = [
         'empresa_id',
+        'client_id',
         'nombre_cliente',
         'email',
         'telefono',
@@ -28,6 +29,11 @@ class Order extends Model
         'total',
         'venta_id',
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
 
     public function venta()
     {

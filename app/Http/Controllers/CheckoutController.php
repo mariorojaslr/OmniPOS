@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Empresa;
+use App\Models\Client;
 
 class CheckoutController extends Controller
 {
@@ -30,6 +31,48 @@ class CheckoutController extends Controller
         $empresa = $product ? $product->empresa : Empresa::first();
 
         return view('catalog.checkout', compact('cart','empresa'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Buscar cliente por email/teléfono (AJAX)
+    |--------------------------------------------------------------------------
+    */
+    public function searchClient(Request $request)
+    {
+        $email = $request->get('email');
+        $phone = $request->get('phone');
+        $empresaId = $request->get('empresa_id');
+
+        if (!$empresaId) return response()->json(['found' => false]);
+
+        $client = Client::where('empresa_id', $empresaId)
+            ->where(function($q) use ($email, $phone) {
+                if ($email) $q->where('email', $email);
+                if ($phone) $q->orWhere('phone', $phone);
+            })->first();
+
+        if ($client) {
+            // Dividir nombre si es posible
+            $parts = explode(' ', $client->name);
+            $nombre = $parts[0] ?? '';
+            $apellido = $parts[1] ?? '';
+
+            return response()->json([
+                'found' => true,
+                'client' => [
+                    'nombre' => $nombre,
+                    'apellido' => $apellido,
+                    'email' => $client->email,
+                    'telefono' => $client->phone,
+                    'direccion' => $client->address,
+                    'ciudad' => $client->city,
+                    'provincia' => $client->province,
+                ]
+            ]);
+        }
+
+        return response()->json(['found' => false]);
     }
 
     /*
@@ -65,9 +108,36 @@ class CheckoutController extends Controller
             $total += $item['price'] * $item['quantity'];
         }
 
+        // Buscar o crear cliente automáticamente
+        $client = Client::where('empresa_id', $empresa->id)
+            ->where(function($q) use ($request) {
+                $q->where('email', $request->email)
+                    ->orWhere('phone', $request->telefono);
+            })->first();
+
+        if (!$client) {
+            $client = Client::create([
+                'empresa_id' => $empresa->id,
+                'name' => $request->nombre . ' ' . $request->apellido,
+                'email' => $request->email,
+                'phone' => $request->telefono,
+                'address' => $request->direccion,
+                'city' => $request->ciudad, // Campos nuevos opcionales
+                'province' => $request->provincia,
+                'type' => 'consumidor_final',
+                'active' => true
+            ]);
+        } else {
+            // Actualizar dirección si cambió
+            if ($request->direccion && $client->address != $request->direccion) {
+                $client->update(['address' => $request->direccion]);
+            }
+        }
+
         // Crear pedido
         $order = Order::create([
             'empresa_id' => $empresa->id,
+            'client_id' => $client->id, // VINCULADO
             'nombre_cliente' => $request->nombre . ' ' . $request->apellido,
             'email' => $request->email,
             'telefono' => $request->telefono,
