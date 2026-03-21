@@ -52,20 +52,15 @@
             color: #f8fafc;
         }
 
-        /* Fondo dinámico y animado */
+        /* Fondo oscuro sólido y profesional */
         .premium-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            background: radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.15), transparent 25%),
-                        radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.15), transparent 25%);
-            animation: bgShift 15s infinite alternate ease-in-out;
+            background: #0f172a; /* Fondo base neutro */
         }
 
-        @keyframes bgShift {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
+        /* Animación eliminada para evitar distracciones en login */
 
         .guest-wrapper {
             width: 100%;
