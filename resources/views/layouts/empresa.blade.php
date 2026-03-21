@@ -280,6 +280,7 @@ input, select, textarea{
     <ul class="dropdown-menu">
         <li><a class="dropdown-item" href="{{ route('empresa.ventas.index') }}">📋 Historial / Listado</a></li>
         <li><a class="dropdown-item" href="{{ route('empresa.clientes.index') }}">👥 Clientes</a></li>
+        <li><a class="dropdown-item" href="{{ route('empresa.orders.index') }}">🛒 Pedidos Online</a></li>
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item disabled" href="#">✍️ Venta Manual (Próximamente)</a></li>
     </ul>
@@ -297,6 +298,12 @@ input, select, textarea{
 
 <li class="nav-item">
 <a class="nav-link" href="{{ route('empresa.reportes.panel') }}">Reportes</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link fw-bold text-success" href="{{ route('catalog.index', $empresa->id) }}" target="_blank">
+    🌐 Mi Catálogo
+</a>
 </li>
 
 <li class="nav-item">
