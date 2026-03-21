@@ -210,6 +210,20 @@
         background: #e2e8f0;
         color: #1e293b;
     }
+    .btn-detail {
+        background: var(--catalog-primary);
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-detail:hover {
+        transform: scale(1.03);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        color: white;
+        filter: brightness(1.1);
+    }
 </style>
 
 <div class="glass-nav w-100 d-flex justify-content-between align-items-center">
@@ -290,7 +304,9 @@
                         <div class="product-price">$ {{ number_format($product->price, 0, ',', '.') }}</div>
                         
                         <div class="mt-auto">
-                            <a href="{{ route('catalog.show', [$empresa, $product]) }}" class="btn btn-view btn-action w-100 mb-2">
+                            <a href="{{ route('catalog.show', [$empresa, $product]) }}" 
+                               style="background-color: var(--catalog-primary) !important; color: white !important; font-weight: 800; border: none !important;"
+                               class="btn btn-detail btn-action w-100 mb-2 shadow-sm rounded-pill py-2">
                                 Ver Detalles
                             </a>
                         </div>
