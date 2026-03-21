@@ -174,7 +174,7 @@ body { background:#f5f6f8; }
 <div class="col-2">
 <div class="d-flex flex-column gap-3">
 @foreach($product->images as $index => $image)
-<img src="{{ $image->url }}"
+<img src="{{ url('images/'.$image->url) }}"
 class="thumbnail {{ $index == 0 ? 'active-thumb' : '' }}"
 onclick="changeImage(this)">
 @endforeach
@@ -184,7 +184,7 @@ onclick="changeImage(this)">
 <div class="col-10">
 @if($product->images->count())
 <img id="mainImage"
-src="{{ $product->images->first()->url }}"
+src="{{ url('images/'.$product->images->first()->url) }}"
 class="main-image">
 @endif
 </div>

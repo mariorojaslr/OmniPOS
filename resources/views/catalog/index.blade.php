@@ -7,7 +7,7 @@ $config = $empresa->config ?? null;
 $primary   = $config->color_primary   ?? '#2563eb';
 $secondary = $config->color_secondary ?? '#16a34a';
 $cartCount = session('cart') ? count(session('cart')) : 0;
-$logo      = ($config && $config->logo_url) ? asset('storage/'.$config->logo_url) : asset('images/logo_premium.png');
+$logo      = ($config && $config->logo_url) ? url('images/'.$config->logo_url) : asset('images/logo_premium.png');
 @endphp
 
 <style>
@@ -314,7 +314,7 @@ $logo      = ($config && $config->logo_url) ? asset('storage/'.$config->logo_url
                         @if($isTop) <span class="card-badge" style="background: #f59e0b; left: auto; right: 12px;">Hot</span> @endif
 
                         @if($mainImg)
-                            <img src="{{ asset('storage/'.$mainImg->url) }}" class="card-img" alt="{{ $product->name }}">
+                            <img src="{{ url('images/'.$mainImg->url) }}" class="card-img" alt="{{ $product->name }}">
                         @else
                             <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted" style="background: #f1f5f9;">
                                 📷
