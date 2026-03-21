@@ -9,6 +9,10 @@
 <style>
 body {
     background:#f3f4f6;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow-x: hidden;
 }
 
 .catalog-header {
@@ -40,7 +44,7 @@ body {
 
 <body>
 
-<div class="container-fluid py-5 px-4">
+<div style="width: 100% !important; max-width: 100% !important; padding: 20px !important; margin: 0 !important;">
 
     <div class="catalog-header d-flex justify-content-between align-items-center mb-5">
         <div class="fw-bold fs-5">
