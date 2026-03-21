@@ -118,9 +118,16 @@ class VentaController extends Controller
 
         if ($formato === 'ticket') {
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket_80mm', compact('venta', 'empresa', 'logoBase64'))
-                ->setPaper([0, 0, 226.77, 600], 'portrait'); // 226.77pt = 80mm
+                ->setPaper([0, 0, 226.77, 600], 'portrait');
         } else {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa', 'logoBase64'))
+            // Logo de ARCA en Base64 para evitar bloqueos
+            $arcaLogoBase64 = null;
+            $arcaPath = public_path('images/arca_logo.png'); // Si no tienes este archivo, lo podemos crear o usar el CDN
+            if (file_exists($arcaPath)) {
+                $arcaLogoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($arcaPath));
+            }
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64'))
                 ->setPaper('a4', 'portrait');
         }
 
