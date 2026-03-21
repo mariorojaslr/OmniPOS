@@ -271,6 +271,11 @@ input, select, textarea{
 
 
 <li class="nav-item">
+    <a class="nav-link" href="{{ route('empresa.stock.index') }}">📦 Inventario</a>
+</li>
+
+
+<li class="nav-item">
 <a class="nav-link fw-bold text-primary" href="{{ route('empresa.pos.index') }}">🛒 PUNTO DE VENTA (POS)</a>
 </li>
 
