@@ -19,9 +19,9 @@
         .company-name { font-size: 15pt; font-weight: 900; color: #000; text-transform: uppercase; margin-bottom: 3px; }
         .company-data p { margin: 0; font-size: 8.5pt; color: #1a1a1a; line-height: 1.25; }
         
-        .doc-title { font-size: 22pt; font-weight: 900; margin: 0 0 8px 0; text-align: right; color: #000; line-height: 1; }
-        .doc-num { font-size: 14pt; font-weight: 900; text-align: right; margin-bottom: 8px; }
-        .doc-data p { margin: 0 0 5px 0; font-size: 9pt; text-align: right; }
+        .doc-title { font-size: 22pt; font-weight: 900; margin: 0 0 8px 0; text-align: right; color: #000; line-height: 1; padding-right: 0.5cm; }
+        .doc-num { font-size: 14pt; font-weight: 900; text-align: right; margin-bottom: 8px; padding-right: 0.5cm; }
+        .doc-data p { margin: 0 0 5px 0; font-size: 9pt; text-align: right; padding-right: 0.5cm; }
 
         /* SECCIONES TRANSVERSALES */
         .section-bar { background: #f5f5f5; border-top: 1.2px solid #000; border-bottom: 1.2px solid #000; padding: 8px 15px; margin-top: -1px; }
@@ -40,7 +40,7 @@
         .qr-placeholder { border: 1.2px solid #000; padding: 6px; display: inline-block; background: #fff; }
         .qr-img { width: 95px; height: 95px; }
         
-        .totals-section { float: left; width: 55%; margin-left: 2%; text-align: right; }
+        .totals-section { float: left; width: 55%; margin-left: 2%; text-align: right; padding-right: 0.5cm; }
         .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
         .totals-table td { padding: 3px 0; font-size: 11pt; color: #000; }
         .total-row { font-size: 19pt; font-weight: 900; color: #000; border-top: 2.5px solid #000; border-bottom: 2.5px solid #000; padding: 10px 0; }
