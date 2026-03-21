@@ -37,7 +37,9 @@ class EmpresaConfig extends Model
         $bunnyUrl = config('services.bunny.url');
         $useBunny = config('services.bunny.enabled');
 
-        if ($useBunny && $bunnyUrl) {
+        // Solo usamos Bunny si está habilitado Y estamos en producción REAL
+        // Esto evita bloqueos de seguridad (ORB) en el servidor de Staging
+        if ($useBunny && $bunnyUrl && app()->environment('production') && !str_contains(request()->getHost(), 'staging')) {
             return rtrim($bunnyUrl, '/') . '/' . ltrim($this->logo, '/');
         }
 

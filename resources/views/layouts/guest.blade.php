@@ -20,7 +20,8 @@
     {{-- ======================================================
         CSS COMPILADO (TAILWIND + APP.CSS)
     ====================================================== --}}
-    @vite('resources/css/app.css')
+    {{-- Vite eliminado para evitar error 500 en hosting tradicional --}}
+    {{-- @vite('resources/css/app.css') --}}
 
     {{-- ======================================================
         COLORES DINÁMICOS MULTIEMPRESA
