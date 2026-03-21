@@ -68,6 +68,7 @@
         }
 
         .guest-wrapper {
+            width: 100%;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -184,7 +185,7 @@
 <body>
 
     <div class="premium-bg"></div>
-    <div class="guest-wrapper {{ isset($isCatalog) && $isCatalog ? 'align-items-start pt-0 px-0' : 'align-items-center justify-content-center px-4' }}">
+    <div class="guest-wrapper {{ isset($isCatalog) && $isCatalog ? 'flex-column align-items-stretch pt-0 px-0 w-100' : 'align-items-center justify-content-center px-4' }}">
         @yield('content')
     </div>
 
