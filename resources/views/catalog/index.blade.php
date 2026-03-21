@@ -26,7 +26,7 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
 
     .catalog-wrapper {
         width: 100%;
-        padding: 20px;
+        padding: 10px;
     }
 
     /* GLASS HEADER */
@@ -247,10 +247,10 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
     }
 
     @media (max-width: 576px) {
-        .catalog-wrapper { padding: 10px; }
-        .product-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-        .glass-header { margin-bottom: 15px; top: 10px; padding: 10px 15px; }
-        .brand-id { font-size: 1rem; }
+        .catalog-wrapper { padding: 5px; }
+        .product-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .glass-header { margin-bottom: 10px; top: 10px; padding: 5px 10px; }
+        .brand-id { font-size: 0.9rem; }
     }
 </style>
 
@@ -272,7 +272,7 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
 </div>
 </nav>
 
-<div class="container-fluid px-4">
+<div class="px-2">
 
     {{-- SEARCH & FILTERS --}}
     <div class="mb-5">
@@ -293,7 +293,7 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
     </div>
 
     {{-- GRID --}}
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4" id="productGrid">
+    <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-3" id="productGrid">
         @forelse($products as $product)
             @php
                 $mainImg = $product->images->where('is_main', 1)->first() ?? $product->images->first();
