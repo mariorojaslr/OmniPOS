@@ -117,21 +117,30 @@
         .product-wrapper { padding: 20px; border-radius: 20px; }
         .price-tag { font-size: 1.8rem; }
     }
+
+    .btn-buy {
+        background: var(--catalog-primary);
+        border: none;
+        color: white;
+    }
 </style>
 
 <div class="glass-nav w-100 d-flex justify-content-between align-items-center">
     <div class="d-flex align-items-center">
-        <a href="{{ route('catalog.index', $empresa) }}" class="btn btn-light rounded-circle me-3 shadow-sm border">
-            <i class="bi bi-arrow-left"></i>
-        </a>
+        @if($logo)
+            <img src="{{ $logo }}" height="40" class="me-3 rounded-2 shadow-sm">
+        @endif
         <div class="brand-id h5 m-0 fw-bold d-none d-md-block">
             {{ $empresa->nombre_comercial }}
         </div>
     </div>
 
-    <div class="d-flex gap-3">
-        <a href="{{ route('cart.index') }}" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm position-relative">
-            <i class="bi bi-cart-fill"></i> Carrito
+    <div class="d-flex gap-3 align-items-center">
+        <a href="{{ route('catalog.index', $empresa) }}" class="btn btn-light rounded-pill px-4 shadow-sm border small fw-bold text-muted d-none d-md-flex align-items-center">
+            <i class="bi bi-arrow-left me-2"></i> Seguir Comprando
+        </a>
+        <a href="{{ route('cart.index') }}" class="btn btn-primary rounded-pill px-4 shadow-sm position-relative fw-bold">
+            <i class="bi bi-cart-fill me-1"></i> Carrito
             @if($cartCount > 0)
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     {{ $cartCount }}
