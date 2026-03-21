@@ -279,7 +279,7 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
     {{-- SEARCH & FILTERS --}}
     <div class="mb-5">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-lg-10">
                 <div class="position-relative mb-4">
                     <input type="text" id="searchInput" class="form-control search-input" placeholder="🔍 Buscar por nombre, marca o modelo...">
                 </div>

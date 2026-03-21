@@ -40,7 +40,7 @@ body {
 
 <body>
 
-<div class="container py-5">
+<div class="container-fluid py-5 px-4">
 
     <div class="catalog-header d-flex justify-content-between align-items-center mb-5">
         <div class="fw-bold fs-5">
