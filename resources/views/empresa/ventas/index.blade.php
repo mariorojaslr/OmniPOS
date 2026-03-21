@@ -143,7 +143,8 @@
                     <th width="100">Tipo</th>
                     <th width="120">Método</th>
                     <th width="130" class="text-end">Total</th>
-                    <th width="130" class="text-center">Acciones</th>
+                    <th width="160" class="text-center">Imprimir</th>
+                    <th width="80" class="text-center">Detalle</th>
                 </tr>
             </thead>
             <tbody>
@@ -178,19 +179,28 @@
                     </td>
 
                     <td class="text-center">
-                        {{-- Ver detalle --}}
-                        <button class="btn btn-sm btn-outline-primary"
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ route('empresa.ventas.pdf', $venta->id) }}" 
+                               target="_blank" 
+                               class="btn btn-outline-danger" 
+                               title="Descargar Factura A4">
+                               <i class="bi bi-file-pdf"></i> A4
+                            </a>
+                            <a href="{{ route('empresa.ventas.pdf', [$venta->id, 'format' => 'ticket']) }}" 
+                               target="_blank" 
+                               class="btn btn-outline-dark" 
+                               title="Imprimir Ticket 80mm">
+                               <i class="bi bi-printer"></i> Ticket
+                            </a>
+                        </div>
+                    </td>
+
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-primary"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalVenta{{ $venta->id }}">
-                            Ver
+                            <i class="bi bi-eye"></i>
                         </button>
-
-                        {{-- PDF --}}
-                        <a href="{{ route('empresa.ventas.pdf', $venta->id) }}"
-                           target="_blank"
-                           class="btn btn-sm btn-outline-danger">
-                            PDF
-                        </a>
                     </td>
                 </tr>
 
@@ -271,8 +281,13 @@
 
             </div>
             <div class="modal-footer">
+                <div class="me-auto">
+                    <a href="{{ route('empresa.ventas.pdf', [$venta->id, 'format' => 'ticket']) }}" target="_blank" class="btn btn-dark">
+                        <i class="bi bi-printer"></i> Imprimir Ticket (80mm)
+                    </a>
+                </div>
                 <a href="{{ route('empresa.ventas.pdf', $venta->id) }}" target="_blank" class="btn btn-danger">
-                    <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                    <i class="bi bi-file-earmark-pdf"></i> Descargar Factura (A4)
                 </a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
