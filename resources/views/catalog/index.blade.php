@@ -96,10 +96,12 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
     /* PRODUCT CARDS */
     .product-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-        gap: 20px;
-        width: 100%;
-        margin: 0;
+        grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+        gap: 25px;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     .premium-card {
@@ -278,8 +280,8 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
 
     {{-- SEARCH & FILTERS --}}
     <div class="mb-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
+        <div class="row w-100 m-0">
+            <div class="col-12 p-0">
                 <div class="position-relative mb-4">
                     <input type="text" id="searchInput" class="form-control search-input" placeholder="🔍 Buscar por nombre, marca o modelo...">
                 </div>
