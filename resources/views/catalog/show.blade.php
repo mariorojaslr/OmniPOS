@@ -1,365 +1,282 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>{{ $product->name }} - {{ $empresa->nombre_comercial }}</title>
+@extends('layouts.guest')
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+@php
+    $isCatalog = true;
+    $config = $empresa->config ?? null;
+    $primary   = $config->color_primary   ?? '#2563eb';
+    $secondary = $config->color_secondary ?? '#16a34a';
+    $cartCount = session('cart') ? count(session('cart')) : 0;
+    $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
+@endphp
+
+@section('content')
 
 <style>
-body { background:#f5f6f8; }
+    :root {
+        --catalog-primary: {{ $primary }};
+        --catalog-secondary: {{ $secondary }};
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(255, 255, 255, 0.3);
+    }
 
-.product-wrapper {
-    background:white;
-    padding:40px;
-    border-radius:16px;
-    box-shadow:0 15px 40px rgba(0,0,0,0.06);
-}
+    body {
+        background-color: transparent !important;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
 
-.main-image {
-    width:100%;
-    height:600px;
-    object-fit:cover;
-    border-radius:14px;
-    transition:transform .4s ease;
-}
+    .catalog-fluid-container {
+        width: 100%;
+        max-width: 1200px; /* Centrado para lectura en detalle */
+        margin: 0 auto;
+        padding: 0 20px 100px 20px;
+    }
 
-.main-image:hover { transform:scale(1.06); }
+    .glass-nav {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-bottom: 1px solid var(--glass-border);
+        padding: 15px 40px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
 
-.thumbnail {
-    width:100%;
-    height:95px;
-    object-fit:cover;
-    border-radius:10px;
-    cursor:pointer;
-    opacity:.7;
-    transition:.3s ease;
-}
+    .product-wrapper {
+        background: rgba(255,255,255,0.8);
+        backdrop-filter: blur(10px);
+        padding: 40px;
+        border-radius: 32px;
+        border: 1px solid rgba(255,255,255,0.4);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    }
 
-.thumbnail:hover { transform:scale(1.05); opacity:1; }
+    .main-image {
+        width: 100%;
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
 
-.active-thumb { border:2px solid #0d6efd; opacity:1; }
+    .thumbnail {
+        width: 100%;
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        border-radius: 12px;
+        cursor: pointer;
+        opacity: 0.6;
+        transition: 0.3s ease;
+        border: 2px solid transparent;
+    }
 
-.video-thumb {
-    height:160px;
-    object-fit:cover;
-    border-radius:12px;
-    cursor:pointer;
-    transition:.3s ease;
-}
+    .thumbnail:hover, .thumbnail.active-thumb {
+        opacity: 1;
+        border-color: var(--catalog-primary);
+        transform: translateY(-2px);
+    }
 
-.video-thumb:hover { transform:scale(1.04); }
+    .price-tag {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -1px;
+    }
 
-.play-overlay {
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    font-size:38px;
-    color:white;
-    pointer-events:none;
-}
+    .quantity-box {
+        display: flex;
+        align-items: center;
+        background: #f1f5f9;
+        border-radius: 16px;
+        padding: 5px;
+        width: fit-content;
+    }
 
-.price {
-    font-size:32px;
-    font-weight:bold;
-    color:#198754;
-}
+    .quantity-box btn { padding: 10px 15px; border: none; background: transparent; font-weight: bold; }
+    .quantity-box input { width: 50px; border: none; background: transparent; text-align: center; font-weight: 700; }
 
-.section-title {
-    font-weight:600;
-    margin-top:25px;
-}
+    .btn-buy {
+        border-radius: 18px;
+        padding: 18px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-/* ===== Selector Profesional ===== */
-.quantity-wrapper {
-    display:flex;
-    align-items:center;
-    gap:15px;
-    margin-top:25px;
-}
+    .btn-buy:hover:not(:disabled) {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
+    }
 
-.quantity-box {
-    display:flex;
-    align-items:center;
-    border-radius:10px;
-    box-shadow:0 6px 15px rgba(0,0,0,0.08);
-    overflow:hidden;
-    border:1px solid #ddd;
-    background:white;
-}
-
-.quantity-box button {
-    width:40px;
-    height:40px;
-    border:none;
-    background:#0d6efd;
-    color:white;
-    font-size:20px;
-    font-weight:bold;
-    transition:.2s;
-}
-
-.quantity-box button:hover {
-    background:#084298;
-}
-
-.quantity-box input {
-    width:70px;
-    height:40px;
-    text-align:center;
-    border:none;
-    font-weight:600;
-    font-size:16px;
-}
-
-.quantity-box input:focus {
-    outline:none;
-}
-
-.stock-info {
-    font-size:13px;
-    color:#6c757d;
-    margin-top:6px;
-}
-
-.cart-bounce {
-    animation:bounce .5s ease;
-}
-
-@keyframes bounce {
-    0%{transform:scale(1);}
-    30%{transform:scale(1.3);}
-    60%{transform:scale(.9);}
-    100%{transform:scale(1);}
-}
+    @media (max-width: 768px) {
+        .glass-nav { padding: 10px 15px; }
+        .product-wrapper { padding: 20px; border-radius: 20px; }
+        .price-tag { font-size: 1.8rem; }
+    }
 </style>
-</head>
 
-<body>
+<div class="glass-nav w-100 d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <a href="{{ route('catalog.index', $empresa) }}" class="btn btn-light rounded-circle me-3 shadow-sm border">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div class="brand-id h5 m-0 fw-bold d-none d-md-block">
+            {{ $empresa->nombre_comercial }}
+        </div>
+    </div>
 
-<nav class="navbar navbar-light bg-white shadow-sm mb-5">
-<div class="container d-flex justify-content-between">
-<span class="navbar-brand fw-bold">
-@if($empresa->config && $empresa->config->logo)
-    <img src="{{ $empresa->config->logo_url }}" height="35" class="me-2">
-@endif
-{{ $empresa->nombre_comercial }}
-</span>
-
-<a href="{{ route('cart.index') }}" id="cartIcon" class="btn btn-outline-secondary">
-🛒
-</a>
+    <div class="d-flex gap-3">
+        <a href="{{ route('cart.index') }}" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm position-relative">
+            <i class="bi bi-cart-fill"></i> Carrito
+            @if($cartCount > 0)
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {{ $cartCount }}
+                </span>
+            @endif
+        </a>
+    </div>
 </div>
-</nav>
 
-@if(session('success'))
-<div class="position-fixed top-0 end-0 p-4" style="z-index:9999; margin-top:80px;">
-    <div id="cartToast" class="toast align-items-center text-bg-success border-0 show shadow">
-        <div class="d-flex">
-            <div class="toast-body">
-                {{ session('success') }}
+<div class="catalog-fluid-container mt-4">
+    <div class="product-wrapper">
+        <div class="row g-5">
+            <div class="col-lg-6">
+                @if($product->images->count())
+                    <img id="mainImage" src="{{ $product->images->first()->url }}" class="main-image">
+                    
+                    <div class="row mt-3 g-2">
+                        @foreach($product->images as $index => $image)
+                            <div class="col-3">
+                                <img src="{{ $image->url }}" 
+                                     class="thumbnail {{ $index == 0 ? 'active-thumb' : '' }}" 
+                                     onclick="changeImage(this)">
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="main-image d-flex align-items-center justify-content-center bg-light text-muted fs-1">
+                        📷
+                    </div>
+                @endif
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-@endif
 
-<div class="container">
-<div class="product-wrapper">
+            <div class="col-lg-6">
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb mb-2">
+                    <li class="breadcrumb-item"><a href="{{ route('catalog.index', $empresa) }}" class="text-decoration-none text-muted">Catálogo</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ $product->name }}</li>
+                  </ol>
+                </nav>
 
-<div class="row g-5">
-
-<div class="col-lg-7">
-
-<div class="row">
-<div class="col-2">
-<div class="d-flex flex-column gap-3">
-@foreach($product->images as $index => $image)
-<img src="{{ $image->url }}"
-class="thumbnail {{ $index == 0 ? 'active-thumb' : '' }}"
-onclick="changeImage(this)">
-@endforeach
-</div>
-</div>
-
-<div class="col-10">
-@if($product->images->count())
-<img id="mainImage"
-src="{{ $product->images->first()->url }}"
-class="main-image">
-@endif
-</div>
-</div>
-
-@if($product->videos->count())
-<div class="row mt-4 g-3">
-@foreach($product->videos as $video)
-<div class="col-md-4">
-<div class="position-relative"
-data-bs-toggle="modal"
-data-bs-target="#videoModal{{ $video->id }}">
-<img src="{{ $video->thumbnail }}" class="w-100 video-thumb">
-<div class="play-overlay">▶</div>
-</div>
-</div>
-@endforeach
-</div>
-@endif
-
-</div>
-
-<div class="col-lg-5">
-
-<h1 class="fw-bold">{{ $product->name }}</h1>
-
-<div class="price mt-3">
-${{ number_format($product->price,2) }}
-</div>
-
-@if($product->descripcion_corta)
-<div class="section-title">Descripción breve</div>
-<p>{{ $product->descripcion_corta }}</p>
-@endif
-
-<form id="addToCartForm" method="POST" action="{{ route('cart.add', $product) }}">
-@csrf
-
-<input type="hidden" name="variant_id" id="variantIdInput">
-
-@if($product->has_variants && $product->variants->count() > 0)
-    <div class="variants-section mt-4">
-        <div class="fw-bold mb-2">Seleccione una opción</div>
-        <div class="row g-2">
-            @foreach($product->variants as $v)
-                <div class="col-6 col-md-4">
-                    <button type="button" 
-                            class="btn btn-outline-dark btn-sm w-100 variant-btn"
-                            data-id="{{ $v->id }}"
-                            data-price="{{ $v->price ?: $product->price }}"
-                            data-stock="{{ $v->stock }}"
-                            onclick="selectVariant(this)">
-                        {{ $v->size }} / {{ $v->color }}
-                    </button>
+                <h1 class="fw-bold mb-3" style="color: #0f172a;">{{ $product->name }}</h1>
+                
+                <div class="price-tag mb-4">
+                    $ {{ number_format($product->price, 0, ',', '.') }}
                 </div>
-            @endforeach
+
+                @if($product->descripcion_corta)
+                    <div class="text-muted mb-4 fs-5">{{ $product->descripcion_corta }}</div>
+                @endif
+
+                <form id="addToCartForm" method="POST" action="{{ route('cart.add', $product) }}" class="mt-5">
+                    @csrf
+                    <input type="hidden" name="variant_id" id="variantIdInput">
+
+                    @if($product->has_variants && $product->variants->count() > 0)
+                        <div class="variants-section mb-4">
+                            <label class="fw-bold mb-2">Seleccione una opción</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($product->variants as $v)
+                                    <button type="button" 
+                                            class="btn btn-outline-secondary btn-sm variant-btn rounded-pill px-3"
+                                            data-id="{{ $v->id }}"
+                                            data-price="{{ $v->price ?: $product->price }}"
+                                            data-stock="{{ $v->stock }}"
+                                            onclick="selectVariant(this)">
+                                        {{ $v->size }} / {{ $v->color }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="row align-items-center g-3 mb-4">
+                        <div class="col-auto">
+                            <label class="fw-bold">Cantidad</label>
+                            <div class="quantity-box mt-1">
+                                <button type="button" class="btn" onclick="changeQty(-1)">-</button>
+                                <input type="number" id="quantityInput" name="quantity" value="1" min="1" max="{{ $product->stock }}">
+                                <button type="button" class="btn" onclick="changeQty(1)">+</button>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted small">Stock disponible: <span id="displayStock">{{ number_format($product->stock, 0) }}</span></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="addToCartBtn" class="btn btn-primary btn-buy w-100" 
+                            {{ $product->has_variants ? 'disabled' : '' }}>
+                        <i class="bi bi-cart-plus-fill me-2"></i> Agregar al Carrito
+                    </button>
+
+                    @if($product->has_variants)
+                        <p id="variantWarning" class="text-danger small mt-2 text-center">⚠️ Seleccione una variante para continuar.</p>
+                    @endif
+                </form>
+            </div>
         </div>
-    </div>
-@endif
 
-<div class="quantity-wrapper mt-4">
-    <div class="fw-bold">Cantidad</div>
-
-    <div class="quantity-box">
-        <button type="button" onclick="changeQty(-1)">−</button>
-        <input type="number"
-               id="quantityInput"
-               name="quantity"
-               value="1"
-               min="1"
-               max="{{ $product->stock }}">
-        <button type="button" onclick="changeQty(1)">+</button>
+        @if($product->descripcion_larga)
+            <div class="mt-5 pt-5 border-top">
+                <h4 class="fw-bold mb-4">Detalles del Producto</h4>
+                <div class="fs-5 text-secondary" style="line-height: 1.8;">
+                    {!! nl2br(e($product->descripcion_larga)) !!}
+                </div>
+            </div>
+        @endif
     </div>
 </div>
-
-<div class="stock-info">
-    Stock disponible: <span id="displayStock">{{ number_format($product->stock, 2) }}</span>
-</div>
-
-<button type="submit" id="addToCartBtn" class="btn btn-primary btn-lg w-100 mt-4" 
-        {{ $product->has_variants ? 'disabled' : '' }}>
-    Agregar al carrito
-</button>
-
-@if($product->has_variants)
-    <p id="variantWarning" class="text-danger small mt-1">Por favor, seleccione una variante antes de agregar.</p>
-@endif
-
-</form>
-
-</div>
-</div>
-
-@if($product->descripcion_larga)
-<hr class="my-5">
-<h4 class="fw-bold">Descripción detallada</h4>
-<p>{{ $product->descripcion_larga }}</p>
-@endif
-
-</div>
-</div>
-
-@foreach($product->videos as $video)
-<div class="modal fade" id="videoModal{{ $video->id }}" tabindex="-1">
-<div class="modal-dialog modal-lg modal-dialog-centered">
-<div class="modal-content">
-<div class="modal-body p-0">
-<div class="ratio ratio-16x9">
-<iframe src="{{ $video->embed_url }}" allowfullscreen></iframe>
-</div>
-</div>
-</div>
-</div>
-</div>
-@endforeach
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-function changeImage(element){
-    document.getElementById('mainImage').src = element.src;
-    document.querySelectorAll('.thumbnail').forEach(img=>img.classList.remove('active-thumb'));
-    element.classList.add('active-thumb');
-}
+    function changeImage(element){
+        document.getElementById('mainImage').src = element.src;
+        document.querySelectorAll('.thumbnail').forEach(img => img.classList.remove('active-thumb'));
+        element.classList.add('active-thumb');
+    }
 
-function selectVariant(btn){
-    // Highlight
-    document.querySelectorAll('.variant-btn').forEach(b => b.classList.replace('btn-dark', 'btn-outline-dark'));
-    btn.classList.replace('btn-outline-dark', 'btn-dark');
+    function selectVariant(btn){
+        document.querySelectorAll('.variant-btn').forEach(b => {
+             b.classList.remove('btn-dark');
+             b.classList.add('btn-outline-secondary');
+        });
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-dark');
 
-    // Data
-    const id = btn.dataset.id;
-    const price = parseFloat(btn.dataset.price);
-    const stock = parseFloat(btn.dataset.stock);
+        const id = btn.dataset.id;
+        const price = parseFloat(btn.dataset.price);
+        const stock = parseFloat(btn.dataset.stock);
 
-    // Update UI
-    document.getElementById('variantIdInput').value = id;
-    document.querySelector('.price').innerText = '$' + price.toLocaleString('en-US', {minimumFractionDigits: 2});
-    document.getElementById('displayStock').innerText = stock.toFixed(2);
-    
-    const qtyInput = document.getElementById('quantityInput');
-    qtyInput.max = stock;
-    if(parseInt(qtyInput.value) > stock) qtyInput.value = stock;
+        document.getElementById('variantIdInput').value = id;
+        document.querySelector('.price-tag').innerText = '$ ' + price.toLocaleString('es-AR');
+        document.getElementById('displayStock').innerText = stock;
+        
+        document.getElementById('quantityInput').max = stock;
+        document.getElementById('addToCartBtn').disabled = false;
+        if(document.getElementById('variantWarning')) document.getElementById('variantWarning').style.display = 'none';
+    }
 
-    // Enable button
-    document.getElementById('addToCartBtn').disabled = false;
-    const warning = document.getElementById('variantWarning');
-    if(warning) warning.style.display = 'none';
-}
-
-function changeQty(amount){
-    const input = document.getElementById('quantityInput');
-    const max = parseInt(input.max) || 99999;
-    let current = parseInt(input.value) || 1;
-
-    current += amount;
-
-    if(current < 1) current = 1;
-    if(current > max) current = max;
-
-    input.value = current;
-}
-
-@if(session('success'))
-document.getElementById('cartIcon').classList.add('cart-bounce');
-
-setTimeout(()=>{
-    const toast = document.getElementById('cartToast');
-    if(toast){ toast.remove(); }
-},3000);
-@endif
+    function changeQty(amount){
+        const input = document.getElementById('quantityInput');
+        let current = parseInt(input.value) || 1;
+        current += amount;
+        if(current < 1) current = 1;
+        if(current > parseInt(input.max)) current = parseInt(input.max);
+        input.value = current;
+    }
 </script>
 
-</body>
-</html>
+@endsection

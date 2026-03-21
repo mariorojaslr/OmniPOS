@@ -101,5 +101,14 @@ class SystemUpdateSeeder extends Seeder
                 'description' => '¡MultiPOS se vuelve profesional! Implementamos el escaneo de código de barras real en el POS y la carga masiva de stock mediante "Sesiones Colaborativas": ahora cualquier colaborador puede usar su celular como un escáner de stock simplemente escaneando un QR temporal. Además, habilitamos el Hub de Etiquetas para generar e imprimir sus propios códigos de barras en formato PDF.',
             ]
         );
+
+        \App\Models\SystemUpdate::updateOrCreate(
+            ['title' => 'Evolución Visual: Catálogo Nuclear Fluid 100%'],
+            [
+                'publish_date' => '2026-03-21',
+                'type' => 'mejora',
+                'description' => 'Hemos rediseñado el catálogo público para ofrecer una experiencia inmersiva y ultrarrápida. El nuevo diseño utiliza una retícula inteligente que aprovecha el 100% de cualquier pantalla, acompañada de una navegación Glassmorphism y filtros dinámicos premium. ¡Su vitrina digital nunca se vio tan profesional!',
+            ]
+        );
     }
 }

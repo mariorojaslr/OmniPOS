@@ -184,7 +184,7 @@
 <body>
 
     <div class="premium-bg"></div>
-    <div class="guest-wrapper">
+    <div class="guest-wrapper {{ isset($isCatalog) && $isCatalog ? 'align-items-start pt-0 px-0' : 'align-items-center justify-content-center px-4' }}">
         @yield('content')
     </div>
 
