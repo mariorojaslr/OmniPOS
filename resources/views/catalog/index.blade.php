@@ -96,8 +96,10 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
     /* PRODUCT CARDS */
     .product-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
         gap: 20px;
+        width: 100%;
+        margin: 0;
     }
 
     .premium-card {
@@ -248,7 +250,7 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
 
     @media (max-width: 576px) {
         .catalog-wrapper { padding: 5px; }
-        .product-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .product-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
         .glass-header { margin-bottom: 10px; top: 10px; padding: 5px 10px; }
         .brand-id { font-size: 0.9rem; }
     }
@@ -292,8 +294,8 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
         </div>
     </div>
 
-    {{-- GRID --}}
-    <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-3" id="productGrid">
+    {{-- GRID FLUIDO INTELIGENTE --}}
+    <div class="product-grid" id="productGrid">
         @forelse($products as $product)
             @php
                 $mainImg = $product->images->where('is_main', 1)->first() ?? $product->images->first();
@@ -302,13 +304,13 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
                 $isPromo = $product->price < ($empresa->config->precio_oferta ?? 5000);
             @endphp
 
-            <div class="col product-item" 
+            <div class="product-item" 
                  data-name="{{ strtolower($product->name) }}"
                  data-new="{{ $isNew ? '1' : '0' }}"
                  data-top="{{ $isTop ? '1' : '0' }}"
                  data-promo="{{ $isPromo ? '1' : '0' }}">
                 
-                <div class="premium-card">
+                <div class="premium-card shadow-sm h-100">
                     <div class="image-container">
                         @if($isNew) <span class="card-badge" style="background: #2dd4bf;">Nuevo</span> @endif
                         @if($isTop) <span class="card-badge" style="background: #f59e0b; left: auto; right: 12px;">Hot</span> @endif
