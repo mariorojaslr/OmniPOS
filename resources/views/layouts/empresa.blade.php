@@ -263,6 +263,7 @@ input, select, textarea{
     <ul class="dropdown-menu">
         <li><a class="dropdown-item" href="{{ route('empresa.products.index') }}">Listado / Alta</a></li>
         <li><a class="dropdown-item" href="{{ route('empresa.rubros.index') }}">Gestionar Rubros</a></li>
+        <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.inventory_scan') }}">📦 Escanear Inventario (QR)</a></li>
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="{{ route('empresa.products.bulk-price-update') }}">Actualización de Precios</a></li>
     </ul>
