@@ -87,15 +87,33 @@ class VentaController extends Controller
         $logoBase64 = null;
         $logoPath   = public_path('images/logo_multipos.png');
 
-        if ($empresa->config && $empresa->config->logo_url) {
-            // Intentar cargar logo personalizado si existe
-            $logoPath = public_path('storage/' . $empresa->config->logo_url);
-        }
+        if ($empresa->config && $empresa->config->logo) {
+            // Usamos el accessor logo_url que ya sabe si es local o Bunny
+            $logoUrl = $empresa->config->logo_url;
+            
+            try {
+                // Si es una URL absoluta (Bunny o externa)
+                if (str_starts_with($logoUrl, 'http')) {
+                    $data = file_get_contents($logoUrl);
+                } else {
+                    // Si es relativa (local)
+                    $localPath = public_path(ltrim($logoUrl, '/'));
+                    // Si no existe, probamos en storage (por si acaso)
+                    if (!file_exists($localPath)) {
+                        $localPath = storage_path('app/public/' . $empresa->config->logo);
+                    }
+                    if (file_exists($localPath)) {
+                        $data = file_get_contents($localPath);
+                    }
+                }
 
-        if (file_exists($logoPath)) {
-            $type = pathinfo($logoPath, PATHINFO_EXTENSION);
-            $data = file_get_contents($logoPath);
-            $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                if (isset($data)) {
+                    $type = 'png'; // Generalmente usamos PNG o JPG
+                    $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                }
+            } catch (\Exception $e) {
+                // Si falla el logo personalizado, no hacemos nada (quedará nulo o el logo por defecto)
+            }
         }
 
         if ($formato === 'ticket') {
