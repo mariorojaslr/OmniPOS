@@ -14,8 +14,8 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
     :root {
         --catalog-primary: {{ $primary }};
         --catalog-secondary: {{ $secondary }};
-        --glass-bg: rgba(255, 255, 255, 0.85);
-        --glass-border: rgba(255, 255, 255, 0.5);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.8);
     }
 
     body {
@@ -25,8 +25,7 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
     }
 
     .catalog-wrapper {
-        max-width: 1400px;
-        margin: 0 auto;
+        width: 100%;
         padding: 20px;
     }
 
@@ -255,24 +254,25 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
     }
 </style>
 
-<div class="catalog-wrapper">
+<nav class="navbar navbar-light bg-white shadow-sm mb-4 sticky-top">
+<div class="container-fluid px-4 d-flex justify-content-between">
+<span class="navbar-brand fw-bold">
+@if($logo)
+    <img src="{{ $logo }}" height="35" class="me-2">
+@endif
+{{ $empresa->nombre_comercial }}
+</span>
 
-    {{-- HEADER GLASSED --}}
-    <header class="glass-header d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center gap-3">
-            <img src="{{ $logo }}" style="height: 40px; object-fit: contain;">
-            <div class="brand-id d-none d-sm-block">{{ $empresa->nombre_comercial }}</div>
-        </div>
+<div class="d-flex gap-2">
+    {{-- Eliminamos el botón de Administración para clientes externos --}}
+    <button class="btn btn-primary btn-sm px-3" onclick="shareCatalog()">
+        <i class="bi bi-share"></i> Compartir
+    </button>
+</div>
+</div>
+</nav>
 
-        <div class="d-flex gap-2">
-            <button class="btn btn-light rounded-circle p-2 shadow-sm" onclick="copyCatalogLink()" title="Compartir Catálogo">
-                🔗
-            </button>
-            <a href="{{ route('empresa.dashboard') }}" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold d-none d-md-inline-block">
-                Administrar
-            </a>
-        </div>
-    </header>
+<div class="container-fluid px-4">
 
     {{-- SEARCH & FILTERS --}}
     <div class="mb-5">
@@ -293,7 +293,7 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
     </div>
 
     {{-- GRID --}}
-    <div class="product-grid" id="productGrid">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4" id="productGrid">
         @forelse($products as $product)
             @php
                 $mainImg = $product->images->where('is_main', 1)->first() ?? $product->images->first();
@@ -302,7 +302,7 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
                 $isPromo = $product->price < ($empresa->config->precio_oferta ?? 5000);
             @endphp
 
-            <div class="product-item" 
+            <div class="col product-item" 
                  data-name="{{ strtolower($product->name) }}"
                  data-new="{{ $isNew ? '1' : '0' }}"
                  data-top="{{ $isTop ? '1' : '0' }}"
@@ -401,11 +401,19 @@ $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
         document.querySelector('[data-filter="all"]').click();
     }
 
-    function copyCatalogLink() {
-        const url = window.location.href;
-        navigator.clipboard.writeText(url).then(() => {
-            alert('¡Enlace del catálogo copiado! Ya puedes pegarlo en WhatsApp.');
-        });
+    function shareCatalog() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ $empresa->nombre_comercial }} - Catálogo',
+                text: '¡Mira los productos de {{ $empresa->nombre_comercial }}!',
+                url: window.location.href,
+            }).catch(console.error);
+        } else {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('¡Enlace del catálogo copiado! Ya puedes pegarlo en WhatsApp.');
+            });
+        }
     }
 </script>
 
