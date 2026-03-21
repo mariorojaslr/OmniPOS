@@ -141,6 +141,9 @@ body { background:#f5f6f8; }
 <nav class="navbar navbar-light bg-white shadow-sm mb-5">
 <div class="container d-flex justify-content-between">
 <span class="navbar-brand fw-bold">
+@if($empresa->config && $empresa->config->logo)
+    <img src="{{ $empresa->config->logo_url }}" height="35" class="me-2">
+@endif
 {{ $empresa->nombre_comercial }}
 </span>
 
@@ -174,7 +177,7 @@ body { background:#f5f6f8; }
 <div class="col-2">
 <div class="d-flex flex-column gap-3">
 @foreach($product->images as $index => $image)
-<img src="{{ url('images/'.$image->url) }}"
+<img src="{{ $image->url }}"
 class="thumbnail {{ $index == 0 ? 'active-thumb' : '' }}"
 onclick="changeImage(this)">
 @endforeach
@@ -184,7 +187,7 @@ onclick="changeImage(this)">
 <div class="col-10">
 @if($product->images->count())
 <img id="mainImage"
-src="{{ url('images/'.$product->images->first()->url) }}"
+src="{{ $product->images->first()->url }}"
 class="main-image">
 @endif
 </div>
