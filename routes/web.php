@@ -227,6 +227,16 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      |--------------------------------------------------------------------------
      */
         Route::get('/reportes', [ReporteController::class , 'panel'])->name('reportes.panel');
+        Route::get('/reportes', [ReporteController::class , 'panel'])->name('reportes.panel');
+        Route::get('/reportes/vendedores', [ReporteController::class , 'ventasVendedor'])->name('reportes.vendedores');
+        Route::get('/reportes/caja-diaria', [ReporteController::class , 'cajaDiaria'])->name('reportes.caja_diaria');
+        Route::get('/reportes/rentabilidad', [ReporteController::class , 'rentabilidad'])->name('reportes.rentabilidad');
+        Route::get('/reportes/margen', [ReporteController::class , 'margenProducto'])->name('reportes.margen');
+        Route::get('/reportes/categorias', [ReporteController::class , 'ventasCategoria'])->name('reportes.categorias');
+        Route::get('/reportes/clientes-frecuentes', [ReporteController::class , 'clientesFrecuentes'])->name('reportes.clientes_frecuentes');
+        Route::get('/reportes/por-hora', [ReporteController::class , 'ventasPorHora'])->name('reportes.por_hora');
+        Route::get('/reportes/analisis-mensual', [ReporteController::class , 'analisisMensual'])->name('reportes.analisis_mensual');
+        
         Route::get('/reportes/ranking-productos', [ReporteController::class , 'rankingProductos'])->name('reportes.productos');
         Route::get('/reportes/ranking-clientes', [ReporteController::class , 'rankingClientes'])->name('reportes.clientes');
         Route::get('/reportes/ventas-fecha', [ReporteController::class , 'ventasPorFecha'])->name('reportes.ventas_fecha');
