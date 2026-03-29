@@ -212,12 +212,12 @@
                                 <td class="text-end pe-4">
 
                                     {{-- Imprimir Etiquetas Rápido --}}
-                                    <a href="{{ route('empresa.products.labels.single', $product) }}"
-                                       target="_blank"
-                                       class="btn btn-sm btn-outline-dark"
-                                       title="Imprimir Etiquetas">
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-dark"
+                                            title="Imprimir Etiquetas"
+                                            onclick="abrirModalEtiquetaRapida({{ json_encode(['id'=>$product->id, 'name'=>$product->name]) }})">
                                         🏷️
-                                    </a>
+                                    </button>
 
                                     <a href="{{ route('empresa.products.edit', $product) }}"
                                        class="btn btn-sm btn-outline-secondary">
@@ -313,4 +313,97 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-@endsection
+{{-- MODAL IMPRESIÓN RÁPIDA DE ETIQUETAS --}}
+<div class="modal fade" id="modalEtiquetaRapida" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark">
+            <form id="formEtiquetaRapida" action="{{ route('empresa.labels.generate') }}" method="POST" target="_blank">
+                @csrf
+                <input type="hidden" name="items[]" id="modal_product_id">
+                <input type="hidden" name="selected_items[0]" id="modal_product_id_alt"> {{-- Compatibilidad con array asociativo --}}
+                
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title fw-bold">🏷️ Imprimir Etiquetas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Configurando impresión para: <strong id="modal_product_name"></strong></p>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-uppercase text-muted">1. Formato de Etiqueta</label>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="format" id="mFormatSmall" value="small" checked>
+                                <label class="btn btn-outline-dark w-100 py-2 rounded-3 d-flex flex-column align-items-center" for="mFormatSmall">
+                                    <span class="small fw-bold">CHICA</span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="format" id="mFormatMedium" value="medium">
+                                <label class="btn btn-outline-dark w-100 py-2 rounded-3 d-flex flex-column align-items-center" for="mFormatMedium">
+                                    <span class="small fw-bold">MEDIA</span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="format" id="mFormatLarge" value="large">
+                                <label class="btn btn-outline-dark w-100 py-2 rounded-3 d-flex flex-column align-items-center" for="mFormatLarge">
+                                    <span class="small fw-bold">GRANDE</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase text-muted">2. Cantidad de Etiquetas</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="qty_mode" id="qtyFull" value="full" checked onchange="toggleQtyInput(this)">
+                            <label class="form-check-label" for="qtyFull">
+                                Toda la página (llenar hoja A4)
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="qty_mode" id="qtySpecific" value="specific" onchange="toggleQtyInput(this)">
+                            <label class="form-check-label" for="qtySpecific">
+                                Cantidad específica
+                            </label>
+                        </div>
+                        <div id="qtyInputWrapper" style="display:none;" class="mt-2 ps-4">
+                             <input type="number" name="dynamic_qty" id="modal_qty" value="1" min="1" max="500" class="form-control w-50">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold">Generar PDF</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function abrirModalEtiquetaRapida(data) {
+    document.getElementById('modal_product_id').value = data.id;
+    document.getElementById('modal_product_id_alt').name = `selected_items[${data.id}]`;
+    document.getElementById('modal_product_id_alt').value = "1";
+    document.getElementById('modal_product_name').innerText = data.name;
+    
+    // Reset form
+    document.getElementById('modal_qty').name = `quantities[${data.id}]`;
+    
+    new bootstrap.Modal(document.getElementById('modalEtiquetaRapida')).show();
+}
+
+function toggleQtyInput(radio) {
+    const wrapper = document.getElementById('qtyInputWrapper');
+    const input = document.getElementById('modal_qty');
+    if (radio.value === 'specific') {
+        wrapper.style.display = 'block';
+        input.value = 1;
+    } else {
+        wrapper.style.display = 'none';
+        input.value = 999; // Valor centinela para indicar "Página completa"
+    }
+}
+</script>
+

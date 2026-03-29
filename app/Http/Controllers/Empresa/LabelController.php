@@ -76,6 +76,12 @@ class LabelController extends Controller
             $product = Product::where('empresa_id', $empresa->id)->find($productId);
             
             if ($product && $product->barcode && $qty > 0) {
+                
+                // SI EL VALOR ES 999, COMPLETAMOS LA PÁGINA SEGÚN FORMATO
+                if ($qty === 999) {
+                    $qty = ($request->format == 'small') ? 60 : (($request->format == 'medium') ? 30 : 10);
+                }
+
                 // Generamos una sola vez la imagen base64 del código de barras
                 $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', $config['w'], $config['h']));
 
