@@ -45,17 +45,16 @@ class ProductController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Soporte AJAX
+        | Soporte AJAX (Buscador en tiempo real)
         |--------------------------------------------------------------------------
         */
-
-        if ($request->ajax() || $request->get('ajax')) {
-
-            return response()->json(
-                $query->orderBy('name')
-                    ->limit(50)
-                    ->get(['id','name','price','active'])
-            );
+        if ($request->ajax()) {
+            $products = $query->with(['rubro', 'images'])
+                ->orderBy('name')
+                ->paginate($perPage);
+            return response()->json([
+                'html' => view('empresa.products._table', compact('products'))->render()
+            ]);
         }
 
         /*
