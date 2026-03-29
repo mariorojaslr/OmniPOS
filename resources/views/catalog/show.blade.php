@@ -247,6 +247,26 @@
                 </div>
             </div>
         @endif
+
+        @if($product->videos->count())
+            <div class="mt-5 pt-5 border-top">
+                <h4 class="fw-bold mb-4"><i class="bi bi-play-circle me-2"></i> Videos y Demostraciones</h4>
+                <div class="row g-4">
+                    @foreach($product->videos as $video)
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 20px;">
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="{{ $video->embed_url }}" 
+                                            frameborder="0" 
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                            allowfullscreen></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 

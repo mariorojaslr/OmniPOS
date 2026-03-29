@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.empresa')
 
 @section('content')
 <div class="container py-4">
@@ -12,11 +12,23 @@
             <small class="text-muted">{{ $product->name }}</small>
         </div>
 
-        {{-- 🔁 VOLVER AL ORIGEN --}}
-        <a href="{{ request('return') ? request('return') : route('empresa.products.index') }}"
-           class="btn btn-outline-secondary btn-sm">
-            ← Volver
-        </a>
+        <div class="d-flex gap-2">
+            {{-- 🏷️ IMPRIMIR ETIQUETA RÁPIDA --}}
+            @if($product->barcode)
+                <a href="{{ route('empresa.products.labels.single', $product) }}" 
+                   target="_blank"
+                   class="btn btn-outline-dark btn-sm d-flex align-items-center gap-2">
+                    <i class="bi bi-tag"></i>
+                    Imprimir Etiquetas
+                </a>
+            @endif
+
+            {{-- 🔁 VOLVER AL ORIGEN --}}
+            <a href="{{ request('return') ? request('return') : route('empresa.products.index') }}"
+               class="btn btn-outline-secondary btn-sm">
+                ← Volver
+            </a>
+        </div>
     </div>
 
 

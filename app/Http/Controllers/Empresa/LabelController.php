@@ -57,48 +57,55 @@ class LabelController extends Controller
         $request->validate([
             'items' => 'required|array',
             'format' => 'required|string|in:small,medium,large',
+            'qty_mode' => 'required|string|in:full,specific',
         ]);
 
         $empresa = Auth::user()->empresa;
         $generator = new BarcodeGeneratorPNG();
         $labels = [];
 
-        // Definición de tamaños estándar en mm (Ancho x Avance)
+        // Definición de tamaños y capacidad por hoja A4
+        // 'w' es el grosor de línea del código de barras, 'h' es altura
+        // 'per_page' es cuántas entran en una hoja A4 (aprox)
         $sizes = [
-            'small'  => ['w' => 1.0, 'h' => 30, 'cols' => 5], // 33x22 mm
-            'medium' => ['w' => 1.5, 'h' => 45, 'cols' => 3], // 50x25 mm
-            'large'  => ['w' => 2.2, 'h' => 70, 'cols' => 2], // 100x50 mm
+            'small'  => ['w' => 1.0, 'h' => 25, 'cols' => 5, 'per_page' => 65], // 38x21 mm aprox (5x13)
+            'medium' => ['w' => 1.5, 'h' => 40, 'cols' => 3, 'per_page' => 24], // 70x37 mm aprox (3x8)
+            'large'  => ['w' => 2.0, 'h' => 60, 'cols' => 2, 'per_page' => 10], // 105x48 mm aprox (2x5)
         ];
+        
         $config = $sizes[$request->format];
+        $perPage = $config['per_page'];
 
         foreach ($request->items as $productId) {
-            $qty = (int) ($request->quantities[$productId] ?? 1);
-            $product = Product::where('empresa_id', $empresa->id)->find($productId);
-            
-            if ($product && $product->barcode && $qty > 0) {
-                
-                // SI EL VALOR ES 999, COMPLETAMOS LA PÁGINA SEGÚN FORMATO
-                if ($qty === 999) {
-                    $qty = ($request->format == 'small') ? 60 : (($request->format == 'medium') ? 30 : 10);
-                }
+            $product = Product::find($productId);
+            if (!$product || !$product->barcode) continue;
 
-                // Generamos una sola vez la imagen base64 del código de barras
-                $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', $config['w'], $config['h']));
+            // Determinar cantidad total de etiquetas a imprimir
+            if ($request->qty_mode === 'full') {
+                $sheets = (int) ($request->sheets ?? 1);
+                $totalQty = $sheets * $perPage;
+            } else {
+                $totalQty = (int) ($request->quantities[$productId] ?? ($request->dynamic_qty ?? 1));
+            }
 
-                for ($i = 0; $i < $qty; $i++) {
-                    $labels[] = [
-                        'name'    => $product->name,
-                        'price'   => number_format($product->price, 2),
-                        'barcode' => $barcodeImage,
-                        'code'    => $product->barcode,
-                        'empresa' => $empresa->nombre
-                    ];
-                }
+            if ($totalQty > 500) $totalQty = 500; // Límite de seguridad
+
+            // Generamos una sola vez la imagen base64 del código de barras
+            $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', $config['w'], $config['h']));
+
+            for ($i = 0; $i < $totalQty; $i++) {
+                $labels[] = [
+                    'name'    => $product->name,
+                    'price'   => number_format($product->price, 0, ',', '.'),
+                    'barcode' => $barcodeImage,
+                    'code'    => $product->barcode,
+                    'empresa' => $empresa->nombre_comercial ?? $empresa->nombre
+                ];
             }
         }
 
         if (empty($labels)) {
-            return back()->with('error', 'No se seleccionaron etiquetas válidas.');
+            return back()->with('error', 'No se pudieron generar etiquetas. Verifique que los productos tengan código de barras.');
         }
 
         $pdf = Pdf::loadView('pdf.labels', [
@@ -112,38 +119,20 @@ class LabelController extends Controller
     
     /**
      * Imprimir una sola etiqueta rápida (Ej: desde el edit del producto)
+     * Ahora redirige al modal o se puede usar con parámetros por defecto
      */
     public function printSingle(Product $product)
     {
-        $empresa = Auth::user()->empresa;
-        if ($product->empresa_id !== $empresa->id) abort(403);
-        
         if (!$product->barcode) {
-            return back()->with('error', 'Este producto no tiene un código de barras asignado. Por favor cárgalo antes de imprimir.');
+            return back()->with('error', 'Este producto no tiene un código de barras asignado.');
         }
 
-        $generator = new BarcodeGeneratorPNG();
-        $labels = [];
-        
-        $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', 1.5, 35));
-
-        // Generamos una hoja con 21 etiquetas (3x7) del mismo producto
-        for ($i = 0; $i < 21; $i++) {
-            $labels[] = [
-                'name'    => $product->name,
-                'price'   => number_format($product->price, 2),
-                'barcode' => $barcodeImage,
-                'code'    => $product->barcode,
-                'empresa' => $empresa->nombre
-            ];
-        }
-
-        $pdf = Pdf::loadView('pdf.labels', [
-            'labels' => $labels,
+        // Por defecto: 1 página completa mediana
+        return redirect()->route('empresa.labels.generate', [
+            'items' => [$product->id],
             'format' => 'medium',
-            'cols'   => 3
-        ])->setPaper('a4', 'portrait');
-
-        return $pdf->stream("etiquetas_{$product->id}.pdf");
+            'qty_mode' => 'full',
+            'sheets' => 1
+        ]);
     }
 }

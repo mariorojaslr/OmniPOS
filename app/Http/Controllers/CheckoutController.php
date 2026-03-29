@@ -164,7 +164,14 @@ class CheckoutController extends Controller
         // Vaciar carrito
         session()->forget('cart');
 
-        return redirect()->route('catalog.index', $empresa->id)
-                         ->with('success','Pedido enviado correctamente. La empresa se contactará contigo.');
+        return redirect()->route('checkout.success', $order->id);
+    }
+
+    public function success(Order $order)
+    {
+        $order->load(['items.product', 'empresa.config']);
+        $empresa = $order->empresa;
+        
+        return view('catalog.success', compact('order', 'empresa'));
     }
 }

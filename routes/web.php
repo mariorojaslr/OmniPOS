@@ -309,6 +309,7 @@ use App\Http\Controllers\CheckoutController;
 
 Route::get('/checkout', [CheckoutController::class , 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class , 'store'])->name('checkout.store');
+Route::get('/checkout/success/{order}', [CheckoutController::class , 'success'])->name('checkout.success');
 Route::get('/api/search-client', [CheckoutController::class , 'searchClient'])->name('checkout.search_client');
 
 

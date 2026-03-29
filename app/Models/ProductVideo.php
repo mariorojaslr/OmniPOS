@@ -17,6 +17,8 @@ class ProductVideo extends Model
     protected $fillable = [
         'product_id',
         'youtube_url',
+        'bunny_video_id',
+        'bunny_library_id',
     ];
 
 
@@ -73,11 +75,17 @@ class ProductVideo extends Model
     */
     public function getEmbedUrlAttribute()
     {
-        if (!$this->youtube_id) {
-            return null;
+        // Caso 1: Bunny Stream (Prioridad según manual empresa)
+        if ($this->bunny_video_id && $this->bunny_library_id) {
+            return "https://iframe.mediadelivery.net/embed/{$this->bunny_library_id}/{$this->bunny_video_id}?autoplay=false&loop=false&muted=false&preload=true&responsive=true";
         }
 
-        return "https://www.youtube.com/embed/{$this->youtube_id}?autoplay=1";
+        // Caso 2: YouTube
+        if ($this->youtube_id) {
+            return "https://www.youtube.com/embed/{$this->youtube_id}?autoplay=0";
+        }
+
+        return null;
     }
 
 

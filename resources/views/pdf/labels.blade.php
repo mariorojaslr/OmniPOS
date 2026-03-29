@@ -117,7 +117,8 @@
 </head>
 <body>
     @php
-        $perPageRows = ($format == 'small') ? 12 : (($format == 'medium') ? 10 : 5);
+        // Ajuste de filas por página según formato (debe coincidir con LabelController)
+        $perPageRows = ($format == 'small') ? 13 : (($format == 'medium') ? 8 : 5);
         $totalItems = count($labels);
         $chunks = array_chunk($labels, $cols);
         $chunkedPages = array_chunk($chunks, $perPageRows);

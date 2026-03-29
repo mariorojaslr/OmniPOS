@@ -34,7 +34,10 @@ class ProductVideoController extends Controller
         $this->authorizeProduct($product);
 
         $request->validate([
-            'youtube_url' => 'required|url'
+            'video_type'       => 'required|in:youtube,bunny',
+            'youtube_url'     => 'required_if:video_type,youtube|nullable|url',
+            'bunny_video_id'   => 'required_if:video_type,bunny|nullable|string',
+            'bunny_library_id' => 'required_if:video_type,bunny|nullable|string',
         ]);
 
         if ($product->videos()->count() >= 3) {
@@ -42,8 +45,10 @@ class ProductVideoController extends Controller
         }
 
         ProductVideo::create([
-            'product_id'  => $product->id,
-            'youtube_url' => $request->youtube_url
+            'product_id'       => $product->id,
+            'youtube_url'      => $request->youtube_url,
+            'bunny_video_id'   => $request->bunny_video_id,
+            'bunny_library_id' => $request->bunny_library_id,
         ]);
 
         return back()->with('success', 'Video agregado correctamente');
