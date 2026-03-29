@@ -3,147 +3,107 @@
 namespace App\Http\Controllers\Empresa;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
-use App\Models\ProductVariant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Picqer\Barcode\BarcodeGenerator;
+use App\Models\Product;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Traits\BelongsToEmpresa;
 
 class LabelController extends Controller
 {
-    /**
-     * Vista de selección de qué etiquetas imprimir
-     */
-    public function index(Request $request)
+    use BelongsToEmpresa;
+
+    public function index()
     {
-        $empresaId = Auth::user()->empresa_id;
-        
-        $query = Product::where('empresa_id', $empresaId)
-            ->whereNotNull('barcode')
-            ->orderBy('name');
+        $products = Product::where('barcode', '!=', '')
+                           ->whereNotNull('barcode')
+                           ->orderBy('name')
+                           ->get();
 
-        // Filtro por Rubro
-        if ($request->filled('rubro_id')) {
-            $query->where('rubro_id', $request->rubro_id);
-        }
-
-        // Filtro por Compras (Últimas compras que contienen este producto)
-        if ($request->filled('purchase_id')) {
-            $query->whereHas('purchaseItems', function($q) use ($request) {
-                $q->where('purchase_id', $request->purchase_id);
-            });
-        }
-
-        // Filtro por "Nuevas" (Últimas 48 horas)
-        if ($request->filter === 'nuevas') {
-            $query->where('created_at', '>=', now()->subHours(48));
-        }
-
-        $products = $query->get();
-        
-        $rubros = \App\Models\Rubro::where('empresa_id', $empresaId)->get();
-        $compras = \App\Models\Purchase::where('empresa_id', $empresaId)->orderByDesc('id')->limit(10)->get();
-
-        return view('empresa.labels.index', compact('products', 'rubros', 'compras'));
+        return view('empresa.labels.index', compact('products'));
     }
 
     /**
-     * Generar PDF con las etiquetas (Mejorado con formatos y repeticiones)
+     * Generación de etiquetas OLED premium
      */
     public function generate(Request $request)
     {
         $request->validate([
             'items' => 'required|array',
-            'format' => 'required|string|in:small,medium,large',
+            'format' => 'required|in:small,medium,large'
         ]);
 
-        $empresa = Auth::user()->empresa;
         $generator = new BarcodeGeneratorPNG();
         $labels = [];
 
-        // Definición de tamaños estándar en mm (Ancho x Avance)
-        $sizes = [
-            'small'  => ['w' => 1.0, 'h' => 30, 'cols' => 5], // 33x22 mm
-            'medium' => ['w' => 1.5, 'h' => 45, 'cols' => 3], // 50x25 mm
-            'large'  => ['w' => 2.2, 'h' => 70, 'cols' => 2], // 100x50 mm
+        // Definición de capacidad por hoja A4 para cada formato
+        // Basado en márgenes estándar y tamaños aproximados
+        $pageCapacity = [
+            'small'  => 65, // 5 columnas x 13 filas (aprox)
+            'medium' => 24, // 3 columnas x 8 filas (aprox)
+            'large'  => 10, // 2 columnas x 5 filas (aprox)
         ];
-        $config = $sizes[$request->format];
+
+        $perPage = $pageCapacity[$request->format];
+        $cols = ($request->format == 'small') ? 5 : (($request->format == 'medium') ? 3 : 2);
 
         foreach ($request->items as $productId) {
-            $qty = (int) ($request->quantities[$productId] ?? 1);
-            $product = Product::where('empresa_id', $empresa->id)->find($productId);
-            
-            if ($product && $product->barcode && $qty > 0) {
-                
-                // SI EL VALOR ES 999, COMPLETAMOS LA PÁGINA SEGÚN FORMATO
-                if ($qty === 999) {
-                    $qty = ($request->format == 'small') ? 60 : (($request->format == 'medium') ? 30 : 10);
-                }
+            $product = Product::find($productId);
+            if (!$product || !$product->barcode) continue;
 
-                // Generamos una sola vez la imagen base64 del código de barras
-                $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', $config['w'], $config['h']));
+            // Lógica forzada de cantidad (Anti-errores OLED)
+            $totalQty = 1;
+            if ($request->qty_mode === 'full') {
+                $sheets = (int) ($request->sheets ?? 1);
+                $totalQty = $sheets * $perPage;
+            } else if (isset($request->quantities[$productId])) {
+                 $totalQty = (int)$request->quantities[$productId];
+            } else {
+                 $totalQty = (int)($request->dynamic_qty ?? 1);
+            }
 
-                for ($i = 0; $i < $qty; $i++) {
-                    $labels[] = [
-                        'name'    => $product->name,
-                        'price'   => number_format($product->price, 2),
-                        'barcode' => $barcodeImage,
-                        'code'    => $product->barcode,
-                        'empresa' => $empresa->nombre
-                    ];
-                }
+            if ($totalQty > 500) $totalQty = 500; // Límite de seguridad
+
+            // Generamos una sola vez la imagen base64 del código de barras para ahorrar memoria
+            $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', 2, ($request->format == 'large' ? 70 : 40)));
+
+            for ($i = 0; $i < $totalQty; $i++) {
+                $labels[] = [
+                    'name'    => $product->name,
+                    'price'   => number_format($product->price, 2, ',', '.'),
+                    'barcode' => $barcodeImage,
+                    'code'    => $product->barcode,
+                    'empresa' => auth()->user()->empresa->nombre_comercial ?? 'POS'
+                ];
             }
         }
 
         if (empty($labels)) {
-            return back()->with('error', 'No se seleccionaron etiquetas válidas.');
+            return back()->with('error', 'No se pudieron generar etiquetas para los productos seleccionados.');
         }
 
         $pdf = Pdf::loadView('pdf.labels', [
             'labels' => $labels,
             'format' => $request->format,
-            'cols'   => $config['cols']
-        ])->setPaper('a4', 'portrait');
+            'cols'   => $cols
+        ]);
 
-        return $pdf->stream('etiquetas_productos.pdf');
+        // Configuración de papel A4
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('etiquetas-' . now()->format('YmdHis') . '.pdf');
     }
-    
+
     /**
-     * Imprimir una sola etiqueta rápida (Ej: desde el edit del producto)
+     * Acceso rápido desde listado de productos
      */
-    public function printSingle(Product $product)
+    public function printSingle($id)
     {
-        $empresa = Auth::user()->empresa;
-        if ($product->empresa_id !== $empresa->id) abort(403);
-        
-        if (!$product->barcode) {
-            return back()->with('error', 'Este producto no tiene un código de barras asignado. Por favor cárgalo antes de imprimir.');
-        }
-
-        $generator = new BarcodeGeneratorPNG();
-        $labels = [];
-        
-        $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', 1.5, 35));
-
-        // Generamos una hoja con 21 etiquetas (3x7) del mismo producto
-        for ($i = 0; $i < 21; $i++) {
-            $labels[] = [
-                'name'    => $product->name,
-                'price'   => number_format($product->price, 2),
-                'barcode' => $barcodeImage,
-                'code'    => $product->barcode,
-                'empresa' => $empresa->nombre
-            ];
-        }
-
-        $pdf = Pdf::loadView('pdf.labels', [
-            'labels' => $labels,
-            'format' => 'medium',
-            'cols'   => 3
-        ])->setPaper('a4', 'portrait');
-
-        return $pdf->stream("etiquetas_{$product->id}.pdf");
+        return $this->generate(new Request([
+            'items' => [$id],
+            'format' => 'medium', // Por defecto mediana
+            'qty_mode' => 'full', // Por defecto llenar hoja
+            'sheets' => 1
+        ]));
     }
 }
