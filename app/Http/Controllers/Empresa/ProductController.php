@@ -428,6 +428,23 @@ class ProductController extends Controller
         $countUpdated = 0;
 
         while (($row = fgetcsv($handle, 2000, ';')) !== FALSE) {
+            
+            // BLINDAJE CONTRA CODIFICACIÓN INCORRECTA (Acentos, Ñ, etc. de Excel)
+            $utf8Row = [];
+            foreach ($row as $value) {
+                if ($value === null) {
+                    $utf8Row[] = "";
+                    continue;
+                }
+                // Si no es UTF-8, asumimos que viene de Excel/Windows-1252 (ISO-8859-1)
+                if (!mb_check_encoding($value, 'UTF-8')) {
+                    $utf8Row[] = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+                } else {
+                    $utf8Row[] = $value;
+                }
+            }
+            $row = $utf8Row;
+
             if (count($row) < 2) continue;
 
             $id          = !empty($row[0]) ? (int) $row[0] : null;
