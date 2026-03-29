@@ -97,8 +97,27 @@
         </div>
 
         {{-- ============================= --}}
-        {{-- CONTENIDO DEL PRODUCTO --}}
+        {{-- INVENTARIO --}}
         {{-- ============================= --}}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3 text-muted">📊 Inventario Inicial</h6>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Stock Inicial</label>
+                        <input type="number" name="stock" class="form-control" value="{{ old('stock', 0) }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Stock Mínimo</label>
+                        <input type="number" name="stock_min" class="form-control" value="{{ old('stock_min', 0) }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Stock Ideal</label>
+                        <input type="number" name="stock_ideal" class="form-control" value="{{ old('stock_ideal', 0) }}">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
                 <h6 class="fw-bold mb-3 text-muted">Contenido del producto</h6>

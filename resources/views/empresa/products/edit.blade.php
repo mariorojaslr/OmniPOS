@@ -121,8 +121,45 @@
 
 
         {{-- =========================================================
-           CONTENIDO DEL PRODUCTO
+           INVENTARIO
         ========================================================== --}}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3 text-muted">📊 Inventario</h6>
+                <div class="row g-3">
+                    {{-- STOCK ACTUAL --}}
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Stock Actual</label>
+                        <input type="number" 
+                               name="stock" 
+                               class="form-control" 
+                               value="{{ old('stock', $product->stock) }}" 
+                               {{ $product->has_variants ? 'readonly' : '' }}>
+                        @if($product->has_variants)
+                            <small class="text-muted">Se calcula automáticamente de las variantes.</small>
+                        @endif
+                    </div>
+
+                    {{-- STOCK MÍNIMO --}}
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Stock Mínimo</label>
+                        <input type="number" 
+                               name="stock_min" 
+                               class="form-control" 
+                               value="{{ old('stock_min', $product->stock_min) }}">
+                    </div>
+
+                    {{-- STOCK IDEAL --}}
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Stock Ideal</label>
+                        <input type="number" 
+                               name="stock_ideal" 
+                               class="form-control" 
+                               value="{{ old('stock_ideal', $product->stock_ideal) }}">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
 

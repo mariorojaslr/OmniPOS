@@ -131,8 +131,9 @@
                     <thead class="table-light">
                         <tr>
                             <th class="ps-4">Producto</th>
-                            <th>Código</th>
+                            <th>Rubro</th>
                             <th>Precio</th>
+                            <th>Stock</th>
                             <th>Estado</th>
                             <th>Media</th>
                             <th class="text-end pe-4">Acciones</th>
@@ -147,31 +148,44 @@
                                 {{-- Nombre --}}
                                 <td class="ps-4">
                                     <div class="nombre-producto fw-bold">{{ $product->name }}</div>
-                                    @if($product->rubro)
-                                        <small class="text-muted">{{ $product->rubro->nombre }}</small>
-                                    @endif
                                 </td>
 
-                                {{-- Código --}}
+                                {{-- Rubro --}}
                                 <td>
-                                    @if($product->barcode)
-                                        <code class="text-dark bg-light px-2 py-1 rounded small border">{{ $product->barcode }}</code>
+                                    @if($product->rubro)
+                                        <span class="badge bg-light text-dark border">{{ $product->rubro->nombre }}</span>
                                     @else
-                                        <span class="text-muted small italic">S/C</span>
+                                        <span class="text-muted small italic">Sin rubro</span>
                                     @endif
                                 </td>
 
                                 {{-- Precio --}}
                                 <td>
-                                    ${{ number_format($product->price, 2, ',', '.') }}
+                                    <div class="fw-bold">${{ number_format($product->price, 2, ',', '.') }}</div>
+                                    @if($product->barcode)
+                                        <small class="text-muted small">Code: {{ $product->barcode }}</small>
+                                    @endif
+                                </td>
+
+                                {{-- Stock --}}
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold fs-5 {{ $product->stock <= $product->stock_min ? 'text-danger' : 'text-dark' }}">
+                                            {{ $product->stock }}
+                                        </span>
+                                        <div class="d-flex gap-2" style="font-size: 0.75rem;">
+                                            <span class="text-muted text-nowrap" title="Stock Mínimo">Mín: {{ $product->stock_min }}</span>
+                                            <span class="text-muted text-nowrap" title="Stock Ideal">Ideal: {{ $product->stock_ideal }}</span>
+                                        </div>
+                                    </div>
                                 </td>
 
                                 {{-- Estado --}}
                                 <td>
                                     @if($product->active)
-                                        <span class="badge bg-success">Activo</span>
+                                        <span class="badge bg-success-subtle text-success border border-success">Activo</span>
                                     @else
-                                        <span class="badge bg-secondary">Inactivo</span>
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary">Inactivo</span>
                                     @endif
                                 </td>
 
@@ -225,7 +239,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-4 text-muted">
+                                <td colspan="7" class="text-center py-4 text-muted">
                                     No se encontraron productos.
                                 </td>
                             </tr>

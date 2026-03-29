@@ -64,6 +64,7 @@ class ProductController extends Controller
         */
 
         $products = $query
+            ->with(['rubro', 'images', 'videos'])
             ->orderBy('name')
             ->paginate($perPage)
             ->withQueryString();
@@ -102,6 +103,9 @@ class ProductController extends Controller
         $request->validate([
             'name'              => 'required|string|max:255',
             'price'             => 'required|numeric|min:0',
+            'stock'             => 'nullable|numeric|min:0',
+            'stock_min'         => 'nullable|numeric|min:0',
+            'stock_ideal'       => 'nullable|numeric|min:0',
             'barcode'           => 'nullable|string|max:100',
             'descripcion_corta' => 'nullable|string',
             'descripcion_larga' => 'nullable|string',
@@ -128,6 +132,9 @@ class ProductController extends Controller
             'empresa_id'        => Auth::user()->empresa_id,
             'name'              => $request->name,
             'price'             => $request->price,
+            'stock'             => $request->stock ?? 0,
+            'stock_min'         => $request->stock_min ?? 0,
+            'stock_ideal'       => $request->stock_ideal ?? 0,
             'barcode'           => $request->barcode,
             'rubro_id'          => $request->rubro_id,
             'active'            => true,
@@ -204,6 +211,9 @@ class ProductController extends Controller
         $request->validate([
             'name'              => 'required|string|max:255',
             'price'             => 'required|numeric|min:0',
+            'stock'             => 'nullable|numeric|min:0',
+            'stock_min'         => 'nullable|numeric|min:0',
+            'stock_ideal'       => 'nullable|numeric|min:0',
             'active'            => 'required|boolean',
             'barcode'           => 'nullable|string|max:100',
             'descripcion_corta' => 'nullable|string',
@@ -228,9 +238,16 @@ class ProductController extends Controller
             'active'            => $request->active,
             'descripcion_corta' => $request->descripcion_corta,
             'descripcion_larga' => $request->descripcion_larga,
+            'stock_min'         => $request->stock_min ?? 0,
+            'stock_ideal'       => $request->stock_ideal ?? 0,
             'has_variants'      => $hasVariants,
             'is_combo'          => $isCombo,
         ]);
+
+        // Ajuste de stock manual si se envió
+        if ($request->has('stock') && $request->stock != $product->stock && !$hasVariants) {
+            $product->ajustarStock($request->stock, 'Ajuste manual desde edición');
+        }
 
         // ===== GUARDAR VARIANTES =====
         if ($hasVariants && $request->filled('variantes')) {
@@ -335,7 +352,9 @@ class ProductController extends Controller
     public function export()
     {
         $empresaId = Auth::user()->empresa_id;
-        $products = Product::where('empresa_id', $empresaId)->get();
+        $products = Product::where('empresa_id', $empresaId)
+            ->with('rubro')
+            ->get();
 
         $filename = "productos_empresa_{$empresaId}_" . date('Y-m-d') . ".csv";
         $headers = [
@@ -350,14 +369,30 @@ class ProductController extends Controller
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             // Encabezados
-            fputcsv($file, ['ID', 'Nombre', 'Precio', 'Stock Actual', 'Activo (1/0)'], ';');
+            fputcsv($file, [
+                'ID (NO MODIFICAR)', 
+                'Nombre del Articulo', 
+                'Rubro/Categoria',
+                'Precio', 
+                'Stock Actual', 
+                'Stock Minimo', 
+                'Stock Ideal', 
+                'Texto Corto', 
+                'Texto Largo', 
+                'Activo (1=SI, 0=NO)'
+            ], ';');
 
             foreach ($products as $p) {
                 fputcsv($file, [
                     $p->id,
                     $p->name,
+                    $p->rubro ? $p->rubro->nombre : '',
                     $p->price,
                     $p->stock,
+                    $p->stock_min,
+                    $p->stock_ideal,
+                    $p->descripcion_corta,
+                    $p->descripcion_larga,
                     $p->active ? 1 : 0
                 ], ';');
             }
@@ -390,14 +425,37 @@ class ProductController extends Controller
         $countCreated = 0;
         $countUpdated = 0;
 
-        while (($row = fgetcsv($handle, 1000, ';')) !== FALSE) {
+        while (($row = fgetcsv($handle, 2000, ';')) !== FALSE) {
             if (count($row) < 2) continue;
 
-            $id     = !empty($row[0]) ? $row[0] : null;
-            $nombre = trim($row[1]);
-            $precio = (float) str_replace(',', '.', $row[2] ?? 0);
-            $stock  = (float) ($row[3] ?? 0);
-            $active = (int) ($row[4] ?? 1);
+            $id          = !empty($row[0]) ? (int) $row[0] : null;
+            $nombre      = trim($row[1]);
+            $rubroName   = trim($row[2] ?? '');
+            $precio      = (float) str_replace(',', '.', $row[3] ?? 0);
+            $stock       = (float) ($row[4] ?? 0);
+            $stockMin    = (float) ($row[5] ?? 0);
+            $stockIdeal  = (float) ($row[6] ?? 0);
+            $descCorta   = $row[7] ?? '';
+            $descLarga   = $row[8] ?? '';
+            $active      = (int) ($row[9] ?? 1);
+
+            // Manejo "inteligente" de Rubro
+            $rubroId = null;
+            if (!empty($rubroName)) {
+                $rubro = Rubro::where('empresa_id', $empresaId)
+                    ->where('nombre', $rubroName)
+                    ->first();
+                
+                if (!$rubro) {
+                    // Crear el rubro si no existe (Smart behavior)
+                    $rubro = Rubro::create([
+                        'empresa_id' => $empresaId,
+                        'nombre' => $rubroName,
+                        'activo' => true
+                    ]);
+                }
+                $rubroId = $rubro->id;
+            }
 
             // Buscar por ID o por Nombre (para evitar duplicados)
             $product = null;
@@ -411,12 +469,20 @@ class ProductController extends Controller
                     ->first();
             }
 
+            $data = [
+                'name'              => $nombre,
+                'rubro_id'          => $rubroId,
+                'price'             => $precio,
+                'stock'             => $stock,
+                'stock_min'         => $stockMin,
+                'stock_ideal'       => $stockIdeal,
+                'descripcion_corta' => $descCorta,
+                'descripcion_larga' => $descLarga,
+                'active'            => $active
+            ];
+
             if ($product) {
-                $product->update([
-                    'price'  => $precio,
-                    'stock'  => $stock,
-                    'active' => $active
-                ]);
+                $product->update($data);
                 $countUpdated++;
             } else {
                 // CHEQUEO DE LÍMITE DEMO
@@ -425,13 +491,8 @@ class ProductController extends Controller
                     if ($total >= 100) break; // Detener importación si ya hay 100
                 }
 
-                Product::create([
-                    'empresa_id' => $empresaId,
-                    'name'   => $nombre,
-                    'price'  => $precio,
-                    'stock'  => $stock,
-                    'active' => $active
-                ]);
+                $data['empresa_id'] = $empresaId;
+                Product::create($data);
                 $countCreated++;
             }
         }
