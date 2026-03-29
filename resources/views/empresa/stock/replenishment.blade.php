@@ -10,24 +10,26 @@
         transform: translateY(-5px);
     }
     .product-row {
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 12px;
-        margin-bottom: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+        margin-bottom: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
         transition: all 0.2s;
     }
     .product-row:hover {
-        background: rgba(255, 255, 255, 0.07);
-        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(59, 130, 246, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     .stock-badge {
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        display: inline-block;
     }
-    .badge-critical { background: #ef4444; color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
-    .badge-low { background: #f59e0b; color: white; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+    .badge-critical { background: #dc2626; color: white; border: 1px solid #ef4444; }
+    .badge-low { background: #d97706; color: white; border: 1px solid #f59e0b; }
     
     .accordion-button::after {
         filter: invert(1);
@@ -38,9 +40,9 @@
     }
     .activity-item {
         border-left: 2px solid rgba(255, 255, 255, 0.1);
-        padding-left: 15px;
+        padding: 4px 0 4px 12px;
         position: relative;
-        margin-bottom: 15px;
+        margin-bottom: 8px;
     }
     .activity-item::before {
         content: '';
@@ -53,9 +55,23 @@
         background: #3b82f6;
     }
     .progress-minimal {
-        height: 6px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 3px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+    }
+    .btn-suggest {
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        border-radius: 6px;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #60a5fa;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .btn-suggest:hover {
+        background: #2563eb;
+        color: white;
     }
 </style>
 @endsection
@@ -64,16 +80,31 @@
 <div class="container py-4">
 
     {{-- ENCABEZADO "ROLLS ROYCE" --}}
-    <div class="glass-card p-4 mb-4 border-0 d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="fw-bold mb-1" style="background: linear-gradient(90deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                Centro de Reposición Inteligente
-            </h1>
-            <p class="text-muted mb-0">Análisis avanzado de faltantes y sugerencias de compra</p>
-        </div>
-        <div class="text-end">
-            <span class="d-block small text-muted">Items en falta</span>
-            <span class="fs-2 fw-bold text-danger">{{ $totalFaltantes }}</span>
+    <div class="glass-card p-3 mb-4 border-0">
+        <div class="row align-items-center">
+            <div class="col-md-5">
+                <h2 class="fw-bold mb-0" style="background: linear-gradient(90deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Reposición Inteligente
+                </h2>
+                <span class="text-muted small">Análisis de {{ $totalFaltantes }} ítems con stock bajo o crítico</span>
+            </div>
+            <div class="col-md-7">
+                <form method="GET" class="row row-cols-lg-auto g-3 align-items-center justify-content-end">
+                    <div class="col-12">
+                        <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm bg-dark border-secondary text-white" placeholder="Buscar producto..." style="width: 200px;">
+                    </div>
+                    <div class="col-12">
+                        <select name="filas" class="form-select form-select-sm bg-dark border-secondary text-white" onchange="this.form.submit()">
+                            @foreach([10, 20, 50, 100] as $n)
+                                <option value="{{ $n }}" @selected(request('filas', 20) == $n)>{{ $n }} filas</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-sm btn-outline-light">Filtrar</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -89,31 +120,29 @@
         @foreach($porProveedor as $supplierId => $items)
             @php 
                 $supplier = ($supplierId === 'sin_proveedor') ? null : $proveedores[$supplierId];
-                $groupName = $supplier ? $supplier->name : 'Sin Proveedor Asignado';
+                $groupName = $supplier ? $supplier->name : 'SIN PROVEEDOR ASIGNADO';
             @endphp
 
-            <div class="glass-card mb-5 overflow-hidden border-0">
-                <div class="p-4 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <div class="glass-card mb-4 overflow-hidden border-0">
+                <div class="px-3 py-2 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08);">
                     <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
-                            <i class="text-white">🚚</i>
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                            🚚
                         </div>
                         <div>
-                            <h4 class="fw-bold mb-0 text-white">{{ $groupName }}</h4>
-                            <small class="text-muted">{{ $items->count() }} productos pendientes de reposición</small>
+                            <span class="fw-bold text-white small">{{ strtoupper($groupName) }}</span>
+                            <span class="text-muted ms-2" style="font-size: 0.75rem;">{{ $items->count() }} ítems en falta</span>
                         </div>
                     </div>
                     @if($supplier)
-                        <button class="btn btn-primary px-4 rounded-pill shadow" onclick="generarPedido({{ $supplierId }})">
-                            <i class="me-1">📝</i> Generar Pedido Sugerido
+                        <button class="btn btn-sm btn-primary px-3 rounded-pill fw-bold" style="font-size: 0.7rem;" onclick="generarPedido({{ $supplierId }})">
+                            GENERAR PEDIDO SUGERIDO
                         </button>
-                    @else
-                        <span class="text-warning small fst-italic">Asigne proveedores para generar pedidos automáticos</span>
                     @endif
                 </div>
 
-                <div class="p-4">
-                    <div class="row g-4">
+                <div class="p-2">
+                    <div class="row g-2">
                         @foreach($items as $item)
                             @php 
                                 $isCritical = $item->stock <= 0;
@@ -123,43 +152,41 @@
 
                             {{-- PRODUCT CARD CON ACORDEÓN PARA ACTIVIDAD --}}
                             <div class="col-12">
-                                <div class="product-row p-3">
+                                <div class="product-row px-3 py-2">
                                     <div class="row align-items-center">
                                         <div class="col-md-5">
                                             <div class="d-flex align-items-center">
-                                                <div class="me-3 fs-4">{{ $isCritical ? '🚨' : '⚠️' }}</div>
+                                                <div class="me-2 small">{{ $isCritical ? '🚨' : '⚠️' }}</div>
                                                 <div>
-                                                    <h6 class="fw-bold mb-0 text-white">{{ $item->name }}</h6>
-                                                    <small class="text-muted">{{ $item->rubro ? $item->rubro->nombre : 'Sin rubro' }}</small>
+                                                    <span class="fw-bold small text-white">{{ $item->name }}</span><br>
+                                                    <span class="text-muted" style="font-size: 0.75rem;">{{ $item->rubro ? $item->rubro->nombre : 'GENERAL' }}</span>
                                                 </div>
                                             </div>
                                         </div>
                                         
                                         <div class="col-md-3">
-                                            <div class="small text-muted mb-1">Estado de Stock</div>
-                                            <div class="progress progress-minimal mb-2">
-                                                <div class="progress-bar {{ $isCritical ? 'bg-danger' : 'bg-warning' }}" style="width: {{ $stockPercent }}%"></div>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="text-muted fw-bold" style="font-size: 0.65rem;">MÉTRICA DE STOCK</span>
+                                                <span class="text-white fw-bold" style="font-size: 0.65rem;">{{ $item->stock }} / {{ $item->stock_ideal }}</span>
                                             </div>
-                                            <div class="d-flex justify-content-between small">
-                                                <span>Actual: <b>{{ $item->stock }}</b></span>
-                                                <span>Ideal: <b>{{ $item->stock_ideal }}</b></span>
+                                            <div class="progress progress-minimal">
+                                                <div class="progress-bar {{ $isCritical ? 'bg-danger shadow-sm' : 'bg-warning shadow-sm' }}" style="width: {{ $stockPercent }}%"></div>
                                             </div>
                                         </div>
 
                                         <div class="col-md-2 text-center">
-                                            <div class="small text-muted mb-1">Sugerido</div>
                                             <span class="stock-badge {{ $isCritical ? 'badge-critical' : 'badge-low' }}">
-                                                +{{ $suggested }} {{ ($item->rubro && str_contains(strtolower($item->rubro->nombre), 'peso')) ? 'kg' : 'u' }}
+                                                +{{ $suggested }} {{ ($item->rubro && str_contains(strtolower($item->rubro->nombre), 'peso')) ? 'KG' : 'UN' }}
                                             </span>
                                         </div>
 
                                         <div class="col-md-2 text-end">
-                                            <button class="btn btn-link text-info text-decoration-none btn-sm" 
+                                            <button class="btn btn-suggest btn-sm" 
                                                     type="button" 
                                                     data-bs-toggle="collapse" 
                                                     data-bs-target="#activity-{{ $item->id }}" 
                                                     onclick="cargarActividad({{ $item->id }})">
-                                                Ver Actividad ↓
+                                                ACTIVIDAD ↓
                                             </button>
                                         </div>
                                     </div>
@@ -190,6 +217,11 @@
                 </div>
             </div>
         @endforeach
+
+        {{-- PAGINACIÓN --}}
+        <div class="mt-4 d-flex justify-content-center">
+            {{ $productos->withQueryString()->links('pagination::bootstrap-5') }}
+        </div>
 
     @endif
 

@@ -18,19 +18,28 @@ class ReplenishmentController extends Controller
     public function index(Request $request)
     {
         $empresaId = Auth::user()->empresa_id;
+        $q = $request->input('q');
+        $perPage = $request->input('filas', 20);
 
-        // 1. Obtener productos con bajo stock
-        // Incluimos los que no tienen proveedor asignado por separado
+        // 1. Obtener productos con bajo stock con filtros
         $query = Product::where('empresa_id', $empresaId)
-            ->where(function($q) {
-                $q->whereColumn('stock', '<=', 'stock_min')
+            ->where(function($sub) {
+                $sub->whereColumn('stock', '<=', 'stock_min')
                   ->orWhere('stock', '<=', 0);
-            })
-            ->with(['supplier', 'rubro']);
+            });
 
-        $productos = $query->orderBy('name')->get();
+        if ($q) {
+            $query->where(function($sub) use ($q) {
+                $sub->where('name', 'LIKE', "%{$q}%")
+                    ->orWhere('barcode', 'LIKE', "%{$q}%");
+            });
+        }
 
-        // 2. Agrupar por proveedor
+        $productos = $query->with(['supplier', 'rubro'])
+            ->orderBy('name')
+            ->paginate($perPage);
+
+        // 2. Agrupar el set actual por proveedor (solo los de la página actual)
         $porProveedor = $productos->groupBy(function($p) {
             return $p->supplier_id ?? 'sin_proveedor';
         });
@@ -41,15 +50,18 @@ class ReplenishmentController extends Controller
             ->get()
             ->keyBy('id');
 
-        // 4. Estadísticas rápidas
-        $totalFaltantes = $productos->count();
-        $criticos = $productos->where('stock', '<=', 0)->count();
+        // 4. Estadísticas rápidas (totales globales)
+        $totalFaltantes = Product::where('empresa_id', $empresaId)
+            ->where(function($sub) {
+                $sub->whereColumn('stock', '<=', 'stock_min')
+                  ->orWhere('stock', '<=', 0);
+            })->count();
 
         return view('empresa.stock.replenishment', compact(
             'porProveedor',
             'proveedores',
             'totalFaltantes',
-            'criticos'
+            'productos' // Pasamos el paginador
         ));
     }
 
