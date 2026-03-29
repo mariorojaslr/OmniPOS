@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Picqer\Barcode\BarcodeGenerator;
 use Picqer\Barcode\BarcodeGeneratorHTML;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -18,38 +19,70 @@ class LabelController extends Controller
     public function index(Request $request)
     {
         $empresaId = Auth::user()->empresa_id;
-        $products = Product::where('empresa_id', $empresaId)
+        
+        $query = Product::where('empresa_id', $empresaId)
             ->whereNotNull('barcode')
-            ->orderBy('name')
-            ->get();
-            
-        return view('empresa.labels.index', compact('products'));
+            ->orderBy('name');
+
+        // Filtro por Rubro
+        if ($request->filled('rubro_id')) {
+            $query->where('rubro_id', $request->rubro_id);
+        }
+
+        // Filtro por Compras (Últimas compras que contienen este producto)
+        if ($request->filled('purchase_id')) {
+            $query->whereHas('purchaseItems', function($q) use ($request) {
+                $q->where('purchase_id', $request->purchase_id);
+            });
+        }
+
+        // Filtro por "Nuevas" (Últimas 48 horas)
+        if ($request->filter === 'nuevas') {
+            $query->where('created_at', '>=', now()->subHours(48));
+        }
+
+        $products = $query->get();
+        
+        $rubros = \App\Models\Rubro::where('empresa_id', $empresaId)->get();
+        $compras = \App\Models\Purchase::where('empresa_id', $empresaId)->orderByDesc('id')->limit(10)->get();
+
+        return view('empresa.labels.index', compact('products', 'rubros', 'compras'));
     }
 
     /**
-     * Generar PDF con las etiquetas
+     * Generar PDF con las etiquetas (Mejorado con formatos y repeticiones)
      */
     public function generate(Request $request)
     {
         $request->validate([
-            'items' => 'required|array',
-            'quantity' => 'required|integer|min:1|max:100', // etiquetas por producto
+            'selected_items' => 'required|array',
+            'format' => 'required|string|in:small,medium,large',
         ]);
 
         $empresa = Auth::user()->empresa;
         $generator = new BarcodeGeneratorHTML();
         $labels = [];
 
-        foreach ($request->items as $itemId) {
-            // Podría ser producto o variante
-            $product = Product::where('empresa_id', $empresa->id)->find($itemId);
+        // Definición de tamaños según formato (ancho de barra, altura, columnas sugeridas)
+        $sizes = [
+            'small'  => ['w' => 0.8, 'h' => 20, 'cols' => 5], 
+            'medium' => ['w' => 1.2, 'h' => 30, 'cols' => 3], 
+            'large'  => ['w' => 1.7, 'h' => 45, 'cols' => 2], 
+        ];
+        $config = $sizes[$request->format];
+
+        foreach ($request->selected_items as $productId => $enabled) {
+            if ($enabled != "1") continue;
+
+            $qty = (int) ($request->quantities[$productId] ?? 1);
+            $product = Product::where('empresa_id', $empresa->id)->find($productId);
             
-            if ($product && $product->barcode) {
-                for ($i = 0; $i < $request->quantity; $i++) {
+            if ($product && $product->barcode && $qty > 0) {
+                for ($i = 0; $i < $qty; $i++) {
                     $labels[] = [
                         'name'    => $product->name,
                         'price'   => number_format($product->price, 2),
-                        'barcode' => $generator->getBarcode($product->barcode, $generator::TYPE_CODE_128, 1.5, 35),
+                        'barcode' => $generator->getBarcode($product->barcode, BarcodeGenerator::TYPE_CODE_128, $config['w'], $config['h']),
                         'code'    => $product->barcode,
                         'empresa' => $empresa->nombre
                     ];
@@ -58,11 +91,14 @@ class LabelController extends Controller
         }
 
         if (empty($labels)) {
-            return back()->with('error', 'No se generaron etiquetas (verifica códigos de barras)');
+            return back()->with('error', 'No se seleccionaron etiquetas válidas.');
         }
 
-        $pdf = Pdf::loadView('pdf.labels', compact('labels'))
-            ->setPaper('a4', 'portrait');
+        $pdf = Pdf::loadView('pdf.labels', [
+            'labels' => $labels,
+            'format' => $request->format,
+            'cols'   => $config['cols']
+        ])->setPaper('a4', 'portrait');
 
         return $pdf->stream('etiquetas_productos.pdf');
     }
@@ -87,7 +123,7 @@ class LabelController extends Controller
             $labels[] = [
                 'name'    => $product->name,
                 'price'   => number_format($product->price, 2),
-                'barcode' => $generator->getBarcode($product->barcode, $generator::TYPE_CODE_128, 1.5, 35),
+                'barcode' => $generator->getBarcode($product->barcode, BarcodeGenerator::TYPE_CODE_128, 1.5, 35),
                 'code'    => $product->barcode,
                 'empresa' => $empresa->nombre
             ];

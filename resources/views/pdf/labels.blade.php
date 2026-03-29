@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Etiquetas de Productos</title>
     <style>
-        @page { margin: 10px; }
+        @page { margin: 5mm; }
         body {
             font-family: 'Helvetica', sans-serif;
             margin: 0;
@@ -19,22 +19,41 @@
         }
 
         .label-card {
-            width: 31%; /* 3 por fila */
-            height: 120px;
-            margin: 1%;
+            width: {{ (100 / $cols) - 1 }}%;
+            margin: 0.5%;
             float: left;
-            border: 1px dashed #ccc;
-            padding: 10px;
+            border: 0.1mm solid #eee;
             text-align: center;
             box-sizing: border-box;
             background: #fff;
             overflow: hidden;
+            padding: 5px;
         }
 
+        /* Ajustes por tamaño */
+        @if($format == 'small')
+            .label-card { height: 35mm; }
+            .product-name { font-size: 8px; }
+            .price-tag { font-size: 10px; }
+            .barcode-container { height: 18mm; }
+            .barcode-text { font-size: 7px; }
+        @elseif($format == 'medium')
+            .label-card { height: 45mm; }
+            .product-name { font-size: 10px; }
+            .price-tag { font-size: 14px; }
+            .barcode-container { height: 25mm; }
+            .barcode-text { font-size: 8px; }
+        @else
+            .label-card { height: 65mm; }
+            .product-name { font-size: 13px; }
+            .price-tag { font-size: 18px; }
+            .barcode-container { height: 40mm; }
+            .barcode-text { font-size: 10px; }
+        @endif
+
         .product-name {
-            font-size: 11px;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             text-transform: uppercase;
             white-space: nowrap;
             overflow: hidden;
@@ -42,39 +61,35 @@
         }
 
         .price-tag {
-            font-size: 14px;
-            color: #1a1a1a;
+            color: #000;
             font-weight: 900;
-            margin-bottom: 5px;
-        }
-
-        .barcode-container {
-            margin-top: 5px;
-            display: inline-block;
-            height: 45px;
             margin-bottom: 2px;
         }
 
+        .barcode-container {
+            margin-top: 2px;
+            display: block;
+            width: 100%;
+        }
+
         .barcode-container div {
-            margin: 0 auto;
+            margin: 0 auto !important;
         }
 
         .barcode-text {
-            font-size: 9px;
-            color: #555;
-            margin-top: 2px;
+            color: #333;
+            margin-top: 1px;
             display: block;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
         .empresa-footer {
-            font-size: 7px;
-            color: #999;
-            margin-top: 5px;
+            font-size: 6px;
+            color: #aaa;
+            margin-top: 2px;
             text-transform: uppercase;
         }
 
-        /* Limpieza de floats */
         .clearfix::after {
             content: "";
             clear: both;
@@ -97,8 +112,12 @@
                 <div class="empresa-footer">{{ $l['empresa'] }}</div>
             </div>
             
-            @if(($loop->index + 1) % 21 == 0 && !$loop->last)
-                <div class="page-break"></div>
+            @php
+                $perPage = $cols * ($format == 'small' ? 8 : ($format == 'medium' ? 6 : 4));
+            @endphp
+
+            @if(($loop->index + 1) % $perPage == 0 && !$loop->last)
+                </div><div class="page-break"></div><div class="label-grid clearfix">
             @endif
         @endforeach
     </div>

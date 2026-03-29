@@ -99,6 +99,12 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 
+    // Ítems de compra (Historial)
+    public function purchaseItems()
+    {
+        return $this->hasMany(PurchaseItem::class);
+    }
+
 
     // Videos del producto
     public function videos()

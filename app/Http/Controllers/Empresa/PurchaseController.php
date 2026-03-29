@@ -217,6 +217,11 @@ class PurchaseController extends Controller
                         ->first();
                     
                     if ($variant) {
+                        // Actualizar código de barras si no tenía o si se pasó uno nuevo
+                        if (!empty($item['barcode']) && $variant->barcode != $item['barcode']) {
+                            $variant->update(['barcode' => $item['barcode']]);
+                        }
+
                         if ($esNC) {
                             $variant->descontarStock($qty, 'Nota de Crédito Proveedor #' . $purchase->id);
                         } else {
@@ -227,6 +232,11 @@ class PurchaseController extends Controller
                         $product->save();
                     }
                 } else {
+                    // Actualizar código de barras si no tenía o si se cambió
+                    if (!empty($item['barcode']) && $product->barcode != $item['barcode']) {
+                        $product->update(['barcode' => $item['barcode']]);
+                    }
+
                     if ($esNC) {
                         $product->descontarStock($qty, 'Nota de Crédito Proveedor #' . $purchase->id);
                     } else {
@@ -254,6 +264,13 @@ class PurchaseController extends Controller
             }
 
             DB::commit();
+
+            // Si el usuario quiere imprimir etiquetas, redirigimos al módulo de etiquetas con el filtro de esta compra
+            if ($request->accion === 'guardar_imprimir') {
+                return redirect()
+                    ->route('empresa.labels.index', ['purchase_id' => $purchase->id])
+                    ->with('success', 'Compra registrada. Ahora selecciona qué etiquetas imprimir.');
+            }
 
             return redirect()
                 ->route('empresa.compras.index')

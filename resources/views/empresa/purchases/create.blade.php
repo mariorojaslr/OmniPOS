@@ -77,6 +77,7 @@
             <thead class="table-light text-center">
                 <tr>
                     <th>Producto</th>
+                    <th width="150">Código</th>
                     <th width="120">Últ. Compra</th>
                     <th width="80">Cantidad</th>
                     <th width="110">Precio s/IVA</th>
@@ -136,11 +137,15 @@
         💾 Guardar
     </button>
 
+    <button type="submit" name="accion" value="guardar_imprimir"
+            class="btn btn-warning btn-lg fw-bold text-dark">
+        🏷️ Guardar e Imprimir Etiquetas
+    </button>
+
     <button type="submit" name="accion" value="guardar_pagar"
             class="btn btn-success btn-lg">
         💰 Guardar y Pagar ahora
     </button>
-
 </div>
 
 </form>
@@ -214,7 +219,7 @@ function agregarFila(){
             <select name="items[${index}][product_id]" class="form-select product-select" required onchange="handleProductChange(this, ${index})">
                 <option value="">Producto</option>
                 @foreach($products as $product)
-                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                    <option value="{{ $product->id }}" data-barcode="{{ $product->barcode }}">{{ $product->name }}</option>
                 @endforeach
             </select>
             <div class="variant-wrapper mt-2" style="display:none;" id="variant_wrapper_${index}">
@@ -223,6 +228,13 @@ function agregarFila(){
                     <option value="">Seleccionar variante</option>
                 </select>
             </div>
+        </td>
+
+        <td>
+            <input type="text" 
+                   name="items[${index}][barcode]" 
+                   class="form-control text-center barcode-input" 
+                   placeholder="Escanear...">
         </td>
 
         <td class="text-center align-middle">
@@ -434,6 +446,125 @@ function calcularTotales(){
     document.getElementById("ivaTotal").innerText     = formatNumero(ivaTotal);
     document.getElementById("totalGeneral").innerText = formatNumero(total);
 }
+
+// BÚSQUEDA POR BARCODE EN LA FILA
+document.querySelector("#tablaItems").addEventListener("input", function(e) {
+    if (e.target.classList.contains("barcode-input")) {
+        const input = e.target;
+        const row = input.closest("tr");
+        const index = Array.from(row.parentNode.children).indexOf(row);
+        const barcode = input.value.trim();
+
+        if (barcode.length >= 3) { // Mínimo 3 caracteres para buscar
+            const product = products.find(p => p.barcode == barcode);
+            if (product) {
+                const select = row.querySelector(".product-select");
+                select.value = product.id;
+                handleProductChange(select, index);
+            }
+        }
+    }
+});
+
+// MODAL PARA NUEVO PRODUCTO RÁPIDO
+function abrirModalNuevoProducto() {
+    new bootstrap.Modal(document.getElementById('modalNuevoProducto')).show();
+}
+
+async function guardarNuevoProducto() {
+    const btn = document.getElementById('btnGuardarNuevoProd');
+    const form = document.getElementById('formNuevoProd');
+    const formData = new FormData(form);
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...';
+
+    try {
+        const response = await fetch("{{ route('empresa.products.store') }}", {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        const data = await response.json();
+
+        if (data.id) {
+            // Añadir al listado local de productos
+            products.push(data);
+            
+            // Actualizar todos los selects de productos en la tabla
+            document.querySelectorAll(".product-select").forEach(select => {
+                const opt = document.createElement("option");
+                opt.value = data.id;
+                opt.text = data.name;
+                opt.dataset.barcode = data.barcode;
+                select.appendChild(opt);
+            });
+
+            alert("Producto creado y añadido al catálogo.");
+            bootstrap.Modal.getInstance(document.getElementById('modalNuevoProducto')).hide();
+            form.reset();
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Error al guardar el producto. Revisa los datos.");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Guardar Producto';
+    }
+}
+</script>
+
+{{-- MODAL NUEVO PRODUCTO --}}
+<div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">Crear Producto Nuevo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevoProd">
+                    @csrf
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Artículo</label>
+                        <input type="text" name="name" class="form-control" required placeholder="Ej: Camisa Slim Fit">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Código de Barras</label>
+                        <input type="text" name="barcode" id="new_prod_barcode" class="form-control">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Precio Venta (Est.)</label>
+                            <input type="number" step="0.01" name="price" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Rubro</label>
+                            <select name="rubro_id" class="form-select">
+                                <option value="">Sin rubro</option>
+                                {{-- Se podrían cargar rubros aquí si fuera necesario --}}
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="active" value="1">
+                    <input type="hidden" name="ajax" value="1">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarNuevoProd" onclick="guardarNuevoProducto()">Guardar Producto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="px-3 pb-3">
+    <button type="button" class="btn btn-outline-dark btn-sm" onclick="abrirModalNuevoProducto()">
+        ➕ Si el producto no existe en la lista, crealo rápido aquí
+    </button>
+</div>
+
 
 </script>
 @endsection

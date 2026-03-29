@@ -148,8 +148,11 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($request->action === 'save_return') {
+        if ($request->ajax() || $request->has('ajax')) {
+            return response()->json($product);
+        }
 
+        if ($request->action === 'save_return') {
             if ($request->return) {
                 return redirect($request->return)
                     ->with('success','Producto creado correctamente');
