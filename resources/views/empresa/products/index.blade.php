@@ -102,15 +102,15 @@
     </div>
 
     {{-- FILTROS Y BUSCADOR --}}
-    <div class="card card-premium mb-3">
+    <form action="{{ route('empresa.products.index') }}" method="GET" class="card card-premium mb-3" id="formFiltros">
         <div class="card-body py-2">
             <div class="row g-2 align-items-center">
                 <div class="col-md-5">
-                    <input type="text" id="buscadorProductos" class="form-control search-ctrl" placeholder="Buscar producto en esta página...">
+                    <input type="text" name="q" value="{{ request('q') }}" class="form-control search-ctrl" placeholder="Buscar producto en todo el catálogo..." onchange="this.form.submit()">
                 </div>
                 <div class="col-md-3 d-flex align-items-center gap-2">
                     <span class="small text-muted">Mostrar</span>
-                    <select id="perPageSelect" class="form-select form-select-sm search-ctrl" style="width: 70px;">
+                    <select name="per_page" class="form-select form-select-sm search-ctrl" style="width: 70px;" onchange="this.form.submit()">
                         @foreach([10,15,25,50,100] as $size)
                             <option value="{{ $size }}" {{ request('per_page',15)==$size ? 'selected' : '' }}>{{ $size }}</option>
                         @endforeach
@@ -118,11 +118,11 @@
                     <span class="small text-muted">filas</span>
                 </div>
                 <div class="col-md-4 text-end small text-muted">
-                    Mostrando 1 a {{ $products->count() }} de {{ $products->total() }} registros
+                    Total: {{ $products->total() }} registros encontrados
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
     {{-- TABLA DE ARTÍCULOS --}}
     <div class="card card-premium overflow-hidden">
@@ -196,7 +196,7 @@
             </table>
         </div>
         <div class="p-3 border-top bg-light">
-            {{ $products->links('pagination::bootstrap-5') }}
+            {{ $products->appends(request()->except('page'))->links('pagination::bootstrap-5') }}
         </div>
     </div>
 </div>
@@ -281,17 +281,5 @@ function abrirModalEtiquetaRapida(data) {
     
     new bootstrap.Modal(document.getElementById('modalEtiquetaRapida')).show();
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    const buscador = document.getElementById('buscadorProductos');
-    const filas = document.querySelectorAll('#tablaProductos tbody tr');
-    buscador.addEventListener('keyup', function() {
-        let v = this.value.toLowerCase();
-        filas.forEach(f => {
-            let n = f.querySelector('.nombre-producto')?.innerText.toLowerCase();
-            if(n) f.style.display = n.includes(v) ? '' : 'none';
-        });
-    });
-});
 </script>
 @endsection

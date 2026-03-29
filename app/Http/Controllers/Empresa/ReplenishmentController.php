@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Empresa;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Supplier;
-use App\Models\Kardex;
+use App\Models\KardexMovimiento;
 use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -128,7 +128,7 @@ class ReplenishmentController extends Controller
         }
 
         // Últimos 10 movimientos de stock
-        $movimientos = Kardex::where('product_id', $product->id)
+        $movimientos = KardexMovimiento::where('product_id', $product->id)
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
