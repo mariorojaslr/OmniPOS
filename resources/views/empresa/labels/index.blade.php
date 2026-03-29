@@ -96,7 +96,7 @@
                                         <tr>
                                             <td class="ps-4">
                                                 <div class="form-check">
-                                                    <input type="checkbox" name="selected_items[{{ $p->id }}]" value="1" class="form-check-input item-check" {{ request('filter') == 'nuevas' || request('purchase_id') ? 'checked' : '' }}>
+                                                    <input type="checkbox" name="items[]" value="{{ $p->id }}" class="form-check-input item-check" {{ request('filter') == 'nuevas' || request('purchase_id') ? 'checked' : '' }}>
                                                 </div>
                                             </td>
                                             <td>
@@ -110,7 +110,7 @@
                                             </td>
                                             <td><code class="text-primary">{{ $p->barcode }}</code></td>
                                             <td class="text-center">
-                                                <input type="number" name="quantities[{{ $p->id }}]" value="1" min="1" max="500" class="form-control form-control-sm text-center mx-auto" style="width: 70px; border-radius: 8px;">
+                                                <input type="number" name="quantities[{{ $p->id }}]" value="{{ (request('filter') == 'nuevas' || request('purchase_id')) ? 5 : 1 }}" min="1" max="500" class="form-control form-control-sm text-center mx-auto" style="width: 70px; border-radius: 8px;">
                                             </td>
                                             <td class="text-end pe-4 fw-bold">$ {{ number_format($p->price, 2) }}</td>
                                         </tr>

@@ -18,10 +18,24 @@
             display: block;
         }
 
+        .label-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin: 0;
+            padding: 0;
+        }
+
+        .label-cell {
+            padding: 0;
+            margin: 0;
+            vertical-align: top;
+            border: none;
+        }
+
         .label-card {
-            width: {{ (100 / $cols) - 1.5 }}%;
-            margin: 0.5%;
-            float: left;
+            width: 96%; /* Casi todo el ancho de la celda */
+            margin: 2% auto;
             border: 0.1mm solid #eee;
             text-align: center;
             box-sizing: border-box;
@@ -29,6 +43,7 @@
             overflow: hidden;
             padding: 5px;
         }
+
 
         /* Ajustes por tamaño estándar Argentina */
         @if($format == 'small')
@@ -101,33 +116,43 @@
     </style>
 </head>
 <body>
-    <div class="label-grid clearfix">
-        @foreach($labels as $l)
-            <div class="label-card">
-                <div class="product-name">{{ $l['name'] }}</div>
-                <div class="price-tag">$ {{ $l['price'] }}</div>
-                
-                <div class="barcode-container">
-                    <img src="data:image/png;base64,{{ $l['barcode'] }}">
-                </div>
-                
-                <span class="barcode-text">{{ $l['code'] }}</span>
-                <div class="empresa-footer">{{ $l['empresa'] }}</div>
-            </div>
-            
-            @php
-                // Cálculo estimado de etiquetas por página A4
-                // A4 es de 210x297mm. 
-                // Para 22mm de alto -> aprox 12 filas. 
-                // Para 25mm de alto -> aprox 10 filas.
-                $rowsPage = ($format == 'small') ? 12 : (($format == 'medium') ? 10 : 5);
-                $perPage = $cols * $rowsPage;
-            @endphp
+    @php
+        $perPageRows = ($format == 'small') ? 12 : (($format == 'medium') ? 10 : 5);
+        $totalItems = count($labels);
+        $chunks = array_chunk($labels, $cols);
+        $chunkedPages = array_chunk($chunks, $perPageRows);
+    @endphp
 
-            @if(($loop->index + 1) % $perPage == 0 && !$loop->last)
-                </div><div class="page-break"></div><div class="label-grid clearfix">
-            @endif
-        @endforeach
-    </div>
+    @foreach($chunkedPages as $page)
+        <table class="label-table" cellspacing="0" cellpadding="0">
+            @foreach($page as $row)
+                <tr>
+                    @foreach($row as $l)
+                        <td class="label-cell">
+                            <div class="label-card">
+                                <div class="product-name">{{ $l['name'] }}</div>
+                                <div class="price-tag">$ {{ $l['price'] }}</div>
+                                
+                                <div class="barcode-container">
+                                    <img src="data:image/png;base64,{{ $l['barcode'] }}">
+                                </div>
+                                
+                                <span class="barcode-text">{{ $l['code'] }}</span>
+                                <div class="empresa-footer">{{ $l['empresa'] }}</div>
+                            </div>
+                        </td>
+                    @endforeach
+                    {{-- Llenar celdas vacías si la fila no está completa --}}
+                    @for($i = count($row); $i < $cols; $i++)
+                        <td class="label-cell empty"></td>
+                    @endfor
+                </tr>
+            @endforeach
+        </table>
+        @if(!$loop->last)
+            <div class="page-break"></div>
+        @endif
+    @endforeach
 </body>
 </html>
+

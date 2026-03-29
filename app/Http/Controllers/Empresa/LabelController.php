@@ -55,7 +55,7 @@ class LabelController extends Controller
     public function generate(Request $request)
     {
         $request->validate([
-            'selected_items' => 'required|array',
+            'items' => 'required|array',
             'format' => 'required|string|in:small,medium,large',
         ]);
 
@@ -65,21 +65,19 @@ class LabelController extends Controller
 
         // Definición de tamaños estándar en mm (Ancho x Avance)
         $sizes = [
-            'small'  => ['w' => 1.0, 'h' => 30, 'cols' => 5], // 33x22 mm aprox
-            'medium' => ['w' => 1.5, 'h' => 45, 'cols' => 3], // 50x25 mm aprox
-            'large'  => ['w' => 2.2, 'h' => 70, 'cols' => 2], // 100x50 mm aprox
+            'small'  => ['w' => 1.0, 'h' => 30, 'cols' => 5], // 33x22 mm
+            'medium' => ['w' => 1.5, 'h' => 45, 'cols' => 3], // 50x25 mm
+            'large'  => ['w' => 2.2, 'h' => 70, 'cols' => 2], // 100x50 mm
         ];
         $config = $sizes[$request->format];
 
-        foreach ($request->selected_items as $productId => $enabled) {
-            if ($enabled != "1") continue;
-
+        foreach ($request->items as $productId) {
             $qty = (int) ($request->quantities[$productId] ?? 1);
             $product = Product::where('empresa_id', $empresa->id)->find($productId);
             
             if ($product && $product->barcode && $qty > 0) {
                 // Generamos una sola vez la imagen base64 del código de barras
-                $barcodeImage = base64_encode($generator->getBarcode($product->barcode, BarcodeGenerator::TYPE_CODE_128, $config['w'], $config['h']));
+                $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', $config['w'], $config['h']));
 
                 for ($i = 0; $i < $qty; $i++) {
                     $labels[] = [
@@ -121,7 +119,7 @@ class LabelController extends Controller
         $generator = new BarcodeGeneratorPNG();
         $labels = [];
         
-        $barcodeImage = base64_encode($generator->getBarcode($product->barcode, BarcodeGenerator::TYPE_CODE_128, 1.5, 35));
+        $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', 1.5, 35));
 
         // Generamos una hoja con 21 etiquetas (3x7) del mismo producto
         for ($i = 0; $i < 21; $i++) {
