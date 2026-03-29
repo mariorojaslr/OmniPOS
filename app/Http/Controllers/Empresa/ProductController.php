@@ -372,6 +372,7 @@ class ProductController extends Controller
             fputcsv($file, [
                 'ID (NO MODIFICAR)', 
                 'Nombre del Articulo', 
+                'Código de Barras',
                 'Rubro/Categoria',
                 'Precio', 
                 'Stock Actual', 
@@ -386,6 +387,7 @@ class ProductController extends Controller
                 fputcsv($file, [
                     $p->id,
                     $p->name,
+                    $p->barcode,
                     $p->rubro ? $p->rubro->nombre : '',
                     $p->price,
                     $p->stock,
@@ -430,14 +432,15 @@ class ProductController extends Controller
 
             $id          = !empty($row[0]) ? (int) $row[0] : null;
             $nombre      = trim($row[1]);
-            $rubroName   = trim($row[2] ?? '');
-            $precio      = (float) str_replace(',', '.', $row[3] ?? 0);
-            $stock       = (float) ($row[4] ?? 0);
-            $stockMin    = (float) ($row[5] ?? 0);
-            $stockIdeal  = (float) ($row[6] ?? 0);
-            $descCorta   = $row[7] ?? '';
-            $descLarga   = $row[8] ?? '';
-            $active      = (int) ($row[9] ?? 1);
+            $barcode     = trim($row[2] ?? '');
+            $rubroName   = trim($row[3] ?? '');
+            $precio      = (float) str_replace(',', '.', $row[4] ?? 0);
+            $stock       = (float) ($row[5] ?? 0);
+            $stockMin    = (float) ($row[6] ?? 0);
+            $stockIdeal  = (float) ($row[7] ?? 0);
+            $descCorta   = $row[8] ?? '';
+            $descLarga   = $row[9] ?? '';
+            $active      = (int) ($row[10] ?? 1);
 
             // Manejo "inteligente" de Rubro
             $rubroId = null;
@@ -471,6 +474,7 @@ class ProductController extends Controller
 
             $data = [
                 'name'              => $nombre,
+                'barcode'           => $barcode,
                 'rubro_id'          => $rubroId,
                 'price'             => $precio,
                 'stock'             => $stock,
