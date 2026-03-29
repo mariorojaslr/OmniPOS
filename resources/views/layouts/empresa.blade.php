@@ -290,7 +290,7 @@ input, select, textarea{
         <li><a class="dropdown-item" href="{{ route('empresa.clientes.index') }}">👥 Clientes</a></li>
         <li><a class="dropdown-item" href="{{ route('empresa.orders.index') }}">🛒 Pedidos Online</a></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item disabled" href="#">✍️ Venta Manual (Próximamente)</a></li>
+        <li><a class="dropdown-item" href="{{ route('empresa.ventas.manual') }}">✍️ Venta Manual</a></li>
     </ul>
 </li>
 

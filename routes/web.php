@@ -288,6 +288,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      |--------------------------------------------------------------------------
      */
         Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
+        Route::get('/ventas/manual', [VentaController::class, 'createManual'])->name('ventas.manual');
+        Route::post('/ventas/manual', [VentaController::class, 'storeManual'])->name('ventas.manual.store');
         Route::get('/ventas/{venta}/pdf', [VentaController::class, 'pdf'])->name('ventas.pdf');
 
         /*

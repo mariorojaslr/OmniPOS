@@ -4,11 +4,103 @@ namespace App\Http\Controllers\Empresa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Venta;
+use App\Models\VentaItem;
+use App\Models\Client;
+use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\VentaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class VentaController extends Controller
 {
+    /**
+     * 🛒 Formulario de Venta Manual Pro (Agilidad extrema)
+     */
+    public function createManual()
+    {
+        $empresaId = Auth::user()->empresa_id;
+        $clients   = Client::where('empresa_id', $empresaId)->get();
+        $products  = Product::where('empresa_id', $empresaId)
+            ->with(['variants'])
+            ->where('active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('empresa.ventas.manual', compact('clients', 'products'));
+    }
+
+    /**
+     * 💾 Guardar Venta Manual con múltiples ítems
+     */
+    public function storeManual(Request $request)
+    {
+        $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'items'     => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity'   => 'required|numeric|min:0.01',
+            'items.*.price'      => 'required|numeric|min:0',
+        ]);
+
+        $empresaId = Auth::user()->empresa_id;
+        
+        try {
+            DB::beginTransaction();
+
+            $venta = Venta::create([
+                'empresa_id'         => $empresaId,
+                'user_id'            => Auth::id(),
+                'client_id'          => $request->client_id,
+                'tipo_comprobante'   => $request->tipo_comprobante ?? 'A',
+                'numero_comprobante' => $request->numero_comprobante,
+                'total_sin_iva'      => $request->total_sin_iva ?? 0,
+                'total_iva'          => $request->total_iva ?? 0,
+                'total_con_iva'      => $request->total_con_iva ?? 0,
+                'metodo_pago'        => $request->metodo_pago ?? 'efectivo',
+                'monto_pagado'       => $request->total_con_iva,
+                'vuelto'             => 0,
+            ]);
+
+            foreach ($request->items as $item) {
+                // Guardar ítem
+                VentaItem::create([
+                    'venta_id'                => $venta->id,
+                    'product_id'              => $item['product_id'],
+                    'variant_id'              => $item['variant_id'] ?? null,
+                    'cantidad'                => $item['quantity'],
+                    'precio_unitario_sin_iva' => $item['price'] / 1.21, // Asumiendo IVA 21% por defecto si no viene
+                    'subtotal_item_sin_iva'   => ($item['price'] * $item['quantity']) / 1.21,
+                    'iva_item'                => ($item['price'] * $item['quantity']) - (($item['price'] * $item['quantity']) / 1.21),
+                    'total_item_con_iva'      => $item['price'] * $item['quantity'],
+                ]);
+
+                // Descontar Stock
+                if (!empty($item['variant_id'])) {
+                    $variant = ProductVariant::find($item['variant_id']);
+                    if ($variant) {
+                        $variant->decrement('stock', $item['quantity']);
+                    }
+                } else {
+                    $product = Product::find($item['product_id']);
+                    if ($product) {
+                        $product->decrement('stock', $item['quantity']);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('empresa.ventas.index')
+                ->with('success', "Venta manual registrada con éxito. Comprobante: {$venta->numero_comprobante}");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error al procesar la venta: ' . $e->getMessage())->withInput();
+        }
+    }
+
     /**
      * 📋 Listado de ventas con KPIs y filtros
      */
