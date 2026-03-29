@@ -204,6 +204,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         Route::get('/stock', [StockController::class , 'index'])->name('stock.index');
         Route::get('/faltantes', [ReplenishmentController::class , 'index'])->name('stock.faltantes');
+        Route::get('/faltantes/export', [ReplenishmentController::class , 'export'])->name('stock.faltantes.export');
         Route::get('/faltantes/actividad/{product}', [ReplenishmentController::class , 'actividad'])->name('stock.faltantes.actividad');
         Route::patch('/stock/{product}', [StockController::class , 'update'])->name('stock.update');
         Route::post('/stock/config/{product}', [StockController::class , 'config'])->name('stock.config');

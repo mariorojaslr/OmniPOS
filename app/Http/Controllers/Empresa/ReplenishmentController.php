@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Empresa;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 use App\Models\Supplier;
-use App\Models\KardexMovimiento;
+use App\Models\Kardex;
 use App\Models\PurchaseItem;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReplenishmentController extends Controller
 {
@@ -61,28 +61,83 @@ class ReplenishmentController extends Controller
             'porProveedor',
             'proveedores',
             'totalFaltantes',
-            'productos' // Pasamos el paginador
+            'productos'
         ));
     }
 
     /**
-     * Obtener actividad reciente de un producto (AJAX para el acordeón)
+     * Exportar lista de faltantes a CSV para productividad
+     */
+    public function export(Request $request)
+    {
+        $empresaId = Auth::user()->empresa_id;
+        $q = $request->input('q');
+
+        $query = Product::where('empresa_id', $empresaId)
+            ->where(function($sub) {
+                $sub->whereColumn('stock', '<=', 'stock_min')
+                  ->orWhere('stock', '<=', 0);
+            });
+
+        if ($q) {
+            $query->where('name', 'LIKE', "%{$q}%");
+        }
+
+        $productos = $query->with(['supplier', 'rubro'])->orderBy('name')->get();
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=faltantes_" . date('Y-m-d') . ".csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['Producto', 'Proveedor', 'Rubro', 'Stock Actual', 'Stock Minimo', 'Stock Ideal', 'Sugerido'];
+
+        $callback = function() use($productos, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns, ';');
+
+            foreach ($productos as $p) {
+                $sugerido = max(0, $p->stock_ideal - $p->stock);
+                fputcsv($file, [
+                    $p->name,
+                    $p->supplier?->name ?? 'Sin Proveedor',
+                    $p->rubro?->nombre ?? 'General',
+                    $p->stock,
+                    $p->stock_min,
+                    $p->stock_ideal,
+                    $p->stock_ideal > 0 ? $sugerido : 'Revisar'
+                ], ';');
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Obtener actividad (Kardex y Compras) vía AJAX para el acordeón
      */
     public function actividad(Product $product)
     {
+        // Verificar que el producto sea de la empresa
         if ($product->empresa_id !== Auth::user()->empresa_id) {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        $movimientos = KardexMovimiento::where('product_id', $product->id)
-            ->latest()
-            ->take(5)
+        // Últimos 10 movimientos de stock
+        $movimientos = Kardex::where('product_id', $product->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
             ->get();
 
+        // Últimas 5 compras de este producto
         $compras = PurchaseItem::where('product_id', $product->id)
-            ->with('purchase.supplier')
-            ->latest()
-            ->take(3)
+            ->with(['purchase.supplier'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
             ->get();
 
         return response()->json([

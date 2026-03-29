@@ -2,287 +2,273 @@
 
 @section('content')
 
+@php
+    $modoOscuro = (auth()->user()->empresa?->config?->theme ?? 'light') === 'dark';
+@endphp
+
 <style>
-    /* Estética OLED para el listado de productos */
-    body { background: #000 !important; }
-    .card-oled {
-        background: rgba(22, 27, 34, 0.8) !important;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(44, 54, 66, 0.5) !important;
-        border-radius: 1.25rem !important;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    /* ESTÉTICA REPRODUCIDA DE LA CAPTURA DE REFERENCIA (MODO CLARO) */
+    :root {
+        --bg-color: {{ $modoOscuro ? '#000000' : '#f4f7fa' }};
+        --card-bg: {{ $modoOscuro ? '#000000' : '#ffffff' }};
+        --text-color: {{ $modoOscuro ? '#ffffff' : '#333333' }};
+        --border-color: {{ $modoOscuro ? '#222222' : '#dee2e6' }};
+        --table-header-bg: {{ $modoOscuro ? '#0a0a0a' : '#f8f9fa' }};
     }
-    .table-oled thead th { 
-        background: rgba(48, 54, 61, 0.5) !important; 
-        color: #8b949e !important; 
-        border-bottom: 2px solid #30363d !important;
-        font-size: 0.85rem;
+
+    body { 
+        background-color: var(--bg-color) !important; 
+        color: var(--text-color) !important;
+    }
+    
+    .card-premium {
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .table-premium thead th {
+        background: var(--table-header-bg) !important;
+        color: {{ $modoOscuro ? '#ffffff' : '#666' }} !important;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        font-weight: 700;
+        border-bottom: 2px solid var(--border-color) !important;
+        padding: 10px 15px;
     }
-    .table-oled tbody td { 
-        color: #e6edf3 !important; 
-        border-bottom: 1px solid #21262d !important; 
+
+    .table-premium tbody td {
+        background: transparent !important;
+        color: var(--text-color) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+        padding: 8px 15px;
+        font-size: 0.85rem;
+        vertical-align: middle;
     }
-    .btn-outline-oled { 
-        color: #e6edf3 !important; 
-        border-color: #30363d !important;
-        transition: all 0.3s ease;
+
+    /* Definición clara de renglones */
+    .table-premium tbody tr:hover {
+        background: {{ $modoOscuro ? '#111111' : '#f8f9ff' }} !important;
     }
-    .btn-outline-oled:hover {
-        background: rgba(59, 130, 246, 0.1);
-        border-color: #3b82f6;
+
+    .btn-action {
+        padding: 4px 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border-radius: 4px;
+        text-transform: uppercase;
     }
-    .search-oled {
-        background: rgba(0, 0, 0, 0.4) !important;
-        border: 1px solid #30363d !important;
-        color: #fff !important;
-        border-radius: 0.75rem;
+
+    /* Badges tipo captura de referencia */
+    .badge-status {
+        font-size: 0.65rem;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 800;
+        text-transform: uppercase;
     }
-    .search-oled:focus {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+    
+    .bg-critico { background: #dc3545; color: white; }
+    .bg-bajo { background: #ffc107; color: #000; }
+    .bg-ok { background: #198754; color: white; }
+
+    /* Buscador compacto */
+    .search-ctrl {
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-color) !important;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
     }
-    .extra-small { font-size: 0.7rem; }
-    .tracking-wider { letter-spacing: 1px; }
 </style>
 
-<div class="container py-4">
+<div class="container-fluid px-4 py-3">
 
-    {{-- CABECERA --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    {{-- CABECERA LIMPIA --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h2 class="fw-bold mb-0 text-white">Gestión de Artículos</h2>
-            <small class="text-secondary tracking-wider fs-6">Catálogo Profesional OLED</small>
+            <h2 class="fw-bold mb-0 {{ $modoOscuro ? 'text-white' : 'text-dark' }}">Gestión de Artículos</h2>
+            <small class="text-muted">Inventario y catálogo en tiempo real</small>
         </div>
 
         <div class="d-flex gap-2">
-            <a href="{{ route('empresa.labels.index') }}" class="btn btn-outline-oled d-flex align-items-center gap-2">
-                <i class="bi bi-tag"></i> Etiquetas
-            </a>
-            <a href="{{ route('empresa.products.export') }}" class="btn btn-warning d-flex align-items-center gap-2 text-dark fw-bold shadow-sm">
-                <i class="bi bi-download"></i> Planilla
-            </a>
-            <button type="button" class="btn btn-outline-oled d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#importModal">
-                <i class="bi bi-upload"></i> Importar
-            </button>
-            <a href="{{ route('empresa.products.create') }}" class="btn btn-primary d-flex align-items-center gap-2 fw-bold">
-                <i class="bi bi-plus-circle"></i> Nuevo Producto
-            </a>
+            <a href="{{ route('empresa.labels.index') }}" class="btn btn-outline-secondary btn-action">Etiquetas</a>
+            <a href="{{ route('empresa.products.export') }}" class="btn btn-warning btn-action">Bajar Planilla</a>
+            <button type="button" class="btn btn-outline-secondary btn-action" data-bs-toggle="modal" data-bs-target="#importModal">Importar</button>
+            <a href="{{ route('empresa.products.create') }}" class="btn btn-success btn-action">Nuevo Producto</a>
         </div>
     </div>
 
-    {{-- MODAL IMPORTACIÓN --}}
-    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <form action="{{ route('empresa.products.import') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-content card-oled">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title text-white fw-bold">Importar Artículos</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body p-4 text-white">
-                        <div class="alert alert-info border-0 bg-primary bg-opacity-10 text-primary small">
-                            Suba un archivo CSV con separador <strong>";" (punto y coma)</strong>.
-                        </div>
-                        <input type="file" name="csv_file" class="form-control search-oled" accept=".csv" required>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-link text-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="submit" class="btn btn-primary px-4 fw-bold">Subir y Procesar</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- FILTROS OLED --}}
-    <div class="card card-oled mb-3">
-        <div class="card-body">
-            <div class="row g-3 align-items-center">
-                <div class="col-md-6">
-                    <input type="text" id="buscadorProductos" class="form-control search-oled" placeholder="Buscar artículo en tiempo real...">
+    {{-- FILTROS Y BUSCADOR --}}
+    <div class="card card-premium mb-3">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <input type="text" id="buscadorProductos" class="form-control search-ctrl" placeholder="Buscar producto en esta página...">
                 </div>
                 <div class="col-md-3 d-flex align-items-center gap-2">
-                    <label class="small text-secondary mb-0">Ver</label>
-                    <select id="perPageSelect" class="form-select search-oled form-select-sm">
+                    <span class="small text-muted">Mostrar</span>
+                    <select id="perPageSelect" class="form-select form-select-sm search-ctrl" style="width: 70px;">
                         @foreach([10,15,25,50,100] as $size)
                             <option value="{{ $size }}" {{ request('per_page',15)==$size ? 'selected' : '' }}>{{ $size }}</option>
                         @endforeach
                     </select>
+                    <span class="small text-muted">filas</span>
                 </div>
-                <div class="col-md-3 text-end small text-secondary">
-                    Total: {{ $products->total() }} artículos
+                <div class="col-md-4 text-end small text-muted">
+                    Mostrando 1 a {{ $products->count() }} de {{ $products->total() }} registros
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- TABLA OLED --}}
-    <div class="card card-oled overflow-hidden mb-4">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-oled align-middle mb-0" id="tablaProductos">
-                    <thead>
+    {{-- TABLA DE ARTÍCULOS --}}
+    <div class="card card-premium overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-premium mb-0" id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Producto</th>
+                        <th class="text-center">Rubro</th>
+                        <th class="text-center">Precio</th>
+                        <th class="text-center">Stock</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Media</th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($products as $product)
                         <tr>
-                            <th class="ps-4">Artículo</th>
-                            <th>Rubro</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
-                            <th class="text-end pe-4">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($products as $product)
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="nombre-producto fw-bold">{{ $product->name }}</div>
-                                    @if($product->barcode)
-                                        <div class="text-secondary extra-small">GTIN: {{ $product->barcode }}</div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <span class="badge {{ $product->rubro ? 'bg-secondary bg-opacity-25 text-white' : 'text-muted italic' }} border border-secondary shadow-sm">
-                                        {{ $product->rubro?->nombre ?? 'Sin rubro' }}
+                            <td class="ps-4">
+                                <div class="nombre-producto fw-bold">{{ $product->name }}</div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge border text-muted small px-2 py-1 bg-light">
+                                    {{ $product->rubro?->nombre ?? 'Sin rubro' }}
+                                </span>
+                            </td>
+                            <td class="text-center fw-bold text-dark">
+                                ${{ number_format($product->price, 2, ',', '.') }}
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex flex-column align-items-center">
+                                    <span class="fw-bold {{ $product->stock <= $product->stock_min ? 'text-danger' : 'text-dark' }}">
+                                        {{ $product->stock }}
                                     </span>
-                                </td>
-                                <td class="fw-bold fs-5 text-white text-nowrap">
-                                    ${{ number_format($product->price, 2, ',', '.') }}
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-column">
-                                        <span class="fw-bold fs-5 {{ $product->stock <= $product->stock_min ? 'text-danger' : 'text-success' }}">
-                                            {{ $product->stock }}
-                                        </span>
-                                        <span class="text-secondary extra-small">Mín: {{ $product->stock_min }}</span>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-4 text-nowrap">
-                                    <button type="button" class="btn btn-sm btn-outline-oled me-1" title="Etiquetas" 
-                                            onclick="abrirModalEtiquetaRapida({{ json_encode(['id'=>$product->id, 'name'=>$product->name]) }})">
-                                        🏷️
-                                    </button>
-                                    <a href="{{ route('empresa.products.edit', $product) }}" class="btn btn-sm btn-outline-oled me-1">Editar</a>
-                                    <div class="dropdown d-inline-block">
-                                        <button class="btn btn-sm btn-outline-oled dropdown-toggle" type="button" data-bs-toggle="dropdown">Media</button>
-                                        <ul class="dropdown-menu dropdown-menu-dark shadow-lg">
-                                            <li><a class="dropdown-item" href="{{ route('empresa.products.images.create', $product) }}">📸 Imágenes</a></li>
-                                            <li><a class="dropdown-item" href="{{ route('empresa.products.videos.index', $product) }}">🎬 Videos</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="5" class="text-center py-5 text-secondary">No hay artículos cargados</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="p-4 bg-black bg-opacity-25 border-top border-secondary border-opacity-25">
-                {{ $products->links('pagination::bootstrap-5') }}
-            </div>
+                                    <span class="text-muted" style="font-size: 0.65rem;">Mín: {{ $product->stock_min }}  Ideal: {{ $product->stock_ideal }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                @php
+                                    $st = $product->stock;
+                                    $min = $product->stock_min;
+                                    $label = 'OK'; $class = 'bg-ok';
+                                    if($st <= 0) { $label = 'CRÍTICO'; $class = 'bg-critico'; }
+                                    elseif($st <= $min) { $label = 'BAJO'; $class = 'bg-bajo'; }
+                                @endphp
+                                <span class="badge-status {{ $class }}">{{ $label }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info text-white small" style="font-size:0.6rem;">{{ $product->images->count() }} img</span>
+                            </td>
+                            <td class="text-end pe-4 text-nowrap">
+                                <button type="button" class="btn btn-sm btn-outline-secondary p-1" title="Etiquetas" 
+                                        onclick="abrirModalEtiquetaRapida({{ json_encode(['id'=>$product->id, 'name'=>$product->name]) }})">
+                                    🏷️
+                                </button>
+                                <a href="{{ route('empresa.products.edit', $product) }}" class="btn btn-sm btn-outline-primary py-1 px-2 fw-bold" style="font-size: 0.65rem;">Editar</a>
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle py-1 px-2 fw-bold" style="font-size: 0.65rem;" type="button" data-bs-toggle="dropdown">Imágenes</button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-secondary">
+                                        <li><a class="dropdown-item small fw-bold" href="{{ route('empresa.products.images.create', $product) }}">📸 Gestionar Fotos</a></li>
+                                        <li><a class="dropdown-item small fw-bold" href="{{ route('empresa.products.videos.index', $product) }}">🎬 Gestionar Videos</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="7" class="text-center py-5 text-muted fw-bold">No se encontraron artículos</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="p-3 border-top bg-light">
+            {{ $products->links('pagination::bootstrap-5') }}
         </div>
     </div>
 </div>
 
-{{-- MODAL IMPRESIÓN OLED ROLLS-ROYCE --}}
+{{-- MODALES REUTILIZADOS --}}
+<div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form action="{{ route('empresa.products.import') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Importar Artículos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small">Seleccione su archivo CSV (separador punto y coma).</p>
+                    <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Procesar Archivo</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- MODAL ETIQUETA RÁPIDA --}}
 <div class="modal fade" id="modalEtiquetaRapida" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg" style="background: #000; border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 1.5rem; overflow: hidden;">
+        <div class="modal-content shadow border-0" style="border-radius: 1rem;">
             <form id="formEtiquetaRapida" action="{{ route('empresa.labels.generate') }}" method="POST" target="_blank">
                 @csrf
-                {{-- Campos ocultos para el controlador --}}
                 <input type="hidden" name="items[]" id="modal_product_id">
                 <input type="hidden" name="selected_items[0]" id="modal_product_id_alt">
                 
-                <div class="modal-header border-0 pb-0 px-4 pt-4">
-                    <h5 class="modal-title text-white fw-bold d-flex align-items-center gap-2">
-                        <span style="display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; background: rgba(59, 130, 246, 0.2); border-radius: 10px; color: #3b82f6;">
-                            🏷️
-                        </span>
-                        Impresión de Etiquetas
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Impresión de Etiquetas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body p-4">
-                    <p class="text-secondary small mb-3">Configurando impresión para:</p>
-                    <div class="p-3 mb-4 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <h5 class="text-white fw-bold mb-0" id="modal_product_name"></h5>
+                    <div class="p-3 mb-3 bg-light rounded text-center">
+                        <h6 class="fw-bold mb-0" id="modal_product_name"></h6>
                     </div>
                     
-                    {{-- 1. SELECCIÓN DE TAMAÑO --}}
-                    <div class="mb-4">
-                        <label class="form-label text-secondary small fw-bold text-uppercase mb-2 tracking-wider">1. Formato de Etiqueta</label>
-                        <div class="row g-2">
-                            <div class="col-4">
-                                <input type="radio" class="btn-check" name="format" id="mFormatSmall" value="small">
-                                <label class="btn btn-outline-primary w-100 py-3 rounded-4" for="mFormatSmall">
-                                    <span class="d-block fw-bold small">CHICA</span>
-                                </label>
-                            </div>
-                            <div class="col-4">
-                                <input type="radio" class="btn-check" name="format" id="mFormatMedium" value="medium" checked>
-                                <label class="btn btn-outline-primary w-100 py-3 rounded-4" for="mFormatMedium">
-                                    <span class="d-block fw-bold small">MEDIA</span>
-                                </label>
-                            </div>
-                            <div class="col-4">
-                                <input type="radio" class="btn-check" name="format" id="mFormatLarge" value="large">
-                                <label class="btn btn-outline-primary w-100 py-3 rounded-4" for="mFormatLarge">
-                                    <span class="d-block fw-bold small">GRANDE</span>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-uppercase">Formato</label>
+                        <select name="format" class="form-select form-select-sm">
+                            <option value="small">Pequeña (A4)</option>
+                            <option value="medium" selected>Mediana (A4)</option>
+                            <option value="large">Grande (A4)</option>
+                        </select>
                     </div>
 
-                    {{-- 2. MODO DE CANTIDAD --}}
                     <div class="mb-2">
-                        <label class="form-label text-secondary small fw-bold text-uppercase mb-2 tracking-wider">2. Cantidad</label>
-                        
-                        <div class="d-flex flex-column gap-3">
-                            {{-- Hojas completas --}}
-                            <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="qty_mode" id="qtyFull" value="full" checked onchange="toggleQtyInputOLED(this)">
-                                    <label class="form-check-label text-white fw-bold" for="qtyFull">Llenar hojas A4</label>
-                                    <div id="sheetsWrap" class="mt-2">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <input type="number" name="sheets" value="1" min="1" max="50" class="form-control bg-black text-white border-secondary w-25">
-                                            <span class="text-secondary small">página(s) completas</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Cantidad específica --}}
-                            <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="qty_mode" id="qtySpecific" value="specific" onchange="toggleQtyInputOLED(this)">
-                                    <label class="form-check-label text-white fw-bold" for="qtySpecific">Cantidad específica</label>
-                                    <div id="unitsWrap" style="display:none;" class="mt-2">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <input type="number" name="dynamic_qty" id="modal_qty_oled" value="10" min="1" max="999" class="form-control bg-black text-white border-secondary w-25">
-                                            <span class="text-secondary small">unidades en total</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <label class="form-label small fw-bold text-uppercase">Cantidad</label>
+                        <input type="number" name="dynamic_qty" id="modal_qty_oled" value="10" min="1" max="999" class="form-control form-control-sm">
                     </div>
                 </div>
 
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-lg" style="background: #3b82f6; border: none;">
-                        GENERAR PDF PROFESIONAL 🚀
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow">
+                        GENERAR PDF DE ETIQUETAS
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@endsection
 
 @section('scripts')
 <script>
@@ -296,23 +282,16 @@ function abrirModalEtiquetaRapida(data) {
     new bootstrap.Modal(document.getElementById('modalEtiquetaRapida')).show();
 }
 
-function toggleQtyInputOLED(radio) {
-    document.getElementById('sheetsWrap').style.display = (radio.value==='full')?'block':'none';
-    document.getElementById('unitsWrap').style.display = (radio.value==='specific')?'block':'none';
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     const buscador = document.getElementById('buscadorProductos');
     const filas = document.querySelectorAll('#tablaProductos tbody tr');
     buscador.addEventListener('keyup', function() {
         let v = this.value.toLowerCase();
         filas.forEach(f => {
-            let n = f.querySelector('.nombre-producto').innerText.toLowerCase();
-            f.style.display = n.includes(v) ? '' : 'none';
+            let n = f.querySelector('.nombre-producto')?.innerText.toLowerCase();
+            if(n) f.style.display = n.includes(v) ? '' : 'none';
         });
     });
 });
 </script>
-@endsection
-
 @endsection

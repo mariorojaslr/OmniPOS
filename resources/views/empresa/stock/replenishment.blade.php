@@ -1,118 +1,139 @@
 @extends('layouts.empresa')
 
-@section('styles')
+@section('content')
+
+@php
+    $modoOscuro = (auth()->user()->empresa?->config?->theme ?? 'light') === 'dark';
+@endphp
+
 <style>
-    .supplier-card {
-        border-left: 5px solid #3b82f6;
-        transition: transform 0.3s;
+    /* ESTÉTICA REPRODUCIDA DE LA CAPTURA DE REFERENCIA (MODO CLARO) */
+    :root {
+        --bg-color: {{ $modoOscuro ? '#000000' : '#f4f7fa' }};
+        --card-bg: {{ $modoOscuro ? '#000000' : '#ffffff' }};
+        --text-color: {{ $modoOscuro ? '#ffffff' : '#333333' }};
+        --border-color: {{ $modoOscuro ? '#222222' : '#dee2e6' }};
+        --table-header-bg: {{ $modoOscuro ? '#0a0a0a' : '#f8f9fa' }};
     }
-    .supplier-card:hover {
-        transform: translateY(-5px);
+
+    body { 
+        background-color: var(--bg-color) !important; 
+        color: var(--text-color) !important;
     }
-    .product-row {
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 8px;
-        margin-bottom: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        transition: all 0.2s;
-    }
-    .product-row:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(59, 130, 246, 0.3);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-    .stock-badge {
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 0.8rem;
-        display: inline-block;
-    }
-    .badge-critical { background: #dc2626; color: white; border: 1px solid #ef4444; }
-    .badge-low { background: #d97706; color: white; border: 1px solid #f59e0b; }
     
-    .accordion-button::after {
-        filter: invert(1);
+    .card-premium {
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
-    .accordion-item {
-        background: transparent;
-        border: none;
+
+    .table-premium thead th {
+        background: var(--table-header-bg) !important;
+        color: {{ $modoOscuro ? '#ffffff' : '#666' }} !important;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        border-bottom: 2px solid var(--border-color) !important;
+        padding: 10px 15px;
     }
-    .activity-item {
-        border-left: 2px solid rgba(255, 255, 255, 0.1);
-        padding: 4px 0 4px 12px;
-        position: relative;
-        margin-bottom: 8px;
+
+    .table-premium tbody td {
+        background: transparent !important;
+        color: var(--text-color) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+        padding: 8px 15px;
+        font-size: 0.85rem;
+        vertical-align: middle;
     }
-    .activity-item::before {
-        content: '';
-        position: absolute;
-        left: -6px;
-        top: 0;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #3b82f6;
+
+    /* Definición clara de renglones */
+    .table-premium tbody tr:hover {
+        background: {{ $modoOscuro ? '#111111' : '#f8f9ff' }} !important;
     }
+
+    .btn-action {
+        padding: 4px 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    /* Badges tipo captura de referencia */
+    .badge-status {
+        font-size: 0.65rem;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+    
+    .bg-critico { background: #dc3545; color: white; }
+    .bg-bajo { background: #ffc107; color: #000; }
+    .bg-ok { background: #198754; color: white; }
+
+    /* Buscador compacto */
+    .search-ctrl {
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-color) !important;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+
     .progress-minimal {
-        height: 5px;
-        background: rgba(255, 255, 255, 0.08);
+        height: 6px;
+        background: rgba(0,0,0,0.05);
         border-radius: 10px;
     }
-    .btn-suggest {
-        font-size: 0.75rem;
-        padding: 4px 12px;
-        border-radius: 6px;
-        background: rgba(59, 130, 246, 0.1);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        color: #60a5fa;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-    .btn-suggest:hover {
-        background: #2563eb;
-        color: white;
-    }
 </style>
-@endsection
 
-@section('content')
-<div class="container py-4">
+<div class="container-fluid px-4 py-3">
 
-    {{-- ENCABEZADO "ROLLS ROYCE" --}}
-    <div class="glass-card p-3 mb-4 border-0">
-        <div class="row align-items-center">
-            <div class="col-md-5">
-                <h2 class="fw-bold mb-0" style="background: linear-gradient(90deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    Reposición Inteligente
-                </h2>
-                <span class="text-muted small">Análisis de {{ $totalFaltantes }} ítems con stock bajo o crítico</span>
-            </div>
-            <div class="col-md-7">
-                <form method="GET" class="row row-cols-lg-auto g-3 align-items-center justify-content-end">
-                    <div class="col-12">
-                        <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm bg-dark border-secondary text-white" placeholder="Buscar producto..." style="width: 200px;">
-                    </div>
-                    <div class="col-12">
-                        <select name="filas" class="form-select form-select-sm bg-dark border-secondary text-white" onchange="this.form.submit()">
-                            @foreach([10, 20, 50, 100] as $n)
-                                <option value="{{ $n }}" @selected(request('filas', 20) == $n)>{{ $n }} filas</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-sm btn-outline-light">Filtrar</button>
-                    </div>
-                </form>
-            </div>
+    {{-- CABECERA --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="fw-bold mb-0 {{ $modoOscuro ? 'text-white' : 'text-dark' }}">Reposición Inteligente</h2>
+            <small class="text-muted">Análisis de {{ $totalFaltantes }} ítems con stock bajo o crítico</small>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{{ route('empresa.stock.faltantes.export', ['q' => request('q')]) }}" class="btn btn-warning btn-action">Exportar CSV</a>
+            <a href="{{ route('empresa.labels.index') }}" class="btn btn-outline-secondary btn-action">Etiquetas</a>
+            <button class="btn btn-outline-secondary btn-action" onclick="window.print()">Imprimir Lista</button>
+            <a href="{{ route('empresa.products.index') }}" class="btn btn-primary btn-action">Ver Catálogo</a>
+        </div>
+    </div>
+
+    {{-- FILTROS Y BUSCADOR --}}
+    <div class="card card-premium mb-3">
+        <div class="card-body py-2">
+            <form method="GET" class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <input type="text" name="q" value="{{ request('q') }}" class="form-control search-ctrl" placeholder="Buscar producto en esta página...">
+                </div>
+                <div class="col-md-3 d-flex align-items-center gap-2">
+                    <span class="small text-muted">Filas</span>
+                    <select name="filas" class="form-select form-select-sm search-ctrl" onchange="this.form.submit()" style="width: 70px;">
+                        @foreach([10,20,50,100] as $size)
+                            <option value="{{ $size }}" @selected(request('filas', 20) == $size)>{{ $size }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary py-1 px-2">Filtrar</button>
+                </div>
+                <div class="col-md-4 text-end small text-muted">
+                    Total: {{ $totalFaltantes }} productos pendientes de reposición
+                </div>
+            </form>
         </div>
     </div>
 
     @if($totalFaltantes == 0)
-        <div class="glass-card p-5 text-center">
-            <div class="mb-3 fs-1">💎</div>
-            <h3>¡Todo está perfecto!</h3>
-            <p class="text-muted">No hay productos por debajo del stock mínimo actualmente.</p>
+        <div class="card card-premium p-5 text-center">
+            <h3 class="fw-bold">SIN ALERTAS DE STOCK</h3>
+            <p class="text-muted">Todo el inventario se encuentra en niveles correctos.</p>
         </div>
     @else
 
@@ -123,97 +144,102 @@
                 $groupName = $supplier ? $supplier->name : 'SIN PROVEEDOR ASIGNADO';
             @endphp
 
-            <div class="glass-card mb-4 overflow-hidden border-0">
-                <div class="px-3 py-2 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div class="card card-premium mb-4 overflow-hidden border-0">
+                <div class="px-4 py-2 d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--border-color);">
                     <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.9rem;">
-                            🚚
-                        </div>
-                        <div>
-                            <span class="fw-bold text-white small">{{ strtoupper($groupName) }}</span>
-                            <span class="text-muted ms-2" style="font-size: 0.75rem;">{{ $items->count() }} ítems en falta</span>
-                        </div>
+                        <span class="me-2 text-primary">🚚</span>
+                        <span class="fw-bold text-dark small">{{ strtoupper($groupName) }}</span>
+                        <span class="badge bg-light text-dark ms-2" style="font-size: 0.6rem; border: 1px solid var(--border-color);">
+                            {{ $items->count() }} PRODUCTOS
+                        </span>
                     </div>
                     @if($supplier)
-                        <button class="btn btn-sm btn-primary px-3 rounded-pill fw-bold" style="font-size: 0.7rem;" onclick="generarPedido({{ $supplierId }})">
-                            GENERAR PEDIDO SUGERIDO
+                        <button class="btn btn-sm btn-primary py-1 px-3 fw-bold" style="font-size: 0.65rem;" onclick="generarPedido({{ $supplierId }})">
+                            GENERAR ORDEN DE COMPRA
                         </button>
                     @endif
                 </div>
 
-                <div class="p-2">
-                    <div class="row g-2">
-                        @foreach($items as $item)
-                            @php 
-                                $isCritical = $item->stock <= 0;
-                                $suggested = max(0, $item->stock_ideal - $item->stock);
-                                $stockPercent = $item->stock_ideal > 0 ? min(100, ($item->stock / $item->stock_ideal) * 100) : 0;
-                            @endphp
-
-                            {{-- PRODUCT CARD CON ACORDEÓN PARA ACTIVIDAD --}}
-                            <div class="col-12">
-                                <div class="product-row px-3 py-2">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-5">
-                                            <div class="d-flex align-items-center">
-                                                <div class="me-2 small">{{ $isCritical ? '🚨' : '⚠️' }}</div>
-                                                <div>
-                                                    <span class="fw-bold small text-white">{{ $item->name }}</span><br>
-                                                    <span class="text-muted" style="font-size: 0.75rem;">{{ $item->rubro ? $item->rubro->nombre : 'GENERAL' }}</span>
-                                                </div>
-                                            </div>
+                <div class="table-responsive">
+                    <table class="table table-premium mb-0" id="tablaReposicion">
+                        <thead>
+                            <tr class="text-center">
+                                <th class="text-start ps-4">Artículo</th>
+                                <th>Rubro</th>
+                                <th>Métrica de Stock</th>
+                                <th>Sugerido</th>
+                                <th>Estado</th>
+                                <th class="text-end pe-4">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($items as $item)
+                                @php 
+                                    $isCritical = $item->stock <= 0;
+                                    $suggested = max(0, $item->stock_ideal - $item->stock);
+                                    $stockPercent = $item->stock_ideal > 0 ? min(100, ($item->stock / $item->stock_ideal) * 100) : 0;
+                                @endphp
+                                <tr class="text-center">
+                                    <td class="text-start ps-4">
+                                        <div class="fw-bold">{{ $item->name }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-muted small border" style="font-size: 0.6rem;">
+                                            {{ strtoupper($item->rubro ? $item->rubro->nombre : 'GENERAL') }}
+                                        </span>
+                                    </td>
+                                    <td style="width: 200px;">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted fw-bold" style="font-size: 0.6rem;">STOCK</span>
+                                            <span class="fw-bold" style="font-size: 0.7rem;">{{ $item->stock }} / {{ $item->stock_ideal }}</span>
                                         </div>
-                                        
-                                        <div class="col-md-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="text-muted fw-bold" style="font-size: 0.65rem;">MÉTRICA DE STOCK</span>
-                                                <span class="text-white fw-bold" style="font-size: 0.65rem;">{{ $item->stock }} / {{ $item->stock_ideal }}</span>
-                                            </div>
-                                            <div class="progress progress-minimal">
-                                                <div class="progress-bar {{ $isCritical ? 'bg-danger shadow-sm' : 'bg-warning shadow-sm' }}" style="width: {{ $stockPercent }}%"></div>
-                                            </div>
+                                        <div class="progress progress-minimal">
+                                            <div class="progress-bar {{ $isCritical ? 'bg-danger shadow-sm' : 'bg-warning shadow-sm' }}" 
+                                                 style="width: {{ $stockPercent }}%"></div>
                                         </div>
-
-                                        <div class="col-md-2 text-center">
-                                            <span class="stock-badge {{ $isCritical ? 'badge-critical' : 'badge-low' }}">
-                                                +{{ $suggested }} {{ ($item->rubro && str_contains(strtolower($item->rubro->nombre), 'peso')) ? 'KG' : 'UN' }}
-                                            </span>
-                                        </div>
-
-                                        <div class="col-md-2 text-end">
-                                            <button class="btn btn-suggest btn-sm" 
-                                                    type="button" 
-                                                    data-bs-toggle="collapse" 
-                                                    data-bs-target="#activity-{{ $item->id }}" 
-                                                    onclick="cargarActividad({{ $item->id }})">
-                                                ACTIVIDAD ↓
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {{-- ACORDEÓN DE ACTIVIDAD (ROLLS ROYCE STYLE) --}}
-                                    <div class="collapse" id="activity-{{ $item->id }}">
-                                        <div class="mt-4 pt-3 border-top border-secondary">
+                                    </td>
+                                    <td class="fw-bold {{ $isCritical ? 'text-danger' : 'text-warning' }} fs-5">
+                                        +{{ $suggested }} <span style="font-size: 0.6rem;">{{ ($item->rubro && str_contains(strtolower($item->rubro->nombre), 'peso')) ? 'KG' : 'UN' }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge-status {{ $isCritical ? 'bg-critico' : 'bg-bajo' }}">
+                                            {{ $isCritical ? 'CRÍTICO' : 'BAJO STOCK' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-outline-primary btn-action" 
+                                                type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#activity-{{ $item->id }}" 
+                                                onclick="cargarActividad({{ $item->id }})">
+                                            Ver Actividad ↓
+                                        </button>
+                                    </td>
+                                </tr>
+                                {{-- DETALLE DE ACTIVIDAD --}}
+                                <tr class="collapse" id="activity-{{ $item->id }}">
+                                    <td colspan="6" class="p-0 bg-light bg-opacity-50">
+                                        <div class="px-5 py-3 border-start border-4 border-primary">
                                             <div class="row">
-                                                <div class="col-md-6 border-end border-secondary">
-                                                    <h6 class="fw-bold text-info mb-3">🕒 Historial Reciente (Kardex)</h6>
+                                                <div class="col-md-6 border-end">
+                                                    <h6 class="fw-bold small text-primary mb-2">MOVIMIENTOS DE KARDEX</h6>
                                                     <div id="kardex-list-{{ $item->id }}">
-                                                        <div class="text-center py-3"><div class="spinner-border spinner-border-sm text-info"></div></div>
+                                                        <div class="spinner-border spinner-border-sm text-primary"></div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 ps-4">
-                                                    <h6 class="fw-bold text-success mb-3">💰 Compras Anteriores</h6>
+                                                    <h6 class="fw-bold small text-success mb-2">COMPRAS ANTERIORES</h6>
                                                     <div id="purchases-list-{{ $item->id }}">
-                                                        <div class="text-center py-3"><div class="spinner-border spinner-border-sm text-info"></div></div>
+                                                        <div class="spinner-border spinner-border-sm text-success"></div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         @endforeach
@@ -233,50 +259,36 @@ function cargarActividad(productId) {
     const kardexDiv = document.getElementById(`kardex-list-${productId}`);
     const purchaseDiv = document.getElementById(`purchases-list-${productId}`);
     
-    // Evitar recargar si ya tiene contenido (opcional)
-    if(kardexDiv.innerHTML.includes('activity-item')) return;
+    if(kardexDiv.innerHTML.includes('row') || kardexDiv.innerHTML.includes('activity-item')) return;
 
     fetch(`/empresa/faltantes/actividad/${productId}`)
         .then(r => r.json())
         .then(data => {
-            // Renderizar Kardex
+            // Kardex
             if(data.movimientos.length === 0) {
-                kardexDiv.innerHTML = '<p class="small text-muted">Sin movimientos registrados.</p>';
+                kardexDiv.innerHTML = '<p class="small text-muted">Sin movimientos.</p>';
             } else {
                 let html = '';
                 data.movimientos.forEach(m => {
                     const color = m.tipo === 'entrada' ? 'text-success' : (m.tipo === 'salida' ? 'text-danger' : 'text-warning');
                     const fecha = new Date(m.created_at).toLocaleDateString('es-AR');
-                    html += `
-                        <div class="activity-item small">
-                            <div class="d-flex justify-content-between">
-                                <b class="${color}">${m.tipo.toUpperCase()}</b>
-                                <span class="text-muted">${fecha}</span>
-                            </div>
-                            <div class="text-white">${m.cantidad > 0 ? '+' : ''}${m.cantidad} unidades (${m.origen})</div>
-                        </div>
-                    `;
+                    html += `<div class="mb-1 small border-bottom pb-1">
+                        <b class="${color}">${m.tipo.toUpperCase()}</b> | ${fecha} | ${m.cantidad} Un. (${m.origen})
+                    </div>`;
                 });
                 kardexDiv.innerHTML = html;
             }
 
-            // Renderizar Compras
+            // Compras
             if(data.compras.length === 0) {
-                purchaseDiv.innerHTML = '<p class="small text-muted">Aún no se han registrado compras de este producto.</p>';
+                purchaseDiv.innerHTML = '<p class="small text-muted">Sin compras registradas.</p>';
             } else {
                 let html = '';
                 data.compras.forEach(c => {
                     const fecha = new Date(c.purchase.purchase_date).toLocaleDateString('es-AR');
-                    const priceFormatted = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(c.cost);
-                    html += `
-                        <div class="activity-item small" style="border-left-color: #10b981;">
-                            <div class="d-flex justify-content-between">
-                                <b class="text-white">${c.purchase.supplier.name}</b>
-                                <span class="text-muted">${fecha}</span>
-                            </div>
-                            <div class="text-success fw-bold">${priceFormatted} <small class="text-muted">x ${c.quantity}u</small></div>
-                        </div>
-                    `;
+                    html += `<div class="mb-1 small border-bottom pb-1">
+                        <b>${c.purchase.supplier.name}</b> | ${fecha} | $${c.cost} x ${c.quantity}u
+                    </div>`;
                 });
                 purchaseDiv.innerHTML = html;
             }
@@ -284,8 +296,7 @@ function cargarActividad(productId) {
 }
 
 function generarPedido(supplierId) {
-    // Aquí podrías redirigir a una pantalla de checkout de compra o generar un PDF
-    alert('Funcionalidad de Generación de Pedido Inteligente: Próximamente disponible. Estamos agrupando los productos para el proveedor.');
+    alert('Función de Pedido Proyectado próximamente.');
 }
 </script>
 @endpush
