@@ -8,7 +8,7 @@ use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Picqer\Barcode\BarcodeGenerator;
-use Picqer\Barcode\BarcodeGeneratorHTML;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LabelController extends Controller
@@ -60,14 +60,14 @@ class LabelController extends Controller
         ]);
 
         $empresa = Auth::user()->empresa;
-        $generator = new BarcodeGeneratorHTML();
+        $generator = new BarcodeGeneratorPNG();
         $labels = [];
 
-        // Definición de tamaños según formato (ancho de barra, altura, columnas sugeridas)
+        // Definición de tamaños estándar en mm (Ancho x Avance)
         $sizes = [
-            'small'  => ['w' => 0.8, 'h' => 20, 'cols' => 5], 
-            'medium' => ['w' => 1.2, 'h' => 30, 'cols' => 3], 
-            'large'  => ['w' => 1.7, 'h' => 45, 'cols' => 2], 
+            'small'  => ['w' => 1.0, 'h' => 30, 'cols' => 5], // 33x22 mm aprox
+            'medium' => ['w' => 1.5, 'h' => 45, 'cols' => 3], // 50x25 mm aprox
+            'large'  => ['w' => 2.2, 'h' => 70, 'cols' => 2], // 100x50 mm aprox
         ];
         $config = $sizes[$request->format];
 
@@ -78,11 +78,14 @@ class LabelController extends Controller
             $product = Product::where('empresa_id', $empresa->id)->find($productId);
             
             if ($product && $product->barcode && $qty > 0) {
+                // Generamos una sola vez la imagen base64 del código de barras
+                $barcodeImage = base64_encode($generator->getBarcode($product->barcode, BarcodeGenerator::TYPE_CODE_128, $config['w'], $config['h']));
+
                 for ($i = 0; $i < $qty; $i++) {
                     $labels[] = [
                         'name'    => $product->name,
                         'price'   => number_format($product->price, 2),
-                        'barcode' => $generator->getBarcode($product->barcode, BarcodeGenerator::TYPE_CODE_128, $config['w'], $config['h']),
+                        'barcode' => $barcodeImage,
                         'code'    => $product->barcode,
                         'empresa' => $empresa->nombre
                     ];
@@ -115,22 +118,27 @@ class LabelController extends Controller
             return back()->with('error', 'Este producto no tiene un código de barras asignado. Por favor cárgalo antes de imprimir.');
         }
 
-        $generator = new BarcodeGeneratorHTML();
+        $generator = new BarcodeGeneratorPNG();
         $labels = [];
         
+        $barcodeImage = base64_encode($generator->getBarcode($product->barcode, BarcodeGenerator::TYPE_CODE_128, 1.5, 35));
+
         // Generamos una hoja con 21 etiquetas (3x7) del mismo producto
         for ($i = 0; $i < 21; $i++) {
             $labels[] = [
                 'name'    => $product->name,
                 'price'   => number_format($product->price, 2),
-                'barcode' => $generator->getBarcode($product->barcode, BarcodeGenerator::TYPE_CODE_128, 1.5, 35),
+                'barcode' => $barcodeImage,
                 'code'    => $product->barcode,
                 'empresa' => $empresa->nombre
             ];
         }
 
-        $pdf = Pdf::loadView('pdf.labels', compact('labels'))
-            ->setPaper('a4', 'portrait');
+        $pdf = Pdf::loadView('pdf.labels', [
+            'labels' => $labels,
+            'format' => 'medium',
+            'cols'   => 3
+        ])->setPaper('a4', 'portrait');
 
         return $pdf->stream("etiquetas_{$product->id}.pdf");
     }

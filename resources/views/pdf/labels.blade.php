@@ -19,7 +19,7 @@
         }
 
         .label-card {
-            width: {{ (100 / $cols) - 1 }}%;
+            width: {{ (100 / $cols) - 1.5 }}%;
             margin: 0.5%;
             float: left;
             border: 0.1mm solid #eee;
@@ -30,24 +30,30 @@
             padding: 5px;
         }
 
-        /* Ajustes por tamaño */
+        /* Ajustes por tamaño estándar Argentina */
         @if($format == 'small')
-            .label-card { height: 35mm; }
-            .product-name { font-size: 8px; }
-            .price-tag { font-size: 10px; }
-            .barcode-container { height: 18mm; }
-            .barcode-text { font-size: 7px; }
+            /* Estándar 33x22mm aprox */
+            .label-card { height: 22mm; }
+            .product-name { font-size: 7px; height: 3mm; line-height: 3mm; }
+            .price-tag { font-size: 9px; height: 4mm; line-height: 4mm; }
+            .barcode-container { height: 10mm; }
+            .barcode-container img { height: 8mm; width: 90%; }
+            .barcode-text { font-size: 6px; }
         @elseif($format == 'medium')
-            .label-card { height: 45mm; }
-            .product-name { font-size: 10px; }
-            .price-tag { font-size: 14px; }
-            .barcode-container { height: 25mm; }
-            .barcode-text { font-size: 8px; }
+            /* Estándar 50x25mm aprox */
+            .label-card { height: 25mm; }
+            .product-name { font-size: 9px; height: 4mm; line-height: 4mm; }
+            .price-tag { font-size: 13px; height: 5mm; line-height: 5mm; }
+            .barcode-container { height: 12mm; }
+            .barcode-container img { height: 10mm; width: 95%; }
+            .barcode-text { font-size: 7px; }
         @else
-            .label-card { height: 65mm; }
-            .product-name { font-size: 13px; }
-            .price-tag { font-size: 18px; }
-            .barcode-container { height: 40mm; }
+            /* Estándar 100x50mm aprox */
+            .label-card { height: 50mm; }
+            .product-name { font-size: 13px; height: 8mm; line-height: 8mm; }
+            .price-tag { font-size: 20px; height: 12mm; line-height: 12mm; }
+            .barcode-container { height: 25mm; }
+            .barcode-container img { height: 22mm; width: 100%; }
             .barcode-text { font-size: 10px; }
         @endif
 
@@ -67,26 +73,23 @@
         }
 
         .barcode-container {
-            margin-top: 2px;
+            margin-top: 1px;
             display: block;
             width: 100%;
-        }
-
-        .barcode-container div {
-            margin: 0 auto !important;
+            text-align: center;
         }
 
         .barcode-text {
             color: #333;
-            margin-top: 1px;
+            margin-top: 0px;
             display: block;
             letter-spacing: 1px;
         }
 
         .empresa-footer {
-            font-size: 6px;
+            font-size: 5px;
             color: #aaa;
-            margin-top: 2px;
+            margin-top: 1px;
             text-transform: uppercase;
         }
 
@@ -105,7 +108,7 @@
                 <div class="price-tag">$ {{ $l['price'] }}</div>
                 
                 <div class="barcode-container">
-                    {!! $l['barcode'] !!}
+                    <img src="data:image/png;base64,{{ $l['barcode'] }}">
                 </div>
                 
                 <span class="barcode-text">{{ $l['code'] }}</span>
@@ -113,7 +116,12 @@
             </div>
             
             @php
-                $perPage = $cols * ($format == 'small' ? 8 : ($format == 'medium' ? 6 : 4));
+                // Cálculo estimado de etiquetas por página A4
+                // A4 es de 210x297mm. 
+                // Para 22mm de alto -> aprox 12 filas. 
+                // Para 25mm de alto -> aprox 10 filas.
+                $rowsPage = ($format == 'small') ? 12 : (($format == 'medium') ? 10 : 5);
+                $perPage = $cols * $rowsPage;
             @endphp
 
             @if(($loop->index + 1) % $perPage == 0 && !$loop->last)
