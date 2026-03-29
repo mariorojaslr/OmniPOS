@@ -34,6 +34,7 @@ use App\Http\Controllers\Empresa\ClientController;
 use App\Http\Controllers\Empresa\SupplierController;
 use App\Http\Controllers\Empresa\PurchaseController;
 use App\Http\Controllers\Empresa\OrderController;
+use App\Http\Controllers\Empresa\ReplenishmentController;
 use App\Http\Controllers\Empresa\LabelController;
 use App\Http\Controllers\Empresa\InventoryController;
 use App\Http\Controllers\Empresa\RubroController;
@@ -202,6 +203,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/stock/kardex/{product}/excel', [StockController::class , 'exportExcel'])->name('stock.kardex.excel');
 
         Route::get('/stock', [StockController::class , 'index'])->name('stock.index');
+        Route::get('/faltantes', [ReplenishmentController::class , 'index'])->name('stock.faltantes');
+        Route::get('/faltantes/actividad/{product}', [ReplenishmentController::class , 'actividad'])->name('stock.faltantes.actividad');
         Route::patch('/stock/{product}', [StockController::class , 'update'])->name('stock.update');
         Route::post('/stock/config/{product}', [StockController::class , 'config'])->name('stock.config');
 

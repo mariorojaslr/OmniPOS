@@ -44,6 +44,7 @@ class Product extends Model
 
         // Categorización
         'rubro_id',
+        'supplier_id',
 
         // Código de barras
         'barcode'
@@ -78,6 +79,11 @@ class Product extends Model
     public function rubro()
     {
         return $this->belongsTo(Rubro::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     // Variantes (Talles / Colores)

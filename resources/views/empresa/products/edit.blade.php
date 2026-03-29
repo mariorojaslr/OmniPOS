@@ -82,13 +82,26 @@
 
 
                     {{-- RUBRO --}}
-                    <div class="col-md-2">
-                        <label class="form-label fw-semibold">Rubro</label>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Rubro / Categoría</label>
                         <select name="rubro_id" class="form-select">
                             <option value="">-- Sin Rubro --</option>
                             @foreach($rubros as $rubro)
                                 <option value="{{ $rubro->id }}" @selected(old('rubro_id', $product->rubro_id) == $rubro->id)>
                                     {{ $rubro->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- PROVEEDOR --}}
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Proveedor Principal</label>
+                        <select name="supplier_id" class="form-select">
+                            <option value="">-- Sin Proveedor --</option>
+                            @foreach($proveedores as $prov)
+                                <option value="{{ $prov->id }}" @selected(old('supplier_id', $product->supplier_id) == $prov->id)>
+                                    {{ $prov->name }}
                                 </option>
                             @endforeach
                         </select>

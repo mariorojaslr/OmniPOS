@@ -310,8 +310,11 @@ $secondary = $config->color_secundario ?? '#16a34a';
                     <div class="glass-panel" style="border-left: 4px solid #f59e0b;">
                         <div class="glass-icon" style="color: #f59e0b;">⚠️</div>
                         <div class="stat-label text-warning">Alertas de Stock</div>
-                        <div class="fs-2 fw-bold text-warning">{{ $stockBajo }}</div>
-                        <div class="small mt-1 text-muted">Productos por debajo del mínimo</div>
+                        <div class="fs-2 fw-bold text-warning mb-2">{{ $stockBajo }}</div>
+                        <p class="small text-muted mb-3">Productos por debajo del mínimo</p>
+                        <a href="{{ route('empresa.stock.faltantes') }}" class="btn btn-sm btn-outline-warning w-100">
+                            🤖 Gestionar Faltantes
+                        </a>
                     </div>
                 </div>
             </div>
