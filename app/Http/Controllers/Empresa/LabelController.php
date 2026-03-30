@@ -23,9 +23,14 @@ class LabelController extends Controller
                            ->orderBy('name')
                            ->get();
         
-        $rubros = Rubro::orderBy('nombre')->get();
+        $rubros = \App\Models\Rubro::orderBy('nombre')->get();
 
-        return view('empresa.labels.index', compact('products', 'rubros'));
+        // Cargar las últimas compras para el filtro por compra
+        $compras = \App\Models\Purchase::latest()
+                                     ->take(50)
+                                     ->get();
+
+        return view('empresa.labels.index', compact('products', 'rubros', 'compras'));
     }
 
     /**
