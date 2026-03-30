@@ -101,6 +101,40 @@
             color: #f8fafc;
         }
 
+        /* 🛡️ BLINDAJE ANTI-ICONOS GIGANTES DE LARAVEL */
+        nav svg, .pagination svg {
+            max-width: 1.25rem !important;
+            max-height: 1.25rem !important;
+            display: inline-block !important;
+            vertical-align: middle;
+        }
+        
+        /* Ocultar texto redundante de Laravel */
+        nav[role="navigation"] .flex.hidden.sm\:flex-1,
+        nav[role="navigation"] p.text-sm.text-gray-700 {
+            display: none !important;
+        }
+
+        /* Estética de Paginación Dark Premium */
+        .pagination .page-link {
+            background-color: transparent !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #94a3b8 !important;
+            border-radius: 8px !important;
+            margin: 0 3px;
+            padding: 8px 14px;
+            font-weight: bold;
+        }
+        .pagination .active .page-link {
+            background-color: #3b82f6 !important;
+            border-color: #3b82f6 !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .pagination .page-link:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #fff !important;
+        }
     </style>
 </head>
 
