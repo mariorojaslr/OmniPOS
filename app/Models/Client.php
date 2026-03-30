@@ -71,6 +71,15 @@ class Client extends Model
         return $this->hasMany(Cart::class);
     }
 
+    /**
+     * VENTAS REALIZADAS
+     */
+    public function ventas()
+    {
+        return $this->hasMany(Venta::class);
+    }
+
+
     // =========================================================
     // MÉTODOS FINANCIEROS
     // =========================================================

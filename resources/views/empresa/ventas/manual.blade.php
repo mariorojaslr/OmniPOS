@@ -173,6 +173,22 @@ $(document).ready(function() {
         theme: 'bootstrap-5'
     });
 
+    // 📝 Lógica de Formateo de Número Manual (e.g. 1-2 -> 0001-00000002)
+    const inputNumManual = document.querySelector('input[name="numero_comprobante"]');
+    if (inputNumManual) {
+        inputNumManual.addEventListener('blur', function() {
+            let val = this.value.trim();
+            if (val && val.includes('-')) {
+                let parts = val.split('-');
+                if (parts.length === 2) {
+                    let suc = parts[0].padStart(4, '0');
+                    let num = parts[1].padStart(8, '0');
+                    this.value = `${suc}-${num}`;
+                }
+            }
+        });
+    }
+
     // Agregar primera fila por defecto
     agregarFila();
 

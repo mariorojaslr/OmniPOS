@@ -219,7 +219,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('/usuarios', [UsuarioController::class , 'store'])->name('usuarios.store');
         Route::patch('/usuarios/{user}/toggle', [UsuarioController::class , 'toggle'])->name('usuarios.toggle');
         Route::patch('/usuarios/{user}/reset-password', [UsuarioController::class , 'resetPassword'])->name('usuarios.reset');
-        Route::get('/usuarios/{usuario}/desempeno', [UsuarioController::class , 'desempeno'])->name('usuarios.desempeno');
+        // Route::get('/usuarios/{usuario}/desempeno', [UsuarioController::class , 'desempeno'])->name('usuarios.desempeno'); // Eliminada por duplicidad
 
         /*
      |--------------------------------------------------------------------------
@@ -301,6 +301,25 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/ventas/{venta}/entregar', [App\Http\Controllers\Empresa\RemitoController::class, 'create'])->name('ventas.entregar');
         Route::post('/ventas/{venta}/entregar', [App\Http\Controllers\Empresa\RemitoController::class, 'store'])->name('ventas.entregar.store');
         Route::get('/remitos/{remito}/pdf', [App\Http\Controllers\Empresa\RemitoController::class, 'pdf'])->name('remitos.pdf');
+
+        /*
+     |--------------------------------------------------------------------------
+     | INTELIGENCIA LOGÍSTICA (Pilar 1 - Reportes Globales)
+     |--------------------------------------------------------------------------
+     */
+        Route::get('/logistica/reporte', [App\Http\Controllers\Empresa\LogisticaController::class, 'index'])->name('logistica.reporte');
+
+        /*
+     |--------------------------------------------------------------------------
+     | GESTIÓN DE PERSONAL (Pilar 2 - Rendimiento Operativo)
+     |--------------------------------------------------------------------------
+     */
+        Route::get('/personal/rendimiento', [App\Http\Controllers\Empresa\PersonalController::class, 'index'])->name('personal.rendimiento');
+        Route::get('/usuarios/{user}/desempeno', [App\Http\Controllers\Empresa\PersonalController::class, 'desempeno'])->name('usuarios.desempeno');
+
+        // FICHAJE Y CAJA (Check-in/out)
+        Route::post('/personal/check-in', [App\Http\Controllers\Empresa\AsistenciaController::class, 'checkIn'])->name('personal.checkin');
+        Route::post('/personal/check-out', [App\Http\Controllers\Empresa\AsistenciaController::class, 'checkOut'])->name('personal.checkout');
 
 
         /*

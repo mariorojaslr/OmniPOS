@@ -289,6 +289,7 @@ input, select, textarea{
         <li><a class="dropdown-item" href="{{ route('empresa.ventas.index') }}">📋 Historial / Listado</a></li>
         <li><a class="dropdown-item" href="{{ route('empresa.clientes.index') }}">👥 Clientes</a></li>
         <li><a class="dropdown-item" href="{{ route('empresa.orders.index') }}">🛒 Pedidos Online</a></li>
+        <li><a class="dropdown-item fw-bold text-dark" href="{{ route('empresa.logistica.reporte') }}">📦 Reporte de Guarda (Global)</a></li>
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="{{ route('empresa.ventas.manual') }}">✍️ Venta Manual</a></li>
     </ul>
@@ -304,9 +305,12 @@ input, select, textarea{
     </ul>
 </li>
 
+
+
 <li class="nav-item">
 <a class="nav-link" href="{{ route('empresa.reportes.panel') }}">Reportes</a>
 </li>
+
 
 <li class="nav-item">
 <a class="nav-link fw-bold text-success" href="{{ route('catalog.index', $empresa->id) }}" target="_blank">
@@ -325,16 +329,34 @@ input, select, textarea{
 
 
 {{-- =========================================================
-   USUARIO / PERFIL
+   USUARIO / PERFIL / ASISTENCIA
    ========================================================= --}}
 
 <ul class="navbar-nav">
+
+    {{-- 🔔 BOTÓN DE ASISTENCIA (PILAR 2) --}}
+    @php
+        $asistenciaActiva = \App\Models\Asistencia::where('user_id', auth()->id())->whereNull('salida')->first();
+    @endphp
+
+    <li class="nav-item me-3">
+        @if(!$asistenciaActiva)
+            <button class="btn btn-outline-success btn-sm fw-bold px-3 py-1" data-bs-toggle="modal" data-bs-target="#modalCheckIn">
+                🔔 INICIAR TURNO
+            </button>
+        @else
+            <button class="btn btn-danger btn-sm fw-bold px-3 py-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCheckOut">
+                🛑 FINALIZAR TURNO
+            </button>
+        @endif
+    </li>
 
 <li class="nav-item dropdown">
 
 <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
 {{ $user->name }} ({{ $roleName }})
 </button>
+
 
 
 <ul class="dropdown-menu dropdown-menu-end">
@@ -473,5 +495,119 @@ setTimeout(function(){
 @stack('scripts')
 
 
+{{-- =========================================================
+   MODALES DE ASISTENCIA (PILAR 2)
+   ========================================================= --}}
+
+{{-- MODAL INICIAR TURNO --}}
+<div class="modal fade" id="modalCheckIn" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+            <div class="modal-header bg-success text-white py-3">
+                <h5 class="modal-title fw-bold">🟢 INICIAR TURNO DE CAJA</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('empresa.personal.checkin') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-4">Ingrese con cuánto efectivo inicial recibe la caja para comenzar a operar.</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Fondo de Caja (Vuelto) 💵</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="vuelto_inicial" class="form-control form-control-lg fw-bold" step="0.01" value="0.00" required>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small">Observaciones (Opcional)</label>
+                        <textarea name="observaciones" class="form-control" rows="2" placeholder="Ej: Recibido de la mañana..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success px-4 fw-bold">CONFIRMAR Y EMPEZAR 🚀</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL FINALIZAR TURNO --}}
+<div class="modal fade" id="modalCheckOut" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+            <div class="modal-header bg-danger text-white py-3">
+                <h5 class="modal-title fw-bold">🛑 CERRAR JORNADA Y CAJA</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            @php
+                // Cálculo detallado para el Arqueo (Modal)
+                $ventasEfectivo = 0;
+                $egresosTurno   = 0;
+                $saldoInicial   = $asistenciaActiva->vuelto_inicial ?? 0;
+
+                if($asistenciaActiva){
+                    $ventasEfectivo = \App\Models\Venta::where('user_id', auth()->id())
+                        ->where('created_at', '>=', $asistenciaActiva->entrada)
+                        ->where('metodo_pago', 'efectivo')
+                        ->sum('total_con_iva');
+
+                    $egresosTurno = \App\Models\Expense::where('user_id', auth()->id())
+                        ->where('created_at', '>=', $asistenciaActiva->entrada)
+                        ->sum('amount');
+                }
+                $esperado = ($saldoInicial + $ventasEfectivo) - $egresosTurno;
+            @endphp
+            <form action="{{ route('empresa.personal.checkout') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    
+                    <div class="bg-light rounded-3 p-3 mb-4 text-center border">
+                        <small class="text-muted text-uppercase fw-bold ls-1 d-block mb-1">Cálculo de Efectivo Esperado</small>
+                        <h2 class="fw-bold text-dark mb-0">$ {{ number_format($esperado, 2, ',', '.') }}</h2>
+                        <hr class="my-2 border-secondary opacity-25">
+                        <div class="row g-2 small text-muted">
+                            <div class="col-4 border-end">
+                                <span class="d-block">Inicial</span>
+                                <span class="fw-bold text-dark">$ {{ number_format($saldoInicial, 0) }}</span>
+                            </div>
+                            <div class="col-4 border-end">
+                                <span class="d-block">Ventas (Efect.)</span>
+                                <span class="fw-bold text-success">+ $ {{ number_format($ventasEfectivo, 0) }}</span>
+                            </div>
+                            <div class="col-4">
+                                <span class="d-block">Gastos</span>
+                                <span class="fw-bold text-danger">- $ {{ number_format($egresosTurno, 0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Efectivo Físico en Caja 💰</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="vuelto_final" class="form-control form-control-lg fw-bold border-danger text-danger" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <small class="text-muted mt-2 d-inline-block">
+                            <i class="bi bi-info-circle me-1"></i> Cuente el dinero físico. La diferencia se guardará automáticamente como faltante o sobrante.
+                        </small>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small">Observaciones del Cierre</label>
+                        <textarea name="observaciones" class="form-control" rows="2" placeholder="Ej: Se pagó al proveedor X con dinero de caja..."></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Seguir trabajando</button>
+                    <button type="submit" class="btn btn-danger px-4 fw-bold shadow-sm">FINALIZAR JORNADA 🛑</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
+

@@ -103,3 +103,25 @@
 </form>
 
 @endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputRemito = document.querySelector('input[name="numero_remito"]');
+        
+        if (inputRemito) {
+            inputRemito.addEventListener('blur', function() {
+                let val = this.value.trim();
+                if (val && val.includes('-')) {
+                    let parts = val.split('-');
+                    if (parts.length === 2) {
+                        let suc = parts[0].padStart(4, '0');
+                        let num = parts[1].padStart(8, '0');
+                        this.value = `${suc}-${num}`;
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endsection

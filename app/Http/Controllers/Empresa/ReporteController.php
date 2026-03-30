@@ -37,20 +37,15 @@ class ReporteController extends Controller
     public function cajaDiaria(Request $request)
     {
         $empresaId = auth()->user()->empresa_id;
-        $dias = DB::table('ventas as v')
-            ->where('v.empresa_id', $empresaId)
-            ->select(DB::raw('DATE(v.created_at) as fecha'), DB::raw('SUM(v.total_con_iva) as ventas'))
-            ->groupBy(DB::raw('DATE(v.created_at)'))
-            ->orderByDesc('fecha')
-            ->limit(30)
-            ->get();
-            
-        foreach($dias as $dia) {
-            $dia->gastos = DB::table('expenses')->where('empresa_id', $empresaId)->whereDate('date', $dia->fecha)->sum('amount');
-            $dia->balance = $dia->ventas - $dia->gastos;
-        }
 
-        return view('empresa.reportes.caja_diaria', compact('dias'));
+        // Obtenemos los últimos 50 arqueos de caja con detalle del operador
+        $cierres = \App\Models\CajaCierre::with('user')
+            ->where('empresa_id', $empresaId)
+            ->orderByDesc('fecha_apertura')
+            ->limit(50)
+            ->get();
+
+        return view('empresa.reportes.caja_diaria', compact('cierres'));
     }
 
     public function rentabilidad(Request $request)

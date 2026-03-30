@@ -20,6 +20,11 @@ class Remito extends Model
         'observaciones',
     ];
 
+    protected $casts = [
+        'fecha_entrega' => 'datetime',
+    ];
+
+
     /**
      * 📋 Detalle de la entrega
      */
