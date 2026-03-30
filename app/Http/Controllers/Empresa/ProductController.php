@@ -40,20 +40,29 @@ class ProductController extends Controller
         $query = Product::where('empresa_id', $empresaId);
 
         if (!empty($buscar)) {
-            $query->where('name', 'like', "%{$buscar}%");
+            $query->where(function($q) use ($buscar) {
+                $q->where('name', 'like', "%{$buscar}%")
+                  ->orWhere('barcode', 'like', "%{$buscar}%")
+                  ->orWhere('descripcion_corta', 'like', "%{$buscar}%")
+                  ->orWhereHas('rubro', function($rq) use ($buscar) {
+                      $rq->where('nombre', 'like', "%{$buscar}%");
+                  });
+            });
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Soporte AJAX (Buscador en tiempo real)
+        | Soporte AJAX (Buscador en tiempo real) - BLINDAJE
         |--------------------------------------------------------------------------
         */
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson() || $request->hasHeader('X-Ajax-Search')) {
             $products = $query->with(['rubro', 'images'])
                 ->orderBy('name')
                 ->paginate($perPage);
+            
             return response()->json([
-                'html' => view('empresa.products._table', compact('products'))->render()
+                'html'  => view('empresa.products._table', compact('products', 'buscar'))->render(),
+                'total' => $products->total()
             ]);
         }
 
