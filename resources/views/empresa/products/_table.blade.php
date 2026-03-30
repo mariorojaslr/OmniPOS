@@ -33,11 +33,11 @@
                     @endif
                 </td>
                 
-                {{-- COLUMNA DE MEDIA CON MINIATURA REAL --}}
+                {{-- COLUMNA DE MEDIA CON FOTO REAL --}}
                 <td class="text-center">
                     @if($product->images->count() > 0)
                         <div class="position-relative d-inline-block">
-                            <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" 
+                            <img src="{{ $product->images->first()->url }}" 
                                  class="rounded-3 shadow-sm border" 
                                  style="width: 45px; height: 45px; object-fit: cover;"
                                  onerror="this.src='https://placehold.co/45x45?text=Img'">
@@ -47,7 +47,7 @@
                         </div>
                     @else
                         <div class="bg-light rounded-3 border d-flex align-items-center justify-content-center text-muted mx-auto" style="width: 45px; height: 45px;">
-                            <i class="bi bi-image" style="font-size: 1.2rem; opacity: 0.3;"></i>
+                            <i class="bi bi-image" style="font-size: 1.2rem; opacity: 0.2;"></i>
                         </div>
                     @endif
                 </td>
