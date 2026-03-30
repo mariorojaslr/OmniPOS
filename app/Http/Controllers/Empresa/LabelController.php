@@ -5,23 +5,27 @@ namespace App\Http\Controllers\Empresa;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Rubro;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Traits\BelongsToEmpresa;
 use Illuminate\Support\Facades\Auth;
 
 class LabelController extends Controller
 {
-    use BelongsToEmpresa;
-
+    /**
+     * Vista principal de etiquetas con productos y rubros
+     */
     public function index()
     {
+        // El scope de empresa ya se aplica automáticamente en el modelo Product
         $products = Product::where('barcode', '!=', '')
                            ->whereNotNull('barcode')
                            ->orderBy('name')
                            ->get();
+        
+        $rubros = Rubro::orderBy('nombre')->get();
 
-        return view('empresa.labels.index', compact('products'));
+        return view('empresa.labels.index', compact('products', 'rubros'));
     }
 
     /**
@@ -35,7 +39,7 @@ class LabelController extends Controller
             'qty_mode' => 'required|string|in:full,specific',
         ]);
 
-        $empresa = Auth::user()->empresa;
+        $empresa = auth()->user()->empresa;
         $generator = new BarcodeGeneratorPNG();
         $labels = [];
 
@@ -59,13 +63,13 @@ class LabelController extends Controller
                 $sheets = (int) ($request->sheets ?? 1);
                 $totalQty = $sheets * $perPage;
             } else {
-                // Cantidad fija del modal
+                // Cantidad fija elegida por el usuario
                 $totalQty = (int) ($request->dynamic_qty ?? ($request->quantities[$productId] ?? 1));
             }
 
-            if ($totalQty > 500) $totalQty = 500; // Seguridad
+            if ($totalQty > 500) $totalQty = 500; // Límite de seguridad
 
-            // Imagen base64
+            // Generar imagen del código de barras en base64
             $barcodeImage = base64_encode($generator->getBarcode($product->barcode, 'C128', $config['w'], $config['h']));
 
             for ($i = 0; $i < $totalQty; $i++) {
