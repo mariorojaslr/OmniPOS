@@ -12,6 +12,7 @@ class SystemUpdate extends Model
     protected $fillable = [
         'title',
         'description',
+        'image',
         'type',
         'publish_date',
         'link_tutorial',

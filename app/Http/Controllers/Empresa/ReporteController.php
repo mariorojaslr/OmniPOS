@@ -21,6 +21,111 @@ class ReporteController extends Controller
         return view('empresa.reportes.panel');
     }
 
+    public function ventasVendedor(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $vendedores = DB::table('ventas as v')
+            ->join('users as u', 'u.id', '=', 'v.user_id')
+            ->where('v.empresa_id', $empresaId)
+            ->select('u.name', DB::raw('COUNT(v.id) as total_ventas'), DB::raw('SUM(v.total_con_iva) as total_monto'))
+            ->groupBy('u.id', 'u.name')
+            ->orderByDesc('total_monto')
+            ->get();
+        return view('empresa.reportes.vendedores', compact('vendedores'));
+    }
+
+    public function cajaDiaria(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $dias = DB::table('ventas as v')
+            ->where('v.empresa_id', $empresaId)
+            ->select(DB::raw('DATE(v.created_at) as fecha'), DB::raw('SUM(v.total_con_iva) as ventas'))
+            ->groupBy(DB::raw('DATE(v.created_at)'))
+            ->orderByDesc('fecha')
+            ->limit(30)
+            ->get();
+            
+        foreach($dias as $dia) {
+            $dia->gastos = DB::table('expenses')->where('empresa_id', $empresaId)->whereDate('date', $dia->fecha)->sum('amount');
+            $dia->balance = $dia->ventas - $dia->gastos;
+        }
+
+        return view('empresa.reportes.caja_diaria', compact('dias'));
+    }
+
+    public function rentabilidad(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $items = DB::table('venta_items as vi')
+            ->join('ventas as v', 'v.id', '=', 'vi.venta_id')
+            ->join('products as p', 'p.id', '=', 'vi.product_id')
+            ->where('v.empresa_id', $empresaId)
+            ->select('p.name', DB::raw('SUM(vi.cantidad) as cant'), DB::raw('SUM(vi.total_item_con_iva) as subtotal'))
+            ->groupBy('p.id', 'p.name')
+            ->get();
+
+        foreach($items as $item) {
+            $cost = DB::table('purchase_items')->where('product_id', $item->product_id ?? 0)->latest()->value('cost') ?? 0;
+            $item->costo_total = $item->cant * $cost;
+            $item->ganancia = $item->subtotal - $item->costo_total;
+        }
+
+        return view('empresa.reportes.rentabilidad', compact('items'));
+    }
+
+    public function margenProducto(Request $request) { return $this->rentabilidad($request); }
+
+    public function ventasCategoria(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $categorias = DB::table('venta_items as vi')
+            ->join('ventas as v', 'v.id', '=', 'vi.venta_id')
+            ->join('products as p', 'p.id', '=', 'vi.product_id')
+            ->leftJoin('rubros as r', 'r.id', '=', 'p.rubro_id')
+            ->where('v.empresa_id', $empresaId)
+            ->select(DB::raw('IFNULL(r.nombre, "Sin Rubro") as cat'), DB::raw('SUM(vi.total_item_con_iva) as total'))
+            ->groupBy('cat')
+            ->get();
+        return view('empresa.reportes.categorias', compact('categorias'));
+    }
+
+    public function clientesFrecuentes(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $clientes = DB::table('ventas as v')
+            ->where('v.empresa_id', $empresaId)
+            ->select('cliente_nombre', DB::raw('COUNT(id) as visitas'), DB::raw('SUM(total_con_iva) as total'))
+            ->groupBy('cliente_nombre')
+            ->orderByDesc('visitas')
+            ->limit(20)
+            ->get();
+        return view('empresa.reportes.clientes_frecuentes', compact('clientes'));
+    }
+
+    public function ventasPorHora(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $horas = DB::table('ventas as v')
+            ->where('v.empresa_id', $empresaId)
+            ->select(DB::raw('HOUR(created_at) as hora'), DB::raw('COUNT(id) as cant'), DB::raw('SUM(total_con_iva) as total'))
+            ->groupBy('hora')
+            ->orderBy('hora')
+            ->get();
+        return view('empresa.reportes.por_hora', compact('horas'));
+    }
+
+    public function analisisMensual(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $meses = DB::table('ventas as v')
+            ->where('v.empresa_id', $empresaId)
+            ->select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'), DB::raw('COUNT(id) as ventas'), DB::raw('SUM(total_con_iva) as total'))
+            ->groupBy('mes')
+            ->orderByDesc('mes')
+            ->get();
+        return view('empresa.reportes.analisis_mensual', compact('meses'));
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RANKING PRODUCTOS

@@ -11,6 +11,9 @@
         <h2 class="fw-bold mb-0">Control de Stock</h2>
         <small class="text-muted">Inventario en tiempo real</small>
     </div>
+    <a href="{{ route('empresa.stock.faltantes') }}" class="btn btn-primary d-flex align-items-center shadow-sm">
+        <span class="fs-5 me-2">🤖</span> Centro de Reposición Inteligente
+    </a>
 </div>
 
 

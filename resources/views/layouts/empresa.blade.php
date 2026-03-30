@@ -265,6 +265,7 @@ input, select, textarea{
         <li><a class="dropdown-item" href="{{ route('empresa.rubros.index') }}">Gestionar Rubros</a></li>
         <li><a class="dropdown-item" href="{{ route('empresa.labels.index') }}">🏷️ Imprimir etiquetas</a></li>
         <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.inventory_scan') }}">📦 Escanear Inventario (QR)</a></li>
+        <li><a class="dropdown-item fw-bold text-warning" href="{{ route('empresa.stock.faltantes') }}">🤖 Centro de Reposición</a></li>
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="{{ route('empresa.products.bulk-price-update') }}">Actualización de Precios</a></li>
     </ul>
@@ -289,7 +290,7 @@ input, select, textarea{
         <li><a class="dropdown-item" href="{{ route('empresa.clientes.index') }}">👥 Clientes</a></li>
         <li><a class="dropdown-item" href="{{ route('empresa.orders.index') }}">🛒 Pedidos Online</a></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item disabled" href="#">✍️ Venta Manual (Próximamente)</a></li>
+        <li><a class="dropdown-item" href="{{ route('empresa.ventas.manual') }}">✍️ Venta Manual</a></li>
     </ul>
 </li>
 

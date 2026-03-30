@@ -68,7 +68,10 @@ class DashboardController extends Controller
         $productosCount = Product::where('empresa_id', $empresaId)->count();
 
         $stockBajo = Product::where('empresa_id', $empresaId)
-            ->whereColumn('stock_actual', '<=', 'stock_min')
+            ->where(function($q) {
+                $q->whereColumn('stock', '<=', 'stock_min')
+                  ->orWhere('stock', '<=', 0);
+            })
             ->count();
 
 

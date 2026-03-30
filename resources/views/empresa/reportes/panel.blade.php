@@ -73,34 +73,46 @@
 
     <hr class="my-4">
 
-    {{-- ================= FUTUROS REPORTES ================= --}}
-    <h5 class="text-muted mb-3">Próximamente</h5>
+    {{-- ================= REPORTES OPERATIVOS ================= --}}
+    <h5 class="text-secondary fw-bold mb-3">Informes Operativos de Lujo</h5>
 
     <div class="row g-3">
+        @php
+            $informes = [
+                ['titulo' => 'Ventas por Vendedor', 'ruta' => 'empresa.reportes.vendedores', 'icon' => '👤', 'color' => 'primary'],
+                ['titulo' => 'Caja Diaria', 'ruta' => 'empresa.reportes.caja_diaria', 'icon' => '💰', 'color' => 'success'],
+                ['titulo' => 'Rentabilidad', 'ruta' => 'empresa.reportes.rentabilidad', 'icon' => '📈', 'color' => 'info'],
+                ['titulo' => 'Margen por Producto', 'ruta' => 'empresa.reportes.margen', 'icon' => '🏷️', 'color' => 'warning'],
+                ['titulo' => 'Ventas por Categoría', 'ruta' => 'empresa.reportes.categorias', 'icon' => '📁', 'color' => 'danger'],
+                ['titulo' => 'Clientes Frecuentes', 'ruta' => 'empresa.reportes.clientes_frecuentes', 'icon' => '⭐', 'color' => 'primary'],
+                ['titulo' => 'Ventas por Hora', 'ruta' => 'empresa.reportes.por_hora', 'icon' => '⏰', 'color' => 'secondary'],
+                ['titulo' => 'Análisis Mensual', 'ruta' => 'empresa.reportes.analisis_mensual', 'icon' => '📅', 'color' => 'dark'],
+            ];
+        @endphp
 
-        @foreach([
-            'Ventas por vendedor',
-            'Caja diaria',
-            'Rentabilidad',
-            'Margen por producto',
-            'Ventas por categoría',
-            'Clientes frecuentes',
-            'Ventas por hora',
-            'Análisis mensual'
-        ] as $futuro)
-
+        @foreach($informes as $inf)
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm text-center">
-                    <div class="card-body">
-                        <small class="text-muted">{{ $futuro }}</small>
-                        <div class="badge bg-secondary">Próximamente</div>
+                <a href="{{ route($inf['ruta']) }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-center h-100 hover-luxury">
+                        <div class="card-body">
+                            <div class="fs-2 mb-2">{{ $inf['icon'] }}</div>
+                            <h6 class="fw-bold text-dark mb-0">{{ $inf['titulo'] }}</h6>
+                            <div class="small text-primary mt-2">VER INFORME →</div>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
-
         @endforeach
-
     </div>
+
+    <style>
+        .hover-luxury { transition: all 0.3s; }
+        .hover-luxury:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; 
+            background: #f8f9ff !important;
+        }
+    </style>
 
 </div>
 

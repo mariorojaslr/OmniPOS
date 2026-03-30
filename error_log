@@ -1,0 +1,4 @@
+[21-Mar-2026 03:35:10 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function base_path() in Command line code:1
+Stack trace:
+#0 {main}
+  thrown in Command line code on line 1

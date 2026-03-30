@@ -1,6 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    /* Fix para iconos de paginación gigantes */
+    .pagination svg {
+        width: 20px !important;
+        height: 20px !important;
+        display: inline-block;
+    }
+    nav[role="navigation"] div:first-child { display: none; } /* Oculta el texto de showing results en móvil si molesta */
+</style>
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Gestión de Novedades (Log)</h2>

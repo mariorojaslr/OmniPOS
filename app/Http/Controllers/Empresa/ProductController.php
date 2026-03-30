@@ -9,6 +9,7 @@ use App\Models\ProductCombo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Rubro;
+use App\Models\Supplier;
 
 class ProductController extends Controller
 {
@@ -44,17 +45,16 @@ class ProductController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Soporte AJAX
+        | Soporte AJAX (Buscador en tiempo real)
         |--------------------------------------------------------------------------
         */
-
-        if ($request->ajax() || $request->get('ajax')) {
-
-            return response()->json(
-                $query->orderBy('name')
-                    ->limit(50)
-                    ->get(['id','name','price','active'])
-            );
+        if ($request->ajax()) {
+            $products = $query->with(['rubro', 'images'])
+                ->orderBy('name')
+                ->paginate($perPage);
+            return response()->json([
+                'html' => view('empresa.products._table', compact('products'))->render()
+            ]);
         }
 
         /*
@@ -86,8 +86,13 @@ class ProductController extends Controller
 
     public function create()
     {
-        $rubros = Rubro::orderBy('nombre')->get();
-        return view('empresa.products.create', compact('rubros'));
+        $rubros     = Rubro::orderBy('nombre')->get();
+        $proveedores = Supplier::where('empresa_id', Auth::user()->empresa_id)
+            ->where('active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('empresa.products.create', compact('rubros', 'proveedores'));
     }
 
 
@@ -106,7 +111,8 @@ class ProductController extends Controller
             'stock'             => 'nullable|numeric|min:0',
             'stock_min'         => 'nullable|numeric|min:0',
             'stock_ideal'       => 'nullable|numeric|min:0',
-            'barcode'           => 'nullable|string|max:100',
+            'rubro_id'          => 'nullable|exists:rubros,id',
+            'supplier_id'       => 'nullable|exists:suppliers,id',
             'descripcion_corta' => 'nullable|string',
             'descripcion_larga' => 'nullable|string',
         ]);
@@ -137,6 +143,7 @@ class ProductController extends Controller
             'stock_ideal'       => $request->stock_ideal ?? 0,
             'barcode'           => $request->barcode,
             'rubro_id'          => $request->rubro_id,
+            'supplier_id'       => $request->supplier_id,
             'active'            => true,
             'descripcion_corta' => $request->descripcion_corta,
             'descripcion_larga' => $request->descripcion_larga,
@@ -183,6 +190,10 @@ class ProductController extends Controller
         $product->load(['variants', 'comboItems']);
 
         $rubros = Rubro::orderBy('nombre')->get();
+        $proveedores = Supplier::where('empresa_id', Auth::user()->empresa_id)
+            ->where('active', true)
+            ->orderBy('name')
+            ->get();
 
         // Todos los productos de la empresa (para armar combos)
         $allProducts = Product::where('empresa_id', Auth::user()->empresa_id)
@@ -190,7 +201,7 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('empresa.products.edit', compact('product', 'allProducts', 'rubros'));
+        return view('empresa.products.edit', compact('product', 'allProducts', 'rubros', 'proveedores'));
     }
 
 
@@ -217,6 +228,8 @@ class ProductController extends Controller
             'stock'             => 'nullable|numeric|min:0',
             'stock_min'         => 'nullable|numeric|min:0',
             'stock_ideal'       => 'nullable|numeric|min:0',
+            'rubro_id'          => 'nullable|exists:rubros,id',
+            'supplier_id'       => 'nullable|exists:suppliers,id',
             'active'            => 'required|boolean',
             'barcode'           => 'nullable|string|max:100',
             'descripcion_corta' => 'nullable|string',
@@ -238,6 +251,7 @@ class ProductController extends Controller
             'price'             => $request->price,
             'barcode'           => $request->barcode,
             'rubro_id'          => $request->rubro_id,
+            'supplier_id'       => $request->supplier_id,
             'active'            => $request->active,
             'descripcion_corta' => $request->descripcion_corta,
             'descripcion_larga' => $request->descripcion_larga,

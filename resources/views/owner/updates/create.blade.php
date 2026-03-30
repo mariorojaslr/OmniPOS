@@ -7,7 +7,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-bold">Publicar Nueva Novedad</div>
                 <div class="card-body">
-                    <form action="{{ route('owner.updates.store') }}" method="POST">
+                    <form action="{{ route('owner.updates.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Título de la mejora</label>
@@ -35,6 +35,11 @@
                         <div class="mb-3">
                             <label class="form-label">Link Tutorial / URL (Opcional)</label>
                             <input type="url" name="link_tutorial" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Imagen / Captura de Pantalla (Opcional)</label>
+                            <input type="file" name="image_file" class="form-control" accept="image/*">
+                            <small class="text-muted">Se mostrará en el detalle ampliado de la novedad.</small>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between">

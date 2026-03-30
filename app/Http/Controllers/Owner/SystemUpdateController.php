@@ -25,27 +25,41 @@ class SystemUpdateController extends Controller
             'title' => 'required|string|max:255',
             'publish_date' => 'required|date',
             'type' => 'required|in:nuevo,mejora,arreglo,tarea',
+            'image_file' => 'nullable|image|max:2048',
         ]);
- 
-        SystemUpdate::create($request->all());
- 
+
+        $data = $request->all();
+
+        if ($request->hasFile('image_file')) {
+            $data['image'] = $request->file('image_file')->store('updates', 'public');
+        }
+
+        SystemUpdate::create($data);
+
         return redirect()->route('owner.updates.index')->with('success', 'Novedad publicada correctamente.');
     }
- 
+
     public function edit(SystemUpdate $update)
     {
         return view('owner.updates.edit', compact('update'));
     }
- 
+
     public function update(Request $request, SystemUpdate $update)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'publish_date' => 'required|date',
             'type' => 'required|in:nuevo,mejora,arreglo,tarea',
+            'image_file' => 'nullable|image|max:2048',
         ]);
- 
-        $update->update($request->all());
+
+        $data = $request->all();
+
+        if ($request->hasFile('image_file')) {
+            $data['image'] = $request->file('image_file')->store('updates', 'public');
+        }
+
+        $update->update($data);
  
         return redirect()->route('owner.updates.index')->with('success', 'Novedad actualizada.');
     }

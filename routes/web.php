@@ -34,6 +34,7 @@ use App\Http\Controllers\Empresa\ClientController;
 use App\Http\Controllers\Empresa\SupplierController;
 use App\Http\Controllers\Empresa\PurchaseController;
 use App\Http\Controllers\Empresa\OrderController;
+use App\Http\Controllers\Empresa\ReplenishmentController;
 use App\Http\Controllers\Empresa\LabelController;
 use App\Http\Controllers\Empresa\InventoryController;
 use App\Http\Controllers\Empresa\RubroController;
@@ -202,6 +203,9 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/stock/kardex/{product}/excel', [StockController::class , 'exportExcel'])->name('stock.kardex.excel');
 
         Route::get('/stock', [StockController::class , 'index'])->name('stock.index');
+        Route::get('/faltantes', [ReplenishmentController::class , 'index'])->name('stock.faltantes');
+        Route::get('/faltantes/export', [ReplenishmentController::class , 'export'])->name('stock.faltantes.export');
+        Route::get('/faltantes/actividad/{product}', [ReplenishmentController::class , 'actividad'])->name('stock.faltantes.actividad');
         Route::patch('/stock/{product}', [StockController::class , 'update'])->name('stock.update');
         Route::post('/stock/config/{product}', [StockController::class , 'config'])->name('stock.config');
 
@@ -223,6 +227,16 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      |--------------------------------------------------------------------------
      */
         Route::get('/reportes', [ReporteController::class , 'panel'])->name('reportes.panel');
+        Route::get('/reportes', [ReporteController::class , 'panel'])->name('reportes.panel');
+        Route::get('/reportes/vendedores', [ReporteController::class , 'ventasVendedor'])->name('reportes.vendedores');
+        Route::get('/reportes/caja-diaria', [ReporteController::class , 'cajaDiaria'])->name('reportes.caja_diaria');
+        Route::get('/reportes/rentabilidad', [ReporteController::class , 'rentabilidad'])->name('reportes.rentabilidad');
+        Route::get('/reportes/margen', [ReporteController::class , 'margenProducto'])->name('reportes.margen');
+        Route::get('/reportes/categorias', [ReporteController::class , 'ventasCategoria'])->name('reportes.categorias');
+        Route::get('/reportes/clientes-frecuentes', [ReporteController::class , 'clientesFrecuentes'])->name('reportes.clientes_frecuentes');
+        Route::get('/reportes/por-hora', [ReporteController::class , 'ventasPorHora'])->name('reportes.por_hora');
+        Route::get('/reportes/analisis-mensual', [ReporteController::class , 'analisisMensual'])->name('reportes.analisis_mensual');
+        
         Route::get('/reportes/ranking-productos', [ReporteController::class , 'rankingProductos'])->name('reportes.productos');
         Route::get('/reportes/ranking-clientes', [ReporteController::class , 'rankingClientes'])->name('reportes.clientes');
         Route::get('/reportes/ventas-fecha', [ReporteController::class , 'ventasPorFecha'])->name('reportes.ventas_fecha');
@@ -274,6 +288,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      |--------------------------------------------------------------------------
      */
         Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
+        Route::get('/ventas/manual', [VentaController::class, 'createManual'])->name('ventas.manual');
+        Route::post('/ventas/manual', [VentaController::class, 'storeManual'])->name('ventas.manual.store');
         Route::get('/ventas/{venta}/pdf', [VentaController::class, 'pdf'])->name('ventas.pdf');
 
         /*

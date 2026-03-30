@@ -7,7 +7,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-bold">Editar Novedad</div>
                 <div class="card-body">
-                    <form action="{{ route('owner.updates.update', $update) }}" method="POST">
+                    <form action="{{ route('owner.updates.update', $update) }}" method="POST" enctype="multipart/form-data">
                         @csrf @method('PUT')
                         <div class="mb-3">
                             <label class="form-label">Título de la mejora</label>
@@ -35,6 +35,16 @@
                         <div class="mb-3">
                             <label class="form-label">Link Tutorial / URL (Opcional)</label>
                             <input type="url" name="link_tutorial" class="form-control" value="{{ $update->link_tutorial }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Imagen / Captura de Pantalla (Opcional)</label>
+                            @if($update->image)
+                                <div class="mb-2">
+                                    <img src="{{ asset('storage/' . $update->image) }}" class="img-thumbnail" style="max-height: 150px;">
+                                </div>
+                            @endif
+                            <input type="file" name="image_file" class="form-control" accept="image/*">
+                            <small class="text-muted">Si elige una nueva, se reemplazará la anterior.</small>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between">

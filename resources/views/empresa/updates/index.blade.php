@@ -17,8 +17,12 @@
                     </div>
                     <div class="col-md-10 border-start ps-4 position-relative">
                         <div class="timeline-dot"></div>
-                        <div class="glass-panel p-4 shadow-sm" style="border-left: 5px solid 
-                            @if($update->type == 'nuevo') #10b981 @elseif($update->type == 'mejora') #3b82f6 @elseif($update->type == 'arreglo') #f59e0b @else #6366f1 @endif">
+                        {{-- CARD CLICABLE --}}
+                        <div class="glass-panel p-4 shadow-sm update-card" 
+                             style="border-left: 5px solid 
+                                @if($update->type == 'nuevo') #10b981 @elseif($update->type == 'mejora') #3b82f6 @elseif($update->type == 'arreglo') #f59e0b @else #6366f1 @endif; cursor: pointer;"
+                             onclick='showUpdateDetail(@json($update))'>
+                            
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h4 class="fw-bold mb-0">{{ $update->title }}</h4>
                                 <span class="badge 
@@ -29,28 +33,10 @@
                                     {{ strtoupper($update->type) }}
                                 </span>
                             </div>
-                            <div class="update-description text-secondary mb-3">
-                                {!! nl2br(e($update->description)) !!}
+                            <div class="update-description text-secondary mb-0">
+                                {{ Str::limit($update->description, 180) }}
+                                <div class="mt-2 small text-primary fw-bold">Haga clic para ver capturas y detalles →</div>
                             </div>
-                            @if($update->link_tutorial)
-                                <div class="mt-3">
-                                    <button class="btn btn-sm btn-primary rounded-pill px-4 shadow-sm btn-video" 
-                                            onclick="openVideo(this, '{{ $update->link_tutorial }}')">
-                                        <i class="me-2">▶</i> Ver Tutorial / Ayuda
-                                    </button>
-                                </div>
-                                <div class="video-container-wrapper mt-3" style="display: none; opacity: 0; transform: scale(0.95); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-                                    <div class="glass-video-panel p-2 rounded-4 shadow-lg position-relative overflow-hidden" 
-                                         style="background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2);">
-                                        <div class="ratio ratio-16x9">
-                                            <iframe src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen class="rounded-3"></iframe>
-                                        </div>
-                                        <button class="btn btn-sm btn-dark position-absolute top-0 end-0 m-3 rounded-circle" 
-                                                style="width: 32px; height: 32px; z-index: 10;"
-                                                onclick="closeVideo(this)">✕</button>
-                                    </div>
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -59,51 +45,94 @@
     </div>
 </div>
 
+{{-- MODAL DE DETALLE (PIZARRA BLANCA / LUXURY) --}}
+<div class="modal fade" id="modalUpdateDetail" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; background: rgba(255,255,255,0.98); backdrop-filter: blur(10px);">
+            <div class="modal-header border-0 pb-0 pe-4 pt-4">
+                <div class="ps-2">
+                    <span id="modalUpdateBadge" class="badge mb-2"></span>
+                    <h3 class="modal-title fw-bold" id="modalUpdateTitle"></h3>
+                    <small class="text-muted" id="modalUpdateDate"></small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                {{-- DESCRIPCIÓN --}}
+                <div id="modalUpdateDescription" class="text-secondary fs-5 mb-4 p-2" style="white-space: pre-wrap; line-height: 1.6;"></div>
+
+                {{-- IMAGEN / CAPTURA --}}
+                <div id="modalUpdateImageContainer" class="mb-4 text-center d-none">
+                    <h6 class="text-start fw-bold mb-3 border-bottom pb-2">Captura de Pantalla</h6>
+                    <img id="modalUpdateImage" src="" class="img-fluid rounded-4 shadow-sm border" style="max-height: 500px; width: 100%; object-fit: contain;">
+                </div>
+
+                {{-- VIDEO / TUTORIAL --}}
+                <div id="modalUpdateVideoContainer" class="d-none">
+                    <h5 class="fw-bold border-top pt-4 mb-3">Tutorial Explicativo</h5>
+                    <div class="ratio ratio-16x9 rounded-4 overflow-hidden shadow-sm border">
+                        <iframe id="modalUpdateVideo" src="" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar Detalle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-function openVideo(btn, url) {
-    const wrapper = btn.closest('.glass-panel').querySelector('.video-container-wrapper');
-    const iframe = wrapper.querySelector('iframe');
+function showUpdateDetail(update) {
+    const modalElement = document.getElementById('modalUpdateDetail');
+    const modal = new bootstrap.Modal(modalElement);
     
-    // Si ya está abierto, lo cerramos
-    if (wrapper.style.display === 'block') {
-        closeVideo(wrapper.querySelector('button'));
-        return;
+    // Rellenar Textos
+    document.getElementById('modalUpdateTitle').innerText = update.title;
+    document.getElementById('modalUpdateDescription').innerText = update.description;
+    document.getElementById('modalUpdateDate').innerText = 'Publicado: ' + new Date(update.publish_date).toLocaleDateString();
+
+    // Badge inteligente
+    const badge = document.getElementById('modalUpdateBadge');
+    badge.innerText = update.type.toUpperCase();
+    badge.className = 'badge mb-2';
+    if(update.type === 'nuevo') badge.classList.add('bg-success');
+    else if(update.type === 'mejora') badge.classList.add('bg-primary');
+    else if(update.type === 'arreglo') badge.classList.add('bg-warning', 'text-dark');
+    else badge.classList.add('bg-info');
+
+    // Manejo de Imagen
+    const imgContainer = document.getElementById('modalUpdateImageContainer');
+    const img = document.getElementById('modalUpdateImage');
+    if(update.image) {
+        img.src = '/storage/' + update.image;
+        imgContainer.classList.remove('d-none');
+    } else {
+        imgContainer.classList.add('d-none');
     }
 
-    // Set URL
-    if (url.includes('youtube.com/watch?v=')) {
-        url = url.replace('watch?v=', 'embed/');
+    // Manejo de Video
+    const vidContainer = document.getElementById('modalUpdateVideoContainer');
+    const vid = document.getElementById('modalUpdateVideo');
+    if(update.link_tutorial) {
+        let url = update.link_tutorial;
+        if (url.includes('youtube.com/watch?v=')) {
+            url = url.replace('watch?v=', 'embed/');
+        }
+        vid.src = url;
+        vidContainer.classList.remove('d-none');
+    } else {
+        vid.src = '';
+        vidContainer.classList.add('d-none');
     }
-    iframe.src = url;
 
-    // Show with animation
-    wrapper.style.display = 'block';
-    setTimeout(() => {
-        wrapper.style.opacity = '1';
-        wrapper.style.transform = 'scale(1)';
-    }, 10);
-
-    btn.innerHTML = '<i class="me-2">✕</i> Cerrar Video';
-    btn.classList.replace('btn-primary', 'btn-dark');
+    modal.show();
 }
 
-function closeVideo(closeBtn) {
-    const wrapper = closeBtn.closest('.video-container-wrapper');
-    const panel = closeBtn.closest('.glass-panel');
-    const btn = panel.querySelector('.btn-video');
-    const iframe = wrapper.querySelector('iframe');
-
-    wrapper.style.opacity = '0';
-    wrapper.style.transform = 'scale(0.95)';
-    
-    setTimeout(() => {
-        wrapper.style.display = 'none';
-        iframe.src = '';
-    }, 400);
-
-    btn.innerHTML = '<i class="me-2">▶</i> Ver Tutorial / Ayuda';
-    btn.classList.replace('btn-dark', 'btn-primary');
-}
+// Limpiar video al cerrar para que no siga sonando
+document.getElementById('modalUpdateDetail').addEventListener('hidden.bs.modal', function() {
+    document.getElementById('modalUpdateVideo').src = '';
+});
 </script>
 
 <style>
@@ -120,7 +149,7 @@ function closeVideo(closeBtn) {
     border-radius: 50%;
     background: #3b82f6;
     border: 3px solid #fff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 .publish-date {
     font-size: 1.1rem;
@@ -130,16 +159,15 @@ function closeVideo(closeBtn) {
 }
 .glass-panel {
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-.btn-video {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0,0,0,0.05);
     transition: all 0.3s ease;
 }
-.btn-video:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+.glass-panel:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08) !important;
+    background: #ffffff;
 }
 </style>
 @endsection
