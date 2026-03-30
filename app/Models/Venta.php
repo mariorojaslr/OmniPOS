@@ -28,6 +28,15 @@ class Venta extends Model
         return $this->hasMany(VentaItem::class);
     }
 
+    /**
+     * 🚚 Listado de entregas realizadas
+     */
+    public function remitos()
+    {
+        return $this->hasMany(Remito::class);
+    }
+
+
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class);

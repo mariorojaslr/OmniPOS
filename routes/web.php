@@ -290,7 +290,18 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
         Route::get('/ventas/manual', [VentaController::class, 'createManual'])->name('ventas.manual');
         Route::post('/ventas/manual', [VentaController::class, 'storeManual'])->name('ventas.manual.store');
+        Route::get('/ventas/{venta}', [VentaController::class, 'show'])->name('ventas.show'); // Centro de Control
         Route::get('/ventas/{venta}/pdf', [VentaController::class, 'pdf'])->name('ventas.pdf');
+
+        /*
+     |--------------------------------------------------------------------------
+     | LOGÍSTICA / REMITOS (Pilar 1)
+     |--------------------------------------------------------------------------
+     */
+        Route::get('/ventas/{venta}/entregar', [App\Http\Controllers\Empresa\RemitoController::class, 'create'])->name('ventas.entregar');
+        Route::post('/ventas/{venta}/entregar', [App\Http\Controllers\Empresa\RemitoController::class, 'store'])->name('ventas.entregar.store');
+        Route::get('/remitos/{remito}/pdf', [App\Http\Controllers\Empresa\RemitoController::class, 'pdf'])->name('remitos.pdf');
+
 
         /*
      |--------------------------------------------------------------------------

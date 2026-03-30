@@ -11,16 +11,31 @@ class VentaItem extends Model
         'product_id',
         'variant_id',
         'cantidad',
+        'cantidad_entregada',
         'precio_unitario_sin_iva',
         'subtotal_item_sin_iva',
         'iva_item',
         'total_item_con_iva',
     ];
 
+    /**
+     * ⚖️ Saldo pendiente de entrega (En guarda)
+     */
+    public function getCantidadPendienteAttribute()
+    {
+        return $this->cantidad - $this->cantidad_entregada;
+    }
+
     public function venta()
     {
         return $this->belongsTo(Venta::class);
     }
+
+    public function remitoItems()
+    {
+        return $this->hasMany(RemitoItem::class);
+    }
+
 
     public function product()
     {

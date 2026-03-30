@@ -193,12 +193,13 @@
                         </td>
 
                         <td class="pe-3">
-                            <button class="btn btn-sm btn-outline-primary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalVenta{{ $venta->id }}">
-                                👁️ Ver
-                            </button>
+                            <a href="{{ route('empresa.ventas.show', $venta->id) }}" class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size: 0.72rem; letter-spacing: -0.2px;">
+                                REMITO
+                            </a>
                         </td>
+
+
+
                     </tr>
                     @empty
                     <tr>

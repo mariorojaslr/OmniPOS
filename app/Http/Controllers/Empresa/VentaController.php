@@ -154,6 +154,29 @@ class VentaController extends Controller
     }
 
     /**
+     * 👁️ Centro de Control de la Venta (Logística y Detalle)
+     */
+    public function show(Venta $venta)
+    {
+        $empresa = auth()->user()->empresa;
+
+        if ($venta->empresa_id !== $empresa->id) {
+            abort(403);
+        }
+
+        $venta->load([
+            'items.product', 
+            'items.variant', 
+            'user', 
+            'cliente',
+            'remitos.items.product',
+            'remitos.user'
+        ]);
+
+        return view('empresa.ventas.show', compact('venta', 'empresa'));
+    }
+
+    /**
      * 📑 Generar PDF de la venta
      */
     public function pdf(Venta $venta, Request $request)
