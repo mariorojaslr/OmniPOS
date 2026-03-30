@@ -66,6 +66,7 @@
 
     <form action="{{ route('empresa.labels.generate') }}" method="POST" target="_blank" id="formLabels">
         @csrf
+        <input type="hidden" name="qty_mode" value="specific">
         
         <div class="row g-4 flex-grow-1">
             
