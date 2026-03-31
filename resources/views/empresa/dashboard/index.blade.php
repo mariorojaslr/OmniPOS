@@ -10,8 +10,8 @@
 */
 $config = $empresa->config ?? null;
 
-$primary   = $config->color_primario   ?? '#2563eb';
-$secondary = $config->color_secundario ?? '#16a34a';
+$primary   = $config?->color_primary   ?? '#2563eb';
+$secondary = $config?->color_secondary ?? '#16a34a';
 @endphp
 
 <style>
