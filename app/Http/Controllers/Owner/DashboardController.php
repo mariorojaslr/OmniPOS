@@ -26,6 +26,9 @@ class DashboardController extends Controller
             'streamingMensual'  => '340 hs',
             'facturacionMes'    => '$225,000',
             'mrr'               => '$650,000',
+
+            // Últimas Empresas
+            'ultimasEmpresas'   => Empresa::orderByDesc('created_at')->limit(5)->get(),
         ]);
     }
 }

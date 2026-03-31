@@ -26,7 +26,8 @@ class VentaController extends Controller
             ->with(['variants'])
             ->where('active', true)
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->values(); // Asegura un array secuencial para JS
 
         return view('empresa.ventas.manual', compact('clients', 'products'));
     }
@@ -34,7 +35,7 @@ class VentaController extends Controller
     /**
      * 💾 Guardar Venta Manual con múltiples ítems
      */
-    public function storeManual(Request $request)
+    public function storeManual(Request $request, VentaService $ventaService)
     {
         $request->validate([
             'client_id' => 'required|exists:clients,id',
@@ -44,59 +45,53 @@ class VentaController extends Controller
             'items.*.price'      => 'required|numeric|min:0',
         ]);
 
-        $empresaId = Auth::user()->empresa_id;
+        $user = Auth::user();
         
         try {
-            DB::beginTransaction();
+            // Reformatear items para el servicio
+            $items = array_map(function($item) {
+                return [
+                    'id'         => $item['product_id'],
+                    'variant_id' => $item['variant_id'] ?? null,
+                    'quantity'   => $item['quantity'],
+                    'price'      => $item['price'],
+                ];
+            }, $request->items);
 
-            $venta = Venta::create([
-                'empresa_id'         => $empresaId,
-                'user_id'            => Auth::id(),
-                'client_id'          => $request->client_id,
-                'tipo_comprobante'   => $request->tipo_comprobante ?? 'A',
-                'numero_comprobante' => $request->numero_comprobante,
-                'total_sin_iva'      => $request->total_sin_iva ?? 0,
-                'total_iva'          => $request->total_iva ?? 0,
-                'total_con_iva'      => $request->total_con_iva ?? 0,
-                'metodo_pago'        => $request->metodo_pago ?? 'efectivo',
-                'monto_pagado'       => $request->total_con_iva,
-                'vuelto'             => 0,
-            ]);
+            // Nota: El VentaService actual busca el precio en DB. 
+            // Para ventas manuales con precio custom, tendríamos que pasar el precio.
+            // Voy a modificar ligeramente VentaService para aceptar precio manual si viene.
+            
+            // Pero por ahora, usemos la lógica que ya estaba si el servicio no es flexible.
+            // O mejor aún, actualizamos VentaService para ser el único punto de verdad.
+            
+            $venta = $ventaService->registrarVenta(
+                $user,
+                $items,
+                $request->client_id,
+                $request->metodo_pago === 'cuenta_corriente' ? 'cuenta_corriente' : 'contado',
+                $request->tipo_comprobante ?? 'X',
+                $request->boolean('hacer_remito', false),
+                $request->input('items_entregar'),
+                $request->metodo_pago ?: 'efectivo'
+            );
 
-            foreach ($request->items as $item) {
-                // Guardar ítem
-                VentaItem::create([
-                    'venta_id'                => $venta->id,
-                    'product_id'              => $item['product_id'],
-                    'variant_id'              => $item['variant_id'] ?? null,
-                    'cantidad'                => $item['quantity'],
-                    'precio_unitario_sin_iva' => $item['price'] / 1.21, // Asumiendo IVA 21% por defecto si no viene
-                    'subtotal_item_sin_iva'   => ($item['price'] * $item['quantity']) / 1.21,
-                    'iva_item'                => ($item['price'] * $item['quantity']) - (($item['price'] * $item['quantity']) / 1.21),
-                    'total_item_con_iva'      => $item['price'] * $item['quantity'],
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'ok'        => true,
+                    'venta_id'  => $venta->id,
+                    'remito_id' => $venta->remito_principal?->id,
+                    'message'   => "Venta #{$venta->id} registrada con éxito.",
                 ]);
-
-                // Descontar Stock
-                if (!empty($item['variant_id'])) {
-                    $variant = ProductVariant::find($item['variant_id']);
-                    if ($variant) {
-                        $variant->decrement('stock', $item['quantity']);
-                    }
-                } else {
-                    $product = Product::find($item['product_id']);
-                    if ($product) {
-                        $product->decrement('stock', $item['quantity']);
-                    }
-                }
             }
 
-            DB::commit();
-
             return redirect()->route('empresa.ventas.index')
-                ->with('success', "Venta manual registrada con éxito. Comprobante: {$venta->numero_comprobante}");
+                ->with('success', "Venta registrada con éxito. Comprobante: {$venta->numero_comprobante}");
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['ok' => false, 'error' => $e->getMessage()], 422);
+            }
             return back()->with('error', 'Error al procesar la venta: ' . $e->getMessage())->withInput();
         }
     }

@@ -34,7 +34,7 @@ class VentaService
     |--------------------------------------------------------------------------
     */
 
-    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket'): Venta
+    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo'): Venta
     {
         $empresa = $user->empresa;
 
@@ -64,7 +64,7 @@ class VentaService
         |--------------------------------------------------------------------------
         */
 
-        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante) {
+        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago) {
 
             // Re-obtener empresa con bloqueo para asegurar número correlativo único
             $empresaActual = \App\Models\Empresa::where('id', $user->empresa_id)->lockForUpdate()->first();
@@ -88,6 +88,7 @@ class VentaService
                 'client_id'          => $clienteId,
                 'tipo_comprobante'   => $tipoComprobante,
                 'numero_comprobante' => $numeroComprobante,
+                'metodo_pago'        => $metodoPago, // Guardado aquí
                 'total_sin_iva'      => 0,
                 'total_iva'          => 0,
                 'total_con_iva'      => 0,
@@ -135,7 +136,7 @@ class VentaService
                 |--------------------------------------------------------------------------
                 */
 
-                $precioFinalUnitario = (float) ($variant ? ($variant->price ?: $product->price) : $product->price);
+                $precioFinalUnitario = (float) ($item['price'] ?? ($variant ? ($variant->price ?: $product->price) : $product->price));
                 $totalItemConIva     = $precioFinalUnitario * $cantidad;
 
 
@@ -238,15 +239,126 @@ class VentaService
             }
 
 
+
             /*
             |--------------------------------------------------------------------------
-            | RETORNAR VENTA
+            | GESTIÓN LOGÍSTICA (REMITOS)
+            |--------------------------------------------------------------------------
+            | Si el usuario NO eligió "Hacer Remito" (entrega parcial), se asume
+            | que la entrega fue total y se genera el remito automático.
             |--------------------------------------------------------------------------
             */
+
+            if (!$hacerRemito && !$esNC) {
+                $remito = $this->generarRemitoAutomatico($venta, $user, $empresaActual);
+                $venta->setRelation('remito_principal', $remito);
+            }
+
+            // GESTIÓN DE ENTREGA PARCIAL INMEDIATA (SI SE ESPECIFICÓ)
+            if ($hacerRemito && !empty($itemsEntregados) && !$esNC) {
+                $remito = $this->generarRemitoParcialInicial($venta, $user, $empresaActual, $itemsEntregados);
+                $venta->setRelation('remito_principal', $remito);
+            }
 
             return $venta;
 
         });
+    }
+
+    /**
+     * Crea un Remito por el 100% de los items de la venta.
+     */
+    protected function generarRemitoAutomatico($venta, $user, $empresa)
+    {
+        $numeroRemito = $this->generarNumeroRemito($empresa);
+
+        $remito = \App\Models\Remito::create([
+            'empresa_id'     => $empresa->id,
+            'venta_id'       => $venta->id,
+            'user_id'        => $user->id,
+            'client_id'      => $venta->client_id,
+            'numero_remito'  => $numeroRemito,
+            'fecha_entrega'  => now(),
+            'observaciones'  => 'Entrega total automática al registrar venta.',
+        ]);
+
+        // Incrementar contador remitos
+        $empresa->proximo_numero_remito++;
+        $empresa->save();
+
+        foreach ($venta->items as $item) {
+            \App\Models\RemitoItem::create([
+                'remito_id'     => $remito->id,
+                'venta_item_id' => $item->id,
+                'product_id'    => $item->product_id,
+                'variant_id'    => $item->variant_id,
+                'cantidad'      => $item->cantidad,
+            ]);
+
+            // Marcar como entregado al 100%
+            $item->cantidad_entregada = $item->cantidad;
+            $item->save();
+        }
+
+        return $remito;
+    }
+
+    /**
+     * Crea un Remito parcial basado en lo que el usuario informó en el POS.
+     */
+    protected function generarRemitoParcialInicial($venta, $user, $empresa, $itemsEntregados)
+    {
+        $numeroRemito = $this->generarNumeroRemito($empresa);
+
+        $remito = \App\Models\Remito::create([
+            'empresa_id'     => $empresa->id,
+            'venta_id'       => $venta->id,
+            'user_id'        => $user->id,
+            'client_id'      => $venta->client_id,
+            'numero_remito'  => $numeroRemito,
+            'fecha_entrega'  => now(),
+            'observaciones'  => 'Entrega parcial inmediata (Retira en el momento).',
+        ]);
+
+        // Incrementar contador remitos
+        $empresa->proximo_numero_remito++;
+        $empresa->save();
+
+        foreach ($itemsEntregados as $e) {
+            $qtyEntrega = (float) $e['quantity_delivery'];
+            if ($qtyEntrega <= 0) continue;
+
+            // Buscar la línea de venta correspondiente
+            $itemVenta = $venta->items()
+                ->where('product_id', $e['id'])
+                ->where('variant_id', $e['variant_id'] ?: null)
+                ->first();
+
+            if ($itemVenta) {
+                // No entregar más de lo vendido por seguridad
+                if ($qtyEntrega > $itemVenta->cantidad) $qtyEntrega = $itemVenta->cantidad;
+
+                \App\Models\RemitoItem::create([
+                    'remito_id'     => $remito->id,
+                    'venta_item_id' => $itemVenta->id,
+                    'product_id'    => $itemVenta->product_id,
+                    'variant_id'    => $itemVenta->variant_id,
+                    'cantidad'      => $qtyEntrega,
+                ]);
+
+                $itemVenta->cantidad_entregada = $qtyEntrega;
+                $itemVenta->save();
+            }
+        }
+
+        return $remito;
+    }
+
+    protected function generarNumeroRemito($empresa)
+    {
+        $pv = str_pad($empresa->punto_venta ?? 1, 4, '0', STR_PAD_LEFT);
+        $next = $empresa->proximo_numero_remito ?? 1;
+        return $pv . '-' . str_pad($next, 8, '0', STR_PAD_LEFT);
     }
     protected function generarNumeroComprobante($empresa, $tipo)
     {

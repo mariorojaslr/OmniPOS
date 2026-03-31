@@ -192,10 +192,16 @@
                             </div>
                         </td>
 
-                        <td class="pe-3">
-                            <a href="{{ route('empresa.ventas.show', $venta->id) }}" class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size: 0.72rem; letter-spacing: -0.2px;">
-                                REMITO
-                            </a>
+                        <td class="pe-3 text-center">
+                            @if($venta->es_guarda_pendiente)
+                                <a href="{{ route('empresa.ventas.show', $venta->id) }}" class="btn btn-sm btn-danger px-2 py-1 fw-bold shadow-sm" style="font-size: 0.7rem;">
+                                    🚚 GUARDA
+                                </a>
+                            @else
+                                <a href="{{ route('empresa.ventas.show', $venta->id) }}" class="btn btn-sm btn-outline-secondary px-2 py-1" style="font-size: 0.72rem; letter-spacing: -0.2px;">
+                                    REMITO
+                                </a>
+                            @endif
                         </td>
 
 

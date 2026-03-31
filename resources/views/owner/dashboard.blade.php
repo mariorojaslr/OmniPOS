@@ -1,200 +1,405 @@
 @extends('layouts.app')
 
 @section('styles')
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
-    .dashboard-header {
-        margin-bottom: 2rem;
+    :root {
+        --oled-black: #000000;
+        --oled-card: #0a0a0a;
+        --oled-border: rgba(255, 255, 255, 0.1);
+        --accent-blue: #3b82f6;
+        --accent-purple: #a855f7;
+        --accent-green: #22c55e;
+        --accent-yellow: #eab308;
     }
+
+    body {
+        background-color: var(--oled-black) !important;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .premium-bg {
+        background: radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.05), transparent 30%),
+                    radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.05), transparent 30%);
+    }
+
     .header-title {
-        background: linear-gradient(135deg, #f8fafc, #94a3b8);
+        font-weight: 800;
+        font-size: 2.2rem;
+        background: linear-gradient(to right, #fff, #94a3b8);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-weight: 800;
         letter-spacing: -1px;
     }
-    .stat-card {
-        padding: 1.5rem;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    .oled-card {
+        background: var(--oled-card);
+        border: 1px solid var(--oled-border);
+        border-radius: 20px;
+        padding: 1.8rem;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         position: relative;
         overflow: hidden;
     }
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.4);
+
+    .oled-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
     }
-    .stat-icon {
+
+    .oled-card::after {
+        content: "";
         position: absolute;
-        top: -10px;
-        right: -10px;
-        font-size: 5rem;
-        opacity: 0.05;
-        transform: rotate(-15deg);
+        top: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        opacity: 0;
+        transition: opacity 0.4s;
     }
+
+    .oled-card:hover::after { opacity: 1; }
+
     .stat-label {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #94a3b8;
+        letter-spacing: 2px;
+        color: #64748b;
         font-weight: 600;
         margin-bottom: 0.5rem;
     }
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: #f8fafc;
-        line-height: 1.1;
-    }
-    .text-glow-primary { text-shadow: 0 0 15px rgba(59, 130, 246, 0.5); color: #60a5fa !important; }
-    .text-glow-success { text-shadow: 0 0 15px rgba(34, 197, 94, 0.5); color: #4ade80 !important; }
-    .text-glow-warning { text-shadow: 0 0 15px rgba(234, 179, 8, 0.5); color: #facc15 !important; }
-    .text-glow-danger { text-shadow: 0 0 15px rgba(239, 68, 68, 0.5); color: #f87171 !important; }
-    .text-glow-purple { text-shadow: 0 0 15px rgba(168, 85, 247, 0.5); color: #c084fc !important; }
 
-    .action-btn {
-        border-radius: 12px;
+    .stat-value {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-diff {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .text-glow-primary { text-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+    .text-glow-success { text-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
+    .text-glow-purple { text-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
+    .text-glow-warning { text-shadow: 0 0 20px rgba(234, 179, 8, 0.4); }
+
+    .infra-tag {
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: rgba(255,255,255,0.05);
+        color: #94a3b8;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .command-btn {
+        background: var(--oled-card);
+        border: 1px solid var(--oled-border);
+        color: #cbd5e1;
+        border-radius: 14px;
         padding: 12px 20px;
         font-weight: 600;
+        font-size: 0.9rem;
         transition: all 0.3s;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #e2e8f0;
-        background: rgba(255,255,255,0.05);
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 12px;
+        width: 100%;
+        text-align: left;
+        margin-bottom: 12px;
         text-decoration: none;
     }
-    .action-btn:hover {
-        background: rgba(59, 130, 246, 0.2);
-        border-color: rgba(59, 130, 246, 0.5);
+
+    .command-btn:hover {
+        background: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.2);
         color: #fff;
-        transform: translateY(-2px);
+        transform: translateX(5px);
     }
-    .table-dark-custom {
-        --bs-table-bg: transparent;
-        --bs-table-color: #cbd5e1;
-        --bs-table-border-color: rgba(255,255,255,0.05);
+
+    .command-btn i {
+        font-size: 1.2rem;
+        opacity: 0.7;
+    }
+
+    .scanline {
+        width: 100%;
+        height: 1px;
+        background: rgba(59, 130, 246, 0.1);
+        margin: 2rem 0;
+    }
+
+    .stat-mini-label { font-size: 0.7rem; color: #475569; letter-spacing: 1px; }
+
+    /* Animaciones */
+    @keyframes pulse-border {
+        0% { border-color: rgba(59, 130, 246, 0.1); }
+        50% { border-color: rgba(59, 130, 246, 0.4); }
+        100% { border-color: rgba(59, 130, 246, 0.1); }
+    }
+
+    .live-indicator {
+        width: 8px; height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        box-shadow: 0 0 10px #22c55e;
+        animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="px-3">
+<div class="px-2 pb-5">
 
-    {{-- Encabezado --}}
-    <div class="dashboard-header d-flex justify-content-between align-items-center">
+    {{-- HUD HEADER --}}
+    <div class="d-flex justify-content-between align-items-end mb-5">
         <div>
-            <h2 class="header-title mb-1">Centro de Comando Owner</h2>
-            <p class="text-muted mb-0" style="color: #64748b !important;">Visión omnisciente y control global de la infraestructura MultiPOS.</p>
+            <div class="stat-mini-label mb-1">
+                <span class="live-indicator"></span> SISTEMA OPERATIVO MASTER · v1.02.0
+            </div>
+            <h1 class="header-title mb-0">MultiPOS COMMAND CENTER</h1>
         </div>
-        <div>
-            <a href="{{ route('owner.empresas.create') }}" class="btn btn-primary shadow-lg" style="border-radius:12px;">
-                + Nueva Empresa
+        <div class="text-end">
+            <a href="{{ route('owner.empresas.create') }}" class="btn btn-primary px-4 py-2 fw-bold" style="border-radius: 12px; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);">
+                + DESPLEGAR EMPRESA
             </a>
         </div>
     </div>
 
-    {{-- Row 1: Finanzas & Suscripciones (Métricas Principales) --}}
-    <div class="row g-4 mb-4">
-        
+    {{-- METRICAS CORE (LEVEL 1) --}}
+    <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="glass-card stat-card h-100" style="border-left: 4px solid #3b82f6;">
-                <div class="stat-icon text-primary">🏢</div>
-                <div class="stat-label">Total Clientes</div>
+            <div class="oled-card">
+                <div class="stat-label">Empresas Activas</div>
                 <div class="stat-value text-glow-primary">{{ $empresasCount }}</div>
-                <div class="mt-2 small text-muted">
-                    <span class="text-success"><i class="bi bi-circle-fill" style="font-size:8px;"></i> {{ $empresasActivas }} Activas</span>
-                    <span class="ms-2 text-danger"><i class="bi bi-circle-fill" style="font-size:8px;"></i> {{ $empresasVencidas }} Vencidas</span>
+                <div class="mt-3">
+                    <span class="stat-mini-label">{{ $empresasActivas }} OPERATIVAS</span>
+                    <div class="progress mt-1" style="height: 3px; background: rgba(255,255,255,0.05);">
+                        <div class="progress-bar bg-primary" style="width: 85%"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="glass-card stat-card h-100" style="border-left: 4px solid #a855f7;">
-                <div class="stat-icon text-purple">👥</div>
+            <div class="oled-card">
                 <div class="stat-label">Usuarios Globales</div>
                 <div class="stat-value text-glow-purple">{{ $usuariosCount }}</div>
-                <div class="mt-2 small text-muted">A lo largo de todas las empresas</div>
+                <div class="mt-3">
+                    <span class="stat-mini-label">TRÁFICO CONCURRENTE</span>
+                    <div class="progress mt-1" style="height: 3px; background: rgba(255,255,255,0.05);">
+                        <div class="progress-bar bg-purple" style="width: 40%"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="glass-card stat-card h-100" style="border-left: 4px solid #22c55e;">
-                <div class="stat-icon text-success">💳</div>
-                <div class="stat-label">MRR (Suscripciones)</div>
-                <div class="stat-value text-glow-success">{{ $mrr }}</div>
-                <div class="mt-2 small text-muted">Ingreso Mensual Recurrente</div>
+            <div class="oled-card">
+                <div class="stat-label">MRR Proyectado</div>
+                <div class="stat-value text-glow-success" style="font-size: 2.2rem;">{{ $mrr }}</div>
+                <div class="mt-3">
+                    <span class="stat-mini-label">CRECIMIENTO +12%</span>
+                </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="glass-card stat-card h-100" style="border-left: 4px solid #eab308;">
-                <div class="stat-icon text-warning">💰</div>
-                <div class="stat-label">Facturación del Mes</div>
-                <div class="stat-value text-glow-warning">{{ $facturacionMes }}</div>
-                <div class="mt-2 small text-muted">Pagos únicos y renovaciones</div>
+            <div class="oled-card">
+                <div class="stat-label">Ventas del Mes</div>
+                <div class="stat-value text-glow-warning" style="font-size: 2.2rem;">{{ $facturacionMes }}</div>
+                <div class="mt-3">
+                    <span class="stat-mini-label">RENOVACIONES OK</span>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- Row 2: Infraestructura y Consumos (Nube Privada) --}}
-    <h5 class="fw-bold mb-3 mt-5" style="color: #cbd5e1;">Infraestructura & Nube Privada</h5>
-    <div class="row g-4">
-        <div class="col-md-3">
-            <div class="glass-card stat-card h-100">
-                <div class="stat-label text-info">Storage Usado</div>
-                <div class="fs-3 fw-bold text-white">{{ $consumoStorage }}</div>
-                <div class="progress mt-2" style="height: 6px; background: rgba(255,255,255,0.1);">
-                    <div class="progress-bar bg-info" style="width: 45%"></div>
+    <div class="scanline"></div>
+
+    {{-- INFRAESTRUCTURA & BUNNY.NET (LEVEL 2) --}}
+    <div class="row g-5 mb-5">
+        
+        <div class="col-md-8">
+            <h5 class="stat-mini-label mb-4">RECURSOS DE INFRAESTRUCTURA (BUNNY.NET)</h5>
+            <div class="row g-4">
+                
+                <div class="col-md-6 text-center">
+                    <div class="oled-card border-0 bg-transparent text-start p-0">
+                        <div class="stat-label mb-2">Storage Consumed</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span class="fs-1 fw-bold text-white">{{ explode(' ', $consumoStorage)[0] }}</span>
+                            <span class="text-muted fw-bold">GB</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 4px; background: rgba(255,255,255,0.05);">
+                            <div class="progress-bar bg-info" style="width: 25%"></div>
+                        </div>
+                        <div class="mt-3 d-flex gap-2">
+                            <span class="infra-tag">99.9% Uptime</span>
+                            <span class="infra-tag">Tier 1 SSD</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="glass-card stat-card h-100">
-                <div class="stat-label text-info">Tráfico / CDN</div>
-                <div class="fs-3 fw-bold text-white">{{ $consumoTrafico }}</div>
-                <div class="progress mt-2" style="height: 6px; background: rgba(255,255,255,0.1);">
-                    <div class="progress-bar bg-info" style="width: 70%"></div>
+
+                <div class="col-md-6 text-center">
+                    <div class="oled-card border-0 bg-transparent text-start p-0">
+                        <div class="stat-label mb-2">Network Traffic</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span class="fs-1 fw-bold text-white">{{ explode(' ', $consumoTrafico)[0] }}</span>
+                            <span class="text-muted fw-bold">GB</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 4px; background: rgba(255,255,255,0.05);">
+                            <div class="progress-bar bg-warning" style="width: 60%"></div>
+                        </div>
+                        <div class="mt-3 d-flex gap-2">
+                            <span class="infra-tag">Global Edge</span>
+                            <span class="infra-tag">SSL Active</span>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="col-md-12 mt-5">
+                    <div class="oled-card">
+                        <div class="row align-items-center text-center">
+                            <div class="col-md-4">
+                                <div class="stat-label">Streaming Activo</div>
+                                <div class="fs-4 fw-bold text-white">{{ $streamingMensual }}</div>
+                                <div class="stat-mini-label mt-1">BUNNY STREAM</div>
+                            </div>
+                            <div class="col-md-4 border-start border-end border-white border-opacity-10">
+                                <div class="stat-label">Media Assets</div>
+                                <div class="fs-4 fw-bold text-white">{{ $archivosSubidos }}</div>
+                                <div class="stat-mini-label mt-1">TOTAL ARCHIVOS</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-label">Visual Content</div>
+                                <div class="fs-4 fw-bold text-white">{{ $imagenesSubidas }}</div>
+                                <div class="stat-mini-label mt-1">IMÁGENES</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="glass-card stat-card h-100">
-                <div class="stat-label text-info">Stream de Video</div>
-                <div class="fs-3 fw-bold text-white">{{ $streamingMensual }}</div>
-                <div class="mt-2 small text-muted">{{ $archivosSubidos }} archivos totales</div>
-            </div>
+
+        <div class="col-md-4">
+            <h5 class="stat-mini-label mb-4">PANEL DE OPERACIONES</h5>
+            
+            <a href="{{ route('owner.empresas.index') }}" class="command-btn">
+                <i class="bi bi-building"></i>
+                <div>
+                    <div>GESTIÓN DE EMPRESAS</div>
+                    <small class="text-muted" style="font-size: 0.7rem;">Control de suscripciones</small>
+                </div>
+            </a>
+
+            <a href="{{ route('owner.facturacion.index') }}" class="command-btn">
+                <i class="bi bi-wallet2"></i>
+                <div>
+                    <div>CENTRO FINANCIERO</div>
+                    <small class="text-muted" style="font-size: 0.7rem;">Cobranzas globales</small>
+                </div>
+            </a>
+
+            <a href="{{ route('owner.soporte.index') }}" class="command-btn">
+                <i class="bi bi-headset"></i>
+                <div>
+                    <div>CENTRAL DE SOPORTE</div>
+                    <small class="text-muted" style="font-size: 0.7rem;">Gestión de tickets</small>
+                </div>
+            </a>
+
+            <a href="{{ route('owner.planes.index') }}" class="command-btn border-primary border-opacity-25" style="background: rgba(59, 130, 246, 0.05);">
+                <i class="bi bi-gear-wide-connected text-primary"></i>
+                <div>
+                    <div>PLANES Saas</div>
+                    <small class="text-muted" style="font-size: 0.7rem;">Precios y servicios</small>
+                </div>
+            </a>
+
+            <a href="{{ route('owner.updates.index') }}" class="command-btn">
+                <i class="bi bi-broadcast-pin"></i>
+                <div>
+                    <div>COMUNICADOS</div>
+                    <small class="text-muted" style="font-size: 0.7rem;">Logs de actualización</small>
+                </div>
+            </a>
         </div>
-        <div class="col-md-3">
-            <div class="glass-card stat-card h-100">
-                <div class="stat-label text-info">Imágenes Subidas</div>
-                <div class="fs-3 fw-bold text-white">{{ $imagenesSubidas }}</div>
-                <div class="mt-2 small text-muted">Productos y configuración</div>
-            </div>
-        </div>
+
     </div>
 
-    {{-- Row 3: Enlaces Rápidos y Panel de Control --}}
-    <div class="row g-4 mt-4 mb-5">
+    <div class="scanline"></div>
+
+    {{-- RECENT COMPANIES (LEVEL 3) --}}
+    <div class="row g-4 mb-5">
         <div class="col-md-12">
-            <div class="glass-card p-4 h-100">
-                <h5 class="fw-bold mb-4" style="color: #cbd5e1;">Acciones Administrativas</h5>
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="{{ route('owner.empresas.index') }}" class="action-btn">
-                        🏢 Gestionar Clientes y Empresas
-                    </a>
-                    <a href="{{ route('owner.facturacion.index') }}" class="action-btn">
-                        🧾 Sistema de Facturación
-                    </a>
-                    <a href="{{ route('owner.soporte.index') }}" class="action-btn">
-                        🎧 Tickets de Soporte
-                    </a>
-                    <a href="{{ route('owner.planes.index') }}" class="action-btn">
-                        ⚙️ Configurar Planes de Suscripción
-                    </a>
-                    <a href="{{ route('owner.updates.index') }}" class="action-btn">
-                        🔥 Gestionar Novedades (Timeline)
-                    </a>
+            <h5 class="stat-mini-label mb-4">ÚLTIMAS EMPRESAS DESPLEGADAS</h5>
+            <div class="oled-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-dark mb-0 align-middle" style="--bs-table-bg: transparent; --bs-table-border-color: rgba(255,255,255,0.05);">
+                        <thead class="stat-mini-label border-bottom">
+                            <tr>
+                                <th class="ps-4 py-3">EMPRESA / RAZÓN SOCIAL</th>
+                                <th>PLAN</th>
+                                <th class="text-center">FECHA ALTA</th>
+                                <th class="text-center">ESTADO</th>
+                                <th class="text-end pe-4">COMANDOS</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small fw-normal" style="color: #94a3b8;">
+                            @foreach($ultimasEmpresas as $emp)
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td class="ps-4">
+                                    <div class="fw-bold text-white fs-6">{{ $emp->nombre_comercial }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">{{ $emp->cuit }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill bg-dark text-primary border border-primary border-opacity-25 px-3">
+                                        {{ $emp->plan->nombre ?? 'BÁSICO' }}
+                                    </span>
+                                </td>
+                                <td class="text-center">{{ $emp->created_at->format('d/m/Y') }}</td>
+                                <td class="text-center">
+                                    @if($emp->activo)
+                                        <span class="text-success small fw-bold"><i class="bi bi-circle-fill me-1" style="font-size: 7px;"></i> ONLINE</span>
+                                    @else
+                                        <span class="text-danger small fw-bold"><i class="bi bi-circle-fill me-1" style="font-size: 7px;"></i> OFFLINE</span>
+                                    @endif
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        <a href="{{ route('owner.empresas.edit', $emp->id) }}" class="btn btn-sm btn-outline-secondary border-0 opacity-75">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        @php $admin = $emp->users->first(); @endphp
+                                        @if($admin)
+                                            <a href="{{ route('owner.empresas.users.impersonate', [$emp->id, $admin->id]) }}" class="btn btn-sm btn-outline-primary border-0" title="Entrar como Admin">
+                                                <i class="bi bi-person-fill-gear"></i> ENTRAR
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+            <div class="mt-3 text-end">
+                <a href="{{ route('owner.empresas.index') }}" class="text-primary text-decoration-none small fw-bold" style="letter-spacing: 1px;">
+                    VER TODAS LAS EMPRESAS <i class="bi bi-arrow-right ms-1"></i>
+                </a>
             </div>
         </div>
     </div>

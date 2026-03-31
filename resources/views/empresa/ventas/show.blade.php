@@ -14,9 +14,17 @@
             </ol>
         </nav>
         <h2 class="mb-0 fw-bold">Venta #{{ $venta->id }} — {{ $venta->numero_comprobante ?: 'Interna' }}</h2>
-        <div class="d-flex align-items-center gap-2 mt-1">
+        <div class="d-flex align-items-center gap-2 mt-2">
             <span class="badge bg-dark border">{{ $venta->created_at->format('d/m/Y H:i') }} hs</span>
-            <span class="badge bg-primary-subtle text-primary border-primary">Filtro Logística Activo 🛡️</span>
+            @if($venta->es_guarda_pendiente)
+                <span class="badge bg-danger shadow-sm border-0 fw-bold px-3 py-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                    🛡️ MERCADERÍA EN GUARDA ({{ 100 - $venta->porcentaje_entrega }}% Pendiente)
+                </span>
+            @else
+                <span class="badge bg-success-subtle text-success border-success fw-bold px-3">
+                    ✅ ENTREGA COMPLETADA (100%)
+                </span>
+            @endif
         </div>
     </div>
     <div class="d-flex gap-2">

@@ -195,7 +195,11 @@ class POSController extends Controller
             $clienteId        = $request->input('cliente_id');
             $tipoVentaCliente = $request->input('tipo_venta_cliente', 'contado');
             $tipoComprobante  = $request->input('tipo_comprobante', 'ticket');
+            $hacerRemito      = $request->boolean('hacer_remito', false);
+            $itemsEntregar    = $request->input('items_entregar'); // Array de {id, variant_id, quantity_delivery}
 
+
+            $metodoPago       = $request->input('metodo_pago', 'efectivo');
 
             /*
             |--------------------------------------------------------------------------
@@ -208,13 +212,17 @@ class POSController extends Controller
                 $items,
                 $clienteId,
                 $tipoVentaCliente,
-                $tipoComprobante
+                $tipoComprobante,
+                $hacerRemito,
+                $itemsEntregar,
+                $metodoPago
             );
 
 
             return response()->json([
                 'ok'               => true,
                 'venta_id'         => $venta->id,
+                'remito_id'        => $venta->remito_principal?->id, // Devolver ID si se creó remito
                 'total'            => $venta->total_con_iva,
                 'clienteId'        => $clienteId,
                 'tipo_comprobante' => $venta->tipo_comprobante

@@ -2,7 +2,10 @@
 
 @section('content')
 
-{{-- Estilos Luxury --}}
+@section('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5.min.css" />
+
 <style>
     .luxury-card { border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); background: #ffffff; }
     .table-luxury thead th { background: #f8f9fa; border: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #6c757d; padding: 12px; }
@@ -24,12 +27,13 @@
     }
     .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(25,135,84,0.3); }
 </style>
+@endsection
 
 <div class="container-fluid px-4 py-3">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-0 text-dark">✍️ Venta Manual Profesional</h2>
+            <h2 class="fw-bold mb-0 text-primary">✍️ Venta Manual Profesional (Versión Hotfix)</h2>
             <p class="text-muted mb-0">Carga masiva de artículos para clientes mayoristas y oficina</p>
         </div>
         <div class="d-flex gap-2">
@@ -134,7 +138,7 @@
                     <input type="hidden" name="total_iva" id="valIva" value="0">
                     <input type="hidden" name="total_con_iva" id="valTotal" value="0">
 
-                    <div class="mb-4 text-start">
+                    <div class="mb-4">
                         <label class="form-label fw-bold small text-uppercase">Método de Pago</label>
                         <select name="metodo_pago" class="form-select">
                             <option value="efectivo">Efectivo 💵</option>
@@ -142,6 +146,32 @@
                             <option value="tarjeta">Tarjeta 💳</option>
                             <option value="cuenta_corriente">Cuenta Corriente 👤</option>
                         </select>
+                    </div>
+
+                    <div class="mb-4 p-3 border rounded-3 bg-light border-success" style="border-style: dashed !important;">
+                        <div class="form-check form-switch d-flex align-items-center gap-2">
+                            <input class="form-check-input" type="checkbox" name="hacer_remito" id="hacerRemito" style="cursor:pointer; transform: scale(1.2);">
+                            <label class="form-check-label fw-bold text-dark mb-0" for="hacerRemito" style="cursor:pointer;">
+                                📦 Hacer Remito (Entrega Parcial / En Guarda)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="remitoDetails" style="display:none;" class="mb-4 p-3 bg-white border rounded shadow-sm text-start">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="fw-bold small text-uppercase text-primary mb-0">
+                                📦 Cantidades a Entregar
+                            </label>
+                            <button type="button" class="btn btn-xs btn-outline-primary fw-bold" style="font-size: 0.65rem;" onclick="setEntregaTotal()">
+                                ENTREGA TOTAL (100%)
+                            </button>
+                        </div>
+                        <div id="remitoItemsList" class="small overflow-auto" style="max-height: 250px;">
+                            <!-- Dinámico -->
+                        </div>
+                        <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                             Deje en 0 los productos que quedarán en guarda.
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-success btn-confirm w-100 py-3 fw-bold fs-5 shadow">
@@ -160,7 +190,6 @@
 @endsection
 
 @section('scripts')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
@@ -173,21 +202,21 @@ $(document).ready(function() {
         theme: 'bootstrap-5'
     });
 
-    // 📝 Lógica de Formateo de Número Manual (e.g. 1-2 -> 0001-00000002)
-    const inputNumManual = document.querySelector('input[name="numero_comprobante"]');
-    if (inputNumManual) {
-        inputNumManual.addEventListener('blur', function() {
-            let val = this.value.trim();
-            if (val && val.includes('-')) {
-                let parts = val.split('-');
-                if (parts.length === 2) {
-                    let suc = parts[0].padStart(4, '0');
-                    let num = parts[1].padStart(8, '0');
-                    this.value = `${suc}-${num}`;
-                }
+    console.log("MultiPOS JS Cargado ✅");
+
+    // 📝 Lógica de Formateo de Número Manual (e.g. 1-35 -> 0001-00000035)
+    $(document).on('change blur', 'input[name="numero_comprobante"]', function() {
+        console.log("Formateando número...");
+        let val = $(this).val().trim();
+        if (val && val.includes('-')) {
+            let parts = val.split('-');
+            if (parts.length === 2) {
+                let suc = parts[0].toString().padStart(4, '0');
+                let num = parts[1].toString().padStart(8, '0');
+                $(this).val(`${suc}-${num}`);
             }
-        });
-    }
+        }
+    });
 
     // Agregar primera fila por defecto
     agregarFila();
@@ -213,90 +242,122 @@ $(document).ready(function() {
 function agregarFila() {
     const tbody = document.querySelector("#tablaVentaManual tbody");
     const tr = document.createElement("tr");
-    tr.id = `row_${idx}`;
+    const currentRowIdx = idx; // Capturamos el idx actual para esta fila
+    tr.id = `row_${currentRowIdx}`;
     
     tr.innerHTML = `
         <td class="ps-4">
-            <select name="items[${idx}][product_id]" class="form-select prod-sel" required onchange="vincularArticulo(this, ${idx})">
+            <select name="items[${currentRowIdx}][product_id]" class="form-select prod-sel" required>
                 <option value="">Escribe nombre o escanea...</option>
                 @foreach($products as $p)
-                    <option value="{{ $p->id }}" data-barcode="{{ $p->barcode }}" data-price="{{ $p->price }}" data-stock="{{ $p->stock }}">
+                    <option value="{{ $p->id }}" 
+                            data-barcode="{{ $p->barcode }}" 
+                            data-price="{{ $p->price }}" 
+                            data-stock="{{ $p->stock }}">
                         {{ $p->name }}
                     </option>
                 @endforeach
             </select>
-            <div id="v_wrap_${idx}" class="mt-2" style="display:none;">
-                <select name="items[${idx}][variant_id]" class="form-select form-select-sm var-sel" onchange="vincularVariante(this, ${idx})">
+            <div class="v-wrap mt-2" style="display:none;">
+                <select name="items[${currentRowIdx}][variant_id]" class="form-select form-select-sm var-sel">
                     <option value="">Seleccionar Talle/Color...</option>
                 </select>
             </div>
         </td>
-        <td class="text-center fw-bold text-muted" id="stk_disp_${idx}">-</td>
+        <td class="text-center fw-bold text-muted stk-disp">-</td>
         <td>
-            <input type="number" name="items[${idx}][quantity]" class="form-control qty-in" value="1" min="0.01" step="0.01" oninput="recalcularTotales()">
+            <input type="number" name="items[${currentRowIdx}][quantity]" class="form-control qty-in" value="1" min="0.01" step="0.01">
         </td>
         <td>
             <div class="input-group">
                 <span class="input-group-text">$</span>
-                <input type="number" name="items[${idx}][price]" class="form-control prc-in" step="0.01" oninput="recalcularTotales()">
+                <input type="number" name="items[${currentRowIdx}][price]" class="form-control prc-in" step="0.01">
             </div>
         </td>
-        <td class="text-end fw-bold text-dark pe-4 fs-5" id="sub_disp_${idx}">$ 0,00</td>
+        <td class="text-end fw-bold text-dark pe-4 fs-5 sub-disp">$ 0,00</td>
         <td class="text-center">
-            <button type="button" class="btn btn-link text-danger p-0" onclick="quitarFila(${idx})">🗑️</button>
+            <button type="button" class="btn btn-link text-danger p-0 btn-quitar">🗑️</button>
         </td>
     `;
 
     tbody.appendChild(tr);
 
-    // Inicializar Select2 para este producto
-    $(`#row_${idx} .prod-sel`).select2({
+    const $row = $(tr);
+    const $sel = $row.find('.prod-sel');
+
+    // Inicializar Select2
+    $sel.select2({
         theme: 'bootstrap-5',
         placeholder: 'Buscar por nombre...'
+    });
+
+    // Eventos de la Fila (Compatibilidad total con Select2)
+    $sel.on('select2:select change', function() { 
+        console.log("Producto seleccionado en fila " + currentRowIdx);
+        vincularArticulo($(this)); 
+    });
+    
+    $row.find('.var-sel').on('change', function() { vincularVariante($(this)); });
+    $row.find('.qty-in, .prc-in').on('input', recalcularTotales);
+    $row.find('.btn-quitar').on('click', function() { 
+        $row.remove(); 
+        recalcularTotales(); 
     });
 
     idx++;
 }
 
-function vincularArticulo(select, i) {
-    const pId = select.value;
-    const prod = products.find(p => p.id == pId);
-    if(!prod) return;
+function vincularArticulo($select) {
+    const $opt = $select.find(':selected');
+    const pId = $select.val();
+    const $row = $select.closest('tr');
+    
+    console.log("Vinculando artículo ID:", pId);
 
-    const vWrap = document.getElementById(`v_wrap_${i}`);
-    const vSel = vWrap.querySelector("select");
+    // Prioridad 1: Sacar de los data-attributes (más rápido y seguro)
+    const priceFromAttr = $opt.data('price');
+    const stockFromAttr = $opt.data('stock');
+    
+    // Prioridad 2: Buscar en el JSON global como respaldo
+    const prod = products.find(p => String(p.id) === String(pId));
+    
+    const $vWrap = $row.find('.v-wrap');
+    const $vSel = $row.find('.var-sel');
+    const $stkDisp = $row.find('.stk-disp');
+    const $prcIn = $row.find('.prc-in');
 
-    vWrap.style.display = 'none';
-    vSel.innerHTML = '<option value="">Variante...</option>';
+    $vWrap.hide();
+    $vSel.html('<option value="">Variante...</option>');
 
-    if(prod.variants && prod.variants.length > 0) {
-        vWrap.style.display = 'block';
+    // Lógica de Variantes
+    if(prod && prod.variants && prod.variants.length > 0) {
+        $vWrap.show();
         prod.variants.forEach(v => {
-            const op = document.createElement("option");
-            op.value = v.id;
-            op.dataset.stock = v.stock;
-            op.innerText = `${v.size} / ${v.color} (Stk: ${v.stock})`;
-            vSel.appendChild(op);
+            $vSel.append(`<option value="${v.id}" data-stock="${v.stock}">${v.size} / ${v.color} (Stk: ${v.stock})</option>`);
         });
-        document.getElementById(`stk_disp_${i}`).innerText = "-";
-        document.querySelector(`#row_${i} .prc-in`).value = prod.price;
+        $stkDisp.text("-");
     } else {
-        document.getElementById(`stk_disp_${i}`).innerText = prod.stock;
-        document.querySelector(`#row_${i} .prc-in`).value = prod.price;
+        // Usamos el fallback si prod es null
+        const finalStock = prod ? (prod.stock || 0) : (stockFromAttr || 0);
+        $stkDisp.text(finalStock);
     }
+
+    // Precio: Prioridad Attr > JSON
+    const finalPrice = priceFromAttr !== undefined ? priceFromAttr : (prod ? prod.price : 0);
+    $prcIn.val(finalPrice);
+    
+    console.log("Datos cargados -> Precio:", finalPrice, "Stock:", $stkDisp.text());
     recalcularTotales();
 }
 
-function vincularVariante(select, i) {
-    const opt = select.options[select.selectedIndex];
-    if(opt.value) {
-        document.getElementById(`stk_disp_${i}`).innerText = opt.dataset.stock;
-    }
-    recalcularTotales();
-}
+function vincularVariante($vSel) {
+    const $row = $vSel.closest('tr');
+    const $opt = $vSel.find(':selected');
+    const $stkDisp = $row.find('.stk-disp');
 
-function quitarFila(i) {
-    document.getElementById(`row_${i}`).remove();
+    if($vSel.val()) {
+        $stkDisp.text($opt.data('stock'));
+    }
     recalcularTotales();
 }
 
@@ -306,7 +367,7 @@ function recalcularTotales() {
         const q = parseFloat(tr.querySelector(".qty-in").value) || 0;
         const p = parseFloat(tr.querySelector(".prc-in").value) || 0;
         const sub = q * p;
-        tr.querySelector("[id^='sub_disp_']").innerText = "$ " + sub.toLocaleString('es-AR', {minimumFractionDigits:2});
+        tr.querySelector(".sub-disp").innerText = "$ " + sub.toLocaleString('es-AR', {minimumFractionDigits:2});
         total += sub;
     });
 
@@ -341,5 +402,125 @@ function buscarYAgregarPorBarcode(code) {
         $sel.val(prod.id).trigger('change');
     }
 }
+
+// LOGICA REMITO PARCIAL
+document.getElementById('hacerRemito').onchange = (e) => {
+    document.getElementById('remitoDetails').style.display = e.target.checked ? 'block' : 'none';
+    if(e.target.checked) renderRemitoItems();
+};
+
+function renderRemitoItems() {
+    const list = document.getElementById('remitoItemsList');
+    list.innerHTML = '';
+    
+    document.querySelectorAll("#tablaVentaManual tbody tr").forEach(tr => {
+        const sel = tr.querySelector(".prod-sel");
+        if(!sel.value) return;
+        
+        const name = sel.options[sel.selectedIndex].text;
+        const q = tr.querySelector(".qty-in").value;
+        const pId = sel.value;
+        const vId = tr.querySelector(".var-sel")?.value || null;
+
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center mb-2 pb-2 border-bottom';
+        div.innerHTML = `
+            <div style="flex:1;">
+                <div class="fw-bold text-truncate" style="max-width: 150px;">${name}</div>
+                <small class="text-muted">Total: ${q}</small>
+            </div>
+            <div style="width: 70px;">
+                <input type="number" 
+                       class="form-control form-control-sm text-center fw-bold item-entrega" 
+                       data-id="${pId}" 
+                       data-variant="${vId || ''}"
+                       value="${q}" 
+                       min="0" 
+                       max="${q}" 
+                       step="0.01">
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function getItemsEntregar() {
+    if(!document.getElementById('hacerRemito').checked) return null;
+    let items = [];
+    document.querySelectorAll('.item-entrega').forEach(input => {
+        items.push({
+            id: input.dataset.id,
+            variant_id: input.dataset.variant || null,
+            quantity_delivery: parseFloat(input.value) || 0
+        });
+    });
+    return items;
+}
+
+function setEntregaTotal() {
+    document.querySelectorAll('.item-entrega').forEach(input => {
+        input.value = input.max;
+    });
+}
+
+// SUBMIT VIA AJAX PARA AUTO-OPEN REMITO
+document.getElementById('formVentaManual').onsubmit = async function(e) {
+    e.preventDefault();
+    
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = 'PROCESANDO... ⏳';
+
+    const formData = new FormData(this);
+    const dataObj = Object.fromEntries(formData.entries());
+    
+    // Obtener items del listado
+    let items = [];
+    document.querySelectorAll("#tablaVentaManual tbody tr").forEach(tr => {
+        const pId = tr.querySelector(".prod-sel").value;
+        if(pId) {
+            items.push({
+                product_id: pId,
+                variant_id: tr.querySelector(".var-sel")?.value || null,
+                quantity: tr.querySelector(".qty-in").value,
+                price: tr.querySelector(".prc-in").value
+            });
+        }
+    });
+
+    try {
+        const response = await fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                ...dataObj,
+                items: items,
+                hacer_remito: document.getElementById('hacerRemito').checked,
+                items_entregar: getItemsEntregar()
+            })
+        });
+
+        const res = await response.json();
+
+        if(!response.ok) throw new Error(res.error || 'Error al procesar venta');
+
+        // ABRIR REMITO SI EXISTE
+        if(res.remito_id) {
+            window.open("{{ url('empresa/remitos') }}/" + res.remito_id + "/pdf", '_blank');
+        }
+
+        // REDIRIGIR AL INDEX CON EXITO
+        window.location.href = "{{ route('empresa.ventas.index') }}?success=" + encodeURIComponent(res.message);
+
+    } catch (err) {
+        alert(err.message);
+        btn.disabled = false;
+        btn.innerHTML = 'REGISTRAR VENTA 🚀';
+    }
+};
 </script>
 @endsection

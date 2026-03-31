@@ -34,10 +34,19 @@
         .items-table td { padding: 10px 8px; font-size: 9.5pt; color: #000; border-bottom: 1px solid #eee; }
         
         /* FOOTER CON FIRMA */
-        .footer-container { position: absolute; bottom: 0; width: 100%; padding: 40px 25px; border-top: 2px solid #000; box-sizing: border-box; }
+        .footer-container { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            padding: 30px 25px; 
+            box-sizing: border-box; 
+        }
         
-        .signature-box { float: right; width: 45%; border-top: 1.5px solid #000; margin-top: 50px; text-align: center; padding-top: 10px; }
-        .obs-box { float: left; width: 50%; padding: 10px; background: #f9f9f9; border: 1px dashed #ccc; min-height: 80px; }
+        .footer-separator { border-top: 1.5px solid #000; margin-bottom: 25px; width: 100%; }
+        
+        .signature-box { float: right; width: 45%; border-top: 1px solid #000; margin-top: 40px; text-align: center; padding-top: 5px; }
+        .obs-box { float: left; width: 50%; padding: 8px; background: #f9f9f9; border: 1px dashed #bbb; min-height: 60px; }
 
         .attribution { text-align: center; font-size: 7.5pt; color: #666; width: 100%; position: absolute; bottom: 10px; font-style: italic; }
         .clear { clear: both; }
@@ -129,6 +138,8 @@
 
     <div class="footer-container">
         
+        <div class="footer-separator"></div>
+
         <div class="obs-box">
             <span class="label" style="font-size: 7pt;">OBSERVACIONES / DATOS DE RETIRO:</span><br>
             <div style="font-size: 8.5pt; margin-top: 5px;">

@@ -162,6 +162,34 @@ Clientes
         <label class="form-check-label" for="tipoNC" class="text-danger fw-bold">Nota de Crédito (Devolución)</label>
     </div>
 </div>
+
+<div class="mb-3 p-3 border rounded bg-light border-success" style="border-style: dashed !important;">
+    <div class="form-check form-switch d-flex align-items-center gap-2">
+        <input class="form-check-input" type="checkbox" id="hacerRemito" style="cursor:pointer; transform: scale(1.3);">
+        <label class="form-check-label fw-bold text-dark mb-0" for="hacerRemito" style="cursor:pointer;">
+            📦 Hacer Remito (Entrega Parcial / En Guarda)
+        </label>
+    </div>
+    <small class="text-muted d-block mt-1">MultiPOS genera entrega 100% por defecto si no lo marcas.</small>
+</div>
+
+<div id="remitoDetails" style="display:none;" class="mt-3 p-3 bg-white border rounded shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <label class="fw-bold small text-uppercase text-primary mb-0">
+            📦 Cantidades a Entregar
+        </label>
+        <button type="button" class="btn btn-xs btn-outline-primary fw-bold" style="font-size: 0.65rem;" onclick="setEntregaTotal()">
+            ENTREGA TOTAL (100%)
+        </button>
+    </div>
+    <div id="remitoItemsList" class="small overflow-auto" style="max-height: 200px;">
+        <!-- Se genera vía JS -->
+    </div>
+    <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+        <i class="bi bi-info-circle me-1"></i> Deje en 0 los productos que quedarán en guarda.
+    </div>
+</div>
+
 </div>
 
 <div class="mb-3">
@@ -585,17 +613,68 @@ document.getElementById('buscarClienteInput').oninput=renderTablaClientes;
 
 document.getElementById('checkout').onclick=()=>{
 
-if(!Object.keys(cart).length){
-alert('Carrito vacío');
-return;
+    if(!Object.keys(cart).length){
+        alert('Carrito vacío');
+        return;
+    }
+
+    document.getElementById('modalTotal').innerText=
+    document.getElementById('total').innerText;
+
+    renderRemitoItems();
+    modalCobrar.show();
+};
+
+document.getElementById('hacerRemito').onchange = (e) => {
+    document.getElementById('remitoDetails').style.display = e.target.checked ? 'block' : 'none';
+};
+
+function renderRemitoItems() {
+    const list = document.getElementById('remitoItemsList');
+    list.innerHTML = '';
+
+    Object.values(cart).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center mb-2 pb-2 border-bottom';
+        div.innerHTML = `
+            <div style="flex:1;">
+                <div class="fw-bold text-truncate" style="max-width: 180px;">${item.name}</div>
+                <small class="text-muted">Vendidos: ${item.qty}</small>
+            </div>
+            <div style="width: 80px;">
+                <input type="number" 
+                       class="form-control form-control-sm text-center fw-bold item-entrega" 
+                       data-id="${item.id}" 
+                       data-variant="${item.variant_id || ''}"
+                       value="${item.qty}" 
+                       min="0" 
+                       max="${item.qty}" 
+                       step="0.01">
+            </div>
+        `;
+        list.appendChild(div);
+    });
 }
 
-document.getElementById('modalTotal').innerText=
-document.getElementById('total').innerText;
+function getItemsEntregar() {
+    if(!document.getElementById('hacerRemito').checked) return null;
+    
+    let items = [];
+    document.querySelectorAll('.item-entrega').forEach(input => {
+        items.push({
+            id: input.dataset.id,
+            variant_id: input.dataset.variant || null,
+            quantity_delivery: parseFloat(input.value) || 0
+        });
+    });
+    return items;
+}
 
-modalCobrar.show();
-
-};
+function setEntregaTotal() {
+    document.querySelectorAll('.item-entrega').forEach(input => {
+        input.value = input.max;
+    });
+}
 
 
 /* ================= COBRAR ACCIONES ================= */
@@ -639,7 +718,9 @@ async function procesarVenta(imprimir = false) {
                 cliente_id:clienteID,
                 tipo_venta_cliente:document.getElementById('tipoVentaCliente') ? document.getElementById('tipoVentaCliente').value : 'contado',
                 metodo_pago:document.getElementById('metodoPago').value,
-                tipo_comprobante: document.querySelector('input[name="tipoComprobante"]:checked').value
+                tipo_comprobante: document.querySelector('input[name="tipoComprobante"]:checked').value,
+                hacer_remito: document.getElementById('hacerRemito').checked,
+                items_entregar: getItemsEntregar()
             })
         });
 
@@ -648,6 +729,11 @@ async function procesarVenta(imprimir = false) {
         if(!data.ok){
             alert('Error al guardar venta: ' + (data.error || 'Error desconocido'));
             return;
+        }
+
+        // SI SE GENERÓ REMITO -> ABRIR PDF EN NUEVA PESTAÑA
+        if(data.remito_id) {
+            window.open("{{ url('empresa/remitos') }}/" + data.remito_id + "/pdf", '_blank');
         }
 
         modalCobrar.hide();
@@ -697,6 +783,7 @@ async function procesarVenta(imprimir = false) {
         document.getElementById('cliente_id').value='';
         document.getElementById('clienteNombre').innerText='CONSUMIDOR FINAL';
         document.getElementById('tipoVentaClienteBox').style.display='none';
+        document.getElementById('hacerRemito').checked = false;
 
     } catch(err) {
         alert('Error en conexión: ' + err.message);

@@ -46,4 +46,24 @@ class Venta extends Model
     {
         return $this->belongsTo(\App\Models\Client::class, 'client_id');
     }
+
+    /**
+     * ⚖️ Calcula el porcentaje total de mercadería entregada
+     */
+    public function getPorcentajeEntregaAttribute()
+    {
+        $totalVendido = $this->items->sum('cantidad');
+        if ($totalVendido == 0) return 100;
+        
+        $totalEntregado = $this->items->sum('cantidad_entregada');
+        return round(($totalEntregado / $totalVendido) * 100, 2);
+    }
+
+    /**
+     * 🛡️ Indica si la venta aún tiene productos en guarda
+     */
+    public function getEsGuardaPendienteAttribute()
+    {
+        return $this->items->contains(fn($item) => $item->cantidad_pendiente > 0);
+    }
 }
