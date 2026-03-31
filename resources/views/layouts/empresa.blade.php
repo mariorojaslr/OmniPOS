@@ -25,6 +25,12 @@ $user = auth()->user();
 $empresa = $user->empresa ?? null;
 $config  = $empresa?->config ?? null;
 
+// Buscamos la asistencia activa para el usuario logueado (Cajeros o Empleados)
+$asistenciaActiva = \App\Models\Asistencia::where('user_id', $user?->id)
+    ->whereNull('salida')
+    ->latest()
+    ->first();
+
 $colorPrimario   = $config?->color_primary   ?? '#0d6efd';
 $colorSecundario = $config?->color_secondary ?? '#6c757d';
 
