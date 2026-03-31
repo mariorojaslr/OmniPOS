@@ -321,6 +321,10 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('/personal/check-in', [App\Http\Controllers\Empresa\AsistenciaController::class, 'checkIn'])->name('personal.checkin');
         Route::post('/personal/check-out', [App\Http\Controllers\Empresa\AsistenciaController::class, 'checkOut'])->name('personal.checkout');
 
+        // GESTIÓN DE PUNTOS DE FICHAJE (QR)
+        Route::get('/personal/asistencia/qr-management', [App\Http\Controllers\Empresa\AsistenciaQrController::class, 'showQr'])->name('personal.asistencia.qr');
+        Route::get('/personal/asistencia/qr/{slug}', [App\Http\Controllers\Empresa\AsistenciaQrController::class, 'qrRegistro'])->name('personal.asistencia.qr-registro')->withoutMiddleware(['auth', 'empresa', 'empresa.activa']);
+
 
         /*
      |--------------------------------------------------------------------------

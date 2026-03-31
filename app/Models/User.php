@@ -23,7 +23,8 @@ class User extends Authenticatable
         'empresa_id',
         'activo',
         'email_verified_at',
-        'must_change_password', // 👈 NUEVO
+        'must_change_password', 
+        'sub_role', // cajero, empleado
     ];
 
     /*
@@ -71,6 +72,16 @@ class User extends Authenticatable
     public function trabajaEnEmpresa(): bool
     {
         return in_array($this->role, ['empresa', 'usuario']);
+    }
+
+    public function esCajero(): bool
+    {
+        return $this->sub_role === 'cajero';
+    }
+
+    public function esEmpleado(): bool
+    {
+        return $this->sub_role === 'empleado';
     }
 
     /*

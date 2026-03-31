@@ -28,6 +28,16 @@
                 <input type="email" name="email" class="form-control" required>
             </div>
 
+            {{-- Tipo de Usuario / Responsabilidad --}}
+            <div class="mb-3">
+                <label class="form-label fw-bold">Responsabilidad / Rol</label>
+                <select name="sub_role" class="form-select border-primary">
+                    <option value="cajero">Cajero (Usa POS y maneja Caja)</option>
+                    <option value="empleado">Empleado de Campo / Obra (Solo Asistencia)</option>
+                </select>
+                <div class="form-text">Esto define si el usuario ve las funciones de venta o solo control de jornada.</div>
+            </div>
+
             {{-- Password opcional --}}
             <div class="mb-3">
                 <label class="form-label">Contraseña (opcional)</label>

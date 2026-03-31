@@ -335,22 +335,45 @@ input, select, textarea{
 
 <ul class="navbar-nav">
 
-    {{-- 🔔 BOTÓN DE ASISTENCIA (PILAR 2) --}}
-    @php
-        $asistenciaActiva = \App\Models\Asistencia::where('user_id', auth()->id())->whereNull('salida')->first();
-    @endphp
-
+    {{-- 🔔 BOTONES DE ASISTENCIA / TURNO (Sugeridos por Rol) --}}
+    @if(!$user->isOwner())
     <li class="nav-item me-3">
         @if(!$asistenciaActiva)
-            <button class="btn btn-outline-success btn-sm fw-bold px-3 py-1" data-bs-toggle="modal" data-bs-target="#modalCheckIn">
-                🔔 INICIAR TURNO
-            </button>
+            @if($user->esCajero())
+                {{-- Cajero: Necesita abrir caja --}}
+                <button class="btn btn-outline-success btn-sm fw-bold px-3 py-1 border-2" data-bs-toggle="modal" data-bs-target="#modalCheckIn">
+                    🔔 INICIAR TURNO
+                </button>
+            @else
+                {{-- Empleado General: Solo asistencia --}}
+                <form action="{{ route('empresa.personal.checkin') }}" method="POST" class="d-inline">
+                    @csrf
+                    <input type="hidden" name="vuelto_inicial" value="0">
+                    <button type="submit" class="btn btn-primary btn-sm fw-bold px-3 py-1 shadow-sm">
+                        📲 MARCAR ENTRADA
+                    </button>
+                </form>
+            @endif
         @else
-            <button class="btn btn-danger btn-sm fw-bold px-3 py-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCheckOut">
-                🛑 FINALIZAR TURNO
-            </button>
+            @if($user->esCajero())
+                {{-- Cajero: Necesita cerrar caja y arquear --}}
+                <button class="btn btn-danger btn-sm fw-bold px-3 py-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCheckOut">
+                    🛑 FINALIZAR TURNO
+                </button>
+            @else
+                {{-- Empleado General: Solo salida --}}
+                <form action="{{ route('empresa.personal.checkout') }}" method="POST" class="d-inline">
+                    @csrf
+                    <input type="hidden" name="vuelto_final" value="0">
+                    <button type="submit" class="btn btn-outline-danger btn-sm fw-bold px-3 py-1 bg-white">
+                        🛑 MARCAR SALIDA
+                    </button>
+                </form>
+            @endif
         @endif
     </li>
+    @endif
+
 
 <li class="nav-item dropdown">
 

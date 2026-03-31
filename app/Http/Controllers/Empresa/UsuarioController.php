@@ -62,12 +62,13 @@ class UsuarioController extends Controller
             ? $request->password
             : Str::random(8);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($passwordPlano),
             'empresa_id' => auth()->user()->empresa_id,
             'role' => 'usuario',
+            'sub_role' => $request->sub_role ?? 'cajero',
             'activo' => 1,
         ]);
 

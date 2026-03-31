@@ -20,6 +20,7 @@ class Empresa extends Model
      */
     protected $fillable = [
         'nombre_comercial',
+        'slug',
         'razon_social',
         'email',
         'telefono',
@@ -163,5 +164,13 @@ class Empresa extends Model
     {
         return $this->fecha_cierre_ejercicio instanceof Carbon
             && $this->fecha_cierre_ejercicio->isPast();
+    }
+
+    /**
+     * Usa el slug en lugar del ID para las rutas
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 }

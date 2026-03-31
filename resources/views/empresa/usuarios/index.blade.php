@@ -5,13 +5,19 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="fw-bold mb-0">Usuarios de la empresa</h2>
-        <small class="text-muted">Gestión de empleados</small>
+        <p class="text-muted small">Gestión integral de empleados y puntos de fichaje.</p>
     </div>
 
-    <a href="{{ route('empresa.usuarios.create') }}" class="btn btn-primary">
-        + Nuevo usuario
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('empresa.personal.asistencia.qr') }}" class="btn btn-dark shadow-sm border-2">
+            📲 QR ASISTENCIA
+        </a>
+        <a href="{{ route('empresa.usuarios.create') }}" class="btn btn-primary shadow-sm">
+            + Nuevo Usuario
+        </a>
+    </div>
 </div>
+
 
 {{-- ======================================================
 FILTRO USUARIOS
@@ -76,16 +82,15 @@ FILTRO USUARIOS
                     TIPO DE USUARIO (NUEVO)
                     ========================================== --}}
                     <td>
-                        @if($usuario->isOwner())
-                            <span class="badge bg-dark">Owner</span>
-
-                        @elseif($usuario->isEmpresa())
-                            <span class="badge bg-primary">Empresa</span>
-
+                        @if($usuario->role === 'usuario')
+                            <span class="badge bg-primary-subtle text-primary border-primary">
+                                {{ ucfirst($usuario->sub_role ?? 'cajero') }}
+                            </span>
                         @else
-                            <span class="badge bg-secondary">Usuario</span>
+                            <span class="badge bg-dark">{{ ucfirst($usuario->role) }}</span>
                         @endif
                     </td>
+
 
                     {{-- =========================================
                     ACCIONES
