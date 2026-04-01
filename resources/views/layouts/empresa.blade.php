@@ -371,7 +371,7 @@ body{
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
+            navigator.serviceWorker.register('{{ asset('sw.js') }}')
                 .then(reg => console.log('Service Worker registrado', reg))
                 .catch(err => console.log('Error al registrar Service Worker', err));
         });

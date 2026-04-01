@@ -263,8 +263,8 @@
             CONFIRMAR PAGO <i class="bi bi-check-circle-fill ms-2"></i>
         </button>
 
-        <!-- Botón de Instalación PWA (dinámico) -->
-        <button type="button" id="installAppBtn" onclick="installApp()" class="btn btn-outline-primary btn-lg rounded-pill fw-bold border-2 mb-4" style="display:none; color: #3b82f6; border-color: #3b82f6;">
+        <!-- Botón de Instalación PWA (Visible siempre) -->
+        <button type="button" id="installAppBtn" onclick="installAppPrompt()" class="btn btn-outline-primary btn-lg rounded-pill fw-bold border-2 mb-4" style="color: #3b82f6; border-color: #3b82f6;">
             <i class="bi bi-phone-fill me-2"></i> INSTALAR APP EN TELÉFONO
         </button>
 
@@ -273,6 +273,23 @@
         </a>
     </form>
 </div>
+
+<script>
+    function installAppPrompt() {
+        if (typeof deferredPrompt !== 'undefined' && deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('Usuario aceptó la instalación');
+                }
+                deferredPrompt = null;
+            });
+        } else {
+            // Caso Apple (iOS) o Navegador sin soporte automático
+            alert("📱 INSTRUCCIONES PARA TU CELULAR:\n\n1. Toca el botón COMPARTIR (el icono del cuadrado con la flecha arriba en Safari o los 3 puntos en Chrome).\n2. Elige la opción 'AGREGAR A INICIO' o 'Añadir a pantalla de inicio'.\n\n¡Y listo! Ya tendrás el icono instalado.");
+        }
+    }
+</script>
 
 <script>
     function selectCat(cat, btn) {
