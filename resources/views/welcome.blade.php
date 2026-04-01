@@ -143,7 +143,7 @@
         <div class="container px-4 py-5 bg-black border border-secondary rounded-5 shadow-lg">
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-5 mb-lg-0">
-                    <img src="{{ asset('images/multipos_mobile_pos_premium_1775021097894.png') }}" class="img-fluid rounded-4 shadow-lg border border-primary" alt="Escaneo Móvil">
+                    <img src="{{ asset('artifacts/escaneo_movil_premium_1775049304619.png') }}" class="img-fluid rounded-4 shadow-lg border border-primary" alt="Escaneo Móvil">
                 </div>
                 <div class="col-lg-6 ps-lg-5">
                     <span class="badge bg-primary mb-3">EXCLUSIVO 4.0</span>
@@ -190,7 +190,7 @@
                 </div>
                 <div class="col-lg-6 order-1 order-lg-2">
                     <div class="position-relative">
-                        <img src="{{ asset('images/multipos_qr_attendance_1775021114033.png') }}" class="img-fluid rounded-5 shadow-2xl skew-right" alt="Control QR">
+                        <img src="{{ asset('artifacts/control_qr_premium_1775049324847.png') }}" class="img-fluid rounded-5 shadow-2xl skew-right" alt="Control QR">
                         <div class="position-absolute bottom-0 start-0 m-4 bg-dark bg-opacity-75 p-3 rounded-4 backdrop-blur border border-white border-opacity-10 d-none d-md-block animate__animated animate__fadeInLeft">
                             <div class="small fw-bold text-success animate__animated animate__flash animate__infinite">● MARCACIÓN CORRECTA</div>
                             <div class="small text-white-50">Juan Pérez · Entrada: 08:30hs</div>

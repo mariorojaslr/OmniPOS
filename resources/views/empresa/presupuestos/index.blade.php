@@ -24,30 +24,6 @@
     line-height: 1; 
     color: #111827;
 }
-</style>
-
-.glass-panel {
-    background: #ffffff;
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 12px;
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-}
-.stat-label { 
-    font-size: 0.65rem; 
-    text-transform: uppercase; 
-    letter-spacing: 0.5px; 
-    font-weight: 700; 
-    color: #6b7280; 
-    margin-bottom: 0.25rem; 
-}
-.stat-value { 
-    font-size: 1.6rem; 
-    font-weight: 800; 
-    line-height: 1; 
-    color: #111827;
-}
 
 .table-glass { border-radius: 20px; overflow: hidden; border: 1px solid rgba(128, 128, 128, 0.1); }
 .table-glass.table thead th { 

@@ -226,7 +226,7 @@ body{
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link fw-bold text-success" href="{{ route('catalog.index', $empresa->id) }}" target="_blank">🌐 Catálogo</a>
+                    <a class="nav-link fw-bold text-success" href="{{ route('catalog.index', $empresa) }}" target="_blank">🌐 Catálogo</a>
                 </li>
 
                 <li class="nav-item">
