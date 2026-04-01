@@ -303,6 +303,18 @@ input, select, textarea{
 </li>
 
 <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle fw-bold text-info" href="#" role="button" data-bs-toggle="dropdown">
+        👤 Personal
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ route('empresa.usuarios.index') }}">👥 Gestión de Usuarios</a></li>
+        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.personal.rendimiento') }}">📊 Rendimiento Operativo</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.personal.asistencia.qr') }}">📲 PUNTO DE FICHAJE (QR)</a></li>
+    </ul>
+</li>
+
+<li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
         Compras
     </a>

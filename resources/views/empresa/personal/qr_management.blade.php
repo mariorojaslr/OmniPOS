@@ -1,76 +1,91 @@
 @extends('layouts.empresa')
-@php use SimpleSoftwareIO\QrCode\Facades\QrCode; @endphp
+
+@section('header')
+    Gestión de Asistencia por QR
+@endsection
 
 @section('content')
-
-<div class="container py-4">
-    <div class="row justify-content-center text-center">
-        <div class="col-md-8">
-            <h1 class="fw-bold mb-2">Punto de Control de Asistencia QR 📲</h1>
-            <p class="text-muted">Imprime este código y colócalo en el ingreso de tu obra o local para que los empleados registren su entrada y salida.</p>
-
-            <div class="card shadow-lg border-0 mt-4 overflow-hidden" style="border-radius: 20px;">
-                <div class="card-header bg-dark text-white py-3">
-                    <span class="fw-bold text-uppercase" style="letter-spacing: 2px;">{{ $empresa->nombre_comercial }} — CONTROL HORARIO</span>
+    <div class="row m-0 p-0">
+        <div class="col-12 m-0 p-0">
+            <div class="card bg-black border-secondary shadow-lg rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-dark border-bottom border-secondary py-3">
+                    <h5 class="card-title text-white mb-0 mt-2">Punto de Marcación Oficial</h5>
+                    <p class="text-secondary small mb-0 mt-1">Imprime este código y colócalo en un lugar visible para tus empleados.</p>
                 </div>
-                <div class="card-body bg-white py-5">
-                    
-                    {{-- Generación de QR --}}
-                    <div class="d-inline-block p-4 border rounded shadow-sm bg-light mb-4">
-                        {!! QrCode::size(300)->gradient(0, 0, 0, 100, 100, 100, 'radial')->generate($urlResitro) !!}
+                <div class="card-body text-center py-5">
+                    <div class="qr-container bg-white d-inline-block p-4 rounded-4 shadow-sm mb-4">
+                        {!! QrCode::size(250)->generate($urlResitro) !!}
                     </div>
+                    
+                    <h3 class="text-white fw-bold mb-2">{{ $empresa->nombre }}</h3>
+                    <p class="text-muted mb-4">Escanea para registrar entrada o salida</p>
 
-                    <h4 class="fw-bold text-primary">ESCANEAR PARA FICHAR</h4>
-                    <p class="small text-muted mb-4">Escanea con la cámara de tu celular para registrar ingreso o egreso.</p>
-                    
-                    <div class="alert alert-info border-0 shadow-sm d-inline-block px-4 py-2">
-                        <i class="bi bi-link-45deg me-1"></i>
-                        <small>{{ $urlResitro }}</small>
+                    <div class="d-grid gap-2 d-md-flex justify-content-center">
+                        <button onclick="window.print()" class="btn btn-primary rounded-pill px-4 py-2 me-md-2">
+                             <span class="ms-1">🖨️ Imprimir Cartel QR</span>
+                        </button>
+                        <a href="{{ $urlResitro }}" target="_blank" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+                            <span class="ms-1">🌐 Probar Escaneo (Link)</span>
+                        </a>
                     </div>
-                </div>
-                <div class="card-footer bg-light py-3 border-0">
-                    <button onclick="window.print()" class="btn btn-dark fw-bold px-4 shadow">
-                        🖨️ IMPRIMIR QR DE CONTROL
-                    </button>
-                    <a href="{{ route('empresa.usuarios.index') }}" class="btn btn-link text-muted">
-                        Volver a Personal
-                    </a>
                 </div>
             </div>
 
-            <div class="mt-5 row text-start">
-                <div class="col-md-4">
-                    <div class="p-3 bg-white rounded shadow-sm border-top border-primary border-4">
-                        <h6 class="fw-bold mb-2">1. Colocar en obra</h6>
-                        <p class="small text-muted mb-0">Imprime el código en un lugar visible y protegido del clima.</p>
+            <!-- Instrucciones -->
+            <div class="row m-0 p-0 mt-4">
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-dark border-secondary h-100 rounded-4 shadow">
+                        <div class="card-body">
+                            <h6 class="text-white fw-bold mb-3">🛠️ ¿Cómo funciona?</h6>
+                            <p class="text-secondary small">1. El empleado escanea este código con la cámara de su móvil.</p>
+                            <p class="text-secondary small">2. Si ya ingresó sus datos, el sistema le pedirá confirmar su entrada o salida.</p>
+                            <p class="text-secondary small">3. El registro queda guardado con hora exacta en el Panel de Rendimiento.</p>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-white rounded shadow-sm border-top border-success border-4">
-                        <h6 class="fw-bold mb-2">2. Instruir al personal</h6>
-                        <p class="small text-muted mb-0">Al entrar y salir deben escanearlo con su smartphone.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-white rounded shadow-sm border-top border-warning border-4">
-                        <h6 class="fw-bold mb-2">3. Medir desempeño</h6>
-                        <p class="small text-muted mb-0">Revisa las horas trabajadas en el reporte de rendimiento.</p>
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-dark border-secondary h-100 rounded-4 shadow">
+                        <div class="card-body">
+                            <h6 class="text-white fw-bold mb-3">🔔 Recomendaciones</h6>
+                            <p class="text-secondary small">✅ Colócalo a la altura de los ojos.</p>
+                            <p class="text-secondary small">✅ Asegúrate de tener buena iluminación.</p>
+                            <p class="text-secondary small">✅ Puedes imprimirlo en tamaño A4 o más pequeño.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-@endsection
-
-@section('styles')
-<style>
-    @media print {
-        body * { visibility: hidden; }
-        .card, .card * { visibility: visible; }
-        .card { position: absolute; left: 0; top: 0; width: 100%; }
-        .card-footer { display: none; }
-    }
-</style>
+    <!-- Estilos de Impresión -->
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .qr-container, .qr-container *, .text-center h3 {
+                visibility: visible;
+            }
+            .qr-container {
+                position: absolute;
+                left: 50%;
+                top: 40%;
+                transform: translate(-50%, -50%);
+                padding: 0 !important;
+                border: none !important;
+            }
+            .text-center h3 {
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 70%;
+                font-size: 40px !important;
+                color: black !important;
+            }
+            .qr-container svg {
+                width: 500px !important;
+                height: 500px !important;
+            }
+        }
+    </style>
 @endsection
