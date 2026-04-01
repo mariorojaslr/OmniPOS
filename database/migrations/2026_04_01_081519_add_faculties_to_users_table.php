@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $row) {
-            $row->boolean('can_manage_purchases')->default(false)->after('can_register_expenses');
-            $row->boolean('can_sell')->default(false)->after('can_manage_purchases');
+            if (!Schema::hasColumn('users', 'can_manage_purchases')) {
+                $row->boolean('can_manage_purchases')->default(false);
+            }
+            if (!Schema::hasColumn('users', 'can_sell')) {
+                $row->boolean('can_sell')->default(false);
+            }
         });
     }
 
