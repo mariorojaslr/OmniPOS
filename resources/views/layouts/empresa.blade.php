@@ -203,9 +203,6 @@ body{
                         @endif
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.personal.asistencia.qr') }}">📲 PUNTO DE FICHAJE (QR)</a></li>
-                        @if(auth()->user()->can_register_expenses || auth()->user()->role === 'empresa')
-                            <li><a class="dropdown-item fw-bold text-warning" href="{{ route('empresa.gastos.quick') }}">💸 Gasto Rápido Móvil</a></li>
-                        @endif
                     </ul>
                 </li>
 
@@ -217,7 +214,9 @@ body{
                         <li><a class="dropdown-item fw-bold" href="{{ route('empresa.gastos.index') }}">📋 Listado / Auditoría</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.gastos_categorias.index') }}">🏷️ Gestionar Categorías</a></li>
                         <li><hr class="dropdown-divider opacity-50"></li>
-                        <li><a class="dropdown-item text-warning fw-bold" href="{{ route('empresa.gastos.quick') }}"><i class="bi bi-phone me-1"></i> Registrar Gasto (Campo)</a></li>
+                        @if(auth()->user()->can_register_expenses || auth()->user()->role === 'empresa')
+                            <li><a class="dropdown-item text-warning fw-bold" href="{{ route('empresa.gastos.quick') }}"><i class="bi bi-phone me-1"></i> Registro de Gasto Rápido</a></li>
+                        @endif
                     </ul>
                 </li>
 

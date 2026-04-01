@@ -154,7 +154,7 @@
                     <div class="fs-1 mb-3">🛒</div>
                     <h4 class="fw-bold">Tu carrito está vacío</h4>
                     <p class="text-muted">Vuelve al catálogo para elegir tus productos.</p>
-                    <a href="{{ route('catalog.index', $empresa->id) }}" class="btn btn-primary mt-3">Ir al Catálogo</a>
+                    <a href="{{ route('catalog.index', $empresa) }}" class="btn btn-primary mt-3">Ir al Catálogo</a>
                 </div>
             @endif
 
@@ -173,41 +173,51 @@
         const welcomeMessage = document.getElementById('welcomeMessage');
         const clientGreeting = document.getElementById('clientGreeting');
 
+        let searchTimeout;
+
         // Función para buscar cliente
         async function checkClient() {
             const email = emailInput.value;
             const phone = phoneInput.value;
 
+            // No buscar si son muy cortos
             if (email.length < 5 && phone.length < 5) return;
 
-            try {
-                const response = await fetch(`{{ route('checkout.search_client') }}?email=${email}&phone=${phone}&empresa_id=${empresaId}`);
-                const data = await response.json();
+            // Debounce (esperar a que el usuario deje de escribir)
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(async () => {
+                try {
+                    // LLAMADA CORREGIDA A .searchClient
+                    const response = await fetch(`{{ route('checkout.searchClient') }}?email=${email}&phone=${phone}&empresa_id=${empresaId}`);
+                    const data = await response.json();
 
-                if (data.found) {
-                    const c = data.client;
-                    
-                    // Saludo y animación
-                    clientGreeting.innerText = `¡Hola ${c.nombre}!`;
-                    welcomeMessage.style.display = 'block';
-                    
-                    // Autocompletar (si están vacíos para no molestar si el usuario ya escribió algo distinto)
-                    if (!document.getElementById('nombre').value) document.getElementById('nombre').value = c.nombre;
-                    if (!document.getElementById('apellido').value) document.getElementById('apellido').value = c.apellido;
-                    if (!document.getElementById('address').value) document.getElementById('address').value = c.direccion;
-                    if (!document.getElementById('city').value) document.getElementById('city').value = c.ciudad;
-                    if (!document.getElementById('province').value) document.getElementById('province').value = c.provincia;
+                    if (data.found) {
+                        const c = data.client;
+                        
+                        // Saludo y animación
+                        clientGreeting.innerText = `¡Hola ${c.nombre}!`;
+                        welcomeMessage.style.display = 'block';
+                        
+                        // Autocompletar solo si están vacíos
+                        if (!document.getElementById('nombre').value) document.getElementById('nombre').value = c.nombre;
+                        if (!document.getElementById('apellido').value) document.getElementById('apellido').value = c.apellido;
+                        if (!document.getElementById('address').value) document.getElementById('address').value = c.direccion;
+                        if (!document.getElementById('city').value) document.getElementById('city').value = c.ciudad;
+                        if (!document.getElementById('province').value) document.getElementById('province').value = c.provincia;
 
-                    // Si ya reconoció al cliente, podemos parar de buscar
-                    emailInput.removeEventListener('blur', checkClient);
-                    phoneInput.removeEventListener('blur', checkClient);
+                        // Ya lo encontramos, dejamos de buscar en este ciclo
+                        emailInput.removeEventListener('input', checkClient);
+                        phoneInput.removeEventListener('input', checkClient);
+                    }
+                } catch (error) {
+                    console.error('Error buscando cliente:', error);
                 }
-            } catch (error) {
-                console.error('Error buscando cliente:', error);
-            }
+            }, 500); 
         }
 
-        // Escuchar cuando el usuario sale del input de email o teléfono
+        // Escuchar mientras escribe (input) o cuando sale (blur)
+        emailInput.addEventListener('input', checkClient);
+        phoneInput.addEventListener('input', checkClient);
         emailInput.addEventListener('blur', checkClient);
         phoneInput.addEventListener('blur', checkClient);
         
@@ -220,7 +230,6 @@
                 if (this.value === 'envio_domicilio') {
                     addressSection.style.display = 'block';
                 } else {
-                    // Si es retiro en local, ocultamos pero dejamos que el sistema reconozca al cliente igualmente
                     // addressSection.style.display = 'none';
                 }
             });

@@ -1,25 +1,58 @@
 @extends('layouts.empresa')
 
+@php
+    $config = $empresa->config ?? null;
+    $primary = $config?->color_primary ?? '#2563eb';
+    $modoOscuro = ($config?->theme ?? 'light') === 'dark';
+@endphp
+
 @section('styles')
 <style>
-    .oled-card { background: #000; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: #fff; }
-    .stat-label { color: #60a5fa; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-    .stat-value { font-size: 2.5rem; font-weight: 800; line-height: 1; }
-    .neon-border-green { border-color: #22c55e !important; box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
-    .neon-border-red { border-color: #ef4444 !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
-    .expense-row { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 12px 0; }
+    .audrey-detail-container {
+        padding: 2rem;
+        background: {{ $modoOscuro ? '#000' : '#f4f6f9' }};
+        min-height: 100vh;
+    }
+    .oled-card { 
+        background: {{ $modoOscuro ? '#111' : '#000' }}; 
+        border: 1px solid rgba(255, 255, 255, 0.1); 
+        border-radius: 16px; 
+        color: #fff; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .label-mini { 
+        color: {{ $primary }}; 
+        font-size: 0.65rem; 
+        text-transform: uppercase; 
+        letter-spacing: 1.5px; 
+        font-weight: 800; 
+    }
+    .stat-value { font-size: 2.8rem; font-weight: 800; line-height: 1; letter-spacing: -2px; }
+    .expense-row { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 15px 0; }
     .expense-row:last-child { border-bottom: none; }
+    .neon-text-green { color: #10b981; }
+    .neon-text-red { color: #ef4444; }
+    
+    .btn-return {
+        background: {{ $modoOscuro ? '#222' : '#000' }};
+        color: white !important;
+        font-weight: 800;
+        font-size: 0.75rem;
+        padding: 8px 20px;
+        border-radius: 100px;
+        text-decoration: none;
+    }
 </style>
 @endsection
 
 @section('content')
-<div class="px-3 pb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="{{ route('empresa.personal.cajas.index') }}" class="btn btn-sm btn-outline-light rounded-pill px-3">
-            <i class="bi bi-arrow-left me-1"></i> VOLVER AL HISTORIAL
+<div class="audrey-detail-container">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <a href="{{ route('empresa.personal.cajas.index') }}" class="btn-return shadow-sm">
+            <i class="bi bi-arrow-left-short fs-5 align-middle me-1"></i> VOLVER AL HISTORIAL
         </a>
         <div class="text-end">
-            <span class="badge {{ $cierre->estado === 'cerrada' ? 'bg-danger' : 'bg-success' }} px-3 py-2 uppercase">
+            <span class="badge {{ $cierre->estado === 'cerrada' ? 'bg-danger' : 'bg-success' }} px-4 py-2 rounded-pill fw-bold ls-1" style="font-size: 0.7rem;">
                 CAJA {{ strtoupper($cierre->estado) }}
             </span>
         </div>
@@ -28,30 +61,36 @@
     <div class="row g-4">
         {{-- COLUMNA INFO GENERAL --}}
         <div class="col-md-5">
-            <div class="oled-card p-4 h-100">
-                <div class="stat-label mb-2">Responsable del Turno</div>
-                <h3 class="fw-bold mb-4">{{ $cierre->user->name }}</h3>
+            <div class="oled-card p-5 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 end-0 p-4 opacity-10">
+                    <i class="bi bi-shield-lock" style="font-size: 8rem; transform: rotate(15deg);"></i>
+                </div>
+                
+                <div class="label-mini mb-2">Responsable del Turno</div>
+                <h2 class="fw-bold mb-4 text-white display-6" style="letter-spacing: -1.5px;">{{ $cierre->user->name }}</h2>
 
-                <div class="row g-4 mb-4">
+                <div class="row g-4 mb-5">
                     <div class="col-6">
-                        <div class="stat-label">Apertura</div>
-                        <div class="text-white">{{ $cierre->fecha_apertura->format('d/m/Y H:i') }} hs</div>
+                        <div class="label-mini">Hélicestatus Apertura</div>
+                        <div class="text-white-50 fw-bold">{{ $cierre->fecha_apertura->format('d/m/Y H:i') }} hs</div>
                     </div>
                     <div class="col-6 text-end">
-                        <div class="stat-label">Cierre</div>
-                        <div class="text-white">{{ $cierre->fecha_cierre ? $cierre->fecha_cierre->format('d/m/Y H:i') . ' hs' : '-' }}</div>
+                        <div class="label-mini">Cierre Efectivo</div>
+                        <div class="text-white-50 fw-bold">{{ $cierre->fecha_cierre ? $cierre->fecha_cierre->format('d/m/Y H:i') . ' hs' : '-' }}</div>
                     </div>
                 </div>
 
-                <div class="p-3 bg-dark bg-opacity-50 rounded-4 border border-white border-opacity-10 mb-4">
-                    <div class="stat-label mb-1">Observaciones / Notas</div>
-                    <div class="small text-white-50 italic">"{{ $cierre->observaciones ?: 'Sin observaciones registradas' }}"</div>
+                <div class="p-4 bg-white bg-opacity-5 rounded-4 border border-white border-opacity-10 mb-5">
+                    <div class="label-mini mb-2">Análisis de Operador</div>
+                    <div class="small text-white-50 opacity-75 italic" style="line-height: 1.6;">
+                        "{{ $cierre->observaciones ?: 'Apertura de turno (Cajero): Sin detalles registrados en sistema.' }}"
+                    </div>
                 </div>
 
                 <div class="mt-auto">
-                    <div class="stat-label mb-2">Diferencia Final (Arqueo)</div>
-                    <div class="stat-value {{ $cierre->diferencia >= 0 ? 'text-success' : 'text-danger' }}">
-                        ${{ number_format($cierre->diferencia, 0, ',', '.') }}
+                    <div class="label-mini mb-3">Balance Final Auditoría</div>
+                    <div class="stat-value {{ $cierre->diferencia >= 0 ? 'neon-text-green' : 'neon-text-red' }}">
+                        {{ $cierre->diferencia >= 0 ? '+' : '' }}${{ number_format($cierre->diferencia, 0, ',', '.') }}
                     </div>
                 </div>
             </div>
@@ -60,50 +99,64 @@
         {{-- COLUMNA FINANZAS DETALLADAS --}}
         <div class="col-md-7">
             <div class="oled-card p-4 mb-4">
-                <h5 class="fw-bold mb-4 small ls-1 text-primary">DESGLOSE POR MÉTODO DE PAGO</h5>
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <h5 class="fw-bold mb-0 label-mini">Desglose Operativo por Canal</h5>
+                    <i class="bi bi-graph-up-arrow text-primary"></i>
+                </div>
                 <div class="row g-3 text-center">
                     <div class="col-4 border-end border-white border-opacity-10">
-                        <div class="stat-label">Efectivo</div>
-                        <div class="fs-4 fw-bold">${{ number_format($cierre->ventas_efectivo, 0) }}</div>
+                        <div class="label-mini">EFECTIVO</div>
+                        <div class="text-white fw-bold fs-4">${{ number_format($cierre->ventas_efectivo, 0, ',', '.') }}</div>
                     </div>
                     <div class="col-4 border-end border-white border-opacity-10">
-                        <div class="stat-label">Tarjeta</div>
-                        <div class="fs-4 fw-bold text-info">${{ number_format($cierre->ventas_tarjeta, 0) }}</div>
+                        <div class="label-mini">TARJETA</div>
+                        <div class="text-info fw-bold fs-4">${{ number_format($cierre->ventas_tarjeta, 0, ',', '.') }}</div>
                     </div>
                     <div class="col-4">
-                        <div class="stat-label">Transf.</div>
-                        <div class="fs-4 fw-bold text-warning">${{ number_format($cierre->ventas_transferencia, 0) }}</div>
+                        <div class="label-mini">TRANSF.</div>
+                        <div class="text-warning fw-bold fs-4">${{ number_format($cierre->ventas_transferencia, 0, ',', '.') }}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="oled-card p-4">
-                <h5 class="fw-bold mb-3 small ls-1 text-primary">MOVIMIENTOS DE GASTOS (CAMPO)</h5>
-                @if(count($gastos) > 0)
-                    @foreach($gastos as $g)
-                    <div class="expense-row">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <div class="bg-primary bg-opacity-25 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
-                                    <i class="bi bi-cart"></i>
+            <div class="oled-card p-4 overflow-hidden">
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <h5 class="fw-bold mb-0 label-mini">Movimientos Manuales (Campo)</h5>
+                    <span class="badge bg-danger rounded-pill" style="font-size: 0.6rem;">{{ count($gastos) }} GASTOS</span>
+                </div>
+                
+                <div class="px-2">
+                    @if(count($gastos) > 0)
+                        @foreach($gastos as $g)
+                        <div class="expense-row">
+                            <div class="row align-items-center justify-content-between">
+                                <div class="col-auto">
+                                    <div class="bg-white bg-opacity-10 text-white rounded-circle d-flex align-items-center justify-content-center" style="width:42px; height:42px;">
+                                        <i class="bi bi-receipt-cutoff"></i>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="fw-bold text-white mb-0" style="font-size: 0.95rem;">{{ $g->provider ?: 'Sin Proveedor' }}</div>
+                                    <div class="label-mini" style="font-size: 0.6rem; opacity: 0.6;">{{ $g->category->name ?? 'Gastos Operativos' }} · {{ $g->created_at->format('H:i') }} hs</div>
+                                </div>
+                                <div class="col-auto text-end">
+                                    <div class="fw-bold fs-5 text-danger" style="letter-spacing: -0.5px;">-${{ number_format($g->amount, 0, ',', '.') }}</div>
+                                    @if($g->receipt_url)
+                                    <a href="{{ asset('storage/' . $g->receipt_url) }}" target="_blank" class="badge bg-primary bg-opacity-25 text-primary text-decoration-none border border-primary border-opacity-25" style="font-size: 0.6rem;">
+                                        VER COMPROBANTE <i class="bi bi-camera ms-1"></i>
+                                    </a>
+                                    @endif
                                 </div>
                             </div>
-                            <div class="col">
-                                <div class="fw-bold d-block">{{ $g->provider ?: 'S/P' }}</div>
-                                <div class="small text-white-50">{{ $g->category->name ?? 'Gastos' }} · {{ $g->created_at->format('H:i') }} hs</div>
-                            </div>
-                            <div class="col-auto text-end">
-                                <div class="fw-bold text-danger">-$ {{ number_format($g->amount, 0) }}</div>
-                                @if($g->receipt_url)
-                                <a href="{{ asset('storage/' . $g->receipt_url) }}" target="_blank" class="badge bg-light text-dark text-decoration-none">Ver Foto 📸</a>
-                                @endif
-                            </div>
                         </div>
-                    </div>
-                    @endforeach
-                @else
-                    <div class="text-center py-4 text-white-50 italic">No se registraron gastos durante este turno.</div>
-                @endif
+                        @endforeach
+                    @else
+                        <div class="text-center py-5">
+                            <i class="bi bi-check2-circle text-success fs-1 opacity-25 d-block mb-2"></i>
+                            <div class="text-white-50 italic">Sin movimientos de gastos informados.</div>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
