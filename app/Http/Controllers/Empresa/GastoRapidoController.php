@@ -50,7 +50,7 @@ class GastoRapidoController extends Controller
         // 2. Buscar o crear la categoría (Rubro)
         $catName = strtoupper($request->category ?: 'OTROS');
         $categoria = ExpenseCategory::firstOrCreate(
-            ['empresa_id' => $empresaId, 'name' => $catName]
+            ['empresa_id' => $empresaId, 'nombre' => $catName]
         );
 
         // 3. Procesar Foto (Local por ahora, preparando para Bunny)
