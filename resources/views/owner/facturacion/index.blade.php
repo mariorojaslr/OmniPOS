@@ -7,9 +7,9 @@
         <p class="text-muted mb-0">Historial de pagos y suscripciones de las empresas.</p>
     </div>
     <div class="col-auto">
-        <a href="{{ route('owner.facturacion.create') }}" class="btn btn-primary shadow-sm rounded-pill px-4">
+        {{-- <a href="{{ route('owner.facturacion.create') }}" class="btn btn-primary shadow-sm rounded-pill px-4">
             + Registrar Pago
-        </a>
+        </a> --}}
     </div>
 </div>
 
