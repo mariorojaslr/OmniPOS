@@ -226,7 +226,11 @@ body{
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link fw-bold text-success" href="{{ route('catalog.index', auth()->user()->empresa) }}" target="_blank">🌐 Catálogo</a>
+                    @php
+                        $targetEmpresa = auth()->user()->empresa;
+                        $catalogParam = $targetEmpresa?->slug ?: $targetEmpresa?->id;
+                    @endphp
+                    <a class="nav-link fw-bold text-success" href="{{ $targetEmpresa ? route('catalog.index', $catalogParam) : '#' }}" target="_blank">🌐 Catálogo</a>
                 </li>
 
                 <li class="nav-item">
