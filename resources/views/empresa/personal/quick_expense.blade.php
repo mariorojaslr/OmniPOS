@@ -263,6 +263,11 @@
             CONFIRMAR PAGO <i class="bi bi-check-circle-fill ms-2"></i>
         </button>
 
+        <!-- Botón de Instalación PWA (dinámico) -->
+        <button type="button" id="installAppBtn" onclick="installApp()" class="btn btn-outline-primary btn-lg rounded-pill fw-bold border-2 mb-4" style="display:none; color: #3b82f6; border-color: #3b82f6;">
+            <i class="bi bi-phone-fill me-2"></i> INSTALAR APP EN TELÉFONO
+        </button>
+
         <a href="{{ route('empresa.dashboard') }}" class="back-link mx-auto">
             <i class="bi bi-arrow-left"></i> Cancelar y volver
         </a>

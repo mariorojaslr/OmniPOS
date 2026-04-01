@@ -1,0 +1,22 @@
+{
+  "name": "MultiPOS - Gestión",
+  "short_name": "MultiPOS",
+  "start_url": "/empresa/dashboard",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#2563eb",
+  "description": "Sistema de gestión multiempresa profesional",
+  "icons": [
+    {
+      "src": "/img/logo_v2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/img/logo_v2.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
