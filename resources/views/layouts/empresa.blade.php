@@ -58,6 +58,14 @@ $logo = ($config && $config->logo_url) ? $config->logo_url : asset('images/logo_
 :root{
     --color-primario: {{ $colorPrimario }};
     --color-secundario: {{ $colorSecundario }};
+    @php
+        // Extraer RGB para transparencias
+        $rgb = [0,0,0];
+        if (preg_match('/#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/i', $colorPrimario, $matches)) {
+            $rgb = [hexdec($matches[1]), hexdec($matches[2]), hexdec($matches[3])];
+        }
+    @endphp
+    --color-primario-rgb: {{ implode(',', $rgb) }};
 }
 
 body{

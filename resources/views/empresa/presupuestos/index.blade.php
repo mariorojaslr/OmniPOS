@@ -1,181 +1,179 @@
-@extends('layouts.app')
+@extends('layouts.empresa')
 
 @section('styles')
 <style>
-    .presu-header {
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6));
-        border-bottom: 2px solid rgba(59, 130, 246, 0.3);
-        padding: 3rem 0;
-        margin-bottom: 3rem;
-        border-radius: 0 0 40px 40px;
-    }
-    .glass-stat {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-    }
-    .glass-stat:hover {
-        background: rgba(255, 255, 255, 0.07);
-        transform: translateY(-5px);
-        border-color: rgba(59, 130, 246, 0.5);
-    }
-    .table-glass {
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        overflow: hidden;
-    }
-    .table-glass th {
-        background: rgba(59, 130, 246, 0.1);
-        color: #94a3b8;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 2px;
-        border: none;
-        padding: 1.2rem;
-    }
-    .table-glass td {
-        padding: 1.2rem;
-        color: #f8fafc;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        vertical-align: middle;
-    }
-    .gradient-text-gold {
-        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    .gradient-text-blue {
-        background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
+/* CLASES COHERENTES CON DASHBOARD EMPRESA */
+.empresa-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    background: radial-gradient(circle at 10% 20%, var(--color-primario)10, transparent 40%),
+                radial-gradient(circle at 90% 80%, var(--color-secundario)10, transparent 40%);
+    animation: bgPulse 15s infinite alternate ease-in-out;
+}
+@keyframes bgPulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+
+.glass-panel {
+    background: rgba(var(--bs-tertiary-bg-rgb), 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(128, 128, 128, 0.15);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+.glass-panel:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 45px -10px rgba(0,0,0,0.1);
+}
+
+.stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: #6c757d; margin-bottom: 0.5rem; }
+.stat-value { font-size: 2.3rem; font-weight: 800; line-height: 1; }
+
+.table-glass { border-radius: 20px; overflow: hidden; border: 1px solid rgba(128, 128, 128, 0.1); }
+.table-glass.table thead th { 
+    background: rgba(var(--color-primario-rgb), 0.08); 
+    border-bottom: 2px solid rgba(var(--color-primario-rgb), 0.1); 
+    color: #6c757d; font-size: 0.7rem; letter-spacing: 1px; font-weight: 700;
+}
 </style>
 @endsection
 
 @section('content')
+<div class="empresa-bg"></div>
+
 <div class="container-fluid px-4 pb-5">
     
-    {{-- HEADER PREMIUM --}}
-    <div class="d-flex justify-content-between align-items-end mb-5 mt-4">
-        <div>
-            <h5 class="stat-label mb-1 text-primary animate__animated animate__fadeInLeft">Módulo Comercial Elite</h5>
-            <h1 class="fw-bold text-white mb-0" style="font-size: 3rem; letter-spacing: -2px;">
-                Gestión de <span class="gradient-text-blue">Presupuestos</span>
+    {{-- HEADER UNIFICADO --}}
+    <div class="row align-items-center mb-5 mt-4">
+        <div class="col">
+            <h5 class="stat-label mb-1" style="color: var(--color-primario);">Módulo Comercial Elite</h5>
+            <h1 class="fw-bold mb-0" style="font-size: 2.8rem; letter-spacing: -1.5px;">
+                Gestión de <span style="color: var(--color-primario);">Presupuestos</span>
             </h1>
         </div>
-        <div class="text-end">
-            <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-primary px-5 py-3 rounded-pill fw-bold shadow-lg animate-pulse">
-                <i class="bi bi-magic me-2"></i> GENERAR NUEVA COTIZACIÓN
+        <div class="col-auto">
+            <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-primary px-4 py-3 rounded-pill fw-bold shadow-lg">
+                <i class="bi bi-plus-lg me-2"></i> GENERAR NUEVA COTIZACIÓN
             </a>
         </div>
     </div>
 
-    {{-- INDICADORES FLASH --}}
+    {{-- INDICADORES FLASH (Estilo Dashboard) --}}
     <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="glass-stat text-center">
+            <div class="glass-panel text-center">
                 <div class="stat-label">Total Emitidos</div>
-                <div class="fs-2 fw-bold text-white">{{ $stats['total'] }}</div>
-                <div class="small text-muted">Histórico Global</div>
+                <div class="stat-value">{{ $stats['total'] }}</div>
+                <div class="small text-muted mt-2">Histórico Global</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="glass-stat text-center" style="border-bottom: 3px solid #fbbf24;">
+            <div class="glass-panel text-center border-bottom border-warning border-4">
                 <div class="stat-label">Pendientes</div>
-                <div class="fs-2 fw-bold gradient-text-gold">{{ $stats['pendientes'] }}</div>
-                <div class="small text-muted">A la espera de cierre</div>
+                <div class="stat-value text-warning">{{ $stats['pendientes'] }}</div>
+                <div class="small text-muted mt-2">A la espera de cierre</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="glass-stat text-center" style="border-bottom: 3px solid #22c55e;">
+            <div class="glass-panel text-center border-bottom border-success border-4" style="border-color: var(--color-primario) !important;">
                 <div class="stat-label">Aceptados</div>
-                <div class="fs-2 fw-bold text-success">{{ $stats['aceptados'] }}</div>
-                <div class="small text-muted">Exito Comercial</div>
+                <div class="stat-value" style="color: var(--color-primario);">{{ $stats['aceptados'] }}</div>
+                <div class="small text-muted mt-2">Éxito Comercial</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="glass-stat text-center" style="border-bottom: 3px solid #ef4444;">
+            <div class="glass-panel text-center border-bottom border-danger border-4">
                 <div class="stat-label">Vencidos</div>
-                <div class="fs-2 fw-bold text-danger">{{ $stats['vencidos'] }}</div>
-                <div class="small text-muted">Requieren Seguimiento</div>
+                <div class="stat-value text-danger">{{ $stats['vencidos'] }}</div>
+                <div class="small text-muted mt-2">Requieren Seguimiento</div>
             </div>
         </div>
     </div>
 
-    {{-- TABLA DE CRISTAL --}}
-    <div class="table-glass shadow-2xl">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    <th>Ref #</th>
-                    <th>Cliente / Prospecto</th>
-                    <th>Fecha Emisión</th>
-                    <th>Vencimiento</th>
-                    <th class="text-end">Monto Total</th>
-                    <th class="text-center">Estado</th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($presupuestos as $presu)
-                <tr>
-                    <td><span class="badge bg-secondary">#{{ $presu->numero }}</span></td>
-                    <td>
-                        <div class="fw-bold">{{ $presu->client->name ?? 'Cliente Ocasional' }}</div>
-                        <div class="small text-muted">{{ $presu->client->email ?? '-' }}</div>
-                    </td>
-                    <td>{{ $presu->fecha ? $presu->fecha->format('d/m/Y') : '-' }}</td>
-                    <td>{{ $presu->vencimiento ? $presu->vencimiento->format('d/m/Y') : '-' }}</td>
-                    <td class="text-end fw-bold fs-5 text-info">$ {{ number_format($presu->total, 2) }}</td>
-                    <td class="text-center">
-                        @php
-                            $badgeClass = match($presu->estado) {
-                                'pendiente' => 'bg-warning text-dark',
-                                'aceptado' => 'bg-success',
-                                'rechazado' => 'bg-danger',
-                                'convertido' => 'bg-info text-dark',
-                                'vencido' => 'bg-secondary',
-                                default => 'bg-dark'
-                            };
-                        @endphp
-                        <span class="badge {{ $badgeClass }} border border-opacity-10">{{ strtoupper($presu->estado) }}</span>
-                    </td>
-                    <td class="text-end">
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-light rounded-circle" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end border-white border-opacity-10">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-eye me-2"></i> Ver Detalle</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-printer me-2"></i> Imprimir PDF</a></li>
-                                @if($presu->estado == 'pendiente')
-                                    <li><hr class="dropdown-divider border-white border-opacity-10"></li>
-                                    <li><a class="dropdown-item text-success" href="#"><i class="bi bi-check-lg me-2"></i> Aceptar</a></li>
-                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-lg me-2"></i> Rechazar</a></li>
-                                @endif
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7" class="text-center py-5">
-                        <div class="opacity-30">
-                            <i class="bi bi-file-earmark-text fs-1 mb-3 d-block"></i>
-                            <h5 class="fw-bold">No hay presupuestos generados</h5>
-                            <p class="small mb-0">Comience creando su primera cotización profesional.</p>
-                        </div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    {{-- TABLA UNIFICADA --}}
+    <div class="glass-panel p-0 overflow-hidden shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light bg-opacity-50">
+                    <tr>
+                        <th class="ps-4 py-3 text-uppercase small text-muted" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Ref #</th>
+                        <th class="py-3 text-uppercase small text-muted" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Cliente / Prospecto</th>
+                        <th class="py-3 text-uppercase small text-muted" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Emisión</th>
+                        <th class="py-3 text-uppercase small text-muted" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Vencimiento</th>
+                        <th class="py-3 text-uppercase small text-muted text-end" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Total</th>
+                        <th class="py-3 text-uppercase small text-muted text-center" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Estado</th>
+                        <th class="py-3 text-uppercase small text-muted text-end pe-4" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($presupuestos as $presu)
+                    <tr>
+                        <td class="ps-4">
+                            <span class="badge bg-light text-dark shadow-sm border">#{{ $presu->numero }}</span>
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ $presu->client->name ?? 'Cliente Ocasional' }}</div>
+                            <div class="small text-muted">{{ $presu->client->email ?? '-' }}</div>
+                        </td>
+                        <td>{{ $presu->fecha ? $presu->fecha->format('d/m/Y') : '-' }}</td>
+                        <td>
+                            @if($presu->vencimiento && $presu->vencimiento < now() && $presu->estado == 'pendiente')
+                                <span class="text-danger fw-bold"><i class="bi bi-clock-history me-1"></i> {{ $presu->vencimiento->format('d/m/Y') }}</span>
+                            @else
+                                {{ $presu->vencimiento ? $presu->vencimiento->format('d/m/Y') : '-' }}
+                            @endif
+                        </td>
+                        <td class="text-end fw-bold fs-5" style="color: var(--color-primario);">$ {{ number_format($presu->total, 2, ',', '.') }}</td>
+                        <td class="text-center">
+                            @php
+                                $badgeClass = match($presu->estado) {
+                                    'pendiente' => 'bg-warning text-dark',
+                                    'aceptado' => 'bg-success',
+                                    'rechazado' => 'bg-danger',
+                                    'convertido' => 'bg-info text-dark',
+                                    'vencido' => 'bg-secondary',
+                                    default => 'bg-dark'
+                                };
+                            @endphp
+                            <span class="badge {{ $badgeClass }} rounded-pill px-3" style="font-size: 0.65rem;">{{ strtoupper($presu->estado) }}</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-eye me-2 text-primary"></i> Ver Detalle</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-printer me-2"></i> Imprimir PDF</a></li>
+                                    @if($presu->estado == 'pendiente')
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-success" href="#"><i class="bi bi-check-lg me-2"></i> Aceptar</a></li>
+                                        <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-lg me-2"></i> Rechazar</a></li>
+                                    @endif
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="opacity-40">
+                                <i class="bi bi-file-earmark-text fs-1 mb-3 d-block text-muted"></i>
+                                <h5 class="fw-bold text-muted">No hay presupuestos generados</h5>
+                                <p class="small mb-0 text-muted">Comience creando su primera cotización profesional.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
+
+</div>
+@endsection
 
 </div>
 @endsection

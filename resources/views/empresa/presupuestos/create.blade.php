@@ -1,40 +1,46 @@
-@extends('layouts.app')
+@extends('layouts.empresa')
 
 @section('styles')
 <style>
-    .glass-form {
-        background: rgba(30, 41, 59, 0.45);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
-        padding: 2.5rem;
+    .card-premium {
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        padding: 2rem;
     }
     .form-label {
-        color: #94a3b8;
+        color: #4b5563;
         font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
+        text-transform: none;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
     }
     .form-control-premium {
-        background: rgba(15, 23, 42, 0.6) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        color: #f8fafc !important;
-        border-radius: 12px !important;
-        padding: 12px 18px !important;
+        background: #f9fafb !important;
+        border: 1px solid #d1d5db !important;
+        color: #111827 !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
     }
     .form-control-premium:focus {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
+        border-color: var(--color-primario) !important;
+        box-shadow: 0 0 0 3px rgba(var(--color-primario-rgb), 0.1) !important;
+        background: #fff !important;
     }
     .item-row {
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 12px;
+        background: #fff;
+        border-bottom: 1px solid #f3f4f6;
         transition: all 0.2s ease;
-        margin-bottom: 8px;
     }
     .item-row:hover {
-        background: rgba(255, 255, 255, 0.05);
+        background: #f9fafb;
+    }
+    .btn-primary {
+        background: var(--color-primario) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
     }
 </style>
 @endsection
@@ -101,7 +107,7 @@
                                     <select x-model="item.product_id" @change="updatePrice(item)" class="form-control form-control-premium" :name="'items['+index+'][product_id]'">
                                         <option value="">-- Buscar producto o servicio --</option>
                                         <template x-for="p in productos" :key="p.id">
-                                            <option :value="p.id" x-text="p.nombre"></option>
+                                            <option :value="p.id" x-text="p.name"></option>
                                         </template>
                                     </select>
                                     <input type="hidden" :name="'items['+index+'][descripcion]'" :value="item.descripcion">
@@ -187,7 +193,7 @@
                 const prod = this.productos.find(p => p.id == item.product_id);
                 if (prod) {
                     item.price = prod.precio_venta || 0;
-                    item.descripcion = prod.nombre;
+                    item.descripcion = prod.name;
                 }
                 this.calculateTotal();
             },

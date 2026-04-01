@@ -1,72 +1,118 @@
 @extends('layouts.empresa')
 
+@section('styles')
+<style>
+/* CLASES COHERENTES CON DASHBOARD EMPRESA */
+.empresa-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    background: radial-gradient(circle at 10% 20%, var(--color-primario)10, transparent 40%),
+                radial-gradient(circle at 90% 80%, var(--color-secundario)10, transparent 40%);
+    animation: bgPulse 15s infinite alternate ease-in-out;
+}
+@keyframes bgPulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+
+.glass-panel {
+    background: rgba(var(--bs-tertiary-bg-rgb), 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(128, 128, 128, 0.15);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+.glass-panel:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 45px -10px rgba(0,0,0,0.1);
+}
+
+.stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: #6c757d; margin-bottom: 0.5rem; }
+.stat-value { font-size: 2.3rem; font-weight: 800; line-height: 1; }
+
+.table-glass { border-radius: 20px; overflow: hidden; border: 1px solid rgba(128, 128, 128, 0.1); }
+.table-glass.table thead th { 
+    background: rgba(var(--color-primario-rgb), 0.08); 
+    border-bottom: 2px solid rgba(var(--color-primario-rgb), 0.1); 
+    color: #6c757d; font-size: 0.7rem; letter-spacing: 1px; font-weight: 700;
+}
+</style>
+@endsection
+
 @section('content')
-<div class="row align-items-center mb-4">
-    <div class="col">
-        <h4 class="fw-bold mb-0">Gestión de Gastos Operativos</h4>
-        <p class="text-muted mb-0">Controla los egresos del negocio que no son compras directas.</p>
-    </div>
-    <div class="col-auto">
-        <a href="{{ route('empresa.gastos.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-            <i class="bi bi-plus-lg me-2"></i> Registrar Gasto
-        </a>
-        <a href="{{ route('empresa.gastos_categorias.index') }}" class="btn btn-outline-secondary rounded-pill px-4 ms-2">
-            <i class="bi bi-tags me-2"></i> Categorías
-        </a>
-    </div>
-</div>
+<div class="empresa-bg"></div>
 
-<!-- Filtros y Resumen -->
-<div class="row g-3 mb-4">
-    <div class="col-md-9">
-        <div class="card shadow-sm border-0 rounded-4 p-3 bg-white">
-            <form action="{{ route('empresa.gastos.index') }}" method="GET" class="row g-2">
-                <div class="col-md-4">
-                    <select name="category_id" class="form-select border-0 bg-light rounded-3">
-                        <option value="">Todas las Categorías</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->nombre }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <input type="date" name="from" value="{{ request('from') }}" class="form-control border-0 bg-light rounded-3" placeholder="Desde">
-                </div>
-                <div class="col-md-3">
-                    <input type="date" name="to" value="{{ request('to') }}" class="form-control border-0 bg-light rounded-3" placeholder="Hasta">
-                </div>
-                <div class="col-md-3">
-                    <input type="text" name="search_user" value="{{ request('search_user') }}" class="form-control border-0 bg-light rounded-3" placeholder="Buscar por empleado...">
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-dark w-100 rounded-3">Filtrar</button>
-                </div>
-            </form>
+<div class="container-fluid px-4 pb-5">
+
+    <div class="row align-items-center mb-5 mt-4">
+        <div class="col">
+            <h5 class="stat-label mb-1" style="color: var(--color-primario);">Administración Comercial</h5>
+            <h1 class="fw-bold mb-0" style="font-size: 2.8rem; letter-spacing: -1.5px;">
+                Gastos <span style="color: var(--color-primario);">Operativos</span>
+            </h1>
+        </div>
+        <div class="col-auto">
+            <a href="{{ route('empresa.gastos.create') }}" class="btn btn-primary rounded-pill px-4 py-3 fw-bold shadow-lg">
+                <i class="bi bi-plus-lg me-2"></i> REGISTRAR GASTO
+            </a>
+            <a href="{{ route('empresa.gastos_categorias.index') }}" class="btn btn-outline-secondary rounded-pill px-4 py-3 ms-2 shadow-sm">
+                <i class="bi bi-tags me-2"></i> CATEGORÍAS
+            </a>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 rounded-4 p-3 bg-danger text-white">
-            <small class="opacity-75 d-block text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.65rem;">TOTAL EGRESOS</small>
-            <h3 class="fw-bold mb-0">$ {{ number_format($total, 2, ',', '.') }}</h3>
+    
+    <!-- Filtros y Resumen Estilo Premium -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-9">
+            <div class="glass-panel p-3">
+                <form action="{{ route('empresa.gastos.index') }}" method="GET" class="row g-2 align-items-center">
+                    <div class="col-md-3">
+                        <select name="category_id" class="form-select border-0 bg-light rounded-3">
+                            <option value="">Todas las Categorías</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="from" value="{{ request('from') }}" class="form-control border-0 bg-light rounded-3">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="to" value="{{ request('to') }}" class="form-control border-0 bg-light rounded-3">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="search_user" value="{{ request('search_user') }}" class="form-control border-0 bg-light rounded-3" placeholder="Empleado...">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-dark w-100 rounded-3">FILTRAR</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-panel text-center border-bottom border-danger border-4 shadow-lg bg-danger bg-opacity-10">
+                <div class="stat-label text-danger">TOTAL EGRESOS</div>
+                <div class="stat-value text-danger">$ {{ number_format($total, 2, ',', '.') }}</div>
+            </div>
         </div>
     </div>
-</div>
-
-<!-- Listado -->
-<div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="bg-light">
-                <tr>
-                    <th class="ps-4">Fecha</th>
-                    <th>Categoría</th>
-                    <th>Descripción / Comprobante</th>
-                    <th>Monto</th>
-                    <th>Responsable</th>
-                    <th class="text-end pe-4">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
+    
+    <!-- Listado en Panel de Vidrio -->
+    <div class="glass-panel p-0 overflow-hidden shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light bg-opacity-50">
+                    <tr>
+                        <th class="ps-4 py-3 text-uppercase small text-muted" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Fecha</th>
+                        <th class="py-3 text-uppercase small text-muted" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Categoría</th>
+                        <th class="py-3 text-uppercase small text-muted" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Descripción / Comprobante</th>
+                        <th class="py-3 text-uppercase small text-muted text-end" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Monto</th>
+                        <th class="py-3 text-uppercase small text-muted" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Responsable</th>
+                        <th class="py-3 text-uppercase small text-muted text-end pe-4" style="letter-spacing: 1px; font-weight: 700; font-size: 0.65rem;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
                 @forelse($expenses as $gasto)
                 <tr>
                     <td class="ps-4">
