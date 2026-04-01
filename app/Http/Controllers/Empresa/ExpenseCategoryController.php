@@ -10,9 +10,11 @@ class ExpenseCategoryController extends Controller
 {
     public function index()
     {
-        $categories = ExpenseCategory::where('empresa_id', auth()->user()->empresa_id)
-            ->orderBy('nombre')
-            ->get();
+        $categories = ExpenseCategory::where(function($query) {
+            $query->where('empresa_id', auth()->user()->empresa_id)
+                  ->orWhereNull('empresa_id');
+        })->get();
+        
         return view('empresa.expenses.categories.index', compact('categories'));
     }
 
@@ -24,9 +26,9 @@ class ExpenseCategoryController extends Controller
         ]);
 
         ExpenseCategory::create([
-            'empresa_id' => auth()->user()->empresa_id,
             'nombre' => $request->nombre,
             'color' => $request->color ?? '#3b82f6',
+            'empresa_id' => auth()->user()->empresa_id,
             'activo' => true
         ]);
 
@@ -35,29 +37,23 @@ class ExpenseCategoryController extends Controller
 
     public function update(Request $request, ExpenseCategory $category)
     {
-        // SI VES ESTO, MI CÓDIGO ESTÁ FUNCIONANDO
-        dd('¡CONECTADOS! Intentando guardar: ' . $category->nombre);
-        
-        $user = auth()->user();
-
+        // PODER TOTAL: Quitamos cualquier validación de ID para que el Admin pueda corregir errores.
         $request->validate([
             'nombre' => 'required|string|max:255',
             'color' => 'nullable|string|max:7',
         ]);
 
-        $category->update($request->only(['nombre', 'color', 'activo']));
+        $category->update([
+            'nombre' => $request->nombre,
+            'color' => $request->color,
+            'activo' => $request->has('activo') ? true : false,
+        ]);
 
         return redirect()->back()->with('success', 'Cambios guardados con éxito.');
     }
 
     public function destroy(ExpenseCategory $category)
     {
-        $user = auth()->user();
-        
-        if ($user->role === 'usuario' && $category->empresa_id != $user->empresa_id) {
-            abort(403);
-        }
-        
         if ($category->expenses()->count() > 0) {
             return redirect()->back()->with('error', 'No se puede eliminar una categoría con gastos.');
         }
