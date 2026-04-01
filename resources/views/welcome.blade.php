@@ -120,7 +120,7 @@
 
     {{-- HERO SECTION --}}
     <section class="hero">
-        <div class="container px-4">
+        <div class="container-fluid px-4 px-lg-5">
             <div class="row align-items-center">
                 <div class="col-lg-7 text-center text-lg-start">
                     <span class="badge rounded-pill bg-primary px-3 py-2 mb-4 animate__animated animate__fadeInLeft">🚀 NUEVA VERSIÓN 4.0</span>
@@ -132,7 +132,7 @@
                     </div>
                 </div>
                 <div class="col-lg-5 d-none d-lg-block">
-                    <img src="{{ asset('images/hero_scanner_mobile.png') }}" class="img-fluid rounded-5 shadow-2xl animate__animated animate__fadeInRight" style="transform: perspective(1000px) rotateY(-15deg) rotateX(5deg); border: 1px solid var(--glass-border);" alt="MultiPOS Mobile">
+                    <img src="{{ asset('images/escaneo_movil_premium.png') }}" class="img-fluid rounded-5 shadow-2xl animate__animated animate__fadeInRight" style="transform: perspective(1000px) rotateY(-15deg) rotateX(5deg); border: 1px solid var(--glass-border); width: 100%; height: auto; object-fit: cover;" alt="MultiPOS Mobile">
                 </div>
             </div>
         </div>
@@ -140,10 +140,10 @@
 
     {{-- TECNOLOGIA - MAGIC SCAN --}}
     <section id="tecnologia" class="py-5">
-        <div class="container px-4 py-5 bg-black border border-secondary rounded-5 shadow-lg">
+        <div class="container-fluid px-4 px-lg-5 py-5 bg-black border border-secondary rounded-5 shadow-lg">
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-5 mb-lg-0">
-                    <img src="{{ asset('artifacts/escaneo_movil_premium_1775049304619.png') }}" class="img-fluid rounded-4 shadow-lg border border-primary" alt="Escaneo Móvil">
+                    <img src="{{ asset('images/escaneo_movil_premium.png') }}" class="img-fluid rounded-4 shadow-lg border border-primary" alt="Escaneo Móvil">
                 </div>
                 <div class="col-lg-6 ps-lg-5">
                     <span class="badge bg-primary mb-3">EXCLUSIVO 4.0</span>
@@ -190,7 +190,7 @@
                 </div>
                 <div class="col-lg-6 order-1 order-lg-2">
                     <div class="position-relative">
-                        <img src="{{ asset('artifacts/control_qr_premium_1775049324847.png') }}" class="img-fluid rounded-5 shadow-2xl skew-right" alt="Control QR">
+                        <img src="{{ asset('images/control_qr_premium.png') }}" class="img-fluid rounded-5 shadow-2xl skew-right" alt="Control QR">
                         <div class="position-absolute bottom-0 start-0 m-4 bg-dark bg-opacity-75 p-3 rounded-4 backdrop-blur border border-white border-opacity-10 d-none d-md-block animate__animated animate__fadeInLeft">
                             <div class="small fw-bold text-success animate__animated animate__flash animate__infinite">● MARCACIÓN CORRECTA</div>
                             <div class="small text-white-50">Juan Pérez · Entrada: 08:30hs</div>
@@ -264,7 +264,7 @@
 
     {{-- PLANES --}}
     <section id="planes" class="py-5 mt-5">
-        <div class="container px-4">
+        <div class="container-fluid px-4 px-lg-5">
             <div class="text-center mb-5">
                 <h2 class="display-3 fw-bold">Planes Sin Sorpresas.</h2>
                 <p class="fs-4" style="color: #d1d1d6;">Elegí la escala de tu negocio hoy.</p>
