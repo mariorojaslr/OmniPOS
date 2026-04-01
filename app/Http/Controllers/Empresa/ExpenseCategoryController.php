@@ -35,14 +35,10 @@ class ExpenseCategoryController extends Controller
 
     public function update(Request $request, ExpenseCategory $category)
     {
-        $user = auth()->user();
+        // SI VES ESTO, MI CÓDIGO ESTÁ FUNCIONANDO
+        dd('¡CONECTADOS! Intentando guardar: ' . $category->nombre);
         
-        // Si no es el Owner máster, verificamos que la categoría le pertenezca
-        if ($user->role !== 'owner') {
-            if ($category->empresa_id != $user->empresa_id) {
-                abort(403, 'Acceso denegado: Esta categoría no pertenece a su empresa.');
-            }
-        }
+        $user = auth()->user();
 
         $request->validate([
             'nombre' => 'required|string|max:255',
@@ -58,10 +54,8 @@ class ExpenseCategoryController extends Controller
     {
         $user = auth()->user();
         
-        if ($user->role !== 'owner') {
-            if ($category->empresa_id != $user->empresa_id) {
-                abort(403);
-            }
+        if ($user->role === 'usuario' && $category->empresa_id != $user->empresa_id) {
+            abort(403);
         }
         
         if ($category->expenses()->count() > 0) {
