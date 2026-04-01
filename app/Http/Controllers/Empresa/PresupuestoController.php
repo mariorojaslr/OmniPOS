@@ -68,7 +68,7 @@ class PresupuestoController extends Controller
                 'client_id'   => $request->client_id,
                 'numero'      => $numero,
                 'fecha'       => $request->fecha,
-                'vencimiento' => \Carbon\Carbon::parse($request->fecha)->addDays($request->validez),
+                'vencimiento' => \Carbon\Carbon::parse($request->fecha)->addDays((int)$request->validez),
                 'subtotal'    => $request->total_final,
                 'total'       => $request->total_final,
                 'notas'       => $request->notas,
