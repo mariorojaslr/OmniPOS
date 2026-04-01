@@ -38,7 +38,7 @@ class PresupuestoController extends Controller
         return view('empresa.presupuestos.create', [
             'empresa'  => $empresa,
             'clientes' => $empresa->clients()->orderBy('name')->get(),
-            'productos'=> $empresa->products()->orderBy('nombre')->get(),
+            'productos'=> $empresa->products()->orderBy('name')->get(),
         ]);
     }
 
