@@ -80,28 +80,28 @@
         <div class="col-md-3">
             <div class="glass-stat text-center">
                 <div class="stat-label">Total Emitidos</div>
-                <div class="fs-2 fw-bold text-white">0</div>
+                <div class="fs-2 fw-bold text-white">{{ $stats['total'] }}</div>
                 <div class="small text-muted">Histórico Global</div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="glass-stat text-center" style="border-bottom: 3px solid #fbbf24;">
                 <div class="stat-label">Pendientes</div>
-                <div class="fs-2 fw-bold gradient-text-gold">0</div>
+                <div class="fs-2 fw-bold gradient-text-gold">{{ $stats['pendientes'] }}</div>
                 <div class="small text-muted">A la espera de cierre</div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="glass-stat text-center" style="border-bottom: 3px solid #22c55e;">
-                <div class="stat-label">Convertidos</div>
-                <div class="fs-2 fw-bold text-success">0</div>
+                <div class="stat-label">Aceptados</div>
+                <div class="fs-2 fw-bold text-success">{{ $stats['aceptados'] }}</div>
                 <div class="small text-muted">Exito Comercial</div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="glass-stat text-center" style="border-bottom: 3px solid #ef4444;">
                 <div class="stat-label">Vencidos</div>
-                <div class="fs-2 fw-bold text-danger">0</div>
+                <div class="fs-2 fw-bold text-danger">{{ $stats['vencidos'] }}</div>
                 <div class="small text-muted">Requieren Seguimiento</div>
             </div>
         </div>
@@ -122,18 +122,57 @@
                 </tr>
             </thead>
             <tbody>
-                {{-- Mock para que no se vea vacío y "feo" --}}
-                <tr class="opacity-30">
-                    <td><span class="badge bg-secondary">PRE-0000</span></td>
-                    <td><i>Inicie un presupuesto para ver datos...</i></td>
-                    <td>-- / -- / --</td>
-                    <td>-- / -- / --</td>
-                    <td class="text-end fw-bold">$ 0.00</td>
-                    <td class="text-center"><span class="badge bg-dark border border-secondary">ESPERA</span></td>
+                @forelse ($presupuestos as $presu)
+                <tr>
+                    <td><span class="badge bg-secondary">#{{ $presu->numero }}</span></td>
+                    <td>
+                        <div class="fw-bold">{{ $presu->client->name ?? 'Cliente Ocasional' }}</div>
+                        <div class="small text-muted">{{ $presu->client->email ?? '-' }}</div>
+                    </td>
+                    <td>{{ $presu->fecha ? $presu->fecha->format('d/m/Y') : '-' }}</td>
+                    <td>{{ $presu->vencimiento ? $presu->vencimiento->format('d/m/Y') : '-' }}</td>
+                    <td class="text-end fw-bold fs-5 text-info">$ {{ number_format($presu->total, 2) }}</td>
+                    <td class="text-center">
+                        @php
+                            $badgeClass = match($presu->estado) {
+                                'pendiente' => 'bg-warning text-dark',
+                                'aceptado' => 'bg-success',
+                                'rechazado' => 'bg-danger',
+                                'convertido' => 'bg-info text-dark',
+                                'vencido' => 'bg-secondary',
+                                default => 'bg-dark'
+                            };
+                        @endphp
+                        <span class="badge {{ $badgeClass }} border border-opacity-10">{{ strtoupper($presu->estado) }}</span>
+                    </td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-light rounded-circle"><i class="bi bi-three-dots"></i></button>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-light rounded-circle" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end border-white border-opacity-10">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-eye me-2"></i> Ver Detalle</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-printer me-2"></i> Imprimir PDF</a></li>
+                                @if($presu->estado == 'pendiente')
+                                    <li><hr class="dropdown-divider border-white border-opacity-10"></li>
+                                    <li><a class="dropdown-item text-success" href="#"><i class="bi bi-check-lg me-2"></i> Aceptar</a></li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-lg me-2"></i> Rechazar</a></li>
+                                @endif
+                            </ul>
+                        </div>
                     </td>
                 </tr>
+                @empty
+                <tr>
+                    <td colspan="7" class="text-center py-5">
+                        <div class="opacity-30">
+                            <i class="bi bi-file-earmark-text fs-1 mb-3 d-block"></i>
+                            <h5 class="fw-bold">No hay presupuestos generados</h5>
+                            <p class="small mb-0">Comience creando su primera cotización profesional.</p>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

@@ -120,9 +120,36 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 <div class="dashboard-container">
 
     {{-- ======================================================
-        CABECERA (ADMIN EMPRESA)
+        CENTRO DE MANDO MÓVIL (SOLO CELULARES)
     ====================================================== --}}
-    <div class="mb-5 d-flex justify-content-between align-items-center">
+    <div class="d-md-none mb-5 animate__animated animate__fadeInDown">
+        <h5 class="stat-label mb-3 text-center">🚀 Operativa de Campo</h5>
+        <div class="row g-3">
+            <div class="col-6">
+                <a href="{{ route('empresa.gastos.quick') }}" class="glass-panel text-center d-flex flex-column align-items-center justify-content-center py-4 text-decoration-none border-danger border-opacity-25" style="background: rgba(239, 68, 68, 0.08);">
+                    <div class="fs-1 mb-2">💸</div>
+                    <div class="fw-bold text-danger small text-uppercase">Gasto Rápido</div>
+                </a>
+            </div>
+            <div class="col-6">
+                <a href="{{ route('empresa.personal.asistencia.qr') }}" class="glass-panel text-center d-flex flex-column align-items-center justify-content-center py-4 text-decoration-none border-primary border-opacity-25" style="background: rgba(37, 99, 235, 0.08);">
+                    <div class="fs-1 mb-2">📸</div>
+                    <div class="fw-bold text-primary small text-uppercase">Fichaje QR</div>
+                </a>
+            </div>
+            <div class="col-12">
+                <a href="{{ route('empresa.pos.index') }}" class="glass-panel text-center d-flex align-items-center justify-content-center py-3 text-decoration-none border-success border-opacity-25" style="background: rgba(34, 197, 94, 0.08);">
+                    <div class="fs-3 me-3">🛒</div>
+                    <div class="fw-bold text-success text-uppercase">Nueva Venta (POS)</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{-- ======================================================
+        CABECERA (ADMIN EMPRESA) - Visible en Desktop
+    ====================================================== --}}
+    <div class="mb-5 d-none d-md-flex justify-content-between align-items-center">
         <div>
             <h2 class="header-title mb-1">
                 Panel de Administración: <span style="color: {{ $primary }};">{{ $empresa->nombre_comercial }}</span>

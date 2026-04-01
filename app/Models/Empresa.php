@@ -70,6 +70,21 @@ class Empresa extends Model
     {
         return $this->hasMany(SuscripcionPago::class);
     }
+    public function presupuestos()
+    {
+        return $this->hasMany(\App\Models\Presupuesto::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(\App\Models\Product::class);
+    }
+
+    public function clients()
+    {
+        return $this->hasMany(\App\Models\Client::class);
+    }
+
     // =========================================================
 
     public function plan()
