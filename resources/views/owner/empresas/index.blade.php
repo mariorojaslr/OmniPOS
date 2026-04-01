@@ -95,7 +95,7 @@
                         <td class="text-end pe-4">
 
                             {{-- Usuarios de la empresa --}}
-                            <a href="{{ route('owner.empresas.users.index', ['empresa' => $empresa->id]) }}"
+                            <a href="{{ route('owner.empresas.users.index', [$empresa->id]) }}"
                                class="btn btn-sm btn-outline-primary">
                                 Usuarios
                             </a>
@@ -107,7 +107,7 @@
                             @endphp
                             
                             @if($admin)
-                                <a href="{{ route('owner.empresas.users.impersonate', ['empresa' => $empresa, 'usuario' => $admin->id]) }}"
+                                <a href="{{ route('owner.empresas.users.impersonate', [$empresa->id, $admin->id]) }}"
                                    class="btn btn-sm btn-primary ms-1 fw-bold" title="Entrar como Administrador ({{ $admin->name }})">
                                     <i class="bi bi-box-arrow-in-right"></i> ENTRAR
                                 </a>
@@ -118,7 +118,7 @@
                             @endif
 
                             {{-- Editar empresa --}}
-                            <a href="{{ route('owner.empresas.edit', $empresa) }}"
+                            <a href="{{ route('owner.empresas.edit', [$empresa->id]) }}"
                                class="btn btn-sm btn-outline-secondary ms-1">
                                 Editar
                             </a>
