@@ -63,9 +63,11 @@
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 2px;
-        color: #64748b;
-        font-weight: 600;
+        color: #ffffff;
+        opacity: 0.9;
+        font-weight: 700;
         margin-bottom: 0.5rem;
+        padding-left: 2px; /* Evita que la primera letra se corte */
     }
 
     .stat-value {
@@ -132,7 +134,7 @@
         margin: 2rem 0;
     }
 
-    .stat-mini-label { font-size: 0.7rem; color: #475569; letter-spacing: 1px; }
+    .stat-mini-label { font-size: 0.7rem; color: #ffffff; letter-spacing: 1px; opacity: 0.8; }
 
     /* Animaciones */
     @keyframes pulse-border {
