@@ -137,7 +137,7 @@
 <script>
 function editCategory(id, nombre, color, activo) {
     const form = document.getElementById('editCategoryForm');
-    form.action = `/empresa/gastos-categorias/${id}`;
+    form.action = `/empresa/gastos_categorias/${id}`;
     
     document.getElementById('edit_nombre').value = nombre;
     document.getElementById('edit_color').value = color;
