@@ -76,7 +76,9 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-            z-index: 1050 !important;
+            z-index: 9999 !important;
+            max-height: none !important; /* Asegura que no se corte nada */
+            overflow: visible !important;
         }
         .dropdown-menu-dark-custom .dropdown-item,
         .dropdown-menu-dark-custom .dropdown-item-text {
@@ -125,6 +127,15 @@
             margin: 0 3px;
             padding: 8px 14px;
             font-weight: bold;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #60a5fa; /* Celeste atenuado sugerido */
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            padding-left: 2px;
         }
         .pagination .active .page-link {
             background-color: #3b82f6 !important;

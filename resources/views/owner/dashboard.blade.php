@@ -63,11 +63,10 @@
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 2px;
-        color: #ffffff;
-        opacity: 0.9;
+        color: #60a5fa; /* Celeste atenuado */
         font-weight: 700;
         margin-bottom: 0.5rem;
-        padding-left: 2px; /* Evita que la primera letra se corte */
+        padding-left: 2px;
     }
 
     .stat-value {
