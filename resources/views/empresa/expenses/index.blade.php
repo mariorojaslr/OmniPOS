@@ -14,22 +14,27 @@
 @keyframes bgPulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
 
 .glass-panel {
-    background: rgba(var(--bs-tertiary-bg-rgb), 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(128, 128, 128, 0.15);
-    border-radius: 20px;
-    padding: 1.5rem;
-    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
 }
-.glass-panel:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 45px -10px rgba(0,0,0,0.1);
+.stat-label { 
+    font-size: 0.65rem; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+    font-weight: 700; 
+    color: #6b7280; 
+    margin-bottom: 0.25rem; 
 }
-
-.stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: #6c757d; margin-bottom: 0.5rem; }
-.stat-value { font-size: 2.3rem; font-weight: 800; line-height: 1; }
+.stat-value { 
+    font-size: 1.6rem; 
+    font-weight: 800; 
+    line-height: 1; 
+    color: #111827;
+}
 
 .table-glass { border-radius: 20px; overflow: hidden; border: 1px solid rgba(128, 128, 128, 0.1); }
 .table-glass.table thead th { 
