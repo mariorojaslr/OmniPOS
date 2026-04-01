@@ -28,15 +28,37 @@
                 <input type="email" name="email" class="form-control" required>
             </div>
 
-            {{-- Tipo de Usuario / Responsabilidad --}}
-            <div class="mb-3">
-                <label class="form-label fw-bold">Responsabilidad / Rol</label>
-                <select name="sub_role" class="form-select border-primary">
-                    <option value="cajero">Cajero (Usa POS y maneja Caja)</option>
-                    <option value="empleado">Empleado de Campo / Obra (Solo Asistencia)</option>
+            {{-- Nivel de Acceso --}}
+            <div class="mb-4">
+                <label class="form-label fw-bold text-primary">Nivel de Acceso</label>
+                <select name="role" class="form-select border-primary shadow-sm" id="roleSelect" onchange="toggleSubRole()">
+                    <option value="usuario" selected>Personal Operativo (Control de jornada y POS)</option>
+                    <option value="empresa">Administrador (Acceso total y reportes)</option>
                 </select>
-                <div class="form-text">Esto define si el usuario ve las funciones de venta o solo control de jornada.</div>
+                <div class="form-text">Los administradores pueden ver reportes fincancieros y gestionar a otros usuarios.</div>
             </div>
+
+            {{-- Tipo de Usuario / Responsabilidad (Solo para Personal Operativo) --}}
+            <div id="subRoleContainer" class="mb-3">
+                <label class="form-label fw-bold">Especialidad del Personal</label>
+                <select name="sub_role" class="form-select border-info">
+                    <option value="cajero">Cajero (Usa POS y maneja Caja)</option>
+                    <option value="empleado">Empleado de Campo / Obra (Solo ficha Asistencia)</option>
+                </select>
+                <div class="form-text">Define qué funciones verá el usuario en su panel diario.</div>
+            </div>
+
+            <script>
+                function toggleSubRole() {
+                    const role = document.getElementById('roleSelect').value;
+                    const container = document.getElementById('subRoleContainer');
+                    if (role === 'empresa') {
+                        container.style.display = 'none';
+                    } else {
+                        container.style.display = 'block';
+                    }
+                }
+            </script>
 
             {{-- Password opcional --}}
             <div class="mb-3">

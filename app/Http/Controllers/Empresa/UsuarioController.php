@@ -21,7 +21,7 @@ class UsuarioController extends Controller
         $estado = $request->estado ?? 'activos';
 
         $query = User::where('empresa_id', $empresaId)
-            ->where('role', 'usuario');
+            ->where('id', '!=', auth()->id()); // No mostrarse a sí mismo para evitar auto-edición
 
         if ($estado === 'activos') {
             $query->where('activo', 1);
@@ -67,7 +67,7 @@ class UsuarioController extends Controller
             'email' => $request->email,
             'password' => Hash::make($passwordPlano),
             'empresa_id' => auth()->user()->empresa_id,
-            'role' => 'usuario',
+            'role' => $request->role ?? 'usuario', // Ahora acepta 'empresa' o 'usuario'
             'sub_role' => $request->sub_role ?? 'cajero',
             'activo' => 1,
         ]);
