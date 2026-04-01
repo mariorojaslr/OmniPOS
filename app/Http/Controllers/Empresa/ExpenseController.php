@@ -28,6 +28,12 @@ class ExpenseController extends Controller
             $query->where('date', '<=', $request->to);
         }
 
+        if ($request->filled('search_user')) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->search_user . '%');
+            });
+        }
+
         $expenses = $query->paginate(20);
         $categories = ExpenseCategory::where('empresa_id', auth()->user()->empresa_id)->get();
         

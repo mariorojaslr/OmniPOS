@@ -35,6 +35,9 @@
                 <div class="col-md-3">
                     <input type="date" name="to" value="{{ request('to') }}" class="form-control border-0 bg-light rounded-3" placeholder="Hasta">
                 </div>
+                <div class="col-md-3">
+                    <input type="text" name="search_user" value="{{ request('search_user') }}" class="form-control border-0 bg-light rounded-3" placeholder="Buscar por empleado...">
+                </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-dark w-100 rounded-3">Filtrar</button>
                 </div>
@@ -43,7 +46,7 @@
     </div>
     <div class="col-md-3">
         <div class="card shadow-sm border-0 rounded-4 p-3 bg-danger text-white">
-            <small class="opacity-75 d-block">TOTAL EGRESOS</small>
+            <small class="opacity-75 d-block text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.65rem;">TOTAL EGRESOS</small>
             <h3 class="fw-bold mb-0">$ {{ number_format($total, 2, ',', '.') }}</h3>
         </div>
     </div>
@@ -89,7 +92,19 @@
                         <span class="text-danger fw-bold">$ {{ number_format($gasto->amount, 2, ',', '.') }}</span>
                     </td>
                     <td>
-                        <small>{{ $gasto->user->name ?? 'N/A' }}</small>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary fw-bold me-2 shadow-sm" style="width: 32px; height: 32px; font-size: 0.8rem; border: 1px solid #eee;">
+                                {{ substr($gasto->user->name ?? '?', 0, 1) }}
+                            </div>
+                            <div>
+                                <div class="fw-bold small">{{ $gasto->user->name ?? 'N/A' }}</div>
+                                @if($gasto->asistencia_id)
+                                    <span class="badge bg-soft-info text-info border border-info-subtle" style="font-size: 0.6rem;">REGISTRO DE CAMPO</span>
+                                @else
+                                    <span class="badge bg-soft-secondary text-secondary border border-secondary-subtle" style="font-size: 0.6rem;">MANUAL / DASHBOARD</span>
+                                @endif
+                            </div>
+                        </div>
                     </td>
                     <td class="text-end pe-4">
                         <div class="dropdown">
