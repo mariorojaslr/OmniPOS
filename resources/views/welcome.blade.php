@@ -143,20 +143,20 @@
         <div class="container px-4 py-5 bg-black border border-secondary rounded-5 shadow-lg">
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-5 mb-lg-0">
-                    <img src="{{ asset('images/hero_scanner_mobile.png') }}" class="img-fluid rounded-4 shadow-lg border border-success" alt="Escaneo Móvil">
+                    <img src="{{ asset('images/multipos_mobile_pos_premium_1775021097894.png') }}" class="img-fluid rounded-4 shadow-lg border border-primary" alt="Escaneo Móvil">
                 </div>
                 <div class="col-lg-6 ps-lg-5">
-                    <span class="badge bg-success mb-3">EXCLUSIVO 4.0</span>
-                    <h2 class="display-4 fw-bold mb-4 text-white">Magic Scan Pro: <span class="text-success">Tu teléfono es un escáner.</span></h2>
-                    <p class="fs-5 mb-4" style="color: #d1d1d6;">Olvidá los cables. Aprovechá la cámara de cualquier celular para vender y cargar stock. Nuestra tecnología procesa códigos de barras en milisegundos con precisión total.</p>
+                    <span class="badge bg-primary mb-3">EXCLUSIVO 4.0</span>
+                    <h2 class="display-4 fw-bold mb-4 text-white">Vendé Desde Donde Estés: <span class="text-primary text-gradient">Tu teléfono es tu POS.</span></h2>
+                    <p class="fs-5 mb-4" style="color: #d1d1d6;">Olvidá las cajas registradoras pesadas. Con MultiPOS Mobile, transformás cualquier smartphone en un punto de venta profesional con escaneo ultra-rápido de productos.</p>
                     <div class="d-flex gap-4">
                         <div class="text-center p-3 bg-dark rounded-4 border border-secondary flex-grow-1">
-                            <i class="bi bi-lightning-fill text-success fs-1"></i>
-                            <h5 class="mt-2 text-white">Ultrarrápido</h5>
+                            <i class="bi bi-phone text-primary fs-1"></i>
+                            <h5 class="mt-2 text-white">POS Portátil</h5>
                         </div>
                         <div class="text-center p-3 bg-dark rounded-4 border border-secondary flex-grow-1">
-                            <i class="bi bi-shield-check text-success fs-1"></i>
-                            <h5 class="mt-2 text-white">Sin Errores</h5>
+                            <i class="bi bi-qr-code-scan text-primary fs-1"></i>
+                            <h5 class="mt-2 text-white">Magic Scan</h5>
                         </div>
                     </div>
                 </div>
@@ -164,7 +164,73 @@
         </div>
     </section>
 
-    {{-- CARINA ASSISTANT --}}
+    {{-- NUEVO: CONTROL DE CAMPO & QR --}}
+    <section class="py-5 mt-5">
+        <div class="container px-4">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6 order-2 order-lg-1">
+                    <span class="badge bg-success mb-3">CONTROL TOTAL</span>
+                    <h2 class="display-4 fw-bold mb-4">Eliminá el Faltante de Caja <br><span class="text-success text-gradient">en Tiempo Real.</span></h2>
+                    <p class="fs-5 mb-5 text-muted">Nuestro sistema de **Asistencia por QR** y **Registro de Gasto Rápido** permite que tu personal de campo rinda cuentas al instante. Sacá una foto a la factura y restalo de la caja en segundos.</p>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success"><i class="bi bi-camera fs-3"></i></div>
+                                <div><h6 class="fw-bold text-white">Fotos de Facturas</h6><p class="small text-muted">Prueba visual inmediata de cada gasto realizado.</p></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success"><i class="bi bi-geo-alt fs-3"></i></div>
+                                <div><h6 class="fw-bold text-white">Control de Ubicación</h6><p class="small text-muted">Sabés dónde y cuándo se hizo cada arqueo.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 order-1 order-lg-2">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/multipos_qr_attendance_1775021114033.png') }}" class="img-fluid rounded-5 shadow-2xl skew-right" alt="Control QR">
+                        <div class="position-absolute bottom-0 start-0 m-4 bg-dark bg-opacity-75 p-3 rounded-4 backdrop-blur border border-white border-opacity-10 d-none d-md-block animate__animated animate__fadeInLeft">
+                            <div class="small fw-bold text-success animate__animated animate__flash animate__infinite">● MARCACIÓN CORRECTA</div>
+                            <div class="small text-white-50">Juan Pérez · Entrada: 08:30hs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- SECCIÓN OMNICANALIDAD --}}
+    <section class="py-5" style="background: linear-gradient(180deg, #09090b 0%, #000 100%);">
+        <div class="container px-4 text-center">
+            <h2 class="display-3 fw-bold mb-5">Un Solo Motor, <span class="text-primary">Múltiples Canales.</span></h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <i class="bi bi-shop"></i>
+                        <h4 class="fw-bold text-white mb-3">Ventas Locales</h4>
+                        <p>Gestión de mostrador ultra rápida con soporte para múltiples cajeros, turnos y arqueos automáticos.</p>
+                        <div class="mt-4 pt-3 border-top border-secondary">
+                            <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3">SINCRO TOTAL</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <i class="bi bi-globe"></i>
+                        <h4 class="fw-bold text-white mb-3">Ventas Online</h4>
+                        <p>Tu propio catálogo autogestionado. Recibí pedidos por WhatsApp o Web y visualizalos en tiempo real.</p>
+                        <div class="mt-4 pt-3 border-top border-secondary">
+                            <span class="badge rounded-pill bg-success bg-opacity-10 text-success px-3">24/7 ACTIVO</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- CARINA ASSISTANT (CON MÁS PODER) --}}
     <section id="asistente" class="py-5 mt-5">
         <div class="container px-4">
             <div class="row align-items-center bg-black border border-secondary p-4 p-lg-5 rounded-5 shadow-lg">
@@ -220,7 +286,7 @@
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> {{ formatMB($plan->max_storage_mb) }} Almacén</li>
                             <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Escaneo Móvil</li>
                         </ul>
-                        <a href="{{ route('register') }}" class="btn {{ $plan->name == 'PROFESSIONAL' ? 'btn-primary' : 'btn-outline-light' }} w-100 rounded-pill py-3 fw-bold">Elegir Este Plan</a>
+                        <a href="{{ route('register', ['plan' => $plan->id]) }}" class="btn {{ $plan->name == 'PROFESSIONAL' ? 'btn-primary' : 'btn-outline-light' }} w-100 rounded-pill py-3 fw-bold">Elegir Este Plan</a>
                     </div>
                 </div>
                 @endforeach

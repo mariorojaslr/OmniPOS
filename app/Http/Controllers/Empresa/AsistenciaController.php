@@ -121,9 +121,19 @@ class AsistenciaController extends Controller
                     ->whereBetween('created_at', [$fechaInicio, $fechaFin])
                     ->sum('total_con_iva');
 
-                $ventasDigital = Venta::where('empresa_id', $empresaId)
+                $ventasTarjeta = Venta::where('empresa_id', $empresaId)
                     ->where('user_id', $userId)
-                    ->where('metodo_pago', '!=', 'efectivo')
+                    ->where(function($q) {
+                        $q->where('metodo_pago', 'tarjeta')
+                          ->orWhere('metodo_pago', 'debito')
+                          ->orWhere('metodo_pago', 'credito');
+                    })
+                    ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+                    ->sum('total_con_iva');
+
+                $ventasTransferencia = Venta::where('empresa_id', $empresaId)
+                    ->where('user_id', $userId)
+                    ->where('metodo_pago', 'transferencia')
                     ->whereBetween('created_at', [$fechaInicio, $fechaFin])
                     ->sum('total_con_iva');
 
@@ -139,14 +149,15 @@ class AsistenciaController extends Controller
 
                 if ($caja) {
                     $caja->update([
-                        'fecha_cierre'    => $fechaFin,
-                        'ventas_efectivo' => $ventasEfectivo,
-                        'ventas_digital'  => $ventasDigital,
-                        'egresos'         => $egresosTurno,
-                        'saldo_esperado'  => $saldoEsperado,
-                        'saldo_real'      => $saldoReal,
-                        'diferencia'      => $diferencia,
-                        'estado'          => 'cerrada'
+                        'fecha_cierre'        => $fechaFin,
+                        'ventas_efectivo'     => $ventasEfectivo,
+                        'ventas_tarjeta'      => $ventasTarjeta,
+                        'ventas_transferencia' => $ventasTransferencia,
+                        'egresos'             => $egresosTurno,
+                        'saldo_esperado'      => $saldoEsperado,
+                        'saldo_real'          => $saldoReal,
+                        'diferencia'          => $diferencia,
+                        'estado'              => 'cerrada'
                     ]);
                 }
             }

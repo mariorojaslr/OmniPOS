@@ -67,7 +67,16 @@
                        placeholder="Si se deja vacío → se genera automática">
             </div>
 
-            <div class="d-flex justify-content-between">
+            {{-- Permisos de Gastos --}}
+            <div class="mb-5 border-top pt-4">
+                <div class="form-check form-switch p-0" style="padding-left: 2.5rem !important;">
+                    <input class="form-check-input" type="checkbox" name="can_register_expenses" id="canRegisterExpenses" value="1">
+                    <label class="form-check-label fw-bold" for="canRegisterExpenses">
+                        🔐 Habilitar registro de gastos en campo
+                    </label>
+                    <div class="form-text">Si se activa, este usuario tendrá acceso a la "App" rápida de gastos desde su celular.</div>
+                </div>
+            </div>
                 <a href="{{ route('empresa.usuarios.index') }}" class="btn btn-secondary">
                     Cancelar
                 </a>

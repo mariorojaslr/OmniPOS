@@ -7,6 +7,7 @@ use App\Models\Empresa;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class EmpresaUserController extends Controller
@@ -61,12 +62,12 @@ class EmpresaUserController extends Controller
     | Activar / Desactivar usuario
     |--------------------------------------------------------------------------
     */
-    public function toggle(Empresa $empresa, User $user)
+    public function toggle(Empresa $empresa, User $usuario)
     {
-        abort_if($user->empresa_id !== $empresa->id, 403);
+        abort_if($usuario->empresa_id !== $empresa->id, 403);
 
-        $user->update([
-            'activo' => ! $user->activo,
+        $usuario->update([
+            'activo' => ! $usuario->activo,
         ]);
 
         return back()->with('success', 'Estado del usuario actualizado');
@@ -77,35 +78,36 @@ class EmpresaUserController extends Controller
     | Resetear password (siempre automático)
     |--------------------------------------------------------------------------
     */
-    public function resetPassword(Empresa $empresa, User $user)
+    public function resetPassword(Empresa $empresa, User $usuario)
     {
-        abort_if($user->empresa_id !== $empresa->id, 403);
+        abort_if($usuario->empresa_id !== $empresa->id, 403);
 
         $password = Str::random(8);
 
-        $user->forceFill([
+        $usuario->forceFill([
             'password' => Hash::make($password),
         ])->save();
 
         return back()->with('success', "Nuevo password: {$password}");
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ENTRAR COMO USUARIO (Omnipotencia del Owner)
-    |--------------------------------------------------------------------------
-    */
-    public function impersonate(Empresa $empresa, User $user)
+    /**
+     * ENTRAR COMO USUARIO (Mimetización)
+     */
+    public function impersonate(Empresa $empresa, User $usuario)
     {
-        abort_if($user->empresa_id !== $empresa->id, 403);
+        // Verificar que el usuario pertenezca a la empresa por seguridad
+        abort_if($usuario->empresa_id !== $empresa->id, 403);
 
-        // Guardar la sesión original del owner
-        session()->put('impersonate_by', auth()->id());
+        $ownerId = auth()->id();
 
-        // Iniciar sesión silenciosamente como este usuario
-        \Illuminate\Support\Facades\Auth::login($user);
+        // Iniciar sesión silenciosamente como el usuario de la empresa
+        Auth::login($usuario);
 
-        return redirect()->route('dashboard')
-            ->with('success', "Has iniciado sesión como {$user->name} de la empresa {$empresa->nombre_comercial}");
+        // Guardar la sesión original del owner DESPUÉS de loguear para evitar pérdida por regeneración
+        session(['impersonator_id' => $ownerId]);
+
+        return redirect()->route('empresa.dashboard')
+            ->with('info', "Mimetización activa: Estás viendo la plataforma como {$usuario->name} de {$empresa->nombre_comercial}");
     }
 }

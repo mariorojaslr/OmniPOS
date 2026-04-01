@@ -49,7 +49,7 @@
                         <td class="text-end pe-4">
 
                             <form method="POST"
-                                  action="{{ route('owner.empresas.users.toggle', [$empresa, $user]) }}"
+                                  action="{{ route('owner.empresas.users.toggle', ['empresa' => $empresa, 'usuario' => $user->id]) }}"
                                   class="d-inline">
                                 @csrf
                                 @method('PATCH')
@@ -59,7 +59,7 @@
                             </form>
 
                             <form method="POST"
-                                  action="{{ route('owner.empresas.users.reset', [$empresa, $user]) }}"
+                                  action="{{ route('owner.empresas.users.reset', ['empresa' => $empresa, 'usuario' => $user->id]) }}"
                                   class="d-inline ms-1">
                                 @csrf
                                 @method('PATCH')
@@ -68,7 +68,7 @@
                                 </button>
                             </form>
 
-                            <a href="{{ route('owner.empresas.users.impersonate', [$empresa, $user]) }}"
+                            <a href="{{ route('owner.empresas.users.impersonate', ['empresa' => $empresa, 'usuario' => $user->id]) }}"
                                class="btn btn-sm btn-outline-info ms-1"
                                title="Entrar al sistema como este usuario">
                                 Entrar

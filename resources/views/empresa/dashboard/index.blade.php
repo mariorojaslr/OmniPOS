@@ -21,8 +21,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 
 .dashboard-container {
     width: 100%;
-    max-width: 1600px;
-    margin: auto;
+    padding: 0 2rem;
     padding-bottom: 2rem;
 }
 
@@ -165,53 +164,89 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 
 
     {{-- ======================================================
-        BLOQUE 1 · MÉTRICAS COMERCIALES (HOY/MES)
+        DASHBOARD ESTRATÉGICO DUAL (LOCAL VS INTERNET)
     ====================================================== --}}
-    <h5 class="fw-bold mb-3 text-secondary">Rendimiento Comercial</h5>
+    <div class="row g-4 mb-5">
+        
+        {{-- COLUMNA 1: OPERACIÓN LOCAL (POS) --}}
+        <div class="col-lg-6">
+            <h5 class="fw-bold mb-4 text-center text-uppercase letter-spacing-1" style="color: {{ $primary }};">🏪 Operación Local (Punto de Venta)</h5>
+            <div class="glass-panel p-4">
+                <div class="row g-3">
+                    <div class="col-md-4 text-center">
+                        <div id="chartLocalVentas" style="min-height: 160px;"></div>
+                        <div class="stat-label small">Ritmo Ventas</div>
+                        <div class="fw-bold text-success">$ {{ number_format($ventasLocalHoy, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div id="chartLocalEgresos" style="min-height: 160px;"></div>
+                        <div class="stat-label small">Gasto vs Inversión</div>
+                        <div class="small text-muted">G: <span class="text-danger">${{ number_format($gastosHoy, 0) }}</span> | I: <span class="text-info">${{ number_format($comprasHoy, 0) }}</span></div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div id="chartLocalEval" style="min-height: 160px;"></div>
+                        <div class="stat-label small">Evaluación Neta</div>
+                        <div class="fw-bold {{ $balanceLocal > 0 ? 'text-success' : 'text-danger' }}">
+                             {{ $balanceLocal > 0 ? 'Positiva' : 'Alerta' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- COLUMNA 2: OPERACIÓN INTERNET (CATÁLOGO) --}}
+        <div class="col-lg-6">
+            <h5 class="fw-bold mb-4 text-center text-uppercase letter-spacing-1" style="color: #8b5cf6;">🌐 Operación Internet (Catálogo)</h5>
+            <div class="glass-panel p-4" style="border-top: 4px solid #8b5cf6;">
+                <div class="row g-3">
+                    <div class="col-md-6 text-center">
+                        <div id="chartInternetVentas" style="min-height: 160px;"></div>
+                        <div class="stat-label small">Ventas Online</div>
+                        <div class="fw-bold" style="color: #8b5cf6;">$ {{ number_format($ventasInternetHoy, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <div class="d-flex flex-column justify-content-center h-100 p-3">
+                             <div class="stat-label mb-2">Pedidos Pendientes</div>
+                             <h3 class="fw-bold {{ $pedidosPendientes > 0 ? 'text-warning' : 'text-muted' }}">{{ $pedidosPendientes }}</h3>
+                             <a href="{{ route('empresa.orders.index') }}" class="btn btn-sm btn-outline-primary rounded-pill mt-2">Gestionar Pedidos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {{-- ======================================================
+        RESUMEN COMERCIAL RÁPIDO
+    ====================================================== --}}
+    <h5 class="fw-bold mb-3 text-secondary">Rendimiento Consolidado (Hoy)</h5>
     <div class="row g-4 mb-4">
 
-        {{-- Ventas hoy --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="glass-panel" style="border-left: 4px solid #22c55e;">
-                <div class="glass-icon text-success">💰</div>
-                <div class="stat-label">Ventas Hoy</div>
-                <div class="stat-value text-success">
-                    $ {{ number_format($ventasHoy, 2) }}
-                </div>
+        {{-- Total Ventas --}}
+        <div class="col-md-4">
+            <div class="glass-panel" style="border-left: 4px solid #22c55e; min-height: 120px;">
+                <div class="glass-icon text-success" style="font-size: 4rem; top: 10px;">💰</div>
+                <div class="stat-label">Total Ventas (Mix)</div>
+                <div class="stat-value text-success">$ {{ number_format($ventasHoy, 0, ',', '.') }}</div>
             </div>
         </div>
 
-        {{-- Ventas del mes --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="glass-panel" style="border-left: 4px solid {{ $primary }};">
-                <div class="glass-icon" style="color: {{ $primary }};">📊</div>
+        {{-- Facturacion Mes --}}
+        <div class="col-md-4">
+            <div class="glass-panel" style="border-left: 4px solid {{ $primary }}; min-height: 120px;">
+                <div class="glass-icon" style="color: {{ $primary }}; font-size: 4rem; top: 10px;">📊</div>
                 <div class="stat-label">Ventas del Mes</div>
-                <div class="stat-value" style="color: {{ $primary }};">
-                    $ {{ number_format($ventasMes, 2) }}
-                </div>
+                <div class="stat-value" style="color: {{ $primary }};">$ {{ number_format($ventasMes, 0, ',', '.') }}</div>
             </div>
         </div>
 
-        {{-- Facturas hoy --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="glass-panel" style="border-left: 4px solid #8b5cf6;">
-                <div class="glass-icon" style="color: #8b5cf6;">🧾</div>
-                <div class="stat-label">Operaciones (Hoy)</div>
-                <div class="stat-value" style="color: #8b5cf6;">
-                    {{ $cantidadVentasHoy }}
-                </div>
-            </div>
-        </div>
-
-        {{-- Estado comercial --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="glass-panel" style="border-left: 4px solid #14b8a6;">
-                <div class="glass-icon" style="color: #14b8a6;">📈</div>
-                <div class="stat-label">Estado del Sistema</div>
-                <div class="stat-value text-teal" style="color: #14b8a6; font-size: 1.8rem;">
-                    Óptimo
-                </div>
-                <div class="small text-muted mt-1">Conexión y BD estables</div>
+        {{-- Ticket Promedio --}}
+        <div class="col-md-4">
+            <div class="glass-panel" style="border-left: 4px solid #8b5cf6; min-height: 120px;">
+                <div class="glass-icon" style="color: #8b5cf6; font-size: 4rem; top: 10px;">🧾</div>
+                <div class="stat-label">Operaciones Realizadas</div>
+                <div class="stat-value" style="color: #8b5cf6;">{{ $cantidadVentasHoy }}</div>
             </div>
         </div>
 
@@ -269,6 +304,17 @@ $secondary = $config?->color_secondary ?? '#16a34a';
                 <div class="stat-value mb-3">5+</div>
                 <a href="{{ route('empresa.reportes.panel') }}" class="btn btn-sm btn-success px-4" style="background: {{ $secondary }}; border-color:{{ $secondary }};">
                     Generar PDF/Excel
+                </a>
+            </div>
+        </div>
+
+        {{-- GASTO RÁPIDO (RESTAURADO) --}}
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="glass-panel text-center pb-4" style="background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
+                <div class="stat-label text-danger">⚠️ CONTROL DE GASTOS</div>
+                <div class="stat-value text-danger mb-3">RÁPIDO</div>
+                <a href="{{ route('empresa.gastos.quick') }}" class="btn btn-danger w-100 fw-bold rounded-pill shadow-sm">
+                    <i class="bi bi-phone-fill me-1"></i> REGISTRAR PAGO
                 </a>
             </div>
         </div>
@@ -344,4 +390,66 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 
 </div>
 
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    const commonOptions = {
+        chart: { type: 'radialBar', height: 180, sparkline: { enabled: true } },
+        plotOptions: {
+            radialBar: {
+                startAngle: -90, endAngle: 90,
+                track: { background: "#eee", strokeWidth: '97%' },
+                dataLabels: {
+                    name: { show: false },
+                    value: { offsetY: -2, fontSize: '20px', fontWeight: '800' }
+                }
+            }
+        },
+        grid: { padding: { top: -10 } },
+        stroke: { lineCap: "round" }
+    };
+
+    // --- SECTOR LOCAL ---
+    
+    // 1. Ritmo Ventas Local (Verde)
+    new ApexCharts(document.querySelector("#chartLocalVentas"), {
+        ...commonOptions,
+        series: [{{ $saludLocal }}],
+        colors: ["#22c55e"]
+    }).render();
+
+    // 2. Gasto vs Inversión Local (Rojo/Azul)
+    new ApexCharts(document.querySelector("#chartLocalEgresos"), {
+        ...commonOptions,
+        series: [{{ $gastosPerc }}, {{ $comprasPerc }}],
+        colors: ["#ef4444", "#3b82f6"],
+        plotOptions: {
+            radialBar: {
+                startAngle: -90, endAngle: 90,
+                dataLabels: {
+                    value: { fontSize: '16px', formatter: (val) => val + '%' }
+                }
+            }
+        }
+    }).render();
+
+    // 3. Evaluación Local (Verde/Rojo)
+    new ApexCharts(document.querySelector("#chartLocalEval"), {
+        ...commonOptions,
+        series: [{{ $evaluacionLocal }}],
+        colors: ["{{ $balanceLocal > 0 ? '#22c55e' : '#ef4444' }}"]
+    }).render();
+
+    // --- SECTOR INTERNET ---
+
+    // 1. Ventas Online (Púrpura)
+    new ApexCharts(document.querySelector("#chartInternetVentas"), {
+        ...commonOptions,
+        series: [{{ $saludInternet }}],
+        colors: ["#8b5cf6"]
+    }).render();
+
+</script>
 @endsection

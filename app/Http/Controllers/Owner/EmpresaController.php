@@ -12,10 +12,16 @@ use Illuminate\Support\Str;
 
 class EmpresaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->input('per_page', 10);
+        
         return view('owner.empresas.index', [
-            'empresas' => Empresa::with('plan')->orderBy('nombre_comercial')->get(),
+            'empresas' => Empresa::with('plan')
+                ->orderBy('nombre_comercial')
+                ->paginate($perPage)
+                ->appends(['per_page' => $perPage]), // Mantener el filtro al navegar
+            'perPage' => $perPage
         ]);
     }
 
@@ -134,5 +140,24 @@ class EmpresaController extends Controller
         $empresa->renovar(30);
 
         return back()->with('success', 'Empresa renovada por 30 días');
+    }
+
+    /**
+     * MIMETIZACIÓN (ENTRAR COMO USUARIO)
+     */
+    public function impersonate(Empresa $empresa, User $user): RedirectResponse
+    {
+        // Verificar que el usuario pertenezca a la empresa
+        if ($user->empresa_id !== $empresa->id) {
+            return back()->with('error', 'El usuario no pertenece a esta empresa.');
+        }
+
+        // Guardar el ID del Owner original para poder volver
+        session(['impersonator_id' => auth()->id()]);
+        
+        // Loguearse como el usuario de la empresa
+        auth()->login($user);
+        
+        return redirect()->route('empresa.dashboard')->with('info', 'Modo Mimetización: Estás viendo la plataforma como ' . $user->name);
     }
 }

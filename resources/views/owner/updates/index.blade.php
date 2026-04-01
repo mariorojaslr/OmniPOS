@@ -22,7 +22,7 @@
     }
 </style>
 
-<div class="container py-4">
+<div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-0">Gestión de Novedades (Log)</h2>

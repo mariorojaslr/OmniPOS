@@ -69,6 +69,7 @@ class UsuarioController extends Controller
             'empresa_id' => auth()->user()->empresa_id,
             'role' => $request->role ?? 'usuario', // Ahora acepta 'empresa' o 'usuario'
             'sub_role' => $request->sub_role ?? 'cajero',
+            'can_register_expenses' => $request->has('can_register_expenses'), // Booleano: si existe el checkbox es true
             'activo' => 1,
         ]);
 
@@ -125,5 +126,38 @@ class UsuarioController extends Controller
         }
 
         return view('empresa.usuarios.desempeno', compact('usuario'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACTUALIZAR USUARIO (NOMBRE, MAIL, ROLES Y FACULTADES)
+    |--------------------------------------------------------------------------
+    */
+    public function update(Request $request, User $usuario)
+    {
+        if ($usuario->empresa_id != auth()->user()->empresa_id) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name'  => 'required|string|max:120',
+            'email' => 'required|email|unique:users,email,' . $usuario->id,
+            'role'  => 'required|in:admin,usuario',
+            'sub_role' => 'required|in:cajero,operativo',
+        ]);
+
+        $usuario->name  = $request->name;
+        $usuario->email = $request->email;
+        $usuario->role  = $request->role;
+        $usuario->sub_role = $request->sub_role;
+
+        // Facultades (Switches)
+        $usuario->can_register_expenses = $request->has('can_register_expenses');
+        $usuario->can_manage_purchases  = $request->has('can_manage_purchases');
+        $usuario->can_sell              = $request->has('can_sell');
+        
+        $usuario->save();
+
+        return back()->with('ok', 'Usuario actualizado correctamente.');
     }
 }

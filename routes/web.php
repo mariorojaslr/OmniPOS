@@ -48,65 +48,69 @@ use App\Http\Controllers\Auth\PasswordController;
 // ================= CATÁLOGO =================
 use App\Http\Controllers\CatalogController;
 
-/* |-------------------------------------------------------------------------- | RUTA RAÍZ |-------------------------------------------------------------------------- */
+/* |-------------------------------------------------------------------------- | RUTA RAÍZ Y CATÁLOGO (PÚBLICO) |-------------------------------------------------------------------------- */
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::get('/c/{empresa}', [CatalogController::class , 'index'])->name('catalog.index');
+Route::get('/c/{empresa}/producto/{product}', [CatalogController::class , 'show'])->name('catalog.show');
 
+// MODO DEMO (PUESTA EN MARCHA RÁPIDA)
 Route::get('/demo-mode', [DemoController::class, 'enter'])->name('demo.mode');
-
 
 /* |-------------------------------------------------------------------------- | AUTH (BREEZE) |-------------------------------------------------------------------------- */
 require __DIR__ . '/auth.php';
 
+/* |-------------------------------------------------------------------------- | DASHBOARD Y RUTAS GLOBALES |-------------------------------------------------------------------------- */
+Route::middleware('auth')->group(function() {
+    
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+        if ($user->role === 'owner') { return redirect()->route('owner.dashboard'); }
+        if ($user->role === 'usuario') { return redirect()->route('empresa.usuario.dashboard'); }
+        return redirect()->route('empresa.dashboard');
+    })->name('dashboard');
 
-/* |-------------------------------------------------------------------------- | DASHBOARD SEGÚN ROL |-------------------------------------------------------------------------- */
-Route::middleware('auth')->get('/dashboard', function () {
+    // SALIDA DE MIMETIZACIÓN (ÚNICA Y GLOBAL)
+    Route::get('/return-to-owner', function(){
+        if(session('impersonator_id')){
+            $owner = \App\Models\User::find(session('impersonator_id'));
+            Auth::login($owner);
+            session()->forget('impersonator_id');
+            return redirect()->route('owner.dashboard')->with('success', 'Has vuelto a tu sesión de Propietario');
+        }
+        return redirect('/');
+    })->name('owner.return-to-owner');
+});
 
-    $user = auth()->user();
-
-    if ($user->role === 'owner') {
-        return redirect()->route('owner.dashboard');
-    }
-
-    if ($user->role === 'usuario') {
-        return redirect()->route('empresa.usuario.dashboard');
-    }
-
-    return redirect()->route('empresa.dashboard');
-
-})->name('dashboard');
-
-
-/* |-------------------------------------------------------------------------- | OWNER |-------------------------------------------------------------------------- */
+/* |-------------------------------------------------------------------------- | OWNER (ADMINISTRACIÓN MASTER) |-------------------------------------------------------------------------- */
 Route::middleware(['auth', 'owner'])
     ->prefix('owner')
     ->name('owner.')
     ->group(function () {
 
-        Route::get('/dashboard', [OwnerDashboardController::class , 'index'])
-            ->name('dashboard')
-            ->middleware('can:isOwner');
+        Route::get('/dashboard', [OwnerDashboardController::class , 'index'])->name('dashboard')->middleware('can:isOwner');
+        
+        // MIMETIZACIÓN (Ruta Única Anti-Conflicto)
+        Route::get('/mimetizar/empresa/{empresa}/usuario/{usuario}', [App\Http\Controllers\Owner\EmpresaUserController::class, 'impersonate'])->name('empresas.users.impersonate');
+
+        // GESTIÓN DE USUARIOS DE EMPRESA (Restaurado Full)
+        Route::get('empresas/{empresa}/users', [EmpresaUserController::class , 'index'])->name('empresas.users.index');
+        Route::get('empresas/{empresa}/users/create', [EmpresaUserController::class , 'create'])->name('empresas.users.create');
+        Route::post('empresas/{empresa}/users', [EmpresaUserController::class , 'store'])->name('empresas.users.store');
+        Route::patch('empresas/{empresa}/users/{usuario}/toggle', [EmpresaUserController::class , 'toggle'])->name('empresas.users.toggle');
+        Route::patch('empresas/{empresa}/users/{usuario}/reset-password', [EmpresaUserController::class , 'resetPassword'])->name('empresas.users.reset');
 
         Route::resource('empresas', EmpresaController::class)->except(['show']);
         Route::resource('planes', PlanController::class)->except(['show'])->parameters(['planes' => 'plan']);
         Route::resource('updates', SystemUpdateController::class);
 
         Route::get('suscripciones', [SuscripcionPagoController::class , 'index'])->name('facturacion.index');
-        Route::get('suscripciones/create', [SuscripcionPagoController::class , 'create'])->name('facturacion.create');
-        Route::post('suscripciones', [SuscripcionPagoController::class , 'store'])->name('facturacion.store');
+        Route::post('suscripciones-upload', [SuscripcionPagoController::class, 'store'])->name('facturacion.store');
 
         Route::resource('soporte', OwnerSupportTicketController::class)->names('soporte');
-        Route::post('soporte/upload-media', [OwnerSupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');
 
         Route::patch('empresas/{empresa}/toggle', [EmpresaController::class , 'toggleStatus'])->name('empresas.toggle');
         Route::patch('empresas/{empresa}/renovar', [EmpresaController::class , 'renovar'])->name('empresas.renovar');
 
-        Route::get('empresas/{empresa}/users', [EmpresaUserController::class , 'index'])->name('empresas.users.index');
-        Route::get('empresas/{empresa}/users/create', [EmpresaUserController::class , 'create'])->name('empresas.users.create');
-        Route::post('empresas/{empresa}/users', [EmpresaUserController::class , 'store'])->name('empresas.users.store');
-
-        Route::patch('empresas/{empresa}/users/{user}/toggle', [EmpresaUserController::class , 'toggle'])->name('empresas.users.toggle');
-        Route::patch('empresas/{empresa}/users/{user}/reset-password', [EmpresaUserController::class , 'resetPassword'])->name('empresas.users.reset');
-        Route::get('empresas/{empresa}/users/{user}/impersonate', [EmpresaUserController::class , 'impersonate'])->name('empresas.users.impersonate');
     });
 
 
@@ -217,9 +221,10 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/usuarios', [UsuarioController::class , 'index'])->name('usuarios.index');
         Route::get('/usuarios/create', [UsuarioController::class , 'create'])->name('usuarios.create');
         Route::post('/usuarios', [UsuarioController::class , 'store'])->name('usuarios.store');
-        Route::patch('/usuarios/{user}/toggle', [UsuarioController::class , 'toggle'])->name('usuarios.toggle');
-        Route::patch('/usuarios/{user}/reset-password', [UsuarioController::class , 'resetPassword'])->name('usuarios.reset');
-        // Route::get('/usuarios/{usuario}/desempeno', [UsuarioController::class , 'desempeno'])->name('usuarios.desempeno'); // Eliminada por duplicidad
+        Route::patch('/usuarios/{usuario}', [UsuarioController::class , 'update'])->name('usuarios.update');
+        Route::patch('/usuarios/{usuario}/toggle', [UsuarioController::class , 'toggle'])->name('usuarios.toggle');
+        Route::patch('/usuarios/{usuario}/reset-password', [UsuarioController::class , 'resetPassword'])->name('usuarios.reset');
+        Route::get('/usuarios/{usuario}/desempeno', [UsuarioController::class , 'desempeno'])->name('usuarios.desempeno');
 
         /*
      |--------------------------------------------------------------------------
@@ -302,6 +307,9 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('/ventas/{venta}/entregar', [App\Http\Controllers\Empresa\RemitoController::class, 'store'])->name('ventas.entregar.store');
         Route::get('/remitos/{remito}/pdf', [App\Http\Controllers\Empresa\RemitoController::class, 'pdf'])->name('remitos.pdf');
 
+        // PRESUPUESTOS (NUEVO)
+        Route::resource('presupuestos', App\Http\Controllers\Empresa\PresupuestoController::class);
+
         /*
      |--------------------------------------------------------------------------
      | INTELIGENCIA LOGÍSTICA (Pilar 1 - Reportes Globales)
@@ -324,6 +332,14 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         // GESTIÓN DE PUNTOS DE FICHAJE (QR)
         Route::get('/personal/asistencia/qr-management', [App\Http\Controllers\Empresa\AsistenciaQrController::class, 'showQr'])->name('personal.asistencia.qr');
         Route::get('/personal/asistencia/qr/{slug}', [App\Http\Controllers\Empresa\AsistenciaQrController::class, 'qrRegistro'])->name('personal.asistencia.qr-registro')->withoutMiddleware(['auth', 'empresa', 'empresa.activa']);
+
+        // AUDITORÍA DE CAJAS (Pilar 2)
+        Route::get('/personal/cajas', [App\Http\Controllers\Empresa\CajaAuditoriaController::class, 'index'])->name('personal.cajas.index');
+        Route::get('/personal/cajas/{cierre}', [App\Http\Controllers\Empresa\CajaAuditoriaController::class, 'show'])->name('personal.cajas.show');
+
+        // GASTO RÁPIDO (App Móvil para Campo)
+        Route::get('/personal/gastos/rapido', [App\Http\Controllers\Empresa\GastoRapidoController::class, 'create'])->name('gastos.quick');
+        Route::post('/personal/gastos/rapido', [App\Http\Controllers\Empresa\GastoRapidoController::class, 'store'])->name('gastos.store-quick');
 
 
         /*

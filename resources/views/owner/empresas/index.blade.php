@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
+<div class="container-fluid mt-4">
 
     {{-- =========================================================
         Encabezado + acción principal
@@ -100,6 +100,23 @@
                                 Usuarios
                             </a>
 
+                            {{-- Entrar como usuario (Omnisciencia) --}}
+                            @php 
+                                $admin = $empresa->users()->where('role', 'empresa')->where('activo', 1)->first() 
+                                      ?? $empresa->users()->where('activo', 1)->first(); 
+                            @endphp
+                            
+                            @if($admin)
+                                <a href="{{ route('owner.empresas.users.impersonate', ['empresa' => $empresa, 'usuario' => $admin->id]) }}"
+                                   class="btn btn-sm btn-primary ms-1 fw-bold" title="Entrar como Administrador ({{ $admin->name }})">
+                                    <i class="bi bi-box-arrow-in-right"></i> ENTRAR
+                                </a>
+                            @else
+                                <button class="btn btn-sm btn-secondary ms-1 disabled" title="No hay administrador activo">
+                                    <i class="bi bi-slash-circle"></i> SIN ADMIN
+                                </button>
+                            @endif
+
                             {{-- Editar empresa --}}
                             <a href="{{ route('owner.empresas.edit', $empresa) }}"
                                class="btn btn-sm btn-outline-secondary ms-1">
@@ -137,6 +154,39 @@
 
             </table>
         </div>
+
+        {{-- =====================================================
+            Paginación + Selector de densidad
+        ====================================================== --}}
+        @if ($empresas->total() > 0)
+            <div class="card-footer bg-white border-top py-3">
+                <div class="row align-items-center">
+                    {{-- Selector de cantidad --}}
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <form action="{{ route('owner.empresas.index') }}" method="GET" class="d-flex align-items-center">
+                            <label for="per_page" class="me-2 text-muted small">Mostrar:</label>
+                            <select name="per_page" id="per_page" 
+                                    class="form-select form-select-sm" 
+                                    style="width: auto;" 
+                                    onchange="this.form.submit()">
+                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10 renglones</option>
+                                <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25 renglones</option>
+                                <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50 renglones</option>
+                                <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100 renglones</option>
+                            </select>
+                            <span class="ms-2 text-muted small">de {{ $empresas->total() }} empresas</span>
+                        </form>
+                    </div>
+
+                    {{-- Navegación --}}
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-md-end justify-content-center">
+                            {!! $empresas->links() !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 
 </div>

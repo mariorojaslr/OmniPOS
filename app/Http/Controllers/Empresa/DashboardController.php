@@ -136,9 +136,54 @@ class DashboardController extends Controller
         |----------------------------------------------------------------------
         */
 
+        /*
+        |----------------------------------------------------------------------
+        | MÉTRICAS CANAL LOCAL (POS)
+        |----------------------------------------------------------------------
+        */
+        $ventasLocalHoy = DB::table('ventas')
+            ->where('empresa_id', $empresaId)
+            ->whereDate('created_at', today())
+            ->sum('total_con_iva');
+
+        $gastosHoy = \App\Models\Expense::where('empresa_id', $empresaId)
+            ->whereDate('created_at', today())
+            ->sum('amount');
+
+        $comprasHoy = \App\Models\Purchase::where('empresa_id', $empresaId)
+            ->whereDate('created_at', today())
+            ->sum('total');
+
+        /*
+        |----------------------------------------------------------------------
+        | MÉTRICAS CANAL INTERNET (CATÁLOGO)
+        |----------------------------------------------------------------------
+        */
+        $ventasInternetHoy = \App\Models\Order::where('empresa_id', $empresaId)
+            ->whereDate('created_at', today())
+            ->sum('total');
+
+        /*
+        |----------------------------------------------------------------------
+        | NORMALIZACIÓN PARA GRÁFICOS (MISMA ESCALA)
+        |----------------------------------------------------------------------
+        */
+        $maxCanal = max($ventasLocalHoy, $ventasInternetHoy, 1000); // Mínimo 1000 para escala
+        
+        $saludVentasLocal = round(($ventasLocalHoy / $maxCanal) * 100);
+        $saludVentasInternet = round(($ventasInternetHoy / $maxCanal) * 100);
+
+        // Evaluación Neta (Ventas - Gastos - Compras)
+        $balanceLocal = $ventasLocalHoy - $gastosHoy - $comprasHoy;
+        $evaluacionLocal = (abs($balanceLocal) > 0) ? min(100, round(($ventasLocalHoy / ($gastosHoy + $comprasHoy + 1)) * 50)) : 0; 
+
         return view('empresa.dashboard.index', [
             'empresa' => $empresa,
-            'ventasHoy' => $ventasHoy,
+            'ventasLocalHoy' => $ventasLocalHoy,
+            'ventasInternetHoy' => $ventasInternetHoy,
+            'gastosHoy' => $gastosHoy,
+            'comprasHoy' => $comprasHoy,
+            'ventasHoy' => $ventasLocalHoy + $ventasInternetHoy,
             'ventasMes' => $ventasMes,
             'cantidadVentasHoy' => $cantidadVentasHoy,
             'usuariosCount' => $usuariosCount,
@@ -148,6 +193,12 @@ class DashboardController extends Controller
             'pedidosPendientes' => $pedidosPendientes,
             'pedidosTotales' => $pedidosTotales,
             'reminders' => $reminders,
+            'saludLocal' => $saludVentasLocal,
+            'saludInternet' => $saludVentasInternet,
+            'balanceLocal' => $balanceLocal,
+            'evaluacionLocal' => $evaluacionLocal,
+            'gastosPerc' => ($ventasLocalHoy > 0) ? round(($gastosHoy / $ventasLocalHoy) * 100) : 0,
+            'comprasPerc' => ($ventasLocalHoy > 0) ? round(($comprasHoy / $ventasLocalHoy) * 100) : 0,
         ]);
     }
 

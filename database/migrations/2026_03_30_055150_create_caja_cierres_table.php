@@ -24,7 +24,8 @@ return new class extends Migration
             // Dinero
             $table->decimal('saldo_inicial', 15, 2)->default(0);
             $table->decimal('ventas_efectivo', 15, 2)->default(0);
-            $table->decimal('ventas_digital', 15, 2)->default(0); // Tarjetas, transferencias, etc.
+            $table->decimal('ventas_tarjeta', 15, 2)->default(0);      // 💳 Tarjetas
+            $table->decimal('ventas_transferencia', 15, 2)->default(0); // 🏦 Transferencias
             $table->decimal('otros_ingresos', 15, 2)->default(0);
             $table->decimal('egresos', 15, 2)->default(0);
             

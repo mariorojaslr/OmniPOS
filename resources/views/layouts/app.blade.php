@@ -25,19 +25,22 @@
             overflow-x: hidden;
         }
 
-        /* Fondo Animado Dark Elegante */
+        /* Fondo Animado Dark Elegante y Vibrante */
         .premium-bg {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             z-index: -1;
-            background: radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.1), transparent 25%),
-                        radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.1), transparent 25%);
-            animation: bgShift 15s infinite alternate ease-in-out;
+            background: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.2) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(15, 23, 42, 1) 0px, transparent 100%);
+            animation: bgShift 20s infinite alternate ease-in-out;
         }
 
         @keyframes bgShift {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
         }
 
         /* Navbar Glassmorphism */
@@ -112,6 +115,16 @@
             vertical-align: middle;
         }
         
+        /* 🌟 ANIMACIÓN PARA BOTÓN DE RETORNO */
+        @keyframes pulse-yellow {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        .animate-pulse {
+            animation: pulse-yellow 2s infinite;
+        }
+
         /* Ocultar texto redundante de Laravel */
         nav[role="navigation"] .flex.hidden.sm\:flex-1,
         nav[role="navigation"] p.text-sm.text-gray-700 {
@@ -157,7 +170,7 @@
    NAVBAR
 ========================================================= --}}
 <nav class="navbar navbar-expand-lg navbar-premium shadow-sm">
-    <div class="container">
+    <div class="{{ auth()->check() ? 'container-fluid px-4 px-md-5' : 'container' }}">
 
         <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ route('empresa.dashboard') }}">
             <img src="{{ asset('images/logo_premium.png') }}" alt="Logo" style="height:40px; width:auto; border-radius: 10px;" class="me-2 shadow">
@@ -174,11 +187,27 @@
 
             @php $empresa = auth()->user()->empresa ?? null; @endphp
 
+            @if(session('impersonator_id'))
+                <a href="{{ route('owner.return-to-owner') }}" class="btn btn-warning fw-bold border-0 px-3 shadow animate-pulse" style="background: #f59e0b; color: #000 !important; border-radius: 12px; font-size: 0.85rem;">
+                    🔙 VOLVER A MI SESIÓN (OWNER)
+                </a>
+            @endif
+
             @if($empresa)
-                <div class="small text-end" style="color: #94a3b8;">
+                <div class="small text-end d-none d-md-block" style="color: #94a3b8;">
                     <div><span class="text-white">Empresa:</span> {{ $empresa->nombre_comercial }}</div>
                     <div><span class="text-white">Usuario:</span> {{ auth()->user()->name }}</div>
                 </div>
+            @endif
+
+            {{-- BOTÓN ROJO DE CIERRE RÁPIDO (PEDIDO POR OWNER) --}}
+            @if(auth()->user()->role === 'owner')
+                <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-danger fw-bold border-0 px-3 shadow" style="background: #ef4444; color: white !important; border-radius: 12px; font-size: 0.85rem;">
+                        🚪 CERRAR SESIÓN
+                    </button>
+                </form>
             @endif
 
             <div class="dropdown">
@@ -187,6 +216,17 @@
                 </button>
 
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark-custom">
+                    
+                    {{-- BOTÓN DE RETORNO A OWNER (SIEMPRE VISIBLE SI ESTA MIMETIZADO) --}}
+                    @if(session('impersonator_id'))
+                    <li>
+                        <a class="dropdown-item fw-bold text-warning d-flex align-items-center" href="{{ route('owner.return-to-owner') }}">
+                           <span class="me-2">🔙</span> VOLVER A MI CUENTA (OWNER)
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider opacity-20"></li>
+                    @endif
+
                     <li>
                         <span class="dropdown-item-text">
                             {{ auth()->user()->role === 'owner' ? 'Propietario / Master' : (auth()->user()->role === 'empresa' ? 'Administrador' : 'Empleado / Cajero') }}
@@ -222,13 +262,13 @@
                     </li>
                     @endif
 
-                    <li><hr></li>
+                    <li><hr class="dropdown-divider opacity-20"></li>
 
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button class="dropdown-item">
-                                Cerrar sesión
+                            <button type="submit" class="dropdown-item text-danger fw-bold d-flex align-items-center">
+                                <span class="me-2 text-danger">🚪</span> Cerrar sesión
                             </button>
                         </form>
                     </li>
@@ -242,7 +282,7 @@
 {{-- =========================================================
    CONTENIDO
 ========================================================= --}}
-<main class="container my-4">
+<main class="{{ auth()->check() ? 'container-fluid px-4 px-md-5' : 'container' }} my-4">
     @yield('content')
 </main>
 

@@ -23,10 +23,10 @@ class EmpresaActivaMiddleware
 
         /*
         |--------------------------------------------------------------------------
-        | OWNER SIEMPRE PASA
+        | OWNER O MIMETIZADO SIEMPRE PASA (Omnisciencia)
         |--------------------------------------------------------------------------
         */
-        if ($user->role === 'owner') {
+        if ($user->role === 'owner' || session('impersonator_id')) {
             return $next($request);
         }
 
@@ -59,9 +59,17 @@ class EmpresaActivaMiddleware
         // 4. (Opcional) Cambio de contraseña obligatoria
         if ($user->must_change_password) {
             // Nota: Podría redirigirse a una ruta de cambio de contraseña específica aquí
-            // if (!$request->routeIs('password.*')) {
-            //     return redirect()->route('password.request');
-            // }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SINCRONIZACIÓN DE ZONA HORARIA (RELOJ SUIZO)
+        |--------------------------------------------------------------------------
+        */
+        $emp_tz = $user->empresa;
+        if ($emp_tz && $emp_tz->timezone) {
+            config(['app.timezone' => $emp_tz->timezone]);
+            date_default_timezone_set($emp_tz->timezone);
         }
 
         return $next($request);

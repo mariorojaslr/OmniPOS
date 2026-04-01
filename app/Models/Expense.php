@@ -9,8 +9,11 @@ class Expense extends Model
     protected $fillable = [
         'empresa_id', 
         'user_id', 
+        'asistencia_id',
         'category_id', 
         'amount', 
+        'payment_method',
+        'provider',
         'description', 
         'date', 
         'receipt_url'
@@ -29,6 +32,11 @@ class Expense extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function asistencia()
+    {
+        return $this->belongsTo(Asistencia::class);
     }
 
     public function empresa()

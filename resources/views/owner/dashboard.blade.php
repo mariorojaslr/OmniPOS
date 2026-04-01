@@ -177,6 +177,28 @@
         </div>
     </div>
 
+    {{-- RACE CONTROL: VELOCÍMETROS DE SALUD --}}
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="oled-card text-center p-3">
+                <div id="chartSales" style="min-height: 200px;"></div>
+                <div class="stat-label">SALES VELOCITY</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="oled-card text-center p-3">
+                <div id="chartExpenses" style="min-height: 200px;"></div>
+                <div class="stat-label">BURN RATE (GASTOS)</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="oled-card text-center p-3">
+                <div id="chartGlobal" style="min-height: 200px;"></div>
+                <div class="stat-label">GLOBAL MISSION STATUS</div>
+            </div>
+        </div>
+    </div>
+
     {{-- METRICAS CORE (LEVEL 1) --}}
     <div class="row g-4 mb-5">
         <div class="col-md-3">
@@ -383,7 +405,7 @@
                                         <a href="{{ route('owner.empresas.edit', $emp->id) }}" class="btn btn-sm btn-outline-secondary border-0 opacity-75">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
-                                        @php $admin = $emp->users->first(); @endphp
+                                        @php $admin = $emp->users()->where('role', 'empresa')->first() ?? $emp->users->first(); @endphp
                                         @if($admin)
                                             <a href="{{ route('owner.empresas.users.impersonate', [$emp->id, $admin->id]) }}" class="btn btn-sm btn-outline-primary border-0" title="Entrar como Admin">
                                                 <i class="bi bi-person-fill-gear"></i> ENTRAR
@@ -406,4 +428,50 @@
     </div>
 
 </div>
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    // Configuración Base para Velocímetros OLED
+    const commonOptions = {
+        chart: { type: 'radialBar', height: 250, sparkline: { enabled: true } },
+        plotOptions: {
+            radialBar: {
+                startAngle: -90, endAngle: 90,
+                track: { background: "#111", strokeWidth: '97%', margin: 5 },
+                dataLabels: {
+                    name: { show: false },
+                    value: { offsetY: -2, fontSize: '30px', fontWeight: '800', color: '#fff', formatter: (val) => val + '%' }
+                }
+            }
+        },
+        grid: { padding: { top: -10 } },
+        stroke: { lineCap: "round" }
+    };
+
+    // 1. SALES VELOCITY (AZUL NEON)
+    new ApexCharts(document.querySelector("#chartSales"), {
+        ...commonOptions,
+        series: [{{ $saludVentas }}],
+        colors: ["#3b82f6"],
+        fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#60a5fa'], stops: [0, 100] } }
+    }).render();
+
+    // 2. BURN RATE (ROJO/AMARILLO)
+    new ApexCharts(document.querySelector("#chartExpenses"), {
+        ...commonOptions,
+        series: [{{ $saludGastos }}],
+        colors: ["#ef4444"],
+        fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#f59e0b'], stops: [0, 100] } }
+    }).render();
+
+    // 3. GLOBAL STATUS (VERDE NEON)
+    new ApexCharts(document.querySelector("#chartGlobal"), {
+        ...commonOptions,
+        series: [{{ $saludGlobal }}],
+        colors: ["#22c55e"],
+        fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#4ade80'], stops: [0, 100] } }
+    }).render();
+</script>
 @endsection

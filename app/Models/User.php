@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email_verified_at',
         'must_change_password', 
         'sub_role', // cajero, empleado
+        'can_register_expenses',
     ];
 
     /*
