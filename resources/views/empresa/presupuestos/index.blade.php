@@ -2,16 +2,29 @@
 
 @section('styles')
 <style>
-/* CLASES COHERENTES CON DASHBOARD EMPRESA */
-.empresa-bg {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: -1;
-    background: radial-gradient(circle at 10% 20%, var(--color-primario)10, transparent 40%),
-                radial-gradient(circle at 90% 80%, var(--color-secundario)10, transparent 40%);
-    animation: bgPulse 15s infinite alternate ease-in-out;
+/* ESTILOS COHERENTES CON CONTROL DE STOCK */
+.card-indicator {
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-@keyframes bgPulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+.stat-label { 
+    font-size: 0.6rem; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+    font-weight: 800; 
+    color: #6b7280; 
+    margin-bottom: 0.2rem; 
+}
+.stat-value { 
+    font-size: 1.5rem; 
+    font-weight: 800; 
+    line-height: 1; 
+    color: #111827;
+}
+</style>
 
 .glass-panel {
     background: #ffffff;
@@ -46,53 +59,50 @@
 @endsection
 
 @section('content')
-<div class="empresa-bg"></div>
-
-<div class="container-fluid px-4 pb-5">
+<div class="container-fluid px-2 pb-4">
     
-    {{-- HEADER UNIFICADO --}}
-    <div class="row align-items-center mb-5 mt-4">
-        <div class="col">
-            <h5 class="stat-label mb-1" style="color: var(--color-primario);">Módulo Comercial Elite</h5>
-            <h1 class="fw-bold mb-0" style="font-size: 2.8rem; letter-spacing: -1.5px;">
-                Gestión de <span style="color: var(--color-primario);">Presupuestos</span>
+    {{-- HEADER COHERENTE (Igual a Stock) --}}
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size: 1.6rem; letter-spacing: -0.5px; color: #111827;">
+                Gestión de Presupuestos
             </h1>
+            <p class="text-muted small mb-0">Seguimiento comercial en tiempo real</p>
         </div>
-        <div class="col-auto">
-            <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-primary px-4 py-3 rounded-pill fw-bold shadow-lg">
-                <i class="bi bi-plus-lg me-2"></i> GENERAR NUEVA COTIZACIÓN
+        <div>
+            <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-success btn-sm px-3 shadow-sm fw-bold">
+                <i class="bi bi-plus-lg me-1"></i> NUEVA COTIZACIÓN
+            </a>
+            <a href="#" class="btn btn-light btn-sm px-3 ms-1 border shadow-sm text-dark">
+                <i class="bi bi-file-earmark-pdf me-1"></i> REPORTES
             </a>
         </div>
     </div>
 
-    {{-- INDICADORES FLASH (Estilo Dashboard) --}}
-    <div class="row g-4 mb-5">
+    {{-- INDICADORES COMPACTOS (Igual a Stock) --}}
+    <div class="row g-2 mb-3">
         <div class="col-md-3">
-            <div class="glass-panel text-center">
-                <div class="stat-label">Total Emitidos</div>
-                <div class="stat-value">{{ $stats['total'] }}</div>
-                <div class="small text-muted mt-2">Histórico Global</div>
+            <div class="card border-0 shadow-sm p-2 rounded-2 text-center h-100 border-top border-secondary border-3">
+                <div style="font-size: 0.6rem; text-transform: uppercase; font-weight: 800; color: #6b7280;">TOTAL EMITIDOS</div>
+                <div class="fw-bold text-dark" style="font-size: 1.4rem;">{{ $stats['total'] }}</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="glass-panel text-center border-bottom border-warning border-4">
-                <div class="stat-label">Pendientes</div>
-                <div class="stat-value text-warning">{{ $stats['pendientes'] }}</div>
-                <div class="small text-muted mt-2">A la espera de cierre</div>
+            <div class="card border-0 shadow-sm p-2 rounded-2 text-center h-100 border-top border-warning border-3">
+                <div style="font-size: 0.6rem; text-transform: uppercase; font-weight: 800; color: #f59e0b;">PENDIENTES</div>
+                <div class="fw-bold text-dark" style="font-size: 1.4rem;">{{ $stats['pendientes'] }}</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="glass-panel text-center border-bottom border-success border-4" style="border-color: var(--color-primario) !important;">
-                <div class="stat-label">Aceptados</div>
-                <div class="stat-value" style="color: var(--color-primario);">{{ $stats['aceptados'] }}</div>
-                <div class="small text-muted mt-2">Éxito Comercial</div>
+            <div class="card border-0 shadow-sm p-2 rounded-2 text-center h-100 border-top border-success border-3">
+                <div style="font-size: 0.6rem; text-transform: uppercase; font-weight: 800; color: #22c55e;">ACEPTADOS</div>
+                <div class="fw-bold text-dark" style="font-size: 1.4rem;">{{ $stats['aceptados'] }}</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="glass-panel text-center border-bottom border-danger border-4">
-                <div class="stat-label">Vencidos</div>
-                <div class="stat-value text-danger">{{ $stats['vencidos'] }}</div>
-                <div class="small text-muted mt-2">Requieren Seguimiento</div>
+            <div class="card border-0 shadow-sm p-2 rounded-2 text-center h-100 border-top border-danger border-3">
+                <div style="font-size: 0.6rem; text-transform: uppercase; font-weight: 800; color: #ef4444;">VENCIDOS</div>
+                <div class="fw-bold text-dark" style="font-size: 1.4rem;">{{ $stats['vencidos'] }}</div>
             </div>
         </div>
     </div>

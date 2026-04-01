@@ -51,27 +51,35 @@
     {{-- HEADER --}}
     <div class="mb-5 mt-4 d-flex justify-content-between align-items-center">
         <div>
-            <h5 class="stat-label mb-1 text-primary">Generador de Cotizaciones</h5>
-            <h1 class="fw-bold text-white mb-0" style="font-size: 2.5rem; letter-spacing: -1.5px;">
-                Nueva <span class="text-info">Referencia Comercial</span>
+            <h5 class="stat-label mb-1 text-primary">Generador de Cotizaciones <span class="badge bg-light text-dark ms-2 shadow-sm border">REF #{{ str_pad(($ultimoId ?? 0) + 1, 6, '0', STR_PAD_LEFT) }}</span></h5>
+            <h1 class="fw-bold mb-0" style="font-size: 2.5rem; letter-spacing: -1.5px; color: #111827;">
+                <span style="color: #4b5563; opacity: 0.85;">Nueva</span> Referencia Comercial
             </h1>
         </div>
-        <a href="{{ route('empresa.presupuestos.index') }}" class="btn btn-outline-light rounded-pill px-4">
+        <a href="{{ route('empresa.presupuestos.index') }}" class="btn btn-outline-secondary rounded-pill px-4">
             <i class="bi bi-arrow-left me-2"></i> VOLVER AL LISTADO
         </a>
     </div>
 
-    <form action="{{ route('empresa.presupuestos.store') }}" method="POST" class="glass-form shadow-2xl">
+    <form action="{{ route('empresa.presupuestos.store') }}" method="POST" class="card-premium shadow-lg">
         @csrf
         <div class="row g-4 mb-4">
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <label class="form-label">Seleccionar Cliente</label>
-                <select name="client_id" class="form-control form-control-premium" required>
+                <select name="client_id" class="form-control form-control-premium" required @change="updateClientInfo($event.target.value)">
                     <option value="">Cliente Ocasional / Final</option>
                     @foreach($clientes as $cliente)
                         <option value="{{ $cliente->id }}">{{ $cliente->name }}</option>
                     @endforeach
                 </select>
+
+                {{-- INFO DEL CLIENTE SELECCIONADO --}}
+                <div x-show="selectedClient" class="mt-3 p-3 bg-light rounded-3 border border-opacity-10 small" x-transition>
+                    <div class="fw-bold text-primary mb-1"><i class="bi bi-person-check-fill me-2"></i> Datos del Cliente</div>
+                    <div class="text-muted"><i class="bi bi-envelope me-2"></i> <span x-text="selectedClient?.email || '-'"></span></div>
+                    <div class="text-muted"><i class="bi bi-telephone me-2"></i> <span x-text="selectedClient?.phone || '-'"></span></div>
+                    <div class="text-muted"><i class="bi bi-geo-alt me-2"></i> <span x-text="selectedClient?.address || '-'"></span></div>
+                </div>
             </div>
             <div class="col-md-3">
                 <label class="form-label">Fecha de Emisión</label>
@@ -118,7 +126,7 @@
                                 <td class="text-end">
                                     <input type="number" x-model.number="item.price" @input="calculateTotal()" class="form-control form-control-premium text-end ms-auto" :name="'items['+index+'][price]'" step="0.01">
                                 </td>
-                                <td class="text-end fw-bold text-white">
+                                <td class="text-end fw-bold text-dark">
                                     $ <span x-text="numberFormat(item.qty * item.price)"></span>
                                 </td>
                                 <td class="text-center">
@@ -145,12 +153,12 @@
             </div>
             <div class="col-md-6 text-end">
                 <div class="d-flex justify-content-end align-items-center mb-2">
-                    <span class="text-white-50 me-4">Subtotal Neto:</span>
-                    <span class="fs-5 text-white fw-bold">$ <span x-text="numberFormat(total)"></span></span>
+                    <span class="text-muted me-4">Subtotal Neto:</span>
+                    <span class="fs-5 text-dark fw-bold">$ <span x-text="numberFormat(total)"></span></span>
                 </div>
                 <div class="d-flex justify-content-end align-items-center mb-4">
-                    <span class="text-white-50 me-4" style="font-size: 1.2rem;">TOTAL FINAL:</span>
-                    <span class="fs-2 fw-bold text-info">$ <span x-text="numberFormat(total)"></span></span>
+                    <span class="text-muted me-4" style="font-size: 1.2rem;">TOTAL FINAL:</span>
+                    <span class="fs-2 fw-bold text-primary">$ <span x-text="numberFormat(total)"></span></span>
                 </div>
                 
                 <input type="hidden" name="total_final" :value="total">
@@ -177,6 +185,8 @@
                 { product_id: '', qty: 1, price: 0, descripcion: '' }
             ],
             productos: @json($productos),
+            clientes: @json($clientes),
+            selectedClient: null,
             total: 0,
             
             addItem() {
@@ -188,11 +198,15 @@
                 this.items.splice(index, 1);
                 this.calculateTotal();
             },
+
+            updateClientInfo(clientId) {
+                this.selectedClient = this.clientes.find(c => c.id == clientId);
+            },
             
             updatePrice(item) {
                 const prod = this.productos.find(p => p.id == item.product_id);
                 if (prod) {
-                    item.price = prod.precio_venta || 0;
+                    item.price = prod.price || 0;
                     item.descripcion = prod.name;
                 }
                 this.calculateTotal();
