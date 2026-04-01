@@ -35,9 +35,14 @@ class ExpenseCategoryController extends Controller
 
     public function update(Request $request, ExpenseCategory $category)
     {
-        // Validación robusta para mimetización (mismo ID de empresa o relación directa)
-        $empresaId = auth()->user()->empresa_id ?? auth()->user()->id;
-        if ($category->empresa_id != $empresaId) abort(403);
+        $user = auth()->user();
+        
+        // Si no es el Owner máster, verificamos que la categoría le pertenezca
+        if ($user->role !== 'owner') {
+            if ($category->empresa_id != $user->empresa_id) {
+                abort(403, 'Acceso denegado: Esta categoría no pertenece a su empresa.');
+            }
+        }
 
         $request->validate([
             'nombre' => 'required|string|max:255',
@@ -46,16 +51,21 @@ class ExpenseCategoryController extends Controller
 
         $category->update($request->only(['nombre', 'color', 'activo']));
 
-        return redirect()->back()->with('success', 'Categoría actualizada.');
+        return redirect()->back()->with('success', 'Cambios guardados con éxito.');
     }
 
     public function destroy(ExpenseCategory $category)
     {
-        $empresaId = auth()->user()->empresa_id ?? auth()->user()->id;
-        if ($category->empresa_id != $empresaId) abort(403);
+        $user = auth()->user();
+        
+        if ($user->role !== 'owner') {
+            if ($category->empresa_id != $user->empresa_id) {
+                abort(403);
+            }
+        }
         
         if ($category->expenses()->count() > 0) {
-            return redirect()->back()->with('error', 'No se puede eliminar una categoría que tiene gastos asociados.');
+            return redirect()->back()->with('error', 'No se puede eliminar una categoría con gastos.');
         }
 
         $category->delete();

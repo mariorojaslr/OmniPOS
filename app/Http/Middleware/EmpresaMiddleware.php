@@ -18,11 +18,12 @@ class EmpresaMiddleware
 
         /*
         |--------------------------------------------------------------------------
-        | OWNER NO DEBE ENTRAR A ZONA EMPRESA
+        | OWNER PUEDE ENTRAR A ZONA EMPRESA SI ESTÁ SUPERVISANDO O MIMETIZADO
         |--------------------------------------------------------------------------
         */
         if ($user->role === 'owner') {
-            abort(403, 'Owner no puede entrar a zona empresa');
+             // Si el owner está revisando, lo dejamos pasar.
+             return $next($request);
         }
 
         /*
