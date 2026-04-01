@@ -202,10 +202,14 @@ body{
                 </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Compras</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('empresa.compras.index') }}">🛒 Historial de Compras</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.proveedores.index') }}">🚛 Proveedores</a></li>
+                    <a class="nav-link dropdown-toggle font-weight-bold text-danger" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-wallet2 me-1"></i> Gastos
+                    </a>
+                    <ul class="dropdown-menu shadow-sm border-0">
+                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.gastos.index') }}">📋 Listado / Auditoría</a></li>
+                        <li><a class="dropdown-item" href="{{ route('empresa.gastos_categorias.index') }}">🏷️ Gestionar Categorías</a></li>
+                        <li><hr class="dropdown-divider opacity-50"></li>
+                        <li><a class="dropdown-item text-warning fw-bold" href="{{ route('empresa.gastos.quick') }}"><i class="bi bi-phone me-1"></i> Registrar Gasto (Campo)</a></li>
                     </ul>
                 </li>
 
