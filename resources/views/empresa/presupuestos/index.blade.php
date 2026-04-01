@@ -175,6 +175,3 @@
 </div>
 @endsection
 
-</div>
-@endsection
-
