@@ -83,7 +83,7 @@
                             {{ Str::limit(strip_tags($gasto->description), 50) }}
                         </div>
                         @if($gasto->receipt_url)
-                            <a href="#" class="btn-view-image text-primary small fw-bold" data-url="{{ $gasto->receipt_url }}">
+                            <a href="#" class="btn-view-image text-primary small fw-bold" data-url="{{ route('local.media', ['path' => $gasto->receipt_url]) }}">
                                 <i class="bi bi-image me-1"></i> Ver Comprobante
                             </a>
                         @endif
