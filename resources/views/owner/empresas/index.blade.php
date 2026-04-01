@@ -95,7 +95,7 @@
                         <td class="text-end pe-4">
 
                             {{-- Usuarios de la empresa --}}
-                            <a href="{{ route('owner.empresas.users.index', $empresa) }}"
+                            <a href="{{ route('owner.empresas.users.index', ['empresa' => $empresa->id]) }}"
                                class="btn btn-sm btn-outline-primary">
                                 Usuarios
                             </a>
