@@ -35,7 +35,9 @@ class ExpenseCategoryController extends Controller
 
     public function update(Request $request, ExpenseCategory $category)
     {
-        if ($category->empresa_id !== auth()->user()->empresa_id) abort(403);
+        // Validación robusta para mimetización (mismo ID de empresa o relación directa)
+        $empresaId = auth()->user()->empresa_id ?? auth()->user()->id;
+        if ($category->empresa_id != $empresaId) abort(403);
 
         $request->validate([
             'nombre' => 'required|string|max:255',
@@ -49,7 +51,8 @@ class ExpenseCategoryController extends Controller
 
     public function destroy(ExpenseCategory $category)
     {
-        if ($category->empresa_id !== auth()->user()->empresa_id) abort(403);
+        $empresaId = auth()->user()->empresa_id ?? auth()->user()->id;
+        if ($category->empresa_id != $empresaId) abort(403);
         
         if ($category->expenses()->count() > 0) {
             return redirect()->back()->with('error', 'No se puede eliminar una categoría que tiene gastos asociados.');
