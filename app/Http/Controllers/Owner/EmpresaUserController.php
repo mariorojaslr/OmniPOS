@@ -94,8 +94,10 @@ class EmpresaUserController extends Controller
     /**
      * ENTRAR COMO USUARIO (Mimetización)
      */
-    public function impersonate(Empresa $empresa, User $usuario)
+    public function impersonate($empresaId, User $usuario)
     {
+        $empresa = Empresa::findOrFail($empresaId);
+
         // Verificar que el usuario pertenezca a la empresa por seguridad
         abort_if($usuario->empresa_id !== $empresa->id, 403);
 
