@@ -37,25 +37,23 @@ class SuscripcionPagoController extends Controller
         $empresa = Empresa::findOrFail($request->empresa_id);
 
         $pago = SuscripcionPago::create([
-            'empresa_id' => $empresa->id,
-            'plan_id' => $empresa->plan_id,
-            'monto' => $request->monto,
-            'fecha_pago' => $request->fecha_pago,
-            'metodo' => $request->metodo,
-            'estado' => $request->estado,
+            'empresa_id'      => $empresa->id,
+            'plan_id'         => $request->plan_id ?: $empresa->plan_id, // Tomamos el plan que se está pagando
+            'monto'           => $request->monto,
+            'fecha_pago'      => $request->fecha_pago,
+            'metodo'          => $request->metodo,
+            'estado'          => $request->estado,
             'nro_comprobante' => $request->nro_comprobante,
-            'notas' => $request->notas,
+            'notas'           => $request->notas,
         ]);
 
-        // Si el pago es aprobado, actualizar la fecha de vencimiento de la empresa.
-        if ($request->estado === 'aprobado' && $pago->monto > 0) {
-            $fechaActual = $empresa->fecha_vencimiento && Carbon::parse($empresa->fecha_vencimiento)->isFuture() 
-                ? Carbon::parse($empresa->fecha_vencimiento) 
-                : now();
-                
+        // Si el pago es aprobado, actualizar la fecha de vencimiento y estatus de la empresa.
+        if ($request->estado === 'aprobado') {
+            // El estatus debe ser exactamente 'activa' para consistencia en el sistema
             $empresa->update([
-                'fecha_vencimiento' => $fechaActual->addDays(30),
-                'status' => 'activa',
+                'status'            => 'activa',
+                'activo'            => true,
+                'fecha_vencimiento' => now()->addDays(30),
                 'ultima_fecha_pago' => $request->fecha_pago,
             ]);
         }

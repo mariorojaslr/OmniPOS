@@ -38,28 +38,34 @@
                         </td>
                         <td>
                             @if($pago->plan)
-                                <span class="badge bg-secondary">{{ $pago->plan->name }}</span>
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 px-2 py-1 rounded-pill small fw-bold">
+                                    {{ $pago->plan->name }}
+                                </span>
                             @else
-                                <span class="text-muted">-</span>
+                                <span class="text-muted small italic">Sin Plan</span>
                             @endif
                         </td>
                         <td>
-                            <span class="text-uppercase" style="font-size: 0.85rem;">{{ $pago->metodo }}</span>
+                            <span class="text-uppercase fw-bold text-dark" style="font-size: 0.75rem;">{{ $pago->metodo }}</span>
                         </td>
                         <td>
-                            <strong class="text-success">${{ number_format($pago->monto, 2) }}</strong>
+                            <strong class="text-success" style="letter-spacing: -0.5px;">${{ number_format($pago->monto, 0, ',', '.') }}</strong>
                         </td>
                         <td>
-                            @if($pago->estado == 'aprobado')
-                                <span class="badge bg-success-subtle text-success border border-success border-opacity-25 px-2 py-1 pb-1 rounded-pill">Aprobado</span>
+                            @if($pago->estado == 'aprobado' || $pago->estado == 'activa')
+                                <span class="badge bg-success-subtle text-success border border-success border-opacity-25 px-2 py-1 pb-1 rounded-pill fw-bold">PAGO APROBADO</span>
                             @elseif($pago->estado == 'pendiente')
-                                <span class="badge bg-warning-subtle text-warning border border-warning border-opacity-25 px-2 py-1 pb-1 rounded-pill">Pendiente</span>
+                                <span class="badge bg-warning-subtle text-warning border border-warning border-opacity-25 px-2 py-1 pb-1 rounded-pill">PENDIENTE</span>
                             @else
-                                <span class="badge bg-danger-subtle text-danger border border-danger border-opacity-25 px-2 py-1 pb-1 rounded-pill">{{ ucfirst($pago->estado) }}</span>
+                                <span class="badge bg-danger-subtle text-danger border border-danger border-opacity-25 px-2 py-1 pb-1 rounded-pill text-uppercase">{{ $pago->estado }}</span>
                             @endif
                         </td>
                         <td>
-                            {{ $pago->nro_comprobante ?? '-' }}
+                            @if($pago->nro_comprobante)
+                                <code class="bg-light px-2 py-1 rounded border text-primary small fw-bold">{{ $pago->nro_comprobante }}</code>
+                            @else
+                                <span class="text-muted opacity-50">-</span>
+                            @endif
                         </td>
                     </tr>
                     @empty
