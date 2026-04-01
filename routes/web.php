@@ -337,6 +337,10 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/personal/cajas', [App\Http\Controllers\Empresa\CajaAuditoriaController::class, 'index'])->name('personal.cajas.index');
         Route::get('/personal/cajas/{cierre}', [App\Http\Controllers\Empresa\CajaAuditoriaController::class, 'show'])->name('personal.cajas.show');
 
+        // GASTOS (Auditoría y Categorías)
+        Route::resource('gastos', App\Http\Controllers\Empresa\ExpenseController::class);
+        Route::resource('gastos_categorias', App\Http\Controllers\Empresa\ExpenseCategoryController::class);
+
         // GASTO RÁPIDO (App Móvil para Campo)
         Route::get('/personal/gastos/rapido', [App\Http\Controllers\Empresa\GastoRapidoController::class, 'create'])->name('gastos.quick');
         Route::post('/personal/gastos/rapido', [App\Http\Controllers\Empresa\GastoRapidoController::class, 'store'])->name('gastos.store-quick');
