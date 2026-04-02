@@ -1,152 +1,208 @@
 @extends('layouts.owner')
 
 @section('content')
-<div class="mb-12 px-6">
-    <div class="flex items-center justify-between">
-        <div class="animate-fade-in-left">
-            <h1 class="text-5xl font-black text-slate-800 tracking-tighter">Command <span class="text-indigo-600">Center</span> CRM</h1>
-            <p class="text-slate-400 mt-2 uppercase text-[12px] tracking-[0.4em] font-bold opacity-60">Gestión de Prospectos y Activaciones VIP</p>
+<style>
+    :root {
+        --oled-bg: #000000;
+        --card-bg: #09090b;
+        --border-color: rgba(255, 255, 255, 0.08);
+        --accent-indigo: #818cf8;
+        --accent-amber: #fbbf24;
+        --accent-emerald: #34d399;
+    }
+
+    body { background-color: var(--oled-bg) !important; }
+    
+    .kanban-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .kanban-column {
+        background: transparent;
+        border-radius: 24px;
+        min-height: 80vh;
+    }
+
+    .column-header {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-tag {
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .kanban-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 18px;
+        padding: 0.85rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: grab;
+    }
+
+    .kanban-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8);
+        background: #111111;
+    }
+
+    .card-id { font-size: 0.6rem; color: #52525b; font-weight: 700; }
+    .card-name { font-size: 0.85rem; font-weight: 700; color: #fafafa; margin: 4px 0; }
+    .card-email { font-size: 0.7rem; color: #71717a; }
+    
+    .card-footer {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .tag-mini {
+        font-size: 0.55rem;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.03);
+        color: #a1a1aa;
+    }
+
+    .sortable-ghost { opacity: 0; }
+    .sortable-chosen { box-shadow: 0 20px 40px rgba(129, 140, 248, 0.2) !important; }
+
+    /* Custom Scrollbar for OLED */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+</style>
+
+<div class="px-6 py-6 pb-20">
+    
+    <div class="flex items-center justify-between mb-10">
+        <div>
+            <h1 class="text-white text-3xl font-extrabold tracking-tight">Ventas & CRM</h1>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-[0.6rem] text-zinc-500 font-bold uppercase tracking-widest">Master Dashboard Monitoring</span>
+            </div>
         </div>
-        <div class="bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-xl shadow-indigo-200 animate-bounce-subtle">
-            <span class="font-black text-xs uppercase tracking-widest">Master Control v2.0</span>
+        <div class="text-right">
+            <div class="text-white font-black text-xs opacity-40 uppercase tracking-widest">MultiPOS Central Suite</div>
         </div>
     </div>
-</div>
 
-{{-- KANBAN CONTAINER --}}
-<div class="bg-slate-900 p-10 rounded-[4rem] border-8 border-slate-800 shadow-[inset_0_10px_50px_rgba(0,0,0,0.5)] min-h-[90vh]">
-    <div class="flex space-x-12 overflow-x-auto pb-12 custom-scrollbar px-4">
+    <div class="kanban-container">
         
         <!-- COLUMNA 1: PROSPECTOS -->
-        <div class="flex-shrink-0 w-[24rem]">
-            <div class="mb-10 flex justify-between items-center px-6">
-                <div class="flex flex-col">
-                    <span class="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] mb-1">Fase 1</span>
-                    <h2 class="font-black text-white text-lg tracking-tight">Nuevos Leads</h2>
+        <div class="kanban-column">
+            <div class="column-header">
+                <div>
+                    <span class="header-tag text-indigo-400">01. NUEVOS LEADS</span>
                 </div>
-                <span class="bg-white/10 text-indigo-400 text-xs font-black px-4 py-2 rounded-2xl border border-white/5">{{ $prospectos->total() }}</span>
+                <span class="text-[10px] text-zinc-500 font-bold">{{ $prospectos->total() }}</span>
             </div>
             
-            <div id="col-prospecto" class="kanban-column space-y-6 min-h-[600px]" data-status="prospecto">
+            <div id="col-prospecto" class="kanban-list" data-status="prospecto" style="min-height: 500px">
                 @foreach($prospectos as $pro)
-                    <div class="kanban-card floating-tag bg-white p-6 rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] hover:shadow-indigo-500/20 border-2 border-transparent hover:border-indigo-400 transition-all duration-500 cursor-grab active:cursor-grabbing transform hover:-translate-y-3" data-id="{{ $pro->id }}">
-                        <div class="flex justify-between items-center mb-5">
-                            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-lg">#</div>
-                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest opacity-60">{{ $pro->created_at ? $pro->created_at->diffForHumans() : 'Reciente' }}</span>
-                        </div>
-                        <h3 class="font-black text-slate-800 text-md mb-2 leading-none uppercase tracking-tight">{{ $pro->name }}</h3>
-                        <p class="text-[11px] text-slate-400 font-bold mb-6 opacity-80">{{ $pro->email }}</p>
-                        
-                        <div class="flex items-center justify-between pt-5 border-t border-slate-50">
-                            <span class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full font-black uppercase tracking-wider">{{ $pro->lead_source ?? 'DIRECTO' }}</span>
-                            <span class="text-[11px] font-black text-indigo-600">AR <i class="bi bi-geo-alt-fill ms-1"></i></span>
-                        </div>
+                <div class="kanban-card" data-id="{{ $pro->id }}">
+                    <div class="flex justify-between items-start">
+                        <span class="card-id">#PRO-{{ $pro->id }}</span>
+                        <span class="text-[9px] text-zinc-600 font-bold">{{ $pro->created_at ? $pro->created_at->diffForHumans() : 'Hoy' }}</span>
                     </div>
+                    <div class="card-name">{{ $pro->name }}</div>
+                    <div class="card-email truncate">{{ $pro->email }}</div>
+                    
+                    <div class="card-footer">
+                        <span class="tag-mini">{{ $pro->lead_source ?? 'Landing' }}</span>
+                        <i class="bi bi-person-plus text-indigo-400" style="font-size: 0.8rem"></i>
+                    </div>
+                </div>
                 @endforeach
             </div>
-
-            <div class="mt-8">
-                {{ $prospectos->appends(['pendientes' => $pendientes->currentPage(), 'activos' => $activos->currentPage()])->links() }}
-            </div>
+            <div class="mt-4">{{ $prospectos->links() }}</div>
         </div>
 
-        <!-- COLUMNA 2: PAGO PENDIENTE -->
-        <div class="flex-shrink-0 w-[24rem]">
-            <div class="mb-10 flex justify-between items-center px-6">
-                <div class="flex flex-col">
-                    <span class="text-amber-400 font-black text-xs uppercase tracking-[0.3em] mb-1">Fase 2</span>
-                    <h2 class="font-black text-white text-lg tracking-tight">Validar Pago</h2>
+        <!-- COLUMNA 2: PENDIENTE DE PAGO -->
+        <div class="kanban-column">
+            <div class="column-header" style="border-bottom-color: rgba(251, 191, 36, 0.1)">
+                <div>
+                    <span class="header-tag text-amber-400">02. VALIDAR PAGO</span>
                 </div>
-                <span class="bg-amber-500 text-black text-xs font-black px-4 py-2 rounded-2xl shadow-lg shadow-amber-500/20">{{ $pendientes->total() }}</span>
+                <span class="text-[10px] text-zinc-500 font-bold">{{ $pendientes->total() }}</span>
             </div>
             
-            <div id="col-pendiente_pago" class="kanban-column space-y-6 min-h-[600px]" data-status="pendiente_pago">
+            <div id="col-pendiente_pago" class="kanban-list" data-status="pendiente_pago" style="min-height: 500px">
                 @foreach($pendientes as $pen)
-                    <div class="kanban-card floating-tag bg-white p-6 rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(251,191,36,0.3)] border-4 border-amber-200 hover:border-amber-400 transition-all duration-500 cursor-grab active:cursor-grabbing transform hover:-translate-y-3" data-id="{{ $pen->id }}">
-                        <div class="flex items-center gap-4 mb-5">
-                            <div class="w-14 h-14 rounded-3xl bg-amber-500 text-white flex items-center justify-center shadow-xl shadow-amber-500/30">
-                                <i class="bi bi-wallet2 fs-2"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-black text-slate-800 text-md leading-none uppercase tracking-tighter">{{ $pen->name }}</h3>
-                                <div class="mt-2 text-[10px] font-black text-amber-600 uppercase tracking-widest">PENDIENTE DE VALIDACIÓN</div>
-                            </div>
-                        </div>
-
-                        @if($pen->payment_voucher)
-                            <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="block w-full bg-slate-900 text-white text-[11px] font-black py-4 rounded-2xl mb-4 text-center hover:bg-amber-500 transition-colors uppercase tracking-[0.2em] shadow-xl">
-                                REVISAR VOUCHER <i class="bi bi-eye-fill ms-2"></i>
-                            </a>
-                        @endif
-
-                        <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST">
-                            @csrf
-                            <button type="submit" onclick="return confirm('¿Confirmas este pago?')" 
-                                    class="w-full bg-indigo-600 text-white text-[11px] font-black py-5 rounded-3xl hover:bg-black transition-all shadow-2xl active:scale-95 uppercase tracking-[0.25em]">
-                                <i class="bi bi-check-circle-fill me-2 fs-5"></i> ACTIVAR CLIENTE
-                            </button>
-                        </form>
+                <div class="kanban-card" data-id="{{ $pen->id }}" style="border-left: 2px solid var(--accent-amber)">
+                    <div class="flex justify-between items-start">
+                        <span class="card-id">#WAIT-{{ $pen->id }}</span>
+                        <span class="text-[9px] text-amber-500/50 font-bold uppercase tracking-widest">Pendiente</span>
                     </div>
+                    <div class="card-name">{{ $pen->name }}</div>
+                    
+                    @if($pen->payment_voucher)
+                        <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="block w-full py-2 mt-3 bg-zinc-900 border border-zinc-800 rounded-lg text-center text-[10px] font-bold text-white hover:bg-amber-500 hover:text-black transition-all uppercase tracking-widest">
+                            Ver Voucher <i class="bi bi-image"></i>
+                        </a>
+                    @endif
+
+                    <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="mt-2">
+                        @csrf
+                        <button type="submit" class="w-full py-2 bg-amber-500 rounded-lg border-0 text-black text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-lg active:scale-95">
+                           Activar
+                        </button>
+                    </form>
+                </div>
                 @endforeach
             </div>
-
-            <div class="mt-8">
-                {{ $pendientes->appends(['prospectos' => $prospectos->currentPage(), 'activos' => $activos->currentPage()])->links() }}
-            </div>
+            <div class="mt-4">{{ $pendientes->links() }}</div>
         </div>
 
         <!-- COLUMNA 3: ACTIVOS -->
-        <div class="flex-shrink-0 w-[24rem]">
-            <div class="mb-10 flex justify-between items-center px-6">
-                <div class="flex flex-col">
-                    <span class="text-emerald-400 font-black text-xs uppercase tracking-[0.3em] mb-1">Fase 3</span>
-                    <h2 class="font-black text-white text-lg tracking-tight">Activos OK</h2>
+        <div class="kanban-column">
+            <div class="column-header" style="border-bottom-color: rgba(52, 211, 153, 0.1)">
+                <div>
+                    <span class="header-tag text-emerald-400">03. CLIENTES OK</span>
                 </div>
-                <div class="flex items-center gap-2 bg-emerald-500/20 px-4 py-2 rounded-2xl border border-emerald-500/30">
-                    <span class="text-emerald-400 text-xs font-black">{{ $activos->total() }}</span>
-                </div>
+                <span class="text-[10px] text-zinc-500 font-bold">{{ $activos->total() }}</span>
             </div>
             
-            <div id="col-activo" class="kanban-column space-y-6 min-h-[600px]" data-status="activo">
+            <div id="col-activo" class="kanban-list" data-status="activo" style="min-height: 500px">
                 @foreach($activos as $act)
-                    <div class="kanban-card floating-tag bg-slate-800 p-6 rounded-[2.5rem] shadow-2xl border-2 border-emerald-500/20 hover:border-emerald-500 transition-all duration-500 flex items-center gap-5 cursor-grab group" data-id="{{ $act->id }}">
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-2xl font-black group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                            <i class="bi bi-shield-lock-fill"></i>
-                        </div>
-                        <div class="flex-1 truncate">
-                            <h3 class="font-black text-white text-sm uppercase tracking-tight">{{ $act->name }}</h3>
-                            <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest opacity-80 mt-1">{{ $act->empresa?->nombre_comercial ?? 'SaaS Configurado' }}</p>
-                        </div>
+                <div class="kanban-card" data-id="{{ $act->id }}" style="border-left: 2px solid var(--accent-emerald)">
+                    <div class="flex justify-between items-start">
+                        <span class="card-id text-emerald-500/50">#LIVE-{{ $act->id }}</span>
+                        <i class="bi bi-shield-check text-emerald-400" style="font-size: 0.7rem"></i>
                     </div>
+                    <div class="card-name">{{ $act->name }}</div>
+                    <div class="card-email truncate opacity-50">{{ $act->empresa?->nombre_comercial ?? 'Setup Completo' }}</div>
+                </div>
                 @endforeach
             </div>
-
-            <div class="mt-8">
-                {{ $activos->appends(['prospectos' => $prospectos->currentPage(), 'pendientes' => $pendientes->currentPage()])->links() }}
-            </div>
+            <div class="mt-4">{{ $activos->links() }}</div>
         </div>
 
     </div>
 </div>
-
-<style>
-    .custom-scrollbar::-webkit-scrollbar { height: 12px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 20px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 20px; border: 4px solid #0f172a; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.6); }
-
-    .animate-fade-in-left { animation: fadeInRight 0.8s ease-out; }
-    @keyframes fadeInRight { from { opacity:0; transform: translateX(-30px); } to { opacity:1; transform: translateX(0); } }
-
-    .animate-bounce-subtle { animation: bounceSubtle 3s infinite ease-in-out; }
-    @keyframes bounceSubtle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-
-    .floating-tag { position: relative; z-index: 10; }
-    .floating-tag:hover { z-index: 50; }
-    
-    .sortable-ghost { opacity: 0.2; transform: scale(0.9); filter: blur(5px); }
-    .sortable-chosen { box-shadow: 0 40px 80px rgba(99, 102, 241, 0.4) !important; cursor: grabbing !important; }
-</style>
 
 @endsection
 
@@ -154,33 +210,22 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('CRM Command Center Inicializado...');
+        const statuses = ['prospecto', 'pendiente_pago', 'activo'];
         
-        const columnIds = ['col-prospecto', 'col-pendiente_pago', 'col-activo'];
-        
-        columnIds.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                new Sortable(el, {
-                    group: 'kanban',
-                    animation: 300,
-                    easing: "cubic-bezier(0.165, 0.84, 0.44, 1)",
-                    ghostClass: 'sortable-ghost',
-                    chosenClass: 'sortable-chosen',
-                    dragClass: 'sortable-drag',
-                    fallbackOnBody: true,
-                    swapThreshold: 0.65,
-                    onEnd: function(evt) {
-                        const userId = evt.item.getAttribute('data-id');
-                        const newStatus = evt.to.getAttribute('data-status');
-                        
-                        if (evt.from !== evt.to) {
-                            console.log('Moviendo Usuario: ' + userId + ' a ' + newStatus);
-                            moveUser(userId, newStatus);
-                        }
+        statuses.forEach(status => {
+            const el = document.getElementById('col-' + status);
+            new Sortable(el, {
+                group: 'kanban',
+                animation: 250,
+                ghostClass: 'sortable-ghost',
+                onEnd: function(evt) {
+                    const userId = evt.item.getAttribute('data-id');
+                    const newStatus = evt.to.getAttribute('data-status');
+                    if (evt.from !== evt.to) {
+                        moveUser(userId, newStatus);
                     }
-                });
-            }
+                }
+            });
         });
 
         function moveUser(userId, newStatus) {
@@ -194,16 +239,10 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    console.log('✅ ' + data.message);
-                } else {
-                    alert('⚠️ Error de Red: Recargando...');
+                if (!data.success) {
+                    alert('Error en movimiento');
                     location.reload();
                 }
-            })
-            .catch(error => {
-                console.error('❌ Error Crítico:', error);
-                location.reload();
             });
         }
     });
