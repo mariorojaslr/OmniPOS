@@ -319,6 +319,14 @@
         <div class="col-md-4">
             <h5 class="stat-mini-label mb-4">PANEL DE OPERACIONES</h5>
             
+            <a href="{{ route('owner.crm.index') }}" class="command-btn border-primary border-opacity-50" style="background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent);">
+                <i class="bi bi-people-fill text-primary"></i>
+                <div>
+                    <div class="text-white fw-bold">CRM DE PROSPECTOS</div>
+                    <small class="text-primary opacity-75" style="font-size: 0.7rem;">Nuevos Leads & Pagos pendientes</small>
+                </div>
+            </a>
+
             <a href="{{ route('owner.empresas.index') }}" class="command-btn">
                 <i class="bi bi-building"></i>
                 <div>
