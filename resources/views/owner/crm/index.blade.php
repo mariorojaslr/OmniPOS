@@ -22,7 +22,11 @@
         gap: 0.5rem;
         height: 85vh;
         overflow-x: auto;
+        transition: filter 0.4s;
     }
+
+    /* EFECTO DE DESENFOQUE CUANDO HAY MODAL */
+    body.modal-open .crm-container { filter: blur(8px) brightness(0.3); }
 
     .kanban-col {
         width: 300px;
@@ -46,15 +50,9 @@
         box-shadow: 0 15px 30px rgba(0,0,0,0.6);
     }
 
-    .header-title {
-        font-size: 0.7rem;
-        font-weight: 900;
-        letter-spacing: 0.3em;
-        text-transform: uppercase;
-        color: #fff;
-    }
+    .header-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.3em; text-transform: uppercase; color: #fff; }
 
-    /* TARJETA UNIFORME - VERSION FINAL SIMETRICA */
+    /* TARJETA UNIFORME - FOCO CINEMATOGRAFICO */
     .kanban-card {
         background: var(--card-bg);
         border: 1px solid var(--border-color); 
@@ -63,7 +61,7 @@
         margin-bottom: 1.5rem; 
         margin-left: 10px;
         position: relative;
-        height: 125px; /* Altura fija para simetría total */
+        height: 125px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -72,11 +70,19 @@
         box-shadow: 0 20px 40px -10px var(--stellar-blue);
     }
 
-    .kanban-card:hover {
+    /* CLASE FOCO (SPOTLIGHT) */
+    .kanban-card.active-spotlight {
+        z-index: 2000 !important;
+        transform: scale(1.1) !important;
+        border-color: var(--accent-sky) !important;
+        box-shadow: 0 0 100px var(--accent-sky) !important;
+        pointer-events: none;
+    }
+
+    .kanban-card:hover:not(.active-spotlight) {
         transform: translateY(-5px);
         border-color: var(--accent-sky);
         box-shadow: 0 35px 70px -10px rgba(56, 189, 248, 0.4);
-        z-index: 50;
     }
 
     .card-tab {
@@ -91,58 +97,13 @@
     .tab-pago { background: var(--accent-amber); }
     .tab-activo { background: var(--accent-emerald); }
 
-    .card-handle {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        color: rgba(255,255,255,0.05);
-        font-size: 1rem;
-    }
+    .card-handle { position: absolute; right: 10px; top: 10px; color: rgba(255,255,255,0.05); font-size: 1rem; }
 
-    .card-name { 
-        font-size: 0.8rem; 
-        font-weight: 900; 
-        color: #fff; 
-        text-transform: uppercase; 
-        letter-spacing: 0.5px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        padding-right: 15px;
-    }
+    .card-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 15px; }
+    .card-subtext { font-size: 0.55rem; color: #71717a; font-weight: 600; text-transform: uppercase; }
 
-    .card-subtext {
-        font-size: 0.55rem;
-        color: #71717a;
-        font-weight: 600;
-        margin-top: -3px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    /* SISTEMA DE BOTONES 2x2 UNIFORME */
-    .btn-group-master {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.4rem;
-        margin-top: 0.5rem;
-    }
-
-    .btn-sci-fi {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.1);
-        color: var(--accent-sky);
-        padding: 5px 0;
-        border-radius: 6px;
-        font-size: 0.5rem;
-        font-weight: 950;
-        text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: all 0.2s;
-        text-decoration: none;
-    }
-
+    .btn-group-master { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-top: 0.5rem; }
+    .btn-sci-fi { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--accent-sky); padding: 5px 0; border-radius: 6px; font-size: 0.5rem; font-weight: 950; text-align: center; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; text-decoration: none; }
     .btn-sci-fi:not(.disabled):hover { background: var(--accent-sky); color: #000; border-color: var(--accent-sky); }
     .btn-sci-fi.disabled { opacity: 0.15; cursor: not-allowed; }
     .btn-amber { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.2); }
@@ -150,7 +111,6 @@
     .btn-emerald { color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.2); }
     .btn-emerald:hover:not(.disabled) { background: var(--accent-emerald); color: #000; }
 
-    /* TEXTOS DE ESTADO INTERNOS CON RESPIRO */
     .card-status-label {
         font-size: 0.45rem;
         font-weight: 900;
@@ -165,35 +125,38 @@
         align-items: center;
     }
 
-    .sortable-ghost { opacity: 0; }
-    .sortable-chosen { 
+    /* MODAL IA EXCLUSIVO */
+    .ai-modal {
         background: #000 !important;
-        box-shadow: 0 40px 100px var(--stellar-blue) !important; 
+        border: 2px solid var(--accent-sky);
+        box-shadow: 0 0 50px rgba(56, 189, 248, 0.3);
+        border-radius: 20px;
     }
+    .modal-backdrop.show { opacity: 0.9; background: #000; }
 </style>
 
 <div class="px-10 py-4">
     <div class="flex items-center gap-6">
-        <h1 class="text-white text-xl font-black uppercase tracking-[0.5em]">Global Control Center</h1>
+        <h1 class="text-white text-xl font-black uppercase tracking-[0.5em]">Command Hub</h1>
         <div class="h-px bg-zinc-800 flex-1"></div>
         <div class="flex items-center gap-4 text-sky-400 font-black text-[0.6rem] uppercase tracking-widest animate-pulse">
-            <i class="bi bi-cpu"></i> IA OPS ACTIVE
+            <i class="bi bi-robot"></i> AGENTE SOCIAL LIVE
         </div>
     </div>
 </div>
 
-<div class="crm-container custom-scrollbar">
+<div class="crm-container custom-scrollbar" id="crmContainer">
     
-    <!-- COLUMNA 1: PROSPECTOS -->
+    <!-- COLUMNA 1: LEADS -->
     <div class="kanban-col">
         <div class="col-header">
-            <span class="header-title">01 Leads</span>
+            <span class="header-title">Fase 01 | Leads</span>
             <span class="text-white/40 text-[9px] font-black">{{ $prospectos->total() }}</span>
         </div>
         
         <div id="col-prospecto" class="kanban-list" data-status="prospecto" style="min-height: 500px">
             @foreach($prospectos as $pro)
-            <div class="kanban-card" data-id="{{ $pro->id }}">
+            <div class="kanban-card" data-id="{{ $pro->id }}" id="card-{{ $pro->id }}">
                 <div class="card-tab tab-prospecto"></div>
                 <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 <div>
@@ -202,7 +165,7 @@
                 </div>
                 
                 <div class="btn-group-master">
-                    <button class="btn-sci-fi" onclick="showAIData('{{ $pro->name }}')">IA DATA</button>
+                    <button class="btn-sci-fi" onclick="showAISpotlight('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'INSTAGRAM' }}')">IA DATA</button>
                     <button class="btn-sci-fi disabled">MAIL</button>
                 </div>
 
@@ -219,13 +182,12 @@
     <!-- COLUMNA 2: VALIDAR PAGO -->
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-amber)">
-            <span class="header-title text-amber-500">02 Validar</span>
-            <span class="text-amber-500/20 text-[9px] font-black">{{ $pendientes->total() }}</span>
+            <span class="header-title text-amber-500">Fase 02 | Validar</span>
         </div>
         
         <div id="col-pendiente_pago" class="kanban-list" data-status="pendiente_pago" style="min-height: 500px">
             @foreach($pendientes as $pen)
-            <div class="kanban-card" data-id="{{ $pen->id }}">
+            <div class="kanban-card" data-id="{{ $pen->id }}" id="card-{{ $pen->id }}">
                 <div class="card-tab tab-pago"></div>
                 <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 <div>
@@ -259,18 +221,17 @@
     <!-- COLUMNA 3: ACTIVOS -->
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-emerald)">
-            <span class="header-title text-emerald-500">03 Activos</span>
-            <span class="text-emerald-500/20 text-[9px] font-black">{{ $activos->total() }}</span>
+            <span class="header-title text-emerald-500">Fase 03 | Activos</span>
         </div>
         
         <div id="col-activo" class="kanban-list" data-status="activo" style="min-height: 500px">
             @foreach($activos as $act)
-            <div class="kanban-card" data-id="{{ $act->id }}">
+            <div class="kanban-card" data-id="{{ $act->id }}" id="card-{{ $act->id }}">
                 <div class="card-tab tab-activo"></div>
                 <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 <div>
                     <div class="card-name text-zinc-300">{{ $act->name }}</div>
-                    <div class="card-subtext truncate">{{ $act->empresa?->nombre_comercial ?? 'Consola Activa' }}</div>
+                    <div class="card-subtext truncate">{{ $act->empresa?->nombre_comercial ?? 'Setup Complete' }}</div>
                 </div>
 
                 <div class="btn-group-master">
@@ -290,24 +251,25 @@
 
 </div>
 
-{{-- MODAL IA DATA --}}
-<div class="modal fade" id="modalIA" tabindex="-1" aria-hidden="true">
+{{-- MODAL IA DATA - FOCO DINAMICO --}}
+<div class="modal fade" id="modalIA" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content ai-modal border-sky-500/50">
+    <div class="modal-content ai-modal">
       <div class="modal-header border-white/5">
-        <h6 class="modal-title text-sky-400 fw-black uppercase tracking-widest"><i class="bi bi-robot"></i> Inteligencia Social MultiPOS</h6>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h6 class="modal-title text-sky-400 fw-black uppercase tracking-[0.2em]"><i class="bi bi-robot me-2"></i> Reporte Agente IA</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="clearSpotlight()"></button>
       </div>
-      <div class="modal-body text-zinc-300 font-monospace" style="font-size: 0.75rem;">
-          <div class="mb-3 text-sky-500/80">[SYSTEM]: Analizando interacciones de <span id="ia-client-name" class="text-white"></span>...</div>
-          <div class="bg-zinc-900 p-3 rounded-xl border border-white/5">
-                <p class="mb-1"><span class="text-zinc-500">></span> <span class="text-sky-400">Origen:</span> Instagram Ads (Hot Lead)</p>
-                <p class="mb-1"><span class="text-zinc-500">></span> <span class="text-sky-400">Pregunta IA:</span> "¿Buscás optimizar tu caja diaria?"</p>
-                <p class="mb-1"><span class="text-zinc-500">></span> <span class="text-sky-400">Respuesta:</span> "Sí, tengo 3 sucursales y es un lío."</p>
-                <p class="mb-0"><span class="text-zinc-500">></span> <span class="text-emerald-500 text-bold">RECOMENDACIÓN:</span> Plan Multi-Sucursal VIP.</p>
+      <div class="modal-body text-zinc-300 font-monospace p-4" style="font-size: 0.75rem;">
+          <div class="mb-4 text-sky-500">>>> ANALIZANDO CLIENTE: <span id="ia-client-name" class="text-white text-bold"></span></div>
+          <div class="bg-zinc-900/80 p-4 rounded-2xl border border-sky-500/20 shadow-inner">
+                <div class="mb-3"><span class="text-zinc-600">ORIGEN:</span> <span id="ia-client-source" class="text-emerald-400"></span></div>
+                <div class="mb-3"><span class="text-zinc-600">MENSAJE IA:</span> <br> "¿Cómo te gustaría automatizar tu recaudación?"</div>
+                <div class="mb-1"><span class="text-zinc-600">RESPUESTA:</span> <br> "Busco un sistema rápido y que ande en el celu."</div>
           </div>
-          <div class="mt-4 flex gap-2">
-                <button class="btn-sci-fi w-full py-2 bg-sky-500 text-black border-0">DISPARAR OFERTA AUTOMÁTICA</button>
+          <div class="mt-5">
+                <button class="btn-sci-fi w-full py-3 bg-sky-500 text-black border-0 fw-black shadow-lg" data-bs-dismiss="modal" onclick="clearSpotlight()">
+                    VOLVER A LA CONSOLA
+                </button>
           </div>
       </div>
     </div>
@@ -320,14 +282,37 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function showAIData(name) {
+    let activeCardId = null;
+
+    function showAIDpotlight(id, name, source) {
+        // Iluminar Tarjeta
+        activeCardId = id;
+        const card = document.getElementById('card-' + id);
+        card.classList.add('active-spotlight');
+
+        // Cargar Datos
         document.getElementById('ia-client-name').innerText = name;
+        document.getElementById('ia-client-source').innerText = source;
+
+        // Mostrar Modal
         new bootstrap.Modal(document.getElementById('modalIA')).show();
     }
 
+    function clearSpotlight() {
+        if(activeCardId) {
+            const card = document.getElementById('card-' + activeCardId);
+            card.classList.remove('active-spotlight');
+            activeCardId = null;
+        }
+    }
+
+    // Cerrar spotlight si tocan fuera del modal
+    document.getElementById('modalIA').addEventListener('hidden.bs.modal', function () {
+        clearSpotlight();
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const columns = ['col-prospecto', 'col-pendiente_pago', 'col-activo'];
-        
         columns.forEach(id => {
             const el = document.getElementById(id);
             new Sortable(el, {
@@ -363,5 +348,8 @@
             });
         }
     });
+
+    // Alias para el botón (correccion de camelcase en el blade)
+    window.showAISpotlight = showAIDpotlight;
 </script>
 @endsection
