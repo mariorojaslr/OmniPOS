@@ -39,7 +39,7 @@
         padding: 0.6rem 1.25rem;
         border-radius: 10px;
         border-left: 5px solid var(--accent-sky);
-        margin-bottom: 2.5rem; /* MAS ESPACIO PARA EL HEADER */
+        margin-bottom: 2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -54,16 +54,16 @@
         color: #fff;
     }
 
-    /* TARJETA UNIFORME - CON MAS AIRE VERTICAL */
+    /* TARJETA UNIFORME - VERSION FINAL SIMETRICA */
     .kanban-card {
         background: var(--card-bg);
         border: 1px solid var(--border-color); 
         border-radius: 12px;
         padding: 0.85rem;
-        margin-bottom: 1.5rem; /* ESPACIADO INCREMENTADO 33% MAS */
+        margin-bottom: 1.5rem; 
         margin-left: 10px;
         position: relative;
-        height: 110px; /* UN POQUITO MAS DE ALTURA PARA EL TEXTO INTERNO */
+        height: 125px; /* Altura fija para simetría total */
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -75,7 +75,7 @@
     .kanban-card:hover {
         transform: translateY(-5px);
         border-color: var(--accent-sky);
-        box-shadow: 0 40px 80px -10px rgba(56, 189, 248, 0.4);
+        box-shadow: 0 35px 70px -10px rgba(56, 189, 248, 0.4);
         z-index: 50;
     }
 
@@ -86,7 +86,6 @@
         bottom: 0;
         width: 10px;
         border-radius: 8px 0 0 8px;
-        box-shadow: -4px 0 15px rgba(0,0,0,0.4);
     }
     .tab-prospecto { background: var(--accent-indigo); }
     .tab-pago { background: var(--accent-amber); }
@@ -101,7 +100,7 @@
     }
 
     .card-name { 
-        font-size: 0.85rem; 
+        font-size: 0.8rem; 
         font-weight: 900; 
         color: #fff; 
         text-transform: uppercase; 
@@ -113,7 +112,7 @@
     }
 
     .card-subtext {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         color: #71717a;
         font-weight: 600;
         margin-top: -3px;
@@ -121,14 +120,15 @@
         letter-spacing: 0.5px;
     }
 
+    /* SISTEMA DE BOTONES 2x2 UNIFORME */
     .btn-group-master {
-        display: flex;
-        gap: 0.5rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.4rem;
         margin-top: 0.5rem;
     }
 
     .btn-sci-fi {
-        flex: 1;
         background: rgba(255,255,255,0.03);
         border: 1px solid rgba(255,255,255,0.1);
         color: var(--accent-sky);
@@ -138,24 +138,28 @@
         font-weight: 950;
         text-align: center;
         text-transform: uppercase;
-        letter-spacing: 1.2px;
+        letter-spacing: 1px;
         transition: all 0.2s;
+        text-decoration: none;
     }
 
-    .btn-sci-fi:hover { background: var(--accent-sky); color: #000; border-color: var(--accent-sky); }
+    .btn-sci-fi:not(.disabled):hover { background: var(--accent-sky); color: #000; border-color: var(--accent-sky); }
+    .btn-sci-fi.disabled { opacity: 0.15; cursor: not-allowed; }
     .btn-amber { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.2); }
-    .btn-amber:hover { background: var(--accent-amber); }
+    .btn-amber:hover:not(.disabled) { background: var(--accent-amber); color: #000; }
+    .btn-emerald { color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.2); }
+    .btn-emerald:hover:not(.disabled) { background: var(--accent-emerald); color: #000; }
 
-    /* TEXTOS EN ESPAÑOL DENTRO DE LA TARJETA */
+    /* TEXTOS DE ESTADO INTERNOS CON RESPIRO */
     .card-status-label {
-        font-size: 0.5rem;
-        font-weight: 800;
+        font-size: 0.45rem;
+        font-weight: 900;
         color: var(--accent-sky);
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        margin-top: 6px;
+        margin-top: 8px;
         padding-top: 4px;
-        border-top: 1px solid rgba(255,255,255,0.02);
+        border-top: 1px solid rgba(255,255,255,0.05);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -170,10 +174,10 @@
 
 <div class="px-10 py-4">
     <div class="flex items-center gap-6">
-        <h1 class="text-white text-xl font-black uppercase tracking-[0.5em]">Consola de Mando</h1>
+        <h1 class="text-white text-xl font-black uppercase tracking-[0.5em]">Global Control Center</h1>
         <div class="h-px bg-zinc-800 flex-1"></div>
         <div class="flex items-center gap-4 text-sky-400 font-black text-[0.6rem] uppercase tracking-widest animate-pulse">
-            <i class="bi bi-cpu"></i> IA Monitoreando...
+            <i class="bi bi-cpu"></i> IA OPS ACTIVE
         </div>
     </div>
 </div>
@@ -183,7 +187,7 @@
     <!-- COLUMNA 1: PROSPECTOS -->
     <div class="kanban-col">
         <div class="col-header">
-            <span class="header-title">01 Prospectos</span>
+            <span class="header-title">01 Leads</span>
             <span class="text-white/40 text-[9px] font-black">{{ $prospectos->total() }}</span>
         </div>
         
@@ -198,7 +202,8 @@
                 </div>
                 
                 <div class="btn-group-master">
-                    <button class="btn-sci-fi w-full"><i class="bi bi-robot"></i> INFO AGENTE</button>
+                    <button class="btn-sci-fi" onclick="showAIData('{{ $pro->name }}')">IA DATA</button>
+                    <button class="btn-sci-fi disabled">MAIL</button>
                 </div>
 
                 <div class="card-status-label">
@@ -225,14 +230,19 @@
                 <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 <div>
                     <div class="card-name">{{ $pen->name }}</div>
-                    <div class="card-subtext text-amber-500/50">Pago en Proceso</div>
+                    <div class="card-subtext text-amber-500/30">Pago en Proceso</div>
                 </div>
                 
                 <div class="btn-group-master">
-                    <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-sci-fi">VOUCHER</a>
+                    @if($pen->payment_voucher)
+                        <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-sci-fi">DOC</a>
+                    @else
+                        <span class="btn-sci-fi disabled">NO DOC</span>
+                    @endif
+                    
                     <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="flex-1">
                         @csrf
-                        <button type="submit" class="btn-sci-fi btn-amber w-full">ACTIVAR</button>
+                        <button type="submit" class="btn-sci-fi btn-amber w-full">ACT</button>
                     </form>
                 </div>
 
@@ -264,7 +274,8 @@
                 </div>
 
                 <div class="btn-group-master">
-                    <button class="btn-sci-fi w-full">PANEL DE EMPRESA</button>
+                    <button class="btn-sci-fi btn-emerald">PANEL</button>
+                    <button class="btn-sci-fi btn-emerald disabled">STATS</button>
                 </div>
 
                 <div class="card-status-label" style="color: var(--accent-emerald)">
@@ -277,21 +288,43 @@
         <div class="mt-4">{{ $activos->links() }}</div>
     </div>
 
-    {{-- COLUMNA PROACTIVA --}}
-    <div class="kanban-col opacity-20 flex items-center justify-center">
-        <div class="text-center py-20 border-2 border-dashed border-zinc-900 rounded-3xl w-full">
-             <i class="bi bi-robot fs-1 d-block mb-3 text-sky-500"></i>
-             <p class="text-[0.4rem] font-black uppercase tracking-[0.4em] text-zinc-600">IA Social Scanner</p>
-        </div>
-    </div>
+</div>
 
+{{-- MODAL IA DATA --}}
+<div class="modal fade" id="modalIA" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content ai-modal border-sky-500/50">
+      <div class="modal-header border-white/5">
+        <h6 class="modal-title text-sky-400 fw-black uppercase tracking-widest"><i class="bi bi-robot"></i> Inteligencia Social MultiPOS</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-zinc-300 font-monospace" style="font-size: 0.75rem;">
+          <div class="mb-3 text-sky-500/80">[SYSTEM]: Analizando interacciones de <span id="ia-client-name" class="text-white"></span>...</div>
+          <div class="bg-zinc-900 p-3 rounded-xl border border-white/5">
+                <p class="mb-1"><span class="text-zinc-500">></span> <span class="text-sky-400">Origen:</span> Instagram Ads (Hot Lead)</p>
+                <p class="mb-1"><span class="text-zinc-500">></span> <span class="text-sky-400">Pregunta IA:</span> "¿Buscás optimizar tu caja diaria?"</p>
+                <p class="mb-1"><span class="text-zinc-500">></span> <span class="text-sky-400">Respuesta:</span> "Sí, tengo 3 sucursales y es un lío."</p>
+                <p class="mb-0"><span class="text-zinc-500">></span> <span class="text-emerald-500 text-bold">RECOMENDACIÓN:</span> Plan Multi-Sucursal VIP.</p>
+          </div>
+          <div class="mt-4 flex gap-2">
+                <button class="btn-sci-fi w-full py-2 bg-sky-500 text-black border-0">DISPARAR OFERTA AUTOMÁTICA</button>
+          </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 @endsection
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    function showAIData(name) {
+        document.getElementById('ia-client-name').innerText = name;
+        new bootstrap.Modal(document.getElementById('modalIA')).show();
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const columns = ['col-prospecto', 'col-pendiente_pago', 'col-activo'];
         
