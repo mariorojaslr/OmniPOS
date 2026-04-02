@@ -239,7 +239,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::patch('/usuarios/{usuario}', [UsuarioController::class , 'update'])->name('usuarios.update');
         Route::patch('/usuarios/{usuario}/toggle', [UsuarioController::class , 'toggle'])->name('usuarios.toggle');
         Route::patch('/usuarios/{usuario}/reset-password', [UsuarioController::class , 'resetPassword'])->name('usuarios.reset');
-        Route::get('/usuarios/{usuario}/desempeno', [UsuarioController::class , 'desempeno'])->name('usuarios.desempeno');
+
 
         /*
      |--------------------------------------------------------------------------
