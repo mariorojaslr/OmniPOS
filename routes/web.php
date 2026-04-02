@@ -111,7 +111,22 @@ Route::middleware(['auth', 'owner'])
         Route::patch('empresas/{empresa}/toggle', [EmpresaController::class , 'toggleStatus'])->name('empresas.toggle');
         Route::patch('empresas/{empresa}/renovar', [EmpresaController::class , 'renovar'])->name('empresas.renovar');
 
+        // CRM DE PROSPECTOS (NUEVO)
+        Route::get('crm', [App\Http\Controllers\Owner\CRMController::class, 'index'])->name('crm.index');
+        Route::post('crm/{user}/activate', [App\Http\Controllers\Owner\CRMController::class, 'activate'])->name('crm.activate');
+        Route::patch('crm/{user}/notes', [App\Http\Controllers\Owner\CRMController::class, 'updateNotes'])->name('crm.notes');
+
     });
+
+
+/* |-------------------------------------------------------------------------- | ONBOARDING COMERCIAL (PRE-ACTIVACIÓN) |-------------------------------------------------------------------------- */
+Route::middleware(['auth'])->group(function () {
+    Route::get('/registro-paso-2', [App\Http\Controllers\Auth\RegisteredUserController::class, 'paymentPage'])->name('register.pay');
+    Route::post('/registro-voucher', [App\Http\Controllers\Auth\RegisteredUserController::class, 'processPayment'])->name('register.payment.store');
+    
+    Route::get('/registro-empresa', [App\Http\Controllers\Auth\RegisteredUserController::class, 'companyPage'])->name('register.company');
+    Route::post('/registro-empresa', [App\Http\Controllers\Auth\RegisteredUserController::class, 'storeCompany'])->name('register.company.store');
+});
 
 
 /* |-------------------------------------------------------------------------- | SALIR DEL MODO "ENTRAR COMO USUARIO" (IMPERSONATE) |-------------------------------------------------------------------------- */
@@ -337,9 +352,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/personal/cajas', [App\Http\Controllers\Empresa\CajaAuditoriaController::class, 'index'])->name('personal.cajas.index');
         Route::get('/personal/cajas/{cierre}', [App\Http\Controllers\Empresa\CajaAuditoriaController::class, 'show'])->name('personal.cajas.show');
 
-        // GASTOS (Auditoría y Categorías)
-        Route::resource('gastos', App\Http\Controllers\Empresa\ExpenseController::class);
-        Route::resource('gastos_categorias', App\Http\Controllers\Empresa\ExpenseCategoryController::class);
+
 
         // GASTO RÁPIDO (App Móvil para Campo)
         Route::get('/personal/gastos/rapido', [App\Http\Controllers\Empresa\GastoRapidoController::class, 'create'])->name('gastos.quick');

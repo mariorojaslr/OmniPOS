@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class EmpresaActivaMiddleware
 {
@@ -32,13 +33,35 @@ class EmpresaActivaMiddleware
 
         /*
         |--------------------------------------------------------------------------
+        | VERIFICACIÓN DE ONBOARDING (PAY-BEFORE-CREATE)
+        |--------------------------------------------------------------------------
+        */
+        if ($user->esProspecto() || $user->pendientePago()) {
+            if (!$request->routeIs('register.pay') && !$request->routeIs('register.payment.store') && !$request->routeIs('logout.get')) {
+                return redirect()->route('register.pay');
+            }
+            return $next($request);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | VERIFICACIONES DE MULTITENENCIA (REGLAS DE SEGURIDAD)
         |--------------------------------------------------------------------------
         */
         $empresa = $user->empresa;
 
         if (!$empresa) {
-            abort(403, 'SU USUARIO NO TIENE UNA EMPRESA ASIGNADA.');
+            // Si el usuario es ACTIVO pero no tiene empresa, debe ir a crearla
+            if ($user->status === 'activo') {
+                if (!$request->routeIs('register.company') && !$request->routeIs('register.company.store') && !$request->routeIs('logout.get')) {
+                    return redirect()->route('register.company');
+                }
+                return $next($request);
+            }
+
+            // Para cualquier otro caso sin empresa, logout por seguridad.
+            auth()->logout();
+            return redirect()->route('login')->with('error', 'Su cuenta requiere configuración administrativa.');
         }
 
         // 1. Empresa Inactiva

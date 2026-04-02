@@ -37,19 +37,14 @@ class ExpenseCategoryController extends Controller
 
     public function update(Request $request, ExpenseCategory $category)
     {
-        // PODER TOTAL: Quitamos cualquier validación de ID para que el Admin pueda corregir errores.
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'color' => 'nullable|string|max:7',
-        ]);
+        // Asignación directa y manual para máxima seguridad
+        $category->nombre = $request->input('nombre');
+        $category->color = $request->input('color');
+        $category->activo = $request->has('activo');
+        
+        $category->save();
 
-        $category->update([
-            'nombre' => $request->nombre,
-            'color' => $request->color,
-            'activo' => $request->has('activo') ? true : false,
-        ]);
-
-        return redirect()->back()->with('success', 'Cambios guardados con éxito.');
+        return redirect()->back()->with('success', '¡LISTO! Se guardó como: ' . $category->nombre);
     }
 
     public function destroy(ExpenseCategory $category)

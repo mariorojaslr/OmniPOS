@@ -63,7 +63,24 @@ return Application::configure(basePath: dirname(__DIR__))
     | Punto único para customizar errores a futuro.
     */
     ->withExceptions(function (Exceptions $exceptions) {
-        // Manejo de excepciones futuro
+        $exceptions->reportable(function (\Throwable $e) {
+            try {
+                $user = auth()->user();
+                \App\Models\SystemError::create([
+                    'empresa_id' => $user->empresa_id ?? null,
+                    'user_id' => $user->id ?? null,
+                    'exception_class' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'url' => request()->fullUrl(),
+                    'status' => 'pendiente',
+                    'severity' => 'medio'
+                ]);
+            } catch (\Throwable $loggingError) {
+                // Si falla el logueo del error, no hacemos nada para evitar un bucle infinito
+            }
+        });
     })
 
     /*

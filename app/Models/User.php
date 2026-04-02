@@ -26,6 +26,11 @@ class User extends Authenticatable
         'must_change_password', 
         'sub_role', // cajero, empleado
         'can_register_expenses',
+        'status', // prospecto, pendiente_pago, activo, suspendido
+        'lead_source',
+        'country',
+        'crm_notes',
+        'payment_voucher',
     ];
 
     /*
@@ -93,7 +98,17 @@ class User extends Authenticatable
 
     public function estaActivo(): bool
     {
-        return $this->activo === true;
+        return $this->activo === true && $this->status === 'activo';
+    }
+
+    public function esProspecto(): bool
+    {
+        return $this->status === 'prospecto';
+    }
+
+    public function pendientePago(): bool
+    {
+        return $this->status === 'pendiente_pago';
     }
 
     /*

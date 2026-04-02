@@ -31,13 +31,16 @@ class RegisteredUserController extends Controller
             'email'             => $request->email,
             'password'          => Hash::make($request->password),
             'role'              => 'empresa',
-            'activo'            => 1,
+            'activo'            => 0, // Inactiva hasta validar pago/empresa
+            'status'            => 'prospecto',
             'email_verified_at' => now(),
+            'lead_source'       => session('lead_source', 'organic'),
+            'country'           => 'AR', // Simplificado para este bloque, luego lo automatizamos
         ]);
 
-        // Guardamos el plan elegido en la sesión para el siguiente paso (Pago)
         if ($request->plan_id) {
             session(['selected_plan' => $request->plan_id]);
+            $user->update(['crm_notes' => 'Plan elegido al registro: ' . $request->plan_id]);
         }
 
         event(new Registered($user));
@@ -47,21 +50,36 @@ class RegisteredUserController extends Controller
         return redirect()->route('register.pay');
     }
 
-    // 1. VISTA DE PAGO SEGURO (Simulación)
+    // 1. VISTA DE PAGO MANUAL (Instrucciones de Transferencia)
     public function paymentPage()
     {
-        $planId = session('selected_plan');
+        $user = auth()->user();
+        if ($user->status === 'activo') return redirect()->route('empresa.dashboard');
+        
+        $planId = session('selected_plan', 1);
         $plan = \App\Models\Plan::find($planId);
-        return view('auth.onboarding.payment', compact('plan'));
+        
+        return view('auth.onboarding.payment', compact('plan', 'user'));
     }
 
-    // 2. PROCESAR PAGO
+    // 2. PROCESAR COMPROBANTE DE PAGO
     public function processPayment(Request $request)
     {
-        // Aquí iría la integración con MercadoPago o Stripe. 
-        // Por ahora simulamos éxito inmediato.
-        session(['payment_verified' => true]);
-        return redirect()->route('register.company');
+        $request->validate([
+            'voucher' => 'required|image|max:5120', // Foto de transferencia
+        ]);
+
+        $user = auth()->user();
+        
+        if($request->hasFile('voucher')){
+            $path = $request->file('voucher')->store('vouchers', 'public');
+            $user->update([
+                'status' => 'pendiente_pago',
+                'payment_voucher' => $path
+            ]);
+        }
+
+        return redirect()->route('register.pay')->with('success', '¡Recibido! Estamos validando tu pago. En breve recibirás un correo de activación.');
     }
 
     // 3. VISTA DATOS DE EMPRESA

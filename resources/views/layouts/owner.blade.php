@@ -19,23 +19,23 @@
 
         <nav class="flex-1 p-4 space-y-2">
             <a href="{{ route('owner.dashboard') }}"
-               class="block px-4 py-2 rounded-lg bg-indigo-600 text-white">
-                Dashboard
+               class="block px-4 py-2 rounded-lg {{ request()->routeIs('owner.dashboard') ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                Dashboard Principal
+            </a>
+
+            <a href="{{ route('owner.crm.index') }}"
+               class="block px-4 py-2 rounded-lg {{ request()->routeIs('owner.crm.*') ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                CRM de Ventas
             </a>
 
             <a href="{{ route('owner.empresas.index') }}"
-               class="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
+               class="block px-4 py-2 rounded-lg {{ request()->routeIs('owner.empresas.*') ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
                 Empresas
             </a>
 
             <a href="{{ route('owner.planes.index') }}"
-               class="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
+               class="block px-4 py-2 rounded-lg {{ request()->routeIs('owner.planes.*') ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
                 Planes y Facturación
-            </a>
-
-            <a href="#"
-               class="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
-                Estadísticas
             </a>
         </nav>
 
