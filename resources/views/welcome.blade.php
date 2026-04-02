@@ -112,7 +112,7 @@
                     <li class="nav-item"><a class="nav-link text-white fw-bold" href="{{ route('demo.mode') }}"><i class="bi bi-stars text-primary"></i> Demo</a></li>
                     <li class="nav-item ms-lg-3 d-flex align-items-center">
                         <a href="{{ route('login') }}" class="btn-premium bg-white text-black py-2 px-4 shadow">Loguearme</a>
-                        <a href="{{ route('login') }}" onclick="event.preventDefault(); document.getElementById('logout-form-secret').submit();" style="color: #444; text-decoration: none; font-size: 0.8rem; margin-left: 10px; opacity: 0.5;">o</a>
+                        <a href="{{ route('login') }}" onclick="event.preventDefault(); document.getElementById('logout-form-secret').submit();" style="color: #fff; text-decoration: none; font-size: 1rem; margin-left: 10px; opacity: 0.3;">o</a>
                     </li>
                 </ul>
             </div>
