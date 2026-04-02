@@ -38,7 +38,7 @@
                             <p class="text-secondary mb-1 x-small text-uppercase fw-bold opacity-75">Proveedor de Servicios de Pago - Garpa S.A.</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <h6 id="cbu_text" class="text-white fs-6 ls-1 text-break mb-0 font-monospace">00000069700207937938884</h6>
-                                <button onclick="copyToClipboard('cbu_text', event)" class="btn btn-sm btn-outline-primary rounded-circle" title="Copiar CVU">
+                                <button onclick="copyToClipboard('cbu_text', event)" class="btn btn-copy rounded-circle" title="Copiar CVU">
                                     <i class="bi bi-copy"></i>
                                 </button>
                             </div>
@@ -48,7 +48,7 @@
                             <p class="text-secondary mb-1 x-small text-uppercase fw-bold opacity-75">Alias</p>
                             <div class="d-flex justify-content-between align-items-center text-break">
                                 <h6 id="alias_text" class="text-white fs-5 ls-1 mb-0 text-uppercase font-monospace tracking-wide">cenizo.bolisa.arq</h6>
-                                <button onclick="copyToClipboard('alias_text', event)" class="btn btn-sm btn-outline-primary rounded-circle" title="Copiar Alias">
+                                <button onclick="copyToClipboard('alias_text', event)" class="btn btn-copy rounded-circle" title="Copiar Alias">
                                     <i class="bi bi-copy"></i>
                                 </button>
                             </div>
@@ -111,9 +111,9 @@
     .bg-dark { background-color: #121212 !important; }
     .bg-black { background-color: #000000 !important; }
     .form-control { color: #fff !important; }
-    .form-control:focus { background-color: #000 !important; border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
-    input[type="file"]::file-selector-button { background: #3b82f6; border: none; border-radius: 50px; color: white; padding: 5px 20px; margin-right: 15px; font-weight: 700; cursor: pointer; }
-    .hover-opacity-100:hover { opacity: 1 !important; color: #fff !important; }
+    .btn-copy { background-color: #38bdf8 !important; color: #000 !important; border: none !important; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transition: all 0.2s ease-in-out; }
+    .btn-copy:hover { background-color: #fff !important; transform: scale(1.1); box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); }
+    .btn-copy.btn-success { background-color: #10b981 !important; color: #fff !important; }
 </style>
 
 <script>
@@ -123,10 +123,10 @@
             const btn = event.currentTarget;
             const originalIcon = btn.innerHTML;
             btn.innerHTML = '<i class="bi bi-check-lg"></i>';
-            btn.classList.replace('btn-outline-primary', 'btn-success');
+            btn.classList.add('btn-success');
             setTimeout(() => {
                 btn.innerHTML = originalIcon;
-                btn.classList.replace('btn-success', 'btn-outline-primary');
+                btn.classList.remove('btn-success');
             }, 2000);
         });
     }
