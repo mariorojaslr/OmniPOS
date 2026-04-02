@@ -70,12 +70,13 @@
         box-shadow: 0 5px 15px -5px var(--stellar-blue);
     }
 
-    /* CLASE FOCO (SOLO ILUMINACION) */
+    /* CLASE FOCO (ILUMINACION SEGUN FASE) */
     .kanban-card.active-spotlight {
         z-index: 2000 !important;
+        border-width: 2px !important;
         border-color: var(--accent-sky) !important;
-        box-shadow: 0 0 100px var(--accent-sky) !important;
-        pointer-events: none;
+        box-shadow: 0 0 80px rgba(56, 189, 248, 0.7) !important;
+        opacity: 1 !important;
     }
 
     .kanban-card:hover:not(.active-spotlight) {
@@ -146,12 +147,12 @@
     .modal-backdrop.show { opacity: 0.85; background: #000; }
 </style>
 
-<div class="px-10 py-4">
-    <div class="flex items-center gap-6">
-        <h1 class="text-white text-xl font-black uppercase tracking-[0.5em]">Command Hub</h1>
-        <div class="h-px bg-zinc-800 flex-1"></div>
-        <div class="flex items-center gap-4 text-sky-400 font-black text-[0.6rem] uppercase tracking-widest animate-pulse">
-            <i class="bi bi-robot"></i> AGENTE SOCIAL LIVE
+<div class="px-10 py-10"> <!-- MAS AIRE SUPERIOR -->
+    <div class="flex items-center gap-12"> <!-- MAS ESPACIO ENTRE TITULO Y LOGO -->
+        <h1 class="text-white text-2xl font-black uppercase tracking-[0.5em] ms-8">Command Hub</h1>
+        <div class="h-px bg-zinc-800 flex-1 opacity-20"></div>
+        <div class="flex items-center gap-6 text-sky-400 font-black text-[0.7rem] uppercase tracking-widest animate-pulse me-12">
+            <i class="bi bi-robot fs-4"></i> AGENTE SOCIAL LIVE
         </div>
     </div>
 </div>
@@ -278,7 +279,7 @@
                 <div class="mb-1"><span class="text-zinc-600">RESPUESTA:</span> <br> "Busco un sistema rápido y que ande en el celu."</div>
           </div>
           <div class="mt-5">
-                <button class="btn-sci-fi w-full py-3 bg-sky-500 text-black border-0 fw-black shadow-lg" data-bs-dismiss="modal" onclick="clearSpotlight()">
+                <button class="btn-sci-fi w-full py-3 bg-sky-500 text-black border-0 fw-black shadow-lg" onclick="closeIAModal()">
                     VOLVER A LA CONSOLA
                 </button>
           </div>
@@ -293,6 +294,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    let iaModal = null;
     let activeCardId = null;
 
     function showAISpotlight(id, name, source) {
@@ -306,7 +308,13 @@
         document.getElementById('ia-client-source').innerText = source;
 
         // Mostrar Modal
-        new bootstrap.Modal(document.getElementById('modalIA')).show();
+        if(!iaModal) iaModal = new bootstrap.Modal(document.getElementById('modalIA'));
+        iaModal.show();
+    }
+
+    function closeIAModal() {
+        if(iaModal) iaModal.hide();
+        clearSpotlight();
     }
 
     function clearSpotlight() {
