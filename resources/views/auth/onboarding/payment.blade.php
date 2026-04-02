@@ -38,8 +38,8 @@
                             <p class="text-secondary mb-1 x-small text-uppercase fw-bold opacity-75">Proveedor de Servicios de Pago - Garpa S.A.</p>
                             <div class="d-flex justify-content-between align-items-center gap-2">
                                 <h6 id="cbu_text" class="text-white fs-6 ls-1 text-break mb-0 font-monospace" style="font-size: 0.75rem !important;">00000069700207937938884</h6>
-                                <button onclick="copyToClipboard('cbu_text', event)" class="btn btn-link text-sky-400 p-0" title="Copiar CVU">
-                                    <i class="bi bi-copy fs-6"></i>
+                                <button onclick="copyToClipboard('cbu_text', event)" class="btn btn-link text-warning p-0" title="Copiar CVU">
+                                    <i class="bi bi-copy fs-6" style="color: #f59e0b !important;"></i>
                                 </button>
                             </div>
                         </div>
@@ -48,8 +48,8 @@
                             <p class="text-secondary mb-1 x-small text-uppercase fw-bold opacity-75">Alias</p>
                             <div class="d-flex justify-content-between align-items-center gap-2 text-break">
                                 <h6 id="alias_text" class="text-white fs-5 ls-1 mb-0 text-uppercase font-monospace tracking-wide" style="font-size: 0.85rem !important;">cenizo.bolisa.arq</h6>
-                                <button onclick="copyToClipboard('alias_text', event)" class="btn btn-link text-sky-400 p-0" title="Copiar Alias">
-                                    <i class="bi bi-copy fs-6"></i>
+                                <button onclick="copyToClipboard('alias_text', event)" class="btn btn-link text-warning p-0" title="Copiar Alias">
+                                    <i class="bi bi-copy fs-6" style="color: #f59e0b !important;"></i>
                                 </button>
                             </div>
                         </div>
