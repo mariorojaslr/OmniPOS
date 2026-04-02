@@ -2,59 +2,71 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MultiPOS | Owner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiPOS | Master Suite</title>
     <link rel="icon" href="{{ asset('favicon.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     @vite(['resources/css/app.css','resources/js/app.js'])
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #000; color: #fff; }
+        .nav-link-active { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff !important;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 text-gray-800">
-<div class="flex min-h-screen">
+<body class="bg-black text-slate-300">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-lg hidden md:flex flex-col">
-        <div class="p-6 border-b text-center">
-            <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS Logo" class="mx-auto mb-2" style="max-height: 40px;">
-            <span class="block text-xs font-normal text-gray-400 uppercase tracking-wider">Owner Control Center</span>
+    {{-- NAV SUPERIOR MASTER --}}
+    <nav class="sticky top-0 z-[100] bg-black/80 backdrop-blur-xl border-b border-white/5 px-8 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-10">
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS" style="max-height: 28px;">
+                <span class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] border-l border-white/10 ps-3">Master Suite</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ route('owner.dashboard') }}" 
+                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.dashboard') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
+                    Dashboard
+                </a>
+                <a href="{{ route('owner.crm.index') }}" 
+                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.crm.*') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
+                    CRM de Ventas
+                </a>
+                <a href="{{ route('owner.empresas.index') }}" 
+                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.empresas.*') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
+                    Empresas
+                </a>
+                <a href="{{ route('owner.planes.index') }}" 
+                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.planes.*') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
+                    Planes
+                </a>
+                <a href="{{ route('owner.soporte.index') }}" 
+                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.soporte.*') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
+                    Soporte
+                </a>
+            </div>
         </div>
 
-        <nav class="flex-1 p-4 space-y-2">
-            <a href="{{ route('owner.dashboard') }}"
-               class="block px-4 py-2 rounded-lg {{ request()->routeIs('owner.dashboard') ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                Dashboard Principal
-            </a>
-
-            <a href="{{ route('owner.crm.index') }}"
-               class="block px-4 py-2 rounded-lg {{ request()->routeIs('owner.crm.*') ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                CRM de Ventas
-            </a>
-
-            <a href="{{ route('owner.empresas.index') }}"
-               class="block px-4 py-2 rounded-lg {{ request()->routeIs('owner.empresas.*') ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                Empresas
-            </a>
-
-            <a href="{{ route('owner.planes.index') }}"
-               class="block px-4 py-2 rounded-lg {{ request()->routeIs('owner.planes.*') ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                Planes y Facturación
-            </a>
-        </nav>
-
-        <div class="p-4 border-t">
+        <div class="flex items-center gap-4">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button class="w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-50">
-                    Cerrar sesión
+                <button class="bg-zinc-900 border border-white/5 text-[10px] uppercase font-black text-zinc-400 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-all">
+                    Salir
                 </button>
             </form>
         </div>
-    </aside>
+    </nav>
 
-    <!-- Main -->
-    <main class="flex-1 p-8">
+    {{-- MAIN CONTENT (FULL WIDTH) --}}
+    <main class="w-full">
         @yield('content')
     </main>
 
-</div>
-@yield('scripts')
+    @yield('scripts')
 </body>
 </html>

@@ -3,205 +3,210 @@
 @section('content')
 <style>
     :root {
-        --oled-bg: #000000;
-        --card-bg: #09090b;
-        --border-color: rgba(255, 255, 255, 0.08);
-        --accent-indigo: #818cf8;
-        --accent-amber: #fbbf24;
-        --accent-emerald: #34d399;
+        --oled-bg: #000;
+        --card-bg: #fff;
+        --border-color: rgba(255,255,255, 0.1);
+        --accent-indigo: #6366f1;
+        --accent-amber: #f59e0b;
+        --accent-emerald: #10b981;
     }
 
-    body { background-color: var(--oled-bg) !important; }
-    
-    .kanban-container {
+    body { background-color: var(--oled-bg) !important; color: #fff; }
+
+    .kanban-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        padding: 1rem;
+        min-height: 85vh;
+        border-top: 1px solid var(--border-color);
     }
 
-    .kanban-column {
-        background: transparent;
-        border-radius: 24px;
-        min-height: 80vh;
+    .kanban-col {
+        border-right: 1px solid var(--border-color);
+        padding: 1.5rem 1.25rem;
+        background: linear-gradient(180deg, rgba(255,255,255, 0.01) 0%, transparent 100%);
     }
 
-    .column-header {
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
+    .kanban-col:last-child { border-right: 0; }
+
+    .col-header {
+        margin-bottom: 2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding: 0 0.5rem;
     }
 
-    .header-tag {
+    .header-pill {
         font-size: 0.65rem;
-        font-weight: 800;
-        letter-spacing: 0.15em;
+        font-weight: 900;
+        letter-spacing: 0.2em;
         text-transform: uppercase;
-        padding: 4px 12px;
+        padding: 6px 16px;
         border-radius: 50px;
-        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255,255,255, 0.1);
+        background: rgba(255,255,255, 0.03);
     }
 
+    /* TARJETA COMPACTA FLOATING */
     .kanban-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 18px;
-        padding: 0.85rem;
+        background: #fff;
+        border-radius: 14px;
+        padding: 0.7rem 0.85rem;
         margin-bottom: 1rem;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+        transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
         cursor: grab;
+        border-left: 5px solid transparent;
+        overflow: hidden;
     }
 
     .kanban-card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(255, 255, 255, 0.2);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8);
-        background: #111111;
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 25px 40px rgba(0, 0, 0, 0.9);
+        z-index: 50;
     }
 
-    .card-id { font-size: 0.6rem; color: #52525b; font-weight: 700; }
-    .card-name { font-size: 0.85rem; font-weight: 700; color: #fafafa; margin: 4px 0; }
-    .card-email { font-size: 0.7rem; color: #71717a; }
+    /* NEON STRIPES */
+    .card-prospecto { border-left-color: var(--accent-indigo) !important; }
+    .card-pago { border-left-color: var(--accent-amber) !important; }
+    .card-activo { border-left-color: var(--accent-emerald) !important; }
+
+    .card-title { font-size: 0.85rem; font-weight: 800; color: #1e293b; margin-bottom: 2px; }
+    .card-subtitle { font-size: 0.65rem; color: #64748b; font-weight: 500; }
     
-    .card-footer {
+    .card-meta {
         margin-top: 0.75rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.03);
+        padding-top: 0.5rem;
+        border-top: 1px solid #f1f5f9;
         display: flex;
         justify-content: space-between;
         align-items: center;
-    }
-
-    .tag-mini {
         font-size: 0.55rem;
         font-weight: 800;
-        padding: 2px 8px;
-        border-radius: 4px;
-        background: rgba(255, 255, 255, 0.03);
-        color: #a1a1aa;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.05em;
     }
 
-    .sortable-ghost { opacity: 0; }
-    .sortable-chosen { box-shadow: 0 20px 40px rgba(129, 140, 248, 0.2) !important; }
+    .btn-action-mini {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 4px 10px;
+        border-radius: 8px;
+        color: #1e293b;
+        font-weight: 900;
+        font-size: 0.55rem;
+        transition: all 0.2s;
+    }
 
-    /* Custom Scrollbar for OLED */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+    .btn-action-mini:hover { background: #000; color: #fff; border-color: #000; }
+
+    .sortable-ghost { opacity: 0; }
+    .sortable-drag { transform: rotate(3deg) scale(1.1); box-shadow: 0 30px 60px rgba(0,0,0,0.9); }
+
+    /* PAGINACIÓN COMPACTA */
+    .paginator-container nav svg { width: 14px; height: 14px; }
+    .paginator-container nav p { display: none; }
 </style>
 
-<div class="px-6 py-6 pb-20">
+<div class="kanban-grid">
     
-    <div class="flex items-center justify-between mb-10">
-        <div>
-            <h1 class="text-white text-3xl font-extrabold tracking-tight">Ventas & CRM</h1>
-            <div class="flex items-center gap-2 mt-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-[0.6rem] text-zinc-500 font-bold uppercase tracking-widest">Master Dashboard Monitoring</span>
+    <!-- COLUMNA 1: PROSPECTOS -->
+    <div class="kanban-col">
+        <div class="col-header">
+            <span class="header-pill text-indigo-400">01. NUEVOS LEADS</span>
+            <span class="text-[10px] text-zinc-600 font-black tracking-widest">{{ $prospectos->total() }}</span>
+        </div>
+        
+        <div id="col-prospecto" class="kanban-list space-y-3" data-status="prospecto" style="min-height: 500px">
+            @foreach($prospectos as $pro)
+            <div class="kanban-card card-prospecto" data-id="{{ $pro->id }}">
+                <div class="flex justify-between items-center opacity-40 mb-1">
+                    <span class="text-[8px] font-black uppercase tracking-widest">Prospecto</span>
+                    <i class="bi bi-person-plus text-[10px]"></i>
+                </div>
+                <div class="card-title truncate uppercase">{{ $pro->name }}</div>
+                <div class="card-subtitle truncate">{{ $pro->email }}</div>
+                
+                <div class="card-meta">
+                    <span>{{ $pro->lead_source ?? 'Organic' }}</span>
+                    <span>{{ $pro->created_at ? $pro->created_at->diffForHumans() : 'Hoy' }}</span>
+                </div>
             </div>
+            @endforeach
         </div>
-        <div class="text-right">
-            <div class="text-white font-black text-xs opacity-40 uppercase tracking-widest">MultiPOS Central Suite</div>
-        </div>
+        <div class="mt-8 paginator-container">{{ $prospectos->links() }}</div>
     </div>
 
-    <div class="kanban-container">
-        
-        <!-- COLUMNA 1: PROSPECTOS -->
-        <div class="kanban-column">
-            <div class="column-header">
-                <div>
-                    <span class="header-tag text-indigo-400">01. NUEVOS LEADS</span>
-                </div>
-                <span class="text-[10px] text-zinc-500 font-bold">{{ $prospectos->total() }}</span>
-            </div>
-            
-            <div id="col-prospecto" class="kanban-list" data-status="prospecto" style="min-height: 500px">
-                @foreach($prospectos as $pro)
-                <div class="kanban-card" data-id="{{ $pro->id }}">
-                    <div class="flex justify-between items-start">
-                        <span class="card-id">#PRO-{{ $pro->id }}</span>
-                        <span class="text-[9px] text-zinc-600 font-bold">{{ $pro->created_at ? $pro->created_at->diffForHumans() : 'Hoy' }}</span>
-                    </div>
-                    <div class="card-name">{{ $pro->name }}</div>
-                    <div class="card-email truncate">{{ $pro->email }}</div>
-                    
-                    <div class="card-footer">
-                        <span class="tag-mini">{{ $pro->lead_source ?? 'Landing' }}</span>
-                        <i class="bi bi-person-plus text-indigo-400" style="font-size: 0.8rem"></i>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            <div class="mt-4">{{ $prospectos->links() }}</div>
+    <!-- COLUMNA 2: VALIDAR PAGO -->
+    <div class="kanban-col">
+        <div class="col-header">
+            <span class="header-pill text-amber-500">02. VALIDAR PAGO</span>
+            <span class="text-[10px] text-zinc-600 font-black tracking-widest">{{ $pendientes->total() }}</span>
         </div>
-
-        <!-- COLUMNA 2: PENDIENTE DE PAGO -->
-        <div class="kanban-column">
-            <div class="column-header" style="border-bottom-color: rgba(251, 191, 36, 0.1)">
-                <div>
-                    <span class="header-tag text-amber-400">02. VALIDAR PAGO</span>
+        
+        <div id="col-pendiente_pago" class="kanban-list space-y-3" data-status="pendiente_pago" style="min-height: 500px">
+            @foreach($pendientes as $pen)
+            <div class="kanban-card card-pago" data-id="{{ $pen->id }}">
+                <div class="flex justify-between items-center opacity-40 mb-1">
+                    <span class="text-[8px] font-black uppercase tracking-widest text-amber-600">Revisar Pago</span>
+                    <i class="bi bi-wallet2 text-[10px]"></i>
                 </div>
-                <span class="text-[10px] text-zinc-500 font-bold">{{ $pendientes->total() }}</span>
-            </div>
-            
-            <div id="col-pendiente_pago" class="kanban-list" data-status="pendiente_pago" style="min-height: 500px">
-                @foreach($pendientes as $pen)
-                <div class="kanban-card" data-id="{{ $pen->id }}" style="border-left: 2px solid var(--accent-amber)">
-                    <div class="flex justify-between items-start">
-                        <span class="card-id">#WAIT-{{ $pen->id }}</span>
-                        <span class="text-[9px] text-amber-500/50 font-bold uppercase tracking-widest">Pendiente</span>
-                    </div>
-                    <div class="card-name">{{ $pen->name }}</div>
-                    
+                <div class="card-title truncate uppercase">{{ $pen->name }}</div>
+                
+                <div class="flex gap-2 mt-4">
                     @if($pen->payment_voucher)
-                        <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="block w-full py-2 mt-3 bg-zinc-900 border border-zinc-800 rounded-lg text-center text-[10px] font-bold text-white hover:bg-amber-500 hover:text-black transition-all uppercase tracking-widest">
-                            Ver Voucher <i class="bi bi-image"></i>
+                        <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-action-mini flex-1 text-center">
+                            Voucher <i class="bi bi-image ms-1"></i>
                         </a>
                     @endif
 
-                    <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="mt-2">
+                    <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="flex-1">
                         @csrf
-                        <button type="submit" class="w-full py-2 bg-amber-500 rounded-lg border-0 text-black text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-lg active:scale-95">
-                           Activar
+                        <button type="submit" class="btn-action-mini w-full bg-amber-500 text-black border-amber-500">
+                           Aprobar
                         </button>
                     </form>
                 </div>
-                @endforeach
-            </div>
-            <div class="mt-4">{{ $pendientes->links() }}</div>
-        </div>
 
-        <!-- COLUMNA 3: ACTIVOS -->
-        <div class="kanban-column">
-            <div class="column-header" style="border-bottom-color: rgba(52, 211, 153, 0.1)">
-                <div>
-                    <span class="header-tag text-emerald-400">03. CLIENTES OK</span>
+                <div class="card-meta">
+                    <span>Esperando OK de pago</span>
+                    <span><i class="bi bi-clock-history"></i></span>
                 </div>
-                <span class="text-[10px] text-zinc-500 font-bold">{{ $activos->total() }}</span>
             </div>
-            
-            <div id="col-activo" class="kanban-list" data-status="activo" style="min-height: 500px">
-                @foreach($activos as $act)
-                <div class="kanban-card" data-id="{{ $act->id }}" style="border-left: 2px solid var(--accent-emerald)">
-                    <div class="flex justify-between items-start">
-                        <span class="card-id text-emerald-500/50">#LIVE-{{ $act->id }}</span>
-                        <i class="bi bi-shield-check text-emerald-400" style="font-size: 0.7rem"></i>
-                    </div>
-                    <div class="card-name">{{ $act->name }}</div>
-                    <div class="card-email truncate opacity-50">{{ $act->empresa?->nombre_comercial ?? 'Setup Completo' }}</div>
-                </div>
-                @endforeach
-            </div>
-            <div class="mt-4">{{ $activos->links() }}</div>
+            @endforeach
         </div>
-
+        <div class="mt-8 paginator-container">{{ $pendientes->links() }}</div>
     </div>
+
+    <!-- COLUMNA 3: CLIENTES OK -->
+    <div class="kanban-col">
+        <div class="col-header">
+            <span class="header-pill text-emerald-400">03. ACTIVOS OK</span>
+            <span class="text-[10px] text-zinc-600 font-black tracking-widest">{{ $activos->total() }}</span>
+        </div>
+        
+        <div id="col-activo" class="kanban-list space-y-3" data-status="activo" style="min-height: 500px">
+            @foreach($activos as $act)
+            <div class="kanban-card card-activo" data-id="{{ $act->id }}">
+                <div class="flex justify-between items-center opacity-40 mb-1">
+                    <span class="text-[8px] font-black uppercase tracking-widest text-emerald-600">SaaS Live</span>
+                    <i class="bi bi-shield-check text-[10px]"></i>
+                </div>
+                <div class="card-title truncate uppercase">{{ $act->name }}</div>
+                <div class="card-subtitle truncate opacity-60">{{ $act->empresa?->nombre_comercial ?? 'Configurado' }}</div>
+                
+                <div class="card-meta">
+                    <span>Activo</span>
+                    <span><i class="bi bi-stars"></i></span>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        <div class="mt-8 paginator-container">{{ $activos->links() }}</div>
+    </div>
+
 </div>
 
 @endsection
@@ -210,14 +215,17 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const statuses = ['prospecto', 'pendiente_pago', 'activo'];
+        const columns = ['col-prospecto', 'col-pendiente_pago', 'col-activo'];
         
-        statuses.forEach(status => {
-            const el = document.getElementById('col-' + status);
+        columns.forEach(id => {
+            const el = document.getElementById(id);
             new Sortable(el, {
                 group: 'kanban',
-                animation: 250,
+                animation: 350,
+                easing: "cubic-bezier(0.165, 0.84, 0.44, 1)",
                 ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                forceFallback: true,
                 onEnd: function(evt) {
                     const userId = evt.item.getAttribute('data-id');
                     const newStatus = evt.to.getAttribute('data-status');
@@ -240,7 +248,6 @@
             .then(response => response.json())
             .then(data => {
                 if (!data.success) {
-                    alert('Error en movimiento');
                     location.reload();
                 }
             });

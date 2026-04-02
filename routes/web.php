@@ -107,6 +107,7 @@ Route::middleware(['auth', 'owner'])
         Route::post('suscripciones-upload', [SuscripcionPagoController::class, 'store'])->name('facturacion.store');
 
         Route::resource('soporte', OwnerSupportTicketController::class)->names('soporte');
+        Route::post('soporte/upload-media', [OwnerSupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');
 
         Route::patch('empresas/{empresa}/toggle', [EmpresaController::class , 'toggleStatus'])->name('empresas.toggle');
         Route::patch('empresas/{empresa}/renovar', [EmpresaController::class , 'renovar'])->name('empresas.renovar');
