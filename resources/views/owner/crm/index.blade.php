@@ -39,7 +39,7 @@
         padding: 0.6rem 1.25rem;
         border-radius: 10px;
         border-left: 5px solid var(--accent-sky);
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem; /* MAS ESPACIO PARA EL HEADER */
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -54,18 +54,16 @@
         color: #fff;
     }
 
-    .badge-count { font-size: 0.6rem; color: #fff; opacity: 0.4; font-weight: 800; }
-
-    /* TARJETA UNIFORME - ALTA DENSIDAD */
+    /* TARJETA UNIFORME - CON MAS AIRE VERTICAL */
     .kanban-card {
         background: var(--card-bg);
-        border: 1px solid var(--border-color); /* BORDE 1PX BLANCO */
+        border: 1px solid var(--border-color); 
         border-radius: 12px;
         padding: 0.85rem;
-        margin-bottom: 0.85rem;
+        margin-bottom: 1.5rem; /* ESPACIADO INCREMENTADO 33% MAS */
         margin-left: 10px;
         position: relative;
-        height: 105px; /* ALTURA UNIFORME CALCULADA PARA 2 BOTONES */
+        height: 110px; /* UN POQUITO MAS DE ALTURA PARA EL TEXTO INTERNO */
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -77,11 +75,10 @@
     .kanban-card:hover {
         transform: translateY(-5px);
         border-color: var(--accent-sky);
-        box-shadow: 0 35px 70px -10px rgba(56, 189, 248, 0.4);
+        box-shadow: 0 40px 80px -10px rgba(56, 189, 248, 0.4);
         z-index: 50;
     }
 
-    /* PESTAÑA POST-IT 100% ALTURA */
     .card-tab {
         position: absolute;
         left: -10px; 
@@ -102,7 +99,6 @@
         color: rgba(255,255,255,0.05);
         font-size: 1rem;
     }
-    .kanban-card:hover .card-handle { color: var(--accent-sky); }
 
     .card-name { 
         font-size: 0.85rem; 
@@ -117,7 +113,7 @@
     }
 
     .card-subtext {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         color: #71717a;
         font-weight: 600;
         margin-top: -3px;
@@ -125,7 +121,6 @@
         letter-spacing: 0.5px;
     }
 
-    /* SISTEMA DE BOTONES UNIFORME */
     .btn-group-master {
         display: flex;
         gap: 0.5rem;
@@ -139,28 +134,31 @@
         color: var(--accent-sky);
         padding: 5px 0;
         border-radius: 6px;
-        font-size: 0.55rem;
+        font-size: 0.5rem;
         font-weight: 950;
         text-align: center;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
+        letter-spacing: 1.2px;
         transition: all 0.2s;
     }
 
     .btn-sci-fi:hover { background: var(--accent-sky); color: #000; border-color: var(--accent-sky); }
-
     .btn-amber { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.2); }
     .btn-amber:hover { background: var(--accent-amber); }
 
-    .card-meta-sky {
-        font-size: 0.55rem;
+    /* TEXTOS EN ESPAÑOL DENTRO DE LA TARJETA */
+    .card-status-label {
+        font-size: 0.5rem;
         font-weight: 800;
         color: var(--accent-sky);
         text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-top: 4px;
+        letter-spacing: 1.5px;
+        margin-top: 6px;
+        padding-top: 4px;
+        border-top: 1px solid rgba(255,255,255,0.02);
         display: flex;
         justify-content: space-between;
+        align-items: center;
     }
 
     .sortable-ghost { opacity: 0; }
@@ -172,10 +170,10 @@
 
 <div class="px-10 py-4">
     <div class="flex items-center gap-6">
-        <h1 class="text-white text-xl font-black uppercase tracking-[0.5em]">Command Hub</h1>
+        <h1 class="text-white text-xl font-black uppercase tracking-[0.5em]">Consola de Mando</h1>
         <div class="h-px bg-zinc-800 flex-1"></div>
-        <div class="flex items-center gap-4">
-            <span class="text-[0.6rem] text-sky-400 font-black uppercase tracking-widest animate-pulse">Syncing...</span>
+        <div class="flex items-center gap-4 text-sky-400 font-black text-[0.6rem] uppercase tracking-widest animate-pulse">
+            <i class="bi bi-cpu"></i> IA Monitoreando...
         </div>
     </div>
 </div>
@@ -185,8 +183,8 @@
     <!-- COLUMNA 1: PROSPECTOS -->
     <div class="kanban-col">
         <div class="col-header">
-            <span class="header-title">01 Leads</span>
-            <span class="badge-count">{{ $prospectos->total() }}</span>
+            <span class="header-title">01 Prospectos</span>
+            <span class="text-white/40 text-[9px] font-black">{{ $prospectos->total() }}</span>
         </div>
         
         <div id="col-prospecto" class="kanban-list" data-status="prospecto" style="min-height: 500px">
@@ -196,16 +194,16 @@
                 <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 <div>
                     <div class="card-name">{{ $pro->name }}</div>
-                    <div class="card-subtext">{{ $pro->lead_source ?? 'Organic' }}</div>
+                    <div class="card-subtext">{{ $pro->lead_source ?? 'Landing Directo' }}</div>
                 </div>
                 
                 <div class="btn-group-master">
-                    <button class="btn-sci-fi w-full"><i class="bi bi-robot"></i> IA DATA</button>
+                    <button class="btn-sci-fi w-full"><i class="bi bi-robot"></i> INFO AGENTE</button>
                 </div>
 
-                <div class="card-meta-sky">
-                    <span>Prospecto OK</span>
-                    <span><i class="bi bi-person-plus-fill"></i></span>
+                <div class="card-status-label">
+                    <span>PROSPECTO OK</span>
+                    <i class="bi bi-person-plus-fill"></i>
                 </div>
             </div>
             @endforeach
@@ -217,7 +215,7 @@
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-amber)">
             <span class="header-title text-amber-500">02 Validar</span>
-            <span class="badge-count">{{ $pendientes->total() }}</span>
+            <span class="text-amber-500/20 text-[9px] font-black">{{ $pendientes->total() }}</span>
         </div>
         
         <div id="col-pendiente_pago" class="kanban-list" data-status="pendiente_pago" style="min-height: 500px">
@@ -227,19 +225,19 @@
                 <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 <div>
                     <div class="card-name">{{ $pen->name }}</div>
-                    <div class="card-subtext">Waiting Payment</div>
+                    <div class="card-subtext text-amber-500/50">Pago en Proceso</div>
                 </div>
                 
                 <div class="btn-group-master">
-                    <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-sci-fi">DOC</a>
+                    <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-sci-fi">VOUCHER</a>
                     <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="flex-1">
                         @csrf
-                        <button type="submit" class="btn-sci-fi btn-amber w-full">ACT</button>
+                        <button type="submit" class="btn-sci-fi btn-amber w-full">ACTIVAR</button>
                     </form>
                 </div>
 
-                <div class="card-meta-sky">
-                    <span class="text-amber-500/50 italic">Verify Voucher</span>
+                <div class="card-status-label" style="color: var(--accent-amber)">
+                    <span>VALIDAR PAGO</span>
                     <i class="bi bi-lightning-charge-fill"></i>
                 </div>
             </div>
@@ -252,7 +250,7 @@
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-emerald)">
             <span class="header-title text-emerald-500">03 Activos</span>
-            <span class="badge-count">{{ $activos->total() }}</span>
+            <span class="text-emerald-500/20 text-[9px] font-black">{{ $activos->total() }}</span>
         </div>
         
         <div id="col-activo" class="kanban-list" data-status="activo" style="min-height: 500px">
@@ -261,16 +259,16 @@
                 <div class="card-tab tab-activo"></div>
                 <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 <div>
-                    <div class="card-name">{{ $act->name }}</div>
-                    <div class="card-subtext">{{ $act->empresa?->nombre_comercial ?? 'Setup Complete' }}</div>
+                    <div class="card-name text-zinc-300">{{ $act->name }}</div>
+                    <div class="card-subtext truncate">{{ $act->empresa?->nombre_comercial ?? 'Consola Activa' }}</div>
                 </div>
 
                 <div class="btn-group-master">
-                    <button class="btn-sci-fi w-full">SAAS DASHBOARD</button>
+                    <button class="btn-sci-fi w-full">PANEL DE EMPRESA</button>
                 </div>
 
-                <div class="card-meta-sky">
-                    <span class="text-emerald-500/50">SaaS Live OK</span>
+                <div class="card-status-label" style="color: var(--accent-emerald)">
+                    <span>SAAS ACTIVO OK</span>
                     <i class="bi bi-shield-check"></i>
                 </div>
             </div>
@@ -281,9 +279,9 @@
 
     {{-- COLUMNA PROACTIVA --}}
     <div class="kanban-col opacity-20 flex items-center justify-center">
-        <div class="text-center py-20 border-2 border-dashed border-zinc-800 rounded-3xl">
+        <div class="text-center py-20 border-2 border-dashed border-zinc-900 rounded-3xl w-full">
              <i class="bi bi-robot fs-1 d-block mb-3 text-sky-500"></i>
-             <p class="text-[0.6rem] font-black uppercase tracking-widest text-zinc-500">AI Social Scanner...</p>
+             <p class="text-[0.4rem] font-black uppercase tracking-[0.4em] text-zinc-600">IA Social Scanner</p>
         </div>
     </div>
 
