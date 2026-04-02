@@ -88,7 +88,17 @@
                                         <th width="40" class="ps-4">✓</th>
                                         <th>Producto</th>
                                         <th width="120">Cod. Barra</th>
-                                        <th width="100" class="text-center">Copias</th>
+                                        <th width="120" class="text-center bg-light border-start border-end">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <span class="mb-1">Copias</span>
+                                                <div class="input-group input-group-sm shadow-sm" style="width: 100px;">
+                                                    <input type="number" id="bulkQty" class="form-control text-center" placeholder="Todas" min="1" max="500">
+                                                    <button class="btn btn-primary px-2" type="button" onclick="applyBulkQty()" title="Aplicar a todas">
+                                                        <i class="bi bi-lightning-fill"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </th>
                                         <th class="text-end pe-4">Precio</th>
                                     </tr>
                                 </thead>
@@ -105,13 +115,13 @@
                                                     @if($p->created_at >= now()->subHours(48))
                                                         <span class="badge bg-warning text-dark me-2" style="font-size: 0.7em;">NUEVO</span>
                                                     @endif
-                                                    <span class="fw-bold">{{ $p->name }}</span>
+                                                    <span class="fw-bold text-dark">{{ $p->name }}</span>
                                                 </div>
-                                                <small class="text-muted">{{ $p->rubro->nombre ?? 'Sin rubro' }}</small>
+                                                <small class="text-muted d-block">{{ $p->rubro->nombre ?? 'Sin rubro' }}</small>
                                             </td>
-                                            <td><code class="text-primary">{{ $p->barcode }}</code></td>
-                                            <td class="text-center">
-                                                <input type="number" name="quantities[{{ $p->id }}]" value="{{ (request('filter') == 'nuevas' || request('purchase_id')) ? 5 : 1 }}" min="1" max="500" class="form-control form-control-sm text-center mx-auto" style="width: 70px; border-radius: 8px;">
+                                            <td><code class="text-primary fw-bold" style="font-size: 0.85rem;">{{ $p->barcode }}</code></td>
+                                            <td class="text-center bg-light/30 border-start border-end">
+                                                <input type="number" name="quantities[{{ $p->id }}]" value="{{ (request('filter') == 'nuevas' || request('purchase_id')) ? 5 : 1 }}" min="1" max="500" class="form-control form-control-sm text-center mx-auto qty-input" style="width: 75px; border-radius: 8px; font-weight: 700; border: 1px solid #dee2e6;">
                                             </td>
                                             <td class="text-end pe-4 fw-bold">$ {{ number_format($p->price, 2) }}</td>
                                         </tr>
@@ -189,6 +199,19 @@
 <script>
 function selectAll(state) {
     document.querySelectorAll('.item-check').forEach(c => c.checked = state);
+}
+
+function applyBulkQty() {
+    const qty = document.getElementById('bulkQty').value;
+    if (qty && qty > 0) {
+        document.querySelectorAll('.qty-input').forEach(input => {
+            input.value = qty;
+        });
+        // Feedback visual rapido
+        const btn = document.querySelector('[onclick="applyBulkQty()"]');
+        btn.classList.replace('btn-primary', 'btn-success');
+        setTimeout(() => btn.classList.replace('btn-success', 'btn-primary'), 1000);
+    }
 }
 </script>
 
