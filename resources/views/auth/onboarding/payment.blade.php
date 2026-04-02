@@ -35,10 +35,10 @@
                     <p class="text-white small mb-3"><i class="bi bi-bank me-2 text-primary"></i> Transfiere el total a esta cuenta:</p>
                     <div class="bg-black p-4 rounded-3 border-start border-4 border-primary">
                         <div class="mb-3">
-                            <p class="text-secondary mb-1 x-small text-uppercase fw-bold opacity-75">Banco Nación / CBU</p>
+                            <p class="text-secondary mb-1 x-small text-uppercase fw-bold opacity-75">Mercado Pago / CVU</p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <h6 id="cbu_text" class="text-white fs-6 ls-1 text-break mb-0 font-monospace">0110123456789012345678</h6>
-                                <button onclick="copyToClipboard('cbu_text')" class="btn btn-sm btn-outline-primary rounded-circle" title="Copiar CBU">
+                                <h6 id="cbu_text" class="text-white fs-6 ls-1 text-break mb-0 font-monospace">00000069700207937938884</h6>
+                                <button onclick="copyToClipboard('cbu_text', event)" class="btn btn-sm btn-outline-primary rounded-circle" title="Copiar CVU">
                                     <i class="bi bi-copy"></i>
                                 </button>
                             </div>
@@ -47,8 +47,8 @@
                         <div>
                             <p class="text-secondary mb-1 x-small text-uppercase fw-bold opacity-75">Alias</p>
                             <div class="d-flex justify-content-between align-items-center text-break">
-                                <h6 id="alias_text" class="text-white fs-5 ls-1 mb-0 text-uppercase font-monospace tracking-wide">MULTIPOS.SISTEMAS.OK</h6>
-                                <button onclick="copyToClipboard('alias_text')" class="btn btn-sm btn-outline-primary rounded-circle" title="Copiar Alias">
+                                <h6 id="alias_text" class="text-white fs-5 ls-1 mb-0 text-uppercase font-monospace tracking-wide">cenizo.bolisa.arq</h6>
+                                <button onclick="copyToClipboard('alias_text', event)" class="btn btn-sm btn-outline-primary rounded-circle" title="Copiar Alias">
                                     <i class="bi bi-copy"></i>
                                 </button>
                             </div>
@@ -117,7 +117,7 @@
 </style>
 
 <script>
-    function copyToClipboard(id) {
+    function copyToClipboard(id, event) {
         const text = document.getElementById(id).innerText.trim();
         navigator.clipboard.writeText(text).then(() => {
             const btn = event.currentTarget;
