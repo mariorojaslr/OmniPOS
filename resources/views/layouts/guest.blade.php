@@ -74,7 +74,12 @@
         /* ----- ESTILOS GLASSMORPHISM GLOBALES PARA AUTH ----- */
         .auth-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 420px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-container.broad {
+            max-width: 900px;
         }
 
         .auth-card {
@@ -181,7 +186,7 @@
 
     <div class="premium-bg"></div>
     <div class="guest-wrapper {{ isset($isCatalog) && $isCatalog ? 'flex-column align-items-stretch pt-0 px-0 w-100' : 'align-items-center justify-content-center px-2 px-md-4' }}">
-        <div class="auth-container" style="{{ request()->routeIs('register.*') ? 'max-width: 1000px;' : '' }}">
+        <div class="auth-container {{ isset($isBroad) && $isBroad ? 'broad' : '' }}">
             @yield('content')
         </div>
     </div>
