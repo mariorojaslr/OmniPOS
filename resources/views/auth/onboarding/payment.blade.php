@@ -36,20 +36,20 @@
                     <div class="bg-black p-4 rounded-3 border-start border-4 border-primary">
                         <div class="mb-3">
                             <p class="text-secondary mb-1 x-small text-uppercase fw-bold opacity-75">Proveedor de Servicios de Pago - Garpa S.A.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 id="cbu_text" class="text-white fs-6 ls-1 text-break mb-0 font-monospace">00000069700207937938884</h6>
-                                <button onclick="copyToClipboard('cbu_text', event)" class="btn btn-copy rounded-circle" title="Copiar CVU">
-                                    <i class="bi bi-copy"></i>
+                            <div class="d-flex justify-content-between align-items-center gap-2">
+                                <h6 id="cbu_text" class="text-white fs-6 ls-1 text-break mb-0 font-monospace" style="font-size: 0.75rem !important;">00000069700207937938884</h6>
+                                <button onclick="copyToClipboard('cbu_text', event)" class="btn btn-link text-sky-400 p-0" title="Copiar CVU">
+                                    <i class="bi bi-copy fs-6"></i>
                                 </button>
                             </div>
                         </div>
                         
                         <div>
                             <p class="text-secondary mb-1 x-small text-uppercase fw-bold opacity-75">Alias</p>
-                            <div class="d-flex justify-content-between align-items-center text-break">
-                                <h6 id="alias_text" class="text-white fs-5 ls-1 mb-0 text-uppercase font-monospace tracking-wide">cenizo.bolisa.arq</h6>
-                                <button onclick="copyToClipboard('alias_text', event)" class="btn btn-copy rounded-circle" title="Copiar Alias">
-                                    <i class="bi bi-copy"></i>
+                            <div class="d-flex justify-content-between align-items-center gap-2 text-break">
+                                <h6 id="alias_text" class="text-white fs-5 ls-1 mb-0 text-uppercase font-monospace tracking-wide" style="font-size: 0.85rem !important;">cenizo.bolisa.arq</h6>
+                                <button onclick="copyToClipboard('alias_text', event)" class="btn btn-link text-sky-400 p-0" title="Copiar Alias">
+                                    <i class="bi bi-copy fs-6"></i>
                                 </button>
                             </div>
                         </div>
@@ -111,9 +111,8 @@
     .bg-dark { background-color: #121212 !important; }
     .bg-black { background-color: #000000 !important; }
     .form-control { color: #fff !important; }
-    .btn-copy { background-color: #38bdf8 !important; color: #000 !important; border: none !important; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transition: all 0.2s ease-in-out; }
-    .btn-copy:hover { background-color: #fff !important; transform: scale(1.1); box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); }
-    .btn-copy.btn-success { background-color: #10b981 !important; color: #fff !important; }
+    .text-sky-400 { color: #38bdf8 !important; }
+    .btn-link:hover { color: #fff !important; transform: scale(1.1); }
 </style>
 
 <script>
@@ -122,11 +121,9 @@
         navigator.clipboard.writeText(text).then(() => {
             const btn = event.currentTarget;
             const originalIcon = btn.innerHTML;
-            btn.innerHTML = '<i class="bi bi-check-lg"></i>';
-            btn.classList.add('btn-success');
+            btn.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
             setTimeout(() => {
                 btn.innerHTML = originalIcon;
-                btn.classList.remove('btn-success');
             }, 2000);
         });
     }
