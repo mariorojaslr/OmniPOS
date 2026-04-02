@@ -22,11 +22,11 @@
         gap: 0.5rem;
         height: 85vh;
         overflow-x: auto;
-        transition: filter 0.4s;
+        transition: opacity 0.4s;
     }
 
-    /* EFECTO DE DESENFOQUE CUANDO HAY MODAL */
-    body.modal-open .crm-container { filter: blur(8px) brightness(0.3); }
+    /* ATENUACION SIN DESENFOQUE COMO PEDISTE */
+    body.modal-open .crm-container { opacity: 0.3; }
 
     .kanban-col {
         width: 300px;
@@ -52,25 +52,25 @@
 
     .header-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.3em; text-transform: uppercase; color: #fff; }
 
-    /* TARJETA UNIFORME - ALTURA FIJA SAGRADA 125PX */
+    /* TARJETA UNIFORME - ALTURA 130PX Y MARGEN 15PX (4mm) */
     .kanban-card {
         background: var(--card-bg);
         border: 1px solid var(--border-color); 
         border-radius: 12px;
         padding: 0.85rem;
-        margin-bottom: 2rem; /* MARGEN PARA QUE RESPIREN */
+        margin-bottom: 15px; /* DENSIDAD EXTREMA */
         margin-left: 10px;
         position: relative;
-        height: 125px; /* EL TAMAÑO QUE TE GUSTÓ */
+        height: 130px; /* ALINEACION PERFECTA */
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         transition: border-color 0.3s, box-shadow 0.3s;
         cursor: grab;
-        box-shadow: 0 10px 30px -5px var(--stellar-blue);
+        box-shadow: 0 5px 15px -5px var(--stellar-blue);
     }
 
-    /* CLASE FOCO (SOLO ILUMINACION, SIN MOVIMIENTO) */
+    /* CLASE FOCO (SOLO ILUMINACION) */
     .kanban-card.active-spotlight {
         z-index: 2000 !important;
         border-color: var(--accent-sky) !important;
@@ -79,7 +79,6 @@
     }
 
     .kanban-card:hover:not(.active-spotlight) {
-        transform: translateY(-5px);
         border-color: var(--accent-sky);
         box-shadow: 0 35px 70px -10px rgba(56, 189, 248, 0.4);
     }
@@ -124,22 +123,27 @@
         align-items: center;
     }
 
-    /* MODAL IA EXCLUSIVO - CENTRADO Y PODEROSO */
+    /* MODAL IA EXCLUSIVO - CENTRO ABSOLUTO GEOMETRICO */
+    #modalIA .modal-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9) !important;
+        margin: 0;
+        max-width: 500px;
+        width: 90%;
+        z-index: 3000 !important;
+    }
+    #modalIA.show .modal-dialog {
+        transform: translate(-50%, -50%) scale(1) !important;
+    }
     .ai-modal {
         background: #09090b !important;
         border: 2px solid var(--accent-sky);
-        box-shadow: 0 0 80px rgba(56, 189, 248, 0.4);
+        box-shadow: 0 0 100px rgba(56, 189, 248, 0.5);
         border-radius: 24px;
-        transform: scale(0.9);
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .modal.show .ai-modal { transform: scale(1); }
-    .modal-backdrop.show { opacity: 0.95; background: #000; }
-
-    /* FOCO RADIAL ALREDEDOR DEL MODAL */
-    .modal-dialog {
-        max-width: 500px;
-    }
+    .modal-backdrop.show { opacity: 0.85; background: #000; }
 </style>
 
 <div class="px-10 py-4">
@@ -260,7 +264,7 @@
 
 {{-- MODAL IA DATA - FOCO DINAMICO --}}
 <div class="modal fade" id="modalIA" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog">
     <div class="modal-content ai-modal">
       <div class="modal-header border-white/5">
         <h6 class="modal-title text-sky-400 fw-black uppercase tracking-[0.2em]"><i class="bi bi-robot me-2"></i> Reporte Agente IA</h6>
@@ -291,11 +295,11 @@
 <script>
     let activeCardId = null;
 
-    function showAIDpotlight(id, name, source) {
+    function showAISpotlight(id, name, source) {
         // Iluminar Tarjeta
         activeCardId = id;
         const card = document.getElementById('card-' + id);
-        card.classList.add('active-spotlight');
+        if(card) card.classList.add('active-spotlight');
 
         // Cargar Datos
         document.getElementById('ia-client-name').innerText = name;
@@ -308,7 +312,7 @@
     function clearSpotlight() {
         if(activeCardId) {
             const card = document.getElementById('card-' + activeCardId);
-            card.classList.remove('active-spotlight');
+            if(card) card.classList.remove('active-spotlight');
             activeCardId = null;
         }
     }
@@ -322,20 +326,22 @@
         const columns = ['col-prospecto', 'col-pendiente_pago', 'col-activo'];
         columns.forEach(id => {
             const el = document.getElementById(id);
-            new Sortable(el, {
-                group: 'kanban',
-                handle: '.card-handle',
-                animation: 250,
-                ghostClass: 'sortable-ghost',
-                chosenClass: 'sortable-chosen',
-                onEnd: function(evt) {
-                    const userId = evt.item.getAttribute('data-id');
-                    const newStatus = evt.to.getAttribute('data-status');
-                    if (evt.from !== evt.to) {
-                        moveUser(userId, newStatus);
+            if(el) {
+                new Sortable(el, {
+                    group: 'kanban',
+                    handle: '.card-handle',
+                    animation: 250,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    onEnd: function(evt) {
+                        const userId = evt.item.getAttribute('data-id');
+                        const newStatus = evt.to.getAttribute('data-status');
+                        if (evt.from !== evt.to) {
+                            moveUser(userId, newStatus);
+                        }
                     }
-                }
-            });
+                });
+            }
         });
 
         function moveUser(userId, newStatus) {
@@ -356,7 +362,5 @@
         }
     });
 
-    // Alias para el botón (correccion de camelcase en el blade)
-    window.showAISpotlight = showAIDpotlight;
 </script>
 @endsection
