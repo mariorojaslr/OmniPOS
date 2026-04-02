@@ -13,10 +13,10 @@ class CRMController extends Controller
      */
     public function index()
     {
-        // Segmentamos a los usuarios segun su estado comercial
-        $prospectos = User::where('status', 'prospecto')->where('role', 'empresa')->latest()->get();
-        $pendientes = User::where('status', 'pendiente_pago')->where('role', 'empresa')->latest()->get();
-        $activos = User::where('status', 'activo')->where('role', 'empresa')->latest()->limit(20)->get();
+        // Segmentamos a los usuarios segun su estado comercial con paginacion independiente
+        $prospectos = User::where('status', 'prospecto')->where('role', 'empresa')->latest()->paginate(15, ['*'], 'prospectos');
+        $pendientes = User::where('status', 'pendiente_pago')->where('role', 'empresa')->latest()->paginate(15, ['*'], 'pendientes');
+        $activos = User::where('status', 'activo')->where('role', 'empresa')->latest()->paginate(25, ['*'], 'activos');
 
         return view('owner.crm.index', compact('prospectos', 'pendientes', 'activos'));
     }
@@ -42,5 +42,30 @@ class CRMController extends Controller
     {
         $user->update(['crm_notes' => $request->notes]);
         return redirect()->back()->with('success', 'Notas actualizadas.');
+    }
+
+    /**
+     * Mover un usuario entre columnas de estado (Drag & Drop AJAX)
+     */
+    public function move(Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+        $oldStatus = $user->status;
+        $newStatus = $request->status;
+
+        // Reglas de negocio segun el movimiento
+        $updateData = ['status' => $newStatus];
+
+        if ($newStatus === 'activo') {
+            $updateData['activo'] = 1;
+            $updateData['crm_notes'] = ($user->crm_notes . "\n-- ACTIVADO VIA CRM DRAG & DROP EL " . now()->format('d/m/Y H:i'));
+        }
+
+        $user->update($updateData);
+
+        return response()->json([
+            'success' => true,
+            'message' => "¡Movimiento exitoso! " . ($user->name ?? 'Usuario') . " ahora está en " . $newStatus
+        ]);
     }
 }
