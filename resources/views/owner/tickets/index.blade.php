@@ -44,7 +44,9 @@
                             @endif
                         </td>
                         <td>
-                            @if($ticket->priority == 'alta')
+                            @if($ticket->priority == 'critica')
+                                <span class="badge bg-black text-white border border-danger border-opacity-75 px-3 py-2 shadow-sm animate-pulse-red" style="font-size: 0.7rem; letter-spacing: 1px;">🚨 CRÍTICA</span>
+                            @elseif($ticket->priority == 'alta')
                                 <span class="badge bg-danger">Alta</span>
                             @elseif($ticket->priority == 'media')
                                 <span class="badge bg-warning text-dark">Media</span>
@@ -71,4 +73,16 @@
         </div>
     </div>
 </div>
+@section('styles')
+<style>
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); border-color: rgba(220, 38, 38, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); border-color: rgba(220, 38, 38, 1); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); border-color: rgba(220, 38, 38, 0.4); }
+    }
+    .animate-pulse-red {
+        animation: pulse-red 2s infinite;
+    }
+</style>
+@endsection
 @endsection
