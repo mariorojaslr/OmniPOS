@@ -28,7 +28,7 @@
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-indigo-300 transition-all duration-300 cursor-default">
                     <div class="flex justify-between items-start mb-3">
                         <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-pill font-bold border border-indigo-100">{{ $pro->country ?? 'AR' }}</span>
-                        <span class="text-[9px] text-gray-400">{{ $pro->created_at->diffForHumans() }}</span>
+                        <span class="text-[9px] text-gray-400">{{ $pro->created_at ? $pro->created_at->diffForHumans() : 'Reciente' }}</span>
                     </div>
                     <h3 class="font-bold text-gray-800 text-sm mb-1">{{ $pro->name }}</h3>
                     <p class="text-[11px] text-gray-400 truncate mb-3">{{ $pro->email }}</p>
@@ -91,7 +91,7 @@
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center justify-between hover:bg-emerald-50/20 transition">
                     <div class="flex-1 truncate">
                         <h3 class="font-bold text-gray-800 text-xs">{{ $act->name }}</h3>
-                        <p class="text-[10px] text-gray-400 font-medium truncate">{{ $act->empresa->nombre_comercial ?? 'Configurando empresa...' }}</p>
+                        <p class="text-[10px] text-gray-400 font-medium truncate">{{ $act->empresa?->nombre_comercial ?? 'Configurando empresa...' }}</p>
                     </div>
                     <div class="ms-3 bg-emerald-100 text-emerald-600 rounded-full p-1.5 leading-none">
                         <i class="bi bi-check-lg fs-6"></i>
