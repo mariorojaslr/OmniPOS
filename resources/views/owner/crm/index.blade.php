@@ -25,8 +25,8 @@
         transition: opacity 0.4s;
     }
 
-    /* ATENUACION SIN DESENFOQUE COMO PEDISTE */
-    body.modal-open .crm-container { opacity: 0.3; }
+    /* ATENUACION SIN BLOQUEO */
+    body.modal-open .crm-container { opacity: 0.25; }
 
     .kanban-col {
         width: 300px;
@@ -52,16 +52,16 @@
 
     .header-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.3em; text-transform: uppercase; color: #fff; }
 
-    /* TARJETA UNIFORME - ALTURA 130PX Y MARGEN 15PX (4mm) */
+    /* TARJETA UNIFORME - ALTURA 130PX SIN CORTES */
     .kanban-card {
         background: var(--card-bg);
         border: 1px solid var(--border-color); 
         border-radius: 12px;
         padding: 0.85rem;
-        margin-bottom: 15px; /* DENSIDAD EXTREMA */
+        margin-bottom: 15px; 
         margin-left: 10px;
         position: relative;
-        height: 130px; /* ALINEACION PERFECTA */
+        height: 130px; 
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -70,7 +70,7 @@
         box-shadow: 0 5px 15px -5px var(--stellar-blue);
     }
 
-    /* CLASE FOCO (ILUMINACION SEGUN FASE) */
+    /* CLASE FOCO (ILUMINACION PURA) */
     .kanban-card.active-spotlight {
         z-index: 2000 !important;
         border-width: 2px !important;
@@ -124,48 +124,42 @@
         align-items: center;
     }
 
-    /* MODAL IA EXCLUSIVO - CENTRO ABSOLUTO GEOMETRICO */
-    #modalIA .modal-dialog {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(0.9) !important;
-        margin: 0;
-        max-width: 500px;
-        width: 90%;
-        z-index: 3000 !important;
-    }
-    #modalIA.show .modal-dialog {
-        transform: translate(-50%, -50%) scale(1) !important;
-    }
+    /* MODAL IA - CENTRADO Y FLUIDO */
     .ai-modal {
         background: #09090b !important;
         border: 2px solid var(--accent-sky);
         box-shadow: 0 0 100px rgba(56, 189, 248, 0.5);
         border-radius: 24px;
     }
-    .modal-backdrop.show { opacity: 0.85; background: #000; }
+
+    /* ANIMACION DE SURGIMIENTO */
+    .modal.fade .modal-dialog {
+        transform: scale(0.8);
+        transition: transform 0.3s;
+    }
+    .modal.show .modal-dialog {
+        transform: scale(1);
+    }
 </style>
 
-<div class="px-10 py-10"> <!-- MAS AIRE SUPERIOR -->
-    <div class="flex items-center gap-12"> <!-- MAS ESPACIO ENTRE TITULO Y LOGO -->
-        <h1 class="text-white text-2xl font-black uppercase tracking-[0.5em] ms-8">Command Hub</h1>
+<div class="px-10 mt-12 mb-8">
+    <div class="flex items-center gap-12">
+        <h1 class="text-white text-2xl font-black uppercase tracking-[0.5em] ms-16">Command Hub</h1>
         <div class="h-px bg-zinc-800 flex-1 opacity-20"></div>
-        <div class="flex items-center gap-6 text-sky-400 font-black text-[0.7rem] uppercase tracking-widest animate-pulse me-12">
-            <i class="bi bi-robot fs-4"></i> AGENTE SOCIAL LIVE
+        <div class="flex items-center gap-6 text-sky-400 font-black text-[0.75rem] uppercase tracking-widest animate-pulse me-20">
+            <i class="bi bi-robot fs-3"></i> AGENTE SOCIAL LIVE
         </div>
     </div>
 </div>
 
-<div class="crm-container custom-scrollbar" id="crmContainer">
+<div class="crm-container custom-scrollbar px-12" id="crmContainer">
     
-    <!-- COLUMNA 1: LEADS -->
+    <!-- COLUMNAS -->
     <div class="kanban-col">
         <div class="col-header">
             <span class="header-title">Fase 01 | Leads</span>
             <span class="text-white/40 text-[9px] font-black">{{ $prospectos->total() }}</span>
         </div>
-        
         <div id="col-prospecto" class="kanban-list" data-status="prospecto" style="min-height: 500px">
             @foreach($prospectos as $pro)
             <div class="kanban-card" data-id="{{ $pro->id }}" id="card-{{ $pro->id }}">
@@ -175,12 +169,10 @@
                     <div class="card-name">{{ $pro->name }}</div>
                     <div class="card-subtext">{{ $pro->lead_source ?? 'Landing Directo' }}</div>
                 </div>
-                
                 <div class="btn-group-master">
                     <button class="btn-sci-fi" onclick="showAISpotlight('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'INSTAGRAM' }}')">IA DATA</button>
                     <button class="btn-sci-fi disabled">MAIL</button>
                 </div>
-
                 <div class="card-status-label">
                     <span>PROSPECTO OK</span>
                     <i class="bi bi-person-plus-fill"></i>
@@ -191,12 +183,10 @@
         <div class="mt-4">{{ $prospectos->links() }}</div>
     </div>
 
-    <!-- COLUMNA 2: VALIDAR PAGO -->
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-amber)">
             <span class="header-title text-amber-500">Fase 02 | Validar</span>
         </div>
-        
         <div id="col-pendiente_pago" class="kanban-list" data-status="pendiente_pago" style="min-height: 500px">
             @foreach($pendientes as $pen)
             <div class="kanban-card" data-id="{{ $pen->id }}" id="card-{{ $pen->id }}">
@@ -206,20 +196,17 @@
                     <div class="card-name">{{ $pen->name }}</div>
                     <div class="card-subtext text-amber-500/30">Pago en Proceso</div>
                 </div>
-                
                 <div class="btn-group-master">
                     @if($pen->payment_voucher)
                         <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-sci-fi">DOC</a>
                     @else
                         <span class="btn-sci-fi disabled">NO DOC</span>
                     @endif
-                    
                     <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="flex-1">
                         @csrf
                         <button type="submit" class="btn-sci-fi btn-amber w-full">ACT</button>
                     </form>
                 </div>
-
                 <div class="card-status-label" style="color: var(--accent-amber)">
                     <span>VALIDAR PAGO</span>
                     <i class="bi bi-lightning-charge-fill"></i>
@@ -230,12 +217,10 @@
         <div class="mt-4">{{ $pendientes->links() }}</div>
     </div>
 
-    <!-- COLUMNA 3: ACTIVOS -->
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-emerald)">
             <span class="header-title text-emerald-500">Fase 03 | Activos</span>
         </div>
-        
         <div id="col-activo" class="kanban-list" data-status="activo" style="min-height: 500px">
             @foreach($activos as $act)
             <div class="kanban-card" data-id="{{ $act->id }}" id="card-{{ $act->id }}">
@@ -245,12 +230,10 @@
                     <div class="card-name text-zinc-300">{{ $act->name }}</div>
                     <div class="card-subtext truncate">{{ $act->empresa?->nombre_comercial ?? 'Setup Complete' }}</div>
                 </div>
-
                 <div class="btn-group-master">
                     <button class="btn-sci-fi btn-emerald">PANEL</button>
                     <button class="btn-sci-fi btn-emerald disabled">STATS</button>
                 </div>
-
                 <div class="card-status-label" style="color: var(--accent-emerald)">
                     <span>SAAS ACTIVO OK</span>
                     <i class="bi bi-shield-check"></i>
@@ -263,13 +246,13 @@
 
 </div>
 
-{{-- MODAL IA DATA - FOCO DINAMICO --}}
-<div class="modal fade" id="modalIA" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-  <div class="modal-dialog">
+{{-- MODAL IA DATA --}}
+<div class="modal fade" id="modalIA" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content ai-modal">
       <div class="modal-header border-white/5">
         <h6 class="modal-title text-sky-400 fw-black uppercase tracking-[0.2em]"><i class="bi bi-robot me-2"></i> Reporte Agente IA</h6>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="clearSpotlight()"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body text-zinc-300 font-monospace p-4" style="font-size: 0.75rem;">
           <div class="mb-4 text-sky-500">>>> ANALIZANDO CLIENTE: <span id="ia-client-name" class="text-white text-bold"></span></div>
@@ -278,8 +261,8 @@
                 <div class="mb-3"><span class="text-zinc-600">MENSAJE IA:</span> <br> "¿Cómo te gustaría automatizar tu recaudación?"</div>
                 <div class="mb-1"><span class="text-zinc-600">RESPUESTA:</span> <br> "Busco un sistema rápido y que ande en el celu."</div>
           </div>
-          <div class="mt-5">
-                <button class="btn-sci-fi w-full py-3 bg-sky-500 text-black border-0 fw-black shadow-lg" onclick="closeIAModal()">
+          <div class="mt-5 text-center">
+                <button type="button" class="btn-sci-fi w-full py-3 bg-sky-500 text-black border-0 fw-black shadow-lg" data-bs-dismiss="modal">
                     VOLVER A LA CONSOLA
                 </button>
           </div>
@@ -294,27 +277,21 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    let iaModal = null;
     let activeCardId = null;
 
     function showAISpotlight(id, name, source) {
-        // Iluminar Tarjeta
         activeCardId = id;
         const card = document.getElementById('card-' + id);
         if(card) card.classList.add('active-spotlight');
 
-        // Cargar Datos
         document.getElementById('ia-client-name').innerText = name;
         document.getElementById('ia-client-source').innerText = source;
 
-        // Mostrar Modal
-        if(!iaModal) iaModal = new bootstrap.Modal(document.getElementById('modalIA'));
-        iaModal.show();
-    }
-
-    function closeIAModal() {
-        if(iaModal) iaModal.hide();
-        clearSpotlight();
+        // Limpiar backdrops previos por seguridad
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalIA'));
+        modal.show();
     }
 
     function clearSpotlight() {
@@ -325,12 +302,14 @@
         }
     }
 
-    // Cerrar spotlight si tocan fuera del modal
     document.getElementById('modalIA').addEventListener('hidden.bs.modal', function () {
         clearSpotlight();
+        document.body.classList.remove('modal-open');
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
     });
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar sortables...
         const columns = ['col-prospecto', 'col-pendiente_pago', 'col-activo'];
         columns.forEach(id => {
             const el = document.getElementById(id);
@@ -339,14 +318,8 @@
                     group: 'kanban',
                     handle: '.card-handle',
                     animation: 250,
-                    ghostClass: 'sortable-ghost',
-                    chosenClass: 'sortable-chosen',
                     onEnd: function(evt) {
-                        const userId = evt.item.getAttribute('data-id');
-                        const newStatus = evt.to.getAttribute('data-status');
-                        if (evt.from !== evt.to) {
-                            moveUser(userId, newStatus);
-                        }
+                        moveUser(evt.item.getAttribute('data-id'), evt.to.getAttribute('data-status'));
                     }
                 });
             }
@@ -355,20 +328,10 @@
         function moveUser(userId, newStatus) {
             fetch("{{ route('owner.crm.move') }}", {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ user_id: userId, status: newStatus })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    location.reload();
-                }
             });
         }
     });
-
 </script>
 @endsection
