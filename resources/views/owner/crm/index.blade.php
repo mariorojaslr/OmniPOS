@@ -52,28 +52,27 @@
 
     .header-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.3em; text-transform: uppercase; color: #fff; }
 
-    /* TARJETA UNIFORME - FOCO CINEMATOGRAFICO */
+    /* TARJETA UNIFORME - ALTURA FIJA SAGRADA 125PX */
     .kanban-card {
         background: var(--card-bg);
         border: 1px solid var(--border-color); 
         border-radius: 12px;
         padding: 0.85rem;
-        margin-bottom: 1.5rem; 
+        margin-bottom: 2rem; /* MARGEN PARA QUE RESPIREN */
         margin-left: 10px;
         position: relative;
-        height: 125px;
+        height: 125px; /* EL TAMAÑO QUE TE GUSTÓ */
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        transition: border-color 0.3s, box-shadow 0.3s;
         cursor: grab;
-        box-shadow: 0 20px 40px -10px var(--stellar-blue);
+        box-shadow: 0 10px 30px -5px var(--stellar-blue);
     }
 
-    /* CLASE FOCO (SPOTLIGHT) */
+    /* CLASE FOCO (SOLO ILUMINACION, SIN MOVIMIENTO) */
     .kanban-card.active-spotlight {
         z-index: 2000 !important;
-        transform: scale(1.1) !important;
         border-color: var(--accent-sky) !important;
         box-shadow: 0 0 100px var(--accent-sky) !important;
         pointer-events: none;
@@ -125,14 +124,22 @@
         align-items: center;
     }
 
-    /* MODAL IA EXCLUSIVO */
+    /* MODAL IA EXCLUSIVO - CENTRADO Y PODEROSO */
     .ai-modal {
-        background: #000 !important;
+        background: #09090b !important;
         border: 2px solid var(--accent-sky);
-        box-shadow: 0 0 50px rgba(56, 189, 248, 0.3);
-        border-radius: 20px;
+        box-shadow: 0 0 80px rgba(56, 189, 248, 0.4);
+        border-radius: 24px;
+        transform: scale(0.9);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .modal-backdrop.show { opacity: 0.9; background: #000; }
+    .modal.show .ai-modal { transform: scale(1); }
+    .modal-backdrop.show { opacity: 0.95; background: #000; }
+
+    /* FOCO RADIAL ALREDEDOR DEL MODAL */
+    .modal-dialog {
+        max-width: 500px;
+    }
 </style>
 
 <div class="px-10 py-4">
