@@ -111,7 +111,11 @@
                     <li class="nav-item"><a class="nav-link" href="#planes">Planes</a></li>
                     <li class="nav-item"><a class="nav-link text-white fw-bold" href="{{ route('demo.mode') }}"><i class="bi bi-stars text-primary"></i> Demo</a></li>
                     <li class="nav-item ms-lg-3">
-                        <a href="{{ route('login') }}" class="btn-premium bg-white text-black py-2 px-4 shadow">Ingresar</a>
+                        @auth
+                            <a href="{{ auth()->user()->role === 'owner' ? route('owner.dashboard') : route('empresa.dashboard') }}" class="btn-premium bg-primary text-white py-2 px-4 shadow">Ir a mi Panel</a>
+                        @else
+                            <a href="{{ route('login') }}" class="btn-premium bg-white text-black py-2 px-4 shadow">Ingresar</a>
+                        @endauth
                     </li>
                 </ul>
             </div>

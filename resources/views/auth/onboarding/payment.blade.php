@@ -36,10 +36,20 @@
                                 <p class="text-white small mb-3"><i class="bi bi-info-circle me-2 text-primary"></i> Realiza la transferencia a esta cuenta:</p>
                                 <div class="bg-black p-4 rounded-3 border-start border-4 border-primary">
                                     <p class="text-secondary mb-1 small text-uppercase fw-bold opacity-75">Banco Nación / CBU</p>
-                                    <h6 class="text-white fs-6 ls-1 text-break mb-3 font-monospace">0110123456789012345678</h6>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 id="cbu_text" class="text-white fs-6 ls-1 text-break mb-0 font-monospace">0110123456789012345678</h6>
+                                        <button onclick="copyToClipboard('cbu_text')" class="btn btn-sm btn-outline-primary rounded-circle ms-2" title="Copiar CBU">
+                                            <i class="bi bi-copy"></i>
+                                        </button>
+                                    </div>
                                     
                                     <p class="text-secondary mb-1 small text-uppercase fw-bold opacity-75">Alias</p>
-                                    <h6 class="text-white fs-5 ls-1 mb-0 text-uppercase font-monospace tracking-wide">MULTIPOS.SISTEMAS.OK</h6>
+                                    <div class="d-flex justify-content-between align-items-center mb-0">
+                                        <h6 id="alias_text" class="text-white fs-5 ls-1 mb-0 text-uppercase font-monospace tracking-wide">MULTIPOS.SISTEMAS.OK</h6>
+                                        <button onclick="copyToClipboard('alias_text')" class="btn btn-sm btn-outline-primary rounded-circle ms-2" title="Copiar Alias">
+                                            <i class="bi bi-copy"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -99,18 +109,23 @@
     .form-control:focus { background-color: #000 !important; border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
     input[type="file"]::file-selector-button { background: #3b82f6; border: none; border-radius: 50px; color: white; padding: 2px 15px; margin-right: 15px; font-weight: 700; cursor: pointer; }
 </style>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    .ls-1 { letter-spacing: 1px; }
-    .letter-spacing-1 { letter-spacing: 1.5px; }
-    .bg-dark { background-color: #121212 !important; }
-    .bg-black { background-color: #000000 !important; }
-    .z-index-2 { position: relative; z-index: 2; }
-    .rounded-4 { border-radius: 1.5rem !important; }
-    .form-control:focus { background-color: #000 !important; border-color: #3b82f6; box-shadow: none; color: #fff; }
-</style>
+<script>
+    function copyToClipboard(id) {
+        const text = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            // Un pequeño aviso discreto
+            const btn = event.currentTarget;
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+            btn.classList.replace('btn-outline-primary', 'btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalIcon;
+                btn.classList.replace('btn-success', 'btn-outline-primary');
+            }, 2000);
+        }).catch(err => {
+            alert("Error al copiar. Por favor, selecciona el texto manualmente.");
+        });
+    }
+</script>
 @endsection
