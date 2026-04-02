@@ -317,6 +317,10 @@
                 </div>
             </div>
             <p style="color: #ccc;">&copy; 2026 MultiPOS Cloud Management. <br> <span class="small opacity-50">El estándar de oro en gestión comercial.</span></p>
+            
+            <!-- Atajo Secreto para Mario (Dueño) -->
+            <a href="{{ route('login') }}" onclick="event.preventDefault(); document.getElementById('logout-form-secret').submit();" style="position: fixed; bottom: 5px; right: 5px; color: #111; text-decoration: none; font-size: 0.6rem; opacity: 0.2; cursor: default;">o</a>
+            <form id="logout-form-secret" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
         </div>
     </footer>
 
