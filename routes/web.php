@@ -195,7 +195,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      */
         Route::resource('gastos', ExpenseController::class)->names('gastos');
         Route::post('gastos/upload-media', [ExpenseController::class, 'uploadMedia'])->name('gastos.uploadMedia');
-        Route::resource('gastos-categorias', ExpenseCategoryController::class)->names('gastos_categorias');
+        Route::resource('gastos_categorias', ExpenseCategoryController::class)->names('gastos_categorias')->parameters(['gastos_categorias' => 'category']);
 
         /*
      |--------------------------------------------------------------------------

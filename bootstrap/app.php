@@ -66,6 +66,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->reportable(function (\Throwable $e) {
             try {
                 $user = auth()->user();
+                // 1. Guardamos el reporte tecnico seco
                 \App\Models\SystemError::create([
                     'empresa_id' => $user->empresa_id ?? null,
                     'user_id' => $user->id ?? null,
@@ -77,6 +78,21 @@ return Application::configure(basePath: dirname(__DIR__))
                     'status' => 'pendiente',
                     'severity' => 'medio'
                 ]);
+
+                // 2. CREAMOS EL TICKET DE SOPORTE VIVO PARA EL OWNER (VIP)
+                \App\Models\SupportTicket::create([
+                    'empresa_id' => $user->empresa_id ?? null,
+                    'user_id' => $user->id ?? null,
+                    'subject' => '🚨 TICKET DE SISTEMA (ERROR DETECTADO)',
+                    'message' => "ERROR AUTOMÁTICO DETECTADO POR EL SISTEMA:\n\n" . 
+                                 "MENSAJE: " . $e->getMessage() . "\n" .
+                                 "ARCHIVO: " . $e->getFile() . " (Línea: " . $e->getLine() . ")\n" .
+                                 "URL: " . request()->fullUrl() . "\n\n" .
+                                 "-- EL SISTEMA YA LOGUEO EL ORIGEN. PROCEDER A REPARAR.",
+                    'status' => 'abierto',
+                    'priority' => 'critica'
+                ]);
+
             } catch (\Throwable $loggingError) {
                 // Si falla el logueo del error, no hacemos nada para evitar un bucle infinito
             }
