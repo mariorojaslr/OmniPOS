@@ -74,7 +74,7 @@
         /* ----- ESTILOS GLASSMORPHISM GLOBALES PARA AUTH ----- */
         .auth-container {
             width: 100%;
-            max-width: 420px;
+            max-width: 600px;
         }
 
         .auth-card {
