@@ -53,8 +53,8 @@ Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/c/{empresa}', [CatalogController::class , 'index'])->name('catalog.index');
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class , 'show'])->name('catalog.show');
 
-// MODO DEMO (PUESTA EN MARCHA RÁPIDA)
-Route::get('/demo-mode', [DemoController::class, 'enter'])->name('demo.mode');
+// MODO DEMO (PUESTA EN MARCHA RÁPIDA - REEMPLAZADO POR DEMO EXPERIENCE)
+// Route::get('/demo-mode', [DemoController::class, 'enter'])->name('demo.mode');
 
 /* |-------------------------------------------------------------------------- | AUTH (BREEZE) |-------------------------------------------------------------------------- */
 require __DIR__ . '/auth.php';

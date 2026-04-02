@@ -3,8 +3,8 @@
 @section('content')
 <div class="min-vh-100 d-flex align-items-center justify-content-center bg-black py-5">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
+        <div class="row justify-content-center px-2">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                 
                 <!-- Logo Header -->
                 <div class="text-center mb-5">
