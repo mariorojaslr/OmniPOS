@@ -24,10 +24,10 @@ class EmpresaActivaMiddleware
 
         /*
         |--------------------------------------------------------------------------
-        | OWNER O MIMETIZADO SIEMPRE PASA (Omnisciencia)
+        | EXCEPCIONES: OWNER O USUARIO DE DEMO SIEMPRE PASAN
         |--------------------------------------------------------------------------
         */
-        if ($user->role === 'owner' || session('impersonator_id')) {
+        if ($user->role === 'owner' || session('impersonator_id') || $user->email === 'demo@multipos.system') {
             return $next($request);
         }
 
@@ -37,7 +37,7 @@ class EmpresaActivaMiddleware
         |--------------------------------------------------------------------------
         */
         if ($user->esProspecto() || $user->pendientePago()) {
-            if (!$request->routeIs('register.pay') && !$request->routeIs('register.payment.store') && !$request->routeIs('logout.get')) {
+            if (!$request->routeIs('register.pay') && !$request->routeIs('register.payment.store') && !$request->routeIs('logout.get') && !$request->routeIs('demo.mode')) {
                 return redirect()->route('register.pay');
             }
             return $next($request);
@@ -60,7 +60,7 @@ class EmpresaActivaMiddleware
             }
 
             // Para cualquier otro caso sin empresa, logout por seguridad.
-            auth()->logout();
+            Auth::logout();
             return redirect()->route('login')->with('error', 'Su cuenta requiere configuración administrativa.');
         }
 
