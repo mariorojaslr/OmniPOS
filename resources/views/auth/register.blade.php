@@ -21,6 +21,10 @@
 
         <form method="POST" action="{{ route('register') }}">
             @csrf
+            
+            @if(isset($plan))
+                <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+            @endif
 
             <div class="mb-3">
                 <input type="text" name="name" class="form-control auth-input" placeholder="Nombre" required>

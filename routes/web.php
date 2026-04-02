@@ -119,6 +119,17 @@ Route::middleware(['auth', 'owner'])
     });
 
 
+/* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÓN (LEAD MAGNET) |-------------------------------------------------------------------------- */
+Route::get('/demo-experience', function() {
+    $demoUser = \App\Models\User::where('email', 'demo@multipos.system')->first();
+    if($demoUser) {
+        auth()->login($demoUser);
+        return redirect()->route('empresa.dashboard')->with('success', 'Bienvenido al Modo Demo. Explora libremente.');
+    }
+    return redirect()->route('login')->with('error', 'El modo demo no está disponible en este momento.');
+})->name('demo.mode');
+
+
 /* |-------------------------------------------------------------------------- | ONBOARDING COMERCIAL (PRE-ACTIVACIÓN) |-------------------------------------------------------------------------- */
 Route::middleware(['auth'])->group(function () {
     Route::get('/registro-paso-2', [App\Http\Controllers\Auth\RegisteredUserController::class, 'paymentPage'])->name('register.pay');
