@@ -126,12 +126,35 @@ Route::middleware(['auth', 'owner'])
 
 /* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÓN (LEAD MAGNET) |-------------------------------------------------------------------------- */
 Route::get('/demo-experience', function() {
-    $demoUser = \App\Models\User::where('email', 'demo@multipos.system')->first();
-    if($demoUser) {
-        auth()->login($demoUser);
-        return redirect()->route('empresa.dashboard')->with('success', 'Bienvenido al Modo Demo. Explora libremente.');
-    }
-    return redirect()->route('login')->with('error', 'El modo demo no está disponible en este momento.');
+    
+    // 1. Aseguramos la existencia de una Empresa Demo
+    $demoEmpresa = \App\Models\Empresa::firstOrCreate(
+        ['nombre_comercial' => 'MultiPOS DEMO (Corporativo)'],
+        [
+            'cuit' => '30-DEMO-01',
+            'activo' => true,
+            'slug' => 'demostracion-multipos'
+        ]
+    );
+
+    // 2. Aseguramos que el Usuario Demo exista y tenga acceso Total
+    $demoUser = \App\Models\User::firstOrCreate(
+        ['email' => 'demo@multipos.system'],
+        [
+            'name' => 'Demo User Expert',
+            'password' => \Illuminate\Support\Facades\Hash::make('demo123'),
+            'role' => 'empresa',
+            'empresa_id' => $demoEmpresa->id,
+            'activo' => true,
+            'status' => 'activo'
+        ]
+    );
+
+    // 3. Login automático y redirección instantánea
+    \Illuminate\Support\Facades\Auth::login($demoUser);
+    
+    return redirect()->route('empresa.dashboard')->with('success', 'Bienvenido al Modo Demo. Explora todas las funciones libremente.');
+
 })->name('demo.mode');
 
 
