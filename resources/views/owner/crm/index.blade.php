@@ -5,7 +5,7 @@
     :root {
         --oled-bg: #000;
         --card-bg: #0c0c0e;
-        --border-color: rgba(255, 255, 255, 0.1);
+        --border-color: rgba(255, 255, 255, 0.4);
         --accent-sky: #38bdf8;
         --accent-amber: #f59e0b;
         --accent-emerald: #10b981;
@@ -15,19 +15,19 @@
     body { background-color: var(--oled-bg) !important; color: #fff; overflow-x: hidden; }
 
     .header-hub {
-        padding: 4rem 15% 2rem 5%; 
+        padding: 4rem 5% 2rem 5%; 
         display: flex;
         align-items: center;
         gap: 5rem;
     }
 
-    /* CONTENEDOR MAESTRO CRM + SIDEBAR STATS */
+    /* LAYOUT MAESTRO INTEGRADO */
     .master-layout {
         display: grid;
-        grid-template-columns: 1fr 300px; /* RESERVA ESPACIO PARA STATS */
+        grid-template-columns: 1fr 340px; 
         gap: 2rem;
-        padding: 0 5% 0 5%;
-        height: 75vh;
+        padding: 0 5% 4rem 5%;
+        height: auto;
     }
 
     .crm-container {
@@ -37,17 +37,12 @@
         padding-bottom: 2rem;
     }
 
-    .kanban-col {
-        width: 320px;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-    }
+    .kanban-col { width: 310px; flex-shrink: 0; display: flex; flex-direction: column; }
 
     .col-header {
         background: linear-gradient(90deg, var(--stellar-blue) 0%, transparent 100%);
-        padding: 1rem 1.75rem;
-        border-radius: 14px;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
         border-left: 6px solid var(--accent-sky);
         margin-bottom: 2.5rem;
         height: 60px;
@@ -61,7 +56,7 @@
     /* TARJETAS SIMÉTRICAS 130PX */
     .kanban-card {
         background: var(--card-bg);
-        border: 1px solid rgba(255,255,255,0.4); 
+        border: 1px solid var(--border-color); 
         border-radius: 18px;
         padding: 1.2rem;
         margin-bottom: 20px; 
@@ -71,13 +66,13 @@
         flex-direction: column;
         justify-content: space-between;
         cursor: grab;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: 0.3s;
     }
     .kanban-card:hover { border-color: var(--accent-sky); box-shadow: 0 15px 40px -10px rgba(56, 189, 248, 0.4); transform: translateY(-3px); }
 
     .card-controls { position: absolute; right: 12px; top: 10px; display: flex; gap: 10px; }
-    .btn-control { background: transparent; border: 0; padding: 0; font-size: 0.95rem; opacity: 0.15; color: #fff; transition: 0.2s; }
-    .kanban-card:hover .btn-control { opacity: 0.5; }
+    .btn-control { background: transparent; border: 0; padding: 0; font-size: 0.95rem; opacity: 0.2; color: #fff; transition: 0.2s; }
+    .kanban-card:hover .btn-control { opacity: 0.6; }
     .btn-control:hover { opacity: 1 !important; transform: scale(1.1); }
     .btn-archive:hover { color: var(--accent-amber); }
     .btn-trash:hover { color: #ef4444; }
@@ -90,28 +85,29 @@
     .btn-sci-fi:hover:not(.disabled) { background: var(--accent-sky); color: #000; }
     .btn-sci-fi.disabled { opacity: 0.1; }
 
-    /* STATS HUB - GLASSMORPHISM */
+    /* MULTI-CHANNEL STATS HUB (4 BLOQUES) */
     .stats-hub {
-        background: rgba(12, 12, 14, 0.8);
+        background: rgba(12, 12, 14, 0.85);
         backdrop-filter: blur(15px);
         border: 1px solid rgba(56, 189, 248, 0.2);
-        border-radius: 24px;
+        border-radius: 28px;
         padding: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        position: sticky;
-        top: 0;
         height: fit-content;
+        position: sticky;
+        top: 2rem;
     }
-    .stats-title { font-size: 0.65rem; font-weight: 950; color: var(--accent-sky); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem; }
+    .stats-title { font-size: 0.65rem; font-weight: 950; color: var(--accent-sky); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem; }
     
-    .stat-row { display: flex; justify-content: space-between; align-items: center; }
-    .stat-label { font-size: 0.6rem; font-weight: 800; color: #52525b; text-transform: uppercase; }
-    .stat-value { font-size: 1.2rem; font-weight: 950; color: #fff; font-family: 'Courier New', Courier, monospace; }
-    .stat-pulse { width: 8px; height: 8px; background: var(--accent-emerald); border-radius: 50%; box-shadow: 0 0 10px var(--accent-emerald); animation: pulse 1.5s infinite; }
+    .channels-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .channel-block { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1.25rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; transition: 0.3s; }
+    .channel-block:hover { background: rgba(255,255,255,0.04); border-color: var(--accent-sky); transform: translateY(-3px); }
+    .channel-icon { font-size: 1.5rem; }
+    .channel-val { font-size: 1.1rem; font-weight: 950; color: #fff; }
+    .channel-label { font-size: 0.5rem; font-weight: 800; color: #52525b; text-transform: uppercase; }
 
-    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+    .stat-pulse { width: 10px; height: 10px; background: var(--accent-emerald); border-radius: 50%; box-shadow: 0 0 12px var(--accent-emerald); animation: pulse 1.5s infinite; }
+
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
 
     /* OVERLAY IA MASTER */
     #ia-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
@@ -148,7 +144,7 @@
                         <div class="card-subtext">{{ $pro->lead_source ?? 'Landing Directo' }}</div>
                     </div>
                     <div class="btn-group-card">
-                        <button type="button" class="btn-sci-fi" onclick="openReport('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'INSTAGRAM' }}')">
+                        <button type="button" class="btn-sci-fi" onclick="openReport('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'META ADS' }}')">
                             <i class="bi bi-robot"></i> IA DATA
                         </button>
                         <button type="button" class="btn-sci-fi disabled"><i class="bi bi-envelope"></i> MAIL</button>
@@ -215,36 +211,40 @@
         </div>
     </div>
 
-    <!-- SIDEBAR STATS HUB -->
+    <!-- OMNI-CHANNEL STATS HUB -->
     <div class="stats-hub">
         <div class="flex justify-between items-center stats-title">
-            <span>Agente Live Stats</span>
+            <span>Social Live Scanner</span>
             <div class="stat-pulse"></div>
         </div>
         
-        <div class="stats-content">
-            <div class="stat-row mb-4">
-                <span class="stat-label">Escaneados Hoy</span>
-                <span class="stat-value">142</span>
+        <div class="channels-grid">
+            <div class="channel-block">
+                <i class="bi bi-linkedin channel-icon text-sky-500"></i>
+                <div class="channel-val">58</div>
+                <div class="channel-label">LinkedIn</div>
             </div>
-            <div class="stat-row mb-4">
-                <span class="stat-label">Contactados</span>
-                <span class="stat-value text-sky-400">28</span>
+            <div class="channel-block">
+                <i class="bi bi-instagram channel-icon text-pink-500"></i>
+                <div class="channel-val">42</div>
+                <div class="channel-label">Instagram</div>
             </div>
-            <div class="stat-row mb-4">
-                <span class="stat-label">Interacciones</span>
-                <span class="stat-value text-emerald-400">7</span>
+            <div class="channel-block">
+                <i class="bi bi-facebook channel-icon text-blue-600"></i>
+                <div class="channel-val">31</div>
+                <div class="channel-label">Facebook</div>
             </div>
-            <div class="stat-row mb-4">
-                <span class="stat-label">Leads Fase 01</span>
-                <span class="stat-value text-amber-500">+4</span>
+            <div class="channel-block">
+                <i class="bi bi-chat-dots-fill channel-icon text-emerald-500"></i>
+                <div class="channel-val">11</div>
+                <div class="channel-label">WhatsApp/Tg</div>
             </div>
-            
-            <div class="mt-10 pt-4 border-t border-white/5">
-                <div class="stat-label mb-3">Canal Top Actual</div>
-                <div class="flex items-center gap-3 text-white text-[0.7rem] fw-black">
-                    <i class="bi bi-linkedin fs-5 text-sky-500"></i> LINKEDIN / ADS
-                </div>
+        </div>
+
+        <div class="mt-8 pt-4 border-t border-white/5">
+            <div class="stat-row">
+                <span class="channel-label">Efectividad Total</span>
+                <span class="text-emerald-400 fw-black">12.4%</span>
             </div>
         </div>
     </div>
@@ -306,13 +306,7 @@
         ['col-prospecto', 'col-pendiente_pago', 'col-activo'].forEach(id => {
             const el = document.getElementById(id);
             if(el) {
-                new Sortable(el, {
-                    group: 'kanban',
-                    handle: '.card-handle',
-                    onEnd: function(evt) {
-                        fetch("{{ route('owner.crm.move') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ user_id: evt.item.getAttribute('data-id'), status: evt.to.getAttribute('data-status') }) });
-                    }
-                });
+                new Sortable(el, { group: 'kanban', handle: '.card-handle', onEnd: function(evt) { fetch("{{ route('owner.crm.move') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ user_id: evt.item.getAttribute('data-id'), status: evt.to.getAttribute('data-status') }) }); } });
             }
         });
     });
