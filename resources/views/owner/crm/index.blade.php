@@ -14,9 +14,9 @@
 
     body { background-color: var(--oled-bg) !important; color: #fff; overflow-x: hidden; }
 
-    /* ANCHO TOTAL SIN BORDES INÚTILES */
+    /* FULL CANVAS 100% UTILIZATION */
     .header-hub {
-        padding: 3rem 2% 1.5rem 2%; 
+        padding: 3rem 2% 2rem 2%; 
         display: flex;
         align-items: center;
         gap: 3rem;
@@ -24,15 +24,16 @@
 
     .crm-container {
         display: flex;
-        width: 100vw;
+        width: 100%;
         padding: 0 2%; 
-        gap: 2rem;
+        gap: 3rem;
         height: 78vh;
         overflow-x: auto;
+        align-items: flex-start;
     }
 
     .kanban-col {
-        width: 340px;
+        width: 320px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
@@ -41,7 +42,7 @@
     .col-header {
         background: linear-gradient(90deg, var(--stellar-blue) 0%, transparent 100%);
         padding: 1rem 1.7rem;
-        border-radius: 16px;
+        border-radius: 14px;
         border-left: 6px solid var(--accent-sky);
         margin-bottom: 2.5rem;
         height: 55px;
@@ -52,91 +53,89 @@
 
     .header-title { font-size: 0.85rem; font-weight: 950; letter-spacing: 0.35em; text-transform: uppercase; }
 
-    /* TARJETAS ELITE 130PX CON GLOW Y RESPONSIVE */
+    /* TARJETA ELITE CON POST-IT Y LINEA BLANCA 1PX */
     .kanban-card {
         background: var(--card-bg);
-        border: 1px solid rgba(255,255,255,0.7); 
-        border-radius: 22px;
-        padding: 1.4rem;
-        margin-bottom: 22px; 
+        border: 1px solid #ffffff; /* LÍNEA BLANCA 1PX SAGRADA */
+        border-radius: 12px;
+        padding: 1.2rem 1.2rem 1.2rem 1.8rem;
+        margin-bottom: 20px; 
         height: 130px; 
         position: relative;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         cursor: grab;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: 0.3s;
     }
     .kanban-card:hover { 
-        border-color: var(--accent-sky); 
-        box-shadow: 0 0 60px -15px rgba(56, 189, 248, 0.7); 
-        transform: translateY(-8px);
-        background: rgba(12, 12, 14, 1);
+        box-shadow: 0 0 40px -10px rgba(56, 189, 248, 0.5); 
+        transform: translateX(5px);
+        background: #111;
     }
 
-    /* CONTROLES DE TARJETA (MUY VISIBLES) */
-    .card-controls { position: absolute; right: 18px; top: 12px; display: flex; gap: 15px; align-items: center; z-index: 50; }
-    .card-handle { color: rgba(56, 189, 248, 0.4); font-size: 1.5rem; transition: 0.2s; cursor: grab; }
-    .kanban-card:hover .card-handle { color: var(--accent-sky); transform: scale(1.1); }
+    /* EL POST-IT LATERAL */
+    .post-it {
+        position: absolute;
+        left: -8px;
+        top: 0;
+        width: 12px;
+        height: 100%;
+        border-radius: 4px 0 0 4px;
+        z-index: 5;
+    }
+    .post-it-sky { background: var(--accent-sky); }
+    .post-it-amber { background: var(--accent-amber); }
+    .post-it-emerald { background: var(--accent-emerald); }
+
+    .card-controls { position: absolute; right: 12px; top: 10px; display: flex; gap: 12px; align-items: center; z-index: 20; }
+    .card-handle { color: rgba(255,255,255,0.2); font-size: 1.4rem; cursor: grab; }
+    .kanban-card:hover .card-handle { color: var(--accent-sky); }
     
-    .btn-corner { background: transparent; border: 0; padding: 0; font-size: 1.1rem; opacity: 0.2; color: #fff; transition: 0.25s; cursor: pointer; }
+    .btn-corner { background: transparent; border: 0; padding: 0; font-size: 1rem; color: #fff; opacity: 0.2; transition: 0.25s; cursor: pointer; }
     .kanban-card:hover .btn-corner { opacity: 0.7; }
-    .btn-corner:hover { opacity: 1 !important; transform: scale(1.3); }
+    .btn-corner:hover { opacity: 1 !important; transform: scale(1.2); }
 
-    .btn-archive:hover { color: var(--accent-amber) !important; }
-    .btn-trash:hover { color: #ef4444 !important; }
+    .card-name { font-size: 0.95rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
 
-    .card-name { font-size: 1rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; padding-right: 70px; }
-
-    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     .btn-sci-fi { 
-        background: rgba(255,255,255,0.06); 
-        border: 1px solid rgba(255,255,255,0.2); 
-        color: var(--accent-sky); 
-        padding: 9px 0; 
-        border-radius: 12px; 
-        font-size: 0.6rem; 
-        font-weight: 950; 
-        text-align: center; 
-        text-transform: uppercase;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        text-decoration: none;
-        transition: 0.25s;
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); color: var(--accent-sky); 
+        padding: 7px 0; border-radius: 8px; font-size: 0.55rem; font-weight: 950; text-align: center; text-transform: uppercase;
+        display: flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none;
     }
-    .btn-sci-fi:hover:not(.disabled) { background: var(--accent-sky); color: #000; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
+    .btn-sci-fi:hover:not(.disabled) { background: var(--accent-sky); color: #000; }
 
-    /* STATS HUB COLUMNA FINAL */
+    /* STATS HUB CENTRADO EN EL ESPACIO FINAL */
+    .stats-space {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 5rem;
+        min-width: 400px;
+    }
     .stats-hub {
-        width: 360px;
-        flex-shrink: 0;
+        width: 380px;
         background: rgba(12, 12, 14, 0.9);
         backdrop-filter: blur(25px);
-        border: 1px solid rgba(56, 189, 248, 0.3);
+        border: 2px solid rgba(56, 189, 248, 0.4);
         border-radius: 35px;
         padding: 2.5rem;
-        height: fit-content;
-        margin-right: 2.5%; 
+        box-shadow: 0 0 100px rgba(56, 189, 248, 0.15);
     }
-    .simulation-badge { font-size: 0.6rem; font-weight: 950; background: rgba(245,158,11,0.2); color: var(--accent-amber); padding: 6px 14px; border-radius: 10px; margin-bottom: 2rem; border: 1px solid rgba(245,158,11,0.4); display: inline-block; letter-spacing: 1px; }
+    .hub-divider { border-top: 2px solid var(--accent-sky); margin: 1.5rem 0; box-shadow: 0 0 10px var(--accent-sky); }
+    .simulation-badge { font-size: 0.6rem; font-weight: 950; background: rgba(245,158,11,0.2); color: var(--accent-amber); padding: 5px 15px; border-radius: 10px; border: 1px solid var(--accent-amber); margin-bottom: 1rem; }
 
-    /* VENTANITA SCI-FI EXTREMA */
-    .master-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.98); z-index: 50000;
-        display: none; align-items: center; justify-content: center; backdrop-filter: blur(30px);
-    }
-    .modal-sci-fi {
-        width: 620px; background: #000; border: 2.5px solid var(--accent-sky); border-radius: 50px; padding: 5rem;
-        box-shadow: 0 0 300px rgba(56, 189, 248, 0.4);
-        animation: snapIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    @keyframes snapIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .channels-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .channel-block { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 1.2rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
+    .channel-block:hover { border-color: var(--accent-sky); background: rgba(56, 189, 248, 0.1); }
 </style>
 
 <div class="header-hub">
     <h1 class="text-white text-3xl font-black uppercase tracking-[0.6em]">Command Hub</h1>
-    <div class="h-px bg-zinc-800 flex-1 opacity-10"></div>
-    <div class="flex items-center gap-6 text-sky-400 font-black text-xs uppercase tracking-[0.25em] animate-pulse">
+    <div class="h-px bg-zinc-800 flex-1 opacity-20"></div>
+    <div class="flex items-center gap-6 text-sky-400 font-black text-xs uppercase tracking-[0.3em] animate-pulse">
         <i class="bi bi-robot fs-2"></i> AGENTE SOCIAL LIVE
     </div>
 </div>
@@ -147,32 +146,32 @@
     <div class="kanban-col">
         <div class="col-header" style="{{ $col['c'] != 'sky' ? 'border-left-color: var(--accent-'.$col['c'].')' : '' }}">
             <span class="header-title {{ $col['c'] != 'sky' ? 'text-'.$col['c'].'-500' : '' }}">{{ $col['t'] }}</span>
-            <span class="text-white/40 text-xs font-black">{{ $col['data']->total() }}</span>
         </div>
         <div id="{{ $col['id'] }}" class="kanban-list" data-status="{{ $col['st'] }}">
             @foreach($col['data'] as $u)
             <div class="kanban-card" data-id="{{ $u->id }}" id="card-{{ $u->id }}">
+                <div class="post-it post-it-{{ $col['c'] }}"></div>
                 <div class="card-controls">
                     @if($col['st'] == 'prospecto')
-                    <button class="btn-corner btn-archive" title="Olvidar" onclick="archiveLead('{{ $u->id }}')"><i class="bi bi-archive-fill"></i></button>
-                    <button class="btn-corner btn-trash" title="Borrar" onclick="deleteLead('{{ $u->id }}')"><i class="bi bi-trash3-fill"></i></button>
+                    <button class="btn-corner" onclick="archiveLead('{{ $u->id }}')"><i class="bi bi-archive-fill"></i></button>
+                    <button class="btn-corner" onclick="deleteLead('{{ $u->id }}')"><i class="bi bi-trash3-fill"></i></button>
                     @endif
-                    <div class="card-handle" title="Arrastrar"><i class="bi bi-grip-vertical"></i></div>
+                    <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 </div>
                 <div>
                     <div class="card-name">{{ $u->name }}</div>
-                    <div class="text-[0.7rem] text-zinc-600 fw-black uppercase tracking-widest">{{ ($col['st'] == 'activo') ? ($u->empresa?->nombre_comercial ?? 'Setup OK') : ($u->lead_source ?? 'LinkedIn') }}</div>
+                    <div class="text-[0.65rem] text-zinc-500 fw-black uppercase">{{ ($col['st'] == 'activo') ? ($u->empresa?->nombre_comercial ?? 'Setup OK') : ($u->lead_source ?? 'LinkedIn') }}</div>
                 </div>
                 <div class="btn-group-card">
                     @if($col['st'] == 'prospecto')
-                        <button onclick="openIA('{{ $u->name }}', '{{ $u->lead_source ?? 'LinkedIn' }}')" class="btn-sci-fi">IA DATA</button>
+                        <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">IA DATA</button>
                         <button class="btn-sci-fi disabled">MAIL</button>
                     @elseif($col['st'] == 'pendiente_pago')
-                        <button onclick="alert('Abriendo DOC...')" class="btn-sci-fi" style="color:var(--accent-amber)">DOC</button>
-                        <form action="{{ route('owner.crm.activate', $u->id) }}" method="POST" class="m-0 p-0 d-grid">@csrf<button type="submit" class="btn-sci-fi" style="color:var(--accent-amber);">ACTIVAR</button></form>
+                        <button class="btn-sci-fi">DOC</button>
+                        <form action="{{ route('owner.crm.activate', $u->id) }}" method="POST" class="m-0 p-0 d-grid">@csrf<button type="submit" class="btn-sci-fi">ACTIVAR</button></form>
                     @else
-                        <button onclick="alert('Abriendo PANEL EMPRESA...')" class="btn-sci-fi text-emerald-400" style="border-color:rgba(16,185,129,0.3);">PANEL</button>
-                        <button onclick="alert('Mostrando STATS EMPRESA...')" class="btn-sci-fi text-emerald-600">STATS</button>
+                        <button class="btn-sci-fi">PANEL</button>
+                        <button class="btn-sci-fi disabled">STATS</button>
                     @endif
                 </div>
             </div>
@@ -182,39 +181,40 @@
     </div>
     @endforeach
 
-    <!-- LIVE STATS HUB -->
-    <div class="stats-hub shadow-2xl">
-        <div class="text-[0.75rem] font-black tracking-widest text-sky-400 uppercase mb-8 flex justify-between border-b border-white/5 pb-5">
-            <span>Scan Operations</span>
-            <div style="width:12px; height:12px;" class="bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_#10b981]"></div>
+    <div class="stats-space">
+        <div class="stats-hub">
+            <div class="text-[0.75rem] font-black tracking-widest text-sky-400 uppercase flex justify-between">
+                <span>Scan Operations</span>
+                <div style="width:12px; height:12px;" class="bg-emerald-500 rounded-full animate-pulse"></div>
+            </div>
+            <div class="hub-divider"></div>
+            <div class="simulation-badge"><i class="bi bi-eye-fill me-2"></i> SIMULACIÓN ACTIVA</div>
+            
+            <div class="channels-grid">
+                @foreach(['LinkedIn'=>'58','Instagram'=>'42','Facebook'=>'31','WhatsApp'=>'24','Telegram'=>'15'] as $lb => $val)
+                    <div class="channel-block">
+                        <span class="text-white fw-black text-2xl">{{ $val }}</span>
+                        <span class="text-[0.55rem] text-zinc-500 fw-black uppercase">{{ $lb }}</span>
+                    </div>
+                @endforeach
+            </div>
+
+            <button class="w-full bg-zinc-950 border-2 border-sky-500/30 text-sky-400 text-[0.75rem] font-black uppercase py-4 rounded-2xl mt-8 hover:bg-sky-500 hover:text-black transition-all">Protocolo Maestro Agent</button>
         </div>
-        <div class="simulation-badge"><i class="bi bi-eye-fill me-2"></i> SIMULACIÓN ACTIVA</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 3rem;">
-            @foreach(['LinkedIn' => ['58', 'sky-500', 'bi-linkedin'], 'Instagram' => ['42', 'pink-500', 'bi-instagram'], 'Facebook' => ['31', 'blue-600', 'bi-facebook'], 'Cloud' => ['11', 'emerald-500', 'bi-chat-dots-fill']] as $lb => $dt)
-                <div class="channel-block" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:22px; padding:1.5rem; display:flex; flex-direction:column; align-items:center; cursor:pointer;" onmouseover="this.style.borderColor='var(--accent-sky)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'" onclick="alert('Mostrando actividad simulated...')">
-                    <i class="bi {{ $dt[2] }} fs-3 text-{{ $dt[1] }} mb-2"></i>
-                    <span class="text-white fw-black text-xl">{{ $dt[0] }}</span>
-                    <span class="text-[0.5rem] text-zinc-500 fw-black uppercase">{{ $lb }}</span>
-                </div>
-            @endforeach
-        </div>
-        <button class="w-full bg-zinc-950 border border-sky-500/20 text-sky-400 text-[0.7rem] font-black uppercase py-4 rounded-2xl hover:bg-sky-500 hover:text-black transition-all">Protocolo Maestro</button>
     </div>
 
 </div>
 
-{{-- VENTANITA IA REPORTE --}}
-<div id="ia-modal" class="master-overlay">
-    <div class="modal-sci-fi">
-        <h4 class="text-sky-400 font-black uppercase tracking-widest text-center mb-10"><i class="bi bi-robot me-3"></i> Reporte Agente IA</h4>
-        <div class="bg-black/50 p-12 rounded-[45px] border border-white/5 font-mono text-[0.9rem] text-zinc-400 mb-12 shadow-inner">
-            <div class="text-white mb-4">>>> ANALIZANDO: <span id="ia-target" class="text-sky-400"></span></div>
-            <div class="text-zinc-600 mb-8">CANAL: <span id="ia-channel" class="text-emerald-400"></span></div>
-            <div class="leading-relaxed border-t border-white/5 pt-8">
-                "Este prospecto ha sido calificado como PRIORIDAD ALTA. El Agente detectó una necesidad urgente de facturación móvil para reparto. Sugerencia: Plan Pyme $25.000 + Pack Streaming."
-            </div>
+<div id="ia-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:50000; align-items:center; justify-content:center; backdrop-filter:blur(20px);">
+    <div style="width:580px; background:#000; border:3px solid var(--accent-sky); border-radius:50px; padding:4rem; box-shadow:0 0 100px var(--accent-sky);">
+        <h4 class="text-sky-400 font-black uppercase tracking-widest text-center mb-8">IA REPORT DATA</h4>
+        <div class="bg-zinc-900/50 p-10 rounded-[40px] font-mono text-[0.9rem] text-zinc-400 border border-white/5 shadow-inner">
+            >>> TARGET: <span id="ia-target" class="text-white"></span><br>
+            <hr class="border-white/5 my-6">
+            >>> ANALYZING PROFILE...<br>
+            >>> STATUS: QUALIFIED.
         </div>
-        <button onclick="document.getElementById('ia-modal').style.display='none'" class="btn-sci-fi w-full py-6 bg-sky-500 text-black border-0 fw-black text-[1rem]">CERRAR OPERACIÓN</button>
+        <button onclick="document.getElementById('ia-modal').style.display='none'" class="btn-sci-fi w-full py-6 mt-10 bg-sky-500 text-black border-0 fw-black text-[0.9rem]">FINALIZAR REPORTE</button>
     </div>
 </div>
 
@@ -223,9 +223,9 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
-    function openIA(name, channel) { document.getElementById('ia-target').innerText = name; document.getElementById('ia-channel').innerText = channel; document.getElementById('ia-modal').style.display = 'flex'; }
+    function openIA(name) { document.getElementById('ia-target').innerText = name; document.getElementById('ia-modal').style.display='flex'; }
     function archiveLead(id) { fetch("{{ route('owner.crm.archive') }}", { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{csrf_token()}}'}, body:JSON.stringify({user_id:id}) }).then(()=>document.getElementById('card-'+id).remove()); }
-    function deleteLead(id) { if(confirm('¿Seguro?')) { fetch("{{ route('owner.crm.delete') }}", { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{csrf_token()}}'}, body:JSON.stringify({user_id:id}) }).then(() => document.getElementById('card-'+id).remove()); } }
+    function deleteLead(id) { if(confirm('¿Borrar lead?')) { fetch("{{ route('owner.crm.delete') }}", { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{csrf_token()}}'}, body:JSON.stringify({user_id:id}) }).then(() => document.getElementById('card-'+id).remove()); } }
     document.addEventListener('DOMContentLoaded', function() {
         ['col-prospecto', 'col-pendiente_pago', 'col-activo'].forEach(id => {
             const el = document.getElementById(id);
