@@ -174,8 +174,26 @@ class DashboardController extends Controller
         $saludVentasInternet = round(($ventasInternetHoy / $maxCanal) * 100);
 
         // Evaluación Neta (Ventas - Gastos - Compras)
-        $balanceLocal = $ventasLocalHoy - $gastosHoy - $comprasHoy;
-        $evaluacionLocal = (abs($balanceLocal) > 0) ? min(100, round(($ventasLocalHoy / ($gastosHoy + $comprasHoy + 1)) * 50)) : 0; 
+        $totalEgresos = $gastosHoy + $comprasHoy;
+        $balanceLocal = $ventasLocalHoy - $totalEgresos;
+
+        // Cálculos proporcionales directos (Gasto vs Inversión)
+        // No dependen de las ventas, sino de la relación entre ellos para que la aguja se mueva siempre.
+        $gastosPerc = 0;
+        $comprasPerc = 0;
+        if ($totalEgresos > 0) {
+            $gastosPerc = round(($gastosHoy / $totalEgresos) * 100);
+            $comprasPerc = round(($comprasHoy / $totalEgresos) * 100);
+        }
+
+        // Evaluación Neta: Salud del negocio basada en ingresos vs egresos totales
+        $evaluacionLocal = 0;
+        if ($ventasLocalHoy > 0) {
+            $evaluacionLocal = min(100, round(($ventasLocalHoy / ($totalEgresos + 1)) * 50)); 
+        } elseif ($totalEgresos > 0) {
+            // Si hay egresos pero no hay ventas, la evaluación es lógicamente baja
+            $evaluacionLocal = 5;
+        }
 
         return view('empresa.dashboard.index', [
             'empresa' => $empresa,
@@ -197,8 +215,8 @@ class DashboardController extends Controller
             'saludInternet' => $saludVentasInternet,
             'balanceLocal' => $balanceLocal,
             'evaluacionLocal' => $evaluacionLocal,
-            'gastosPerc' => ($ventasLocalHoy > 0) ? round(($gastosHoy / $ventasLocalHoy) * 100) : 0,
-            'comprasPerc' => ($ventasLocalHoy > 0) ? round(($comprasHoy / $ventasLocalHoy) * 100) : 0,
+            'gastosPerc' => $gastosPerc,
+            'comprasPerc' => $comprasPerc,
         ]);
     }
 
