@@ -5,7 +5,7 @@
     :root {
         --oled-bg: #000;
         --card-bg: #0c0c0e;
-        --border-color: rgba(255, 255, 255, 0.4);
+        --border-color: rgba(255, 255, 255, 0.15);
         --accent-sky: #38bdf8;
         --accent-amber: #f59e0b;
         --accent-emerald: #10b981;
@@ -15,46 +15,47 @@
     body { background-color: var(--oled-bg) !important; color: #fff; overflow-x: hidden; }
 
     .header-hub {
-        padding: 4rem 5% 2rem 5%; 
+        padding: 4rem 15% 2rem 15%; 
         display: flex;
         align-items: center;
         gap: 5rem;
-    }
-
-    .master-layout {
-        display: grid;
-        grid-template-columns: 1fr 340px; 
-        gap: 2.5rem;
-        padding: 0 5% 4rem 5%;
+        position: relative;
     }
 
     .crm-container {
         display: flex;
-        gap: 2rem;
+        width: 100vw;
+        padding: 0 15%;
+        gap: 2.5rem;
+        height: 70vh;
         overflow-x: auto;
-        padding-bottom: 2rem;
     }
 
-    .kanban-col { width: 310px; flex-shrink: 0; display: flex; flex-direction: column; }
+    .kanban-col {
+        width: 320px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+    }
 
     .col-header {
         background: linear-gradient(90deg, var(--stellar-blue) 0%, transparent 100%);
-        padding: 1rem 1.5rem;
+        padding: 0.9rem 1.75rem;
         border-radius: 14px;
         border-left: 6px solid var(--accent-sky);
-        margin-bottom: 2.5rem;
+        margin-bottom: 3rem;
         height: 60px;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-    .header-title { font-size: 0.8rem; font-weight: 950; letter-spacing: 0.35em; text-transform: uppercase; }
+    .header-title { font-size: 0.85rem; font-weight: 950; letter-spacing: 0.3em; text-transform: uppercase; }
 
-    /* TARJETAS SIMÉTRICAS 130PX */
+    /* TARJETAS SIMÉTRICAS ELITE 130PX */
     .kanban-card {
         background: var(--card-bg);
-        border: 1px solid var(--border-color); 
+        border: 1px solid rgba(255,255,255,0.6); 
         border-radius: 18px;
         padding: 1.2rem;
         margin-bottom: 20px; 
@@ -64,192 +65,234 @@
         flex-direction: column;
         justify-content: space-between;
         cursor: grab;
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .kanban-card:hover { border-color: var(--accent-sky); box-shadow: 0 15px 50px -10px rgba(56, 189, 248, 0.4); transform: translateY(-3px); }
 
-    .card-controls { position: absolute; right: 12px; top: 12px; display: flex; gap: 10px; }
-    .btn-control { background: transparent; border: 0; padding: 0; font-size: 0.95rem; opacity: 0.3; color: #fff; transition: 0.2s; }
-    .kanban-card:hover .btn-control { opacity: 0.8; }
-    .btn-control:hover { transform: scale(1.1); }
-    .btn-archive:hover { color: var(--accent-amber); }
-    .btn-trash:hover { color: #ef4444; }
-
-    .card-name { font-size: 0.95rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; padding-right: 55px; }
-
-    /* STATS HUB CON AVISO DE SIMULACIÓN */
-    .stats-hub {
-        background: rgba(12, 12, 14, 0.85);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(56, 189, 248, 0.2);
-        border-radius: 28px;
-        padding: 2rem;
-        height: min-content;
-        position: sticky;
-        top: 2rem;
+    .kanban-card:hover {
+        border-color: var(--accent-sky);
+        box-shadow: 0 15px 40px -10px rgba(56, 189, 248, 0.4);
+        transform: translateY(-5px);
     }
-    .stats-title { font-size: 0.65rem; font-weight: 950; color: var(--accent-sky); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem; }
+
+    .card-controls {
+        position: absolute;
+        right: 12px;
+        top: 8px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
     
-    .simulation-badge {
-        font-size: 0.5rem;
-        font-weight: 950;
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--accent-amber);
-        padding: 4px 10px;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-        border: 1px solid rgba(245, 158, 11, 0.2);
-        display: inline-block;
-        letter-spacing: 1px;
-    }
+    .btn-trash { color: rgba(239, 68, 68, 0.2); background: transparent; border: 0; padding: 0; font-size: 0.9rem; transition: 0.2s; }
+    .kanban-card:hover .btn-trash { color: rgba(239, 68, 68, 0.6); }
+    .btn-trash:hover { color: #ef4444 !important; }
 
-    .channels-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
-    .channel-block { 
-        background: rgba(255,255,255,0.02); 
-        border: 1px solid rgba(255,255,255,0.05); 
-        border-radius: 16px; 
-        padding: 1.25rem; 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        gap: 0.5rem; 
-        transition: 0.3s;
-        cursor: pointer;
-    }
-    .channel-block:hover { background: rgba(56, 189, 248, 0.1); border-color: var(--accent-sky); transform: scale(1.05); }
-    .channel-icon { font-size: 1.4rem; }
-    .channel-val { font-size: 1.1rem; font-weight: 950; color: #fff; }
-    .channel-label { font-size: 0.45rem; font-weight: 800; color: #71717a; text-transform: uppercase; }
+    .btn-archive { color: rgba(255, 255, 255, 0.1); background: transparent; border: 0; padding: 0; font-size: 0.9rem; transition: 0.2s; }
+    .kanban-card:hover .btn-archive { color: rgba(255, 255, 255, 0.4); }
+    .btn-archive:hover { color: var(--accent-amber) !important; }
 
-    .btn-protocol {
-        width: 100%;
-        background: #111;
-        border: 1px solid rgba(56, 189, 248, 0.2);
-        color: var(--accent-sky);
-        padding: 12px;
-        border-radius: 14px;
-        font-size: 0.6rem;
-        font-weight: 950;
+    .card-handle { color: rgba(255,255,255,0.1); font-size: 1.1rem; }
+    .kanban-card:hover .card-handle { color: var(--accent-sky); }
+
+    .card-name { font-size: 0.9rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; padding-right: 55px; }
+
+    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-sci-fi { 
+        background: rgba(255,255,255,0.03); 
+        border: 1px solid rgba(255,255,255,0.1); 
+        color: var(--accent-sky); 
+        padding: 7px 0; 
+        border-radius: 10px; 
+        font-size: 0.55rem; 
+        font-weight: 950; 
+        text-align: center; 
+        text-decoration: none;
         text-transform: uppercase;
-        letter-spacing: 2px;
-        transition: 0.3s;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .btn-protocol:hover { background: var(--accent-sky); color: #000; }
+    .btn-sci-fi:hover:not(.disabled) { background: var(--accent-sky); color: #000; border-color: var(--accent-sky); }
+    .btn-sci-fi.disabled { opacity: 0.1; }
 
+    /* STATS HUB INTEGRADO AL FINAL */
+    .stats-hub {
+        background: rgba(12, 12, 14, 0.8);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        border-radius: 24px;
+        padding: 2rem;
+        margin-left: 2.5rem;
+        width: 320px;
+        flex-shrink: 0;
+    }
+    .channels-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; }
+    .channel-block { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
+    .channel-block:hover { border-color: var(--accent-sky); background: rgba(56, 189, 248, 0.1); }
 </style>
 
 <div class="header-hub">
-    <h1 class="text-white text-3xl font-black uppercase tracking-[0.6em]">Command Hub</h1>
+    <h1 class="text-white text-3xl font-black uppercase tracking-[0.5em]">Command Hub</h1>
     <div class="h-px bg-zinc-800 flex-1 opacity-20"></div>
     <div class="flex items-center gap-6 text-sky-400 font-black text-xs uppercase tracking-[0.3em] animate-pulse">
-        <i class="bi bi-robot fs-2 text-sky-400"></i> AGENTE SOCIAL LIVE
+        <i class="bi bi-robot fs-2"></i> AGENTE SOCIAL LIVE
     </div>
 </div>
 
-<div class="master-layout">
-    <div class="crm-container custom-scrollbar">
-        @foreach([['total' => $prospectos, 'st' => 'prospecto', 't' => 'Fase 01 | Leads'], ['total' => $pendientes, 'st' => 'pendiente_pago', 't' => 'Fase 02 | Validar'], ['total' => $activos, 'st' => 'activo', 't' => 'Fase 03 | Activos']] as $c)
-            <div class="kanban-col">
-                <div class="col-header" style="{{ $c['st'] == 'activo' ? 'border-left-color:var(--accent-emerald)' : ($c['st'] == 'pendiente_pago' ? 'border-left-color:var(--accent-amber)' : '') }}">
-                    <span class="header-title {{ $c['st'] == 'activo' ? 'text-emerald-500' : ($c['st'] == 'pendiente_pago' ? 'text-amber-500' : '') }}">{{ $c['t'] }}</span>
-                    <span class="text-white/40 text-xs font-black">{{ $c['total']->total() }}</span>
+<div class="crm-container custom-scrollbar" id="crmContainer">
+    
+    <!-- PHASE 01 -->
+    <div class="kanban-col">
+        <div class="col-header">
+            <span class="header-title">Fase 01 | Leads</span>
+            <span class="text-white/40 text-xs font-black">{{ $prospectos->total() }}</span>
+        </div>
+        <div id="col-prospecto" class="kanban-list" data-status="prospecto">
+            @foreach($prospectos as $pro)
+            <div class="kanban-card" data-id="{{ $pro->id }}" id="card-{{ $pro->id }}">
+                <div class="card-controls">
+                    <button class="btn-archive" onclick="archiveLead('{{ $pro->id }}')"><i class="bi bi-archive-fill"></i></button>
+                    <button class="btn-trash" onclick="deleteLead('{{ $pro->id }}')"><i class="bi bi-trash3-fill"></i></button>
+                    <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 </div>
-                <div id="col-{{ $c['st'] }}" class="kanban-list" data-status="{{ $c['st'] }}">
-                    @foreach($c['total'] as $u)
-                    <div class="kanban-card" data-id="{{ $u->id }}" id="card-{{ $u->id }}">
-                        <div class="card-controls">
-                            @if($c['st'] == 'prospecto')
-                                <button type="button" class="btn-control btn-archive" title="Olvidar" onclick="archiveLead('{{ $u->id }}')"><i class="bi bi-archive-fill"></i></button>
-                                <button type="button" class="btn-control btn-trash" title="Borrar" onclick="deleteLead('{{ $u->id }}')"><i class="bi bi-trash3-fill"></i></button>
-                            @endif
-                            <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
-                        </div>
-                        <div>
-                            <div class="card-name">{{ $u->name }}</div>
-                            <div class="text-[0.65rem] text-zinc-600 fw-black uppercase">{{ $c['st'] == 'activo' ? ($u->empresa?->nombre_comercial ?? 'Setup OK') : ($u->lead_source ?? 'Landing Directo') }}</div>
-                        </div>
-                        <div class="flex gap-2 mt-4">
-                            @if($c['st'] == 'prospecto')
-                                <button onclick="openIA('{{ $u->id }}', '{{ $u->name }}')" class="btn-sci-fi w-full"><i class="bi bi-robot"></i> IA DATA</button>
-                            @elseif($c['st'] == 'pendiente_pago')
-                                <form action="{{ route('owner.crm.activate', $u->id) }}" method="POST" class="w-full">@csrf<button type="submit" class="btn-sci-fi w-full text-amber-500"><i class="bi bi-lightning-fill"></i> ACTIVAR</button></form>
-                            @else
-                                <button class="btn-sci-fi w-full text-emerald-400"><i class="bi bi-gear-fill"></i> PANEL</button>
-                            @endif
-                        </div>
-                    </div>
-                    @endforeach
+                <div>
+                    <div class="card-name">{{ $pro->name }}</div>
+                    <div class="text-[0.65rem] text-zinc-600 fw-black uppercase">{{ $pro->lead_source ?? 'Landing Directo' }}</div>
+                </div>
+                <div class="btn-group-card">
+                    <button onclick="openIA('{{ $pro->id }}', '{{ $pro->name }}')" class="btn-sci-fi"><i class="bi bi-robot"></i> IA DATA</button>
+                    <button class="btn-sci-fi disabled">MAIL</button>
                 </div>
             </div>
-        @endforeach
+            @endforeach
+        </div>
+        <div class="mt-4">{{ $prospectos->links() }}</div>
     </div>
 
-    <!-- STATS HUB -->
-    <div class="stats-hub">
-        <div class="flex justify-between items-center stats-title">
-            <span>Social Live Ops</span>
-            <div class="stat-pulse"></div>
+    <!-- PHASE 02 -->
+    <div class="kanban-col">
+        <div class="col-header" style="border-left-color: var(--accent-amber)">
+            <span class="header-title text-amber-500">Fase 02 | Validar</span>
         </div>
-        
-        <div class="simulation-badge"><i class="bi bi-eye-fill me-2"></i> MODO SIMULACIÓN ACTIVA</div>
+        <div id="col-pendiente_pago" class="kanban-list" data-status="pendiente_pago">
+            @foreach($pendientes as $pen)
+            <div class="kanban-card" data-id="{{ $pen->id }}" id="card-{{ $pen->id }}">
+                <div class="card-controls">
+                    <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
+                </div>
+                <div>
+                    <div class="card-name">{{ $pen->name }}</div>
+                    <div class="text-[0.65rem] text-amber-500/40 fw-black uppercase">Validar Pago</div>
+                </div>
+                <div class="btn-group-card">
+                    @if($pen->payment_voucher)
+                        <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-sci-fi" style="color:var(--accent-amber)"><i class="bi bi-file-earmark-pdf"></i> DOC</a>
+                    @else
+                        <span class="btn-sci-fi disabled">SIN DOC</span>
+                    @endif
+                    <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="m-0 p-0 d-grid">
+                        @csrf
+                        <button type="submit" class="btn-sci-fi" style="color:var(--accent-amber);border-color:rgba(245,158,11,0.2);">ACTIVAR</button>
+                    </form>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
 
+    <!-- PHASE 03 -->
+    <div class="kanban-col">
+        <div class="col-header" style="border-left-color: var(--accent-emerald)">
+            <span class="header-title text-emerald-500">Fase 03 | Activos</span>
+        </div>
+        <div id="col-activo" class="kanban-list" data-status="activo">
+            @foreach($activos as $act)
+            <div class="kanban-card" data-id="{{ $act->id }}" id="card-{{ $act->id }}">
+                <div class="card-controls">
+                    <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
+                </div>
+                <div>
+                    <div class="card-name text-zinc-300">{{ $act->name }}</div>
+                    <div class="text-[0.65rem] text-zinc-600 fw-black uppercase">{{ $act->empresa?->nombre_comercial ?? 'Setup OK' }}</div>
+                </div>
+                <div class="btn-group-card">
+                    <button class="btn-sci-fi" style="color:var(--accent-emerald);border-color:rgba(16,185,129,0.2);">PANEL</button>
+                    <button class="btn-sci-fi disabled">STATS</button>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- STATS HUB (DERECHA) -->
+    <div class="stats-hub shadow-2xl">
+        <div class="text-[0.6rem] font-black tracking-widest text-sky-400 uppercase mb-4 flex justify-between">
+            <span>Social Live Scanner</span>
+            <span class="text-amber-500">Simulación</span>
+        </div>
         <div class="channels-grid">
-            <div class="channel-block" onclick="openChannelActivity('LinkedIn')">
-                <i class="bi bi-linkedin channel-icon text-sky-500"></i>
-                <div class="channel-val">58</div>
-                <div class="channel-label">LinkedIn</div>
+            <div class="channel-block" onclick="alert('Mostrando actividad...')">
+                <i class="bi bi-linkedin fs-5 text-sky-500"></i>
+                <span class="text-white fw-black">58</span>
+                <span class="text-[0.45rem] text-zinc-500">LINKEDIN</span>
             </div>
-            <div class="channel-block" onclick="openChannelActivity('Instagram')">
-                <i class="bi bi-instagram channel-icon text-pink-500"></i>
-                <div class="channel-val">42</div>
-                <div class="channel-label">Instagram</div>
+            <div class="channel-block">
+                <i class="bi bi-instagram fs-5 text-pink-500"></i>
+                <span class="text-white fw-black">42</span>
+                <span class="text-[0.45rem] text-zinc-500">INSTAGRAM</span>
             </div>
-            <div class="channel-block" onclick="openChannelActivity('Facebook')">
-                <i class="bi bi-facebook channel-icon text-blue-600"></i>
-                <div class="channel-val">31</div>
-                <div class="channel-label">Facebook</div>
+            <div class="channel-block">
+                <i class="bi bi-facebook fs-5 text-blue-600"></i>
+                <span class="text-white fw-black">31</span>
+                <span class="text-[0.45rem] text-zinc-500">FACEBOOK</span>
             </div>
-            <div class="channel-block" onclick="openChannelActivity('WhatsApp/Tg')">
-                <i class="bi bi-chat-dots-fill channel-icon text-emerald-500"></i>
-                <div class="channel-val">11</div>
-                <div class="channel-label">Cloud</div>
+            <div class="channel-block">
+                <i class="bi bi-chat-dots-fill fs-5 text-emerald-500"></i>
+                <span class="text-white fw-black">11</span>
+                <span class="text-[0.45rem] text-zinc-500">CLOUD</span>
             </div>
         </div>
-        <button onclick="openProtocol()" class="btn-protocol"><i class="bi bi-shield-lock-fill me-2"></i> Protocolo Técnico</button>
-    </div>
-</div>
-
-{{-- MODALES SE MANTIENEN IGUAL --}}
-<div id="protocol-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10002; align-items:center; justify-content:center; backdrop-filter:blur(15px);">
-    <div style="width:700px; background:#000; border:1px solid var(--accent-sky); border-radius:40px; padding:4rem;">
-        <h2 class="text-white text-xl font-black uppercase mb-10 tracking-[0.3em]">Protocolo Técnico Agent</h2>
-        <div class="text-zinc-400 text-sm leading-relaxed mb-10">
-            Este módulo integra la infraestructura de números maestros y rotación de APIs locales para garantizar el contacto sin bloqueos. Una vez finalizada la etapa de diseño, se conectará el motor de scraping real a estos indicadores.
+        <div class="mt-10">
+            <button class="w-full bg-transparent border border-sky-500/30 text-sky-400 text-[0.6rem] font-black uppercase py-3 rounded-xl hover:bg-sky-500 hover:text-black">Protocolo Técnico</button>
         </div>
-        <button onclick="document.getElementById('protocol-overlay').style.display='none'" class="btn-sci-fi w-full py-4 bg-sky-500 text-black border-0 fw-black">ENTENDIDO</button>
     </div>
+
 </div>
 
-<div id="activity-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10001; align-items:center; justify-content:center; backdrop-filter:blur(15px);">
-    <div style="width:600px; background:#09090b; border:1px solid var(--accent-sky); border-radius:32px; padding:3rem;">
-        <h4 class="text-sky-400 font-black tracking-widest uppercase mb-6">Log operativo: <span id="ch-name"></span></h4>
-        <div id="log-list" class="bg-black p-6 rounded-2xl h-[300px] overflow-y-auto border border-white/5 font-mono text-[0.75rem]"></div>
-        <button onclick="document.getElementById('activity-overlay').style.display='none'" class="btn-sci-fi w-full mt-8 py-4 bg-sky-500 text-black border-0 fw-black">SALIR</button>
+{{-- MODAL IA --}}
+<div id="ia-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10001; align-items:center; justify-content:center; backdrop-filter:blur(15px);">
+    <div style="width:550px; background:#09090b; border:2px solid var(--accent-sky); border-radius:32px; padding:3rem; box-shadow: 0 0 100px rgba(56, 189, 248, 0.2);">
+        <h4 id="ia-name" class="text-white font-black uppercase mb-6 tracking-widest text-center">Analizando Lead</h4>
+        <div class="bg-black/40 p-6 rounded-2xl border border-white/5 font-mono text-[0.8rem] text-zinc-400 mb-8">
+            >>> Interés detectado en POS.<br>>>> Sugiriendo Plan Master Suite.
+        </div>
+        <button onclick="document.getElementById('ia-overlay').style.display='none'" class="btn-sci-fi w-full py-4 bg-sky-500 text-black border-0 fw-black">CERRAR</button>
     </div>
 </div>
 
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
-    function openProtocol() { document.getElementById('protocol-overlay').style.display='flex'; }
-    function openChannelActivity(ch) { 
-        document.getElementById('ch-name').innerText = ch;
-        const list = document.getElementById('log-list');
-        list.innerHTML = `<div class='text-zinc-600 mb-2'>[SIMULACIÓN] Conectando con API de ${ch}...</div>`;
-        list.innerHTML += `<div class='mb-2 text-white'>[10:42 AM] Prospecto 'Casa Lopez' detectado.</div>`;
-        list.innerHTML += `<div class='mb-2 text-white'>[11:15 AM] Mensaje enviado desde pool local.</div>`;
-        document.getElementById('activity-overlay').style.display='flex';
+    function openIA(id, name) {
+        document.getElementById('ia-name').innerText = name;
+        document.getElementById('ia-overlay').style.display = 'flex';
     }
+
+    // Lógica de Draggables y AJAX se mantiene intacta
+    document.addEventListener('DOMContentLoaded', function() {
+        ['col-prospecto', 'col-pendiente_pago', 'col-activo'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                new Sortable(el, { group: 'kanban', handle: '.card-handle', animation: 200, 
+                    onEnd: function(evt) {
+                        fetch("{{ route('owner.crm.move') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ user_id: evt.item.getAttribute('data-id'), status: evt.to.getAttribute('data-status') }) });
+                    }
+                });
+            }
+        });
+    });
+
+    function archiveLead(id) { fetch("{{ route('owner.crm.archive') }}", { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{csrf_token()}}'}, body:JSON.stringify({user_id:id}) }).then(()=>document.getElementById('card-'+id).remove()); }
+    function deleteLead(id) { fetch("{{ route('owner.crm.delete') }}", { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{csrf_token()}}'}, body:JSON.stringify({user_id:id}) }).then(()=>document.getElementById('card-'+id).remove()); }
 </script>
 @endsection
