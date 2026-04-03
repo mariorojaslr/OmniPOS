@@ -11,7 +11,7 @@
 
             <div class="card-body">
                 <form method="POST"
-                      action="{{ route('owner.empresas.update', $empresa) }}">
+                      action="{{ url('owner/empresas/' . $empresa->id) }}">
                     @csrf
                     @method('PUT')
 

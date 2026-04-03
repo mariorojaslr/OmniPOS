@@ -410,12 +410,12 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group">
-                                        <a href="{{ route('owner.empresas.edit', $emp->id) }}" class="btn btn-sm btn-outline-secondary border-0 opacity-75">
+                                        <a href="{{ url('owner/empresas/' . $emp->id . '/edit') }}" class="btn btn-sm btn-outline-secondary border-0 opacity-75">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                         @php $admin = $emp->users()->where('role', 'empresa')->first() ?? $emp->users->first(); @endphp
                                         @if($admin)
-                                            <a href="{{ route('owner.empresas.users.impersonate', [$emp->id, $admin->id]) }}" class="btn btn-sm btn-outline-primary border-0" title="Entrar como Admin">
+                                            <a href="{{ url('owner/mimetizar/empresa/' . $emp->id . '/usuario/' . $admin->id) }}" class="btn btn-sm btn-outline-primary border-0" title="Entrar como Admin">
                                                 <i class="bi bi-person-fill-gear"></i> ENTRAR
                                             </a>
                                         @endif

@@ -6,13 +6,13 @@
     <div class="card shadow-sm mx-auto" style="max-width: 600px;">
         <div class="card-header">
             <h5 class="mb-0">
-                Nuevo usuario para {{ $empresa->nombre }}
+                Nuevo usuario para {{ $empresa->nombre_comercial }}
             </h5>
         </div>
 
         <div class="card-body">
             <form method="POST"
-                  action="{{ route('owner.empresas.users.store', $empresa) }}">
+                  action="{{ url('owner/empresas/' . $empresa->id . '/users') }}">
                 @csrf
 
                 <div class="mb-3">
@@ -43,7 +43,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <a href="{{ route('owner.empresas.users.index', $empresa) }}"
+                    <a href="{{ url('owner/empresas/' . $empresa->id . '/users') }}"
                        class="btn btn-outline-secondary">
                         Cancelar
                     </a>

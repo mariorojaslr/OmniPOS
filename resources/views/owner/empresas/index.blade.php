@@ -137,7 +137,7 @@
                             {{-- Renovar solo si está vencida o inactiva --}}
                             @if ($estado !== 'Activa')
                                 <form method="POST"
-                                      action="{{ route('owner.empresas.renovar', $empresa) }}"
+                                      action="{{ url('owner/empresas/' . $empresa->id . '/renovar') }}"
                                       class="d-inline ms-1">
                                     @csrf
                                     @method('PATCH')

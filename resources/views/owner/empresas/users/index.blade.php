@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold">Usuarios de {{ $empresa->nombre_comercial }}</h4>
 
-        <a href="{{ route('owner.empresas.users.create', $empresa) }}"
+        <a href="{{ url('owner/empresas/' . $empresa->id . '/users/create') }}"
            class="btn btn-primary">
             + Nuevo usuario
         </a>
@@ -49,7 +49,7 @@
                         <td class="text-end pe-4">
 
                             <form method="POST"
-                                  action="{{ route('owner.empresas.users.toggle', ['empresa' => $empresa, 'usuario' => $user->id]) }}"
+                                  action="{{ url('owner/empresas/' . $empresa->id . '/users/' . $user->id . '/toggle') }}"
                                   class="d-inline">
                                 @csrf
                                 @method('PATCH')
@@ -59,7 +59,7 @@
                             </form>
 
                             <form method="POST"
-                                  action="{{ route('owner.empresas.users.reset', ['empresa' => $empresa, 'usuario' => $user->id]) }}"
+                                  action="{{ url('owner/empresas/' . $empresa->id . '/users/' . $user->id . '/reset-password') }}"
                                   class="d-inline ms-1">
                                 @csrf
                                 @method('PATCH')
@@ -68,7 +68,7 @@
                                 </button>
                             </form>
 
-                            <a href="{{ route('owner.empresas.users.impersonate', ['empresa' => $empresa, 'usuario' => $user->id]) }}"
+                            <a href="{{ url('owner/mimetizar/empresa/' . $empresa->id . '/usuario/' . $user->id) }}"
                                class="btn btn-sm btn-outline-info ms-1"
                                title="Entrar al sistema como este usuario">
                                 Entrar
