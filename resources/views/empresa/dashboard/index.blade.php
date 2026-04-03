@@ -407,7 +407,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted fw-bold">Storage S3 (Bunny):</span>
+                    <span class="text-muted fw-bold">Almacenamiento de Activos:</span>
                     <span class="fw-bold text-success">Sincronizado</span>
                 </div>
             </div>
@@ -447,16 +447,18 @@ $secondary = $config?->color_secondary ?? '#16a34a';
         colors: ["#22c55e"]
     }).render();
 
-    // 2. Gasto vs Inversión Local (Rojo/Azul)
+    // 2. Gasto vs Inversión Local (Arco Dual Proporcional)
     new ApexCharts(document.querySelector("#chartLocalEgresos"), {
         ...commonOptions,
-        series: [{{ $gastosPerc }}, {{ $comprasPerc }}],
-        colors: ["#ef4444", "#3b82f6"],
+        series: [{{ $comprasPerc }}],
+        colors: ["#3b82f6"],
         plotOptions: {
             radialBar: {
                 startAngle: -90, endAngle: 90,
+                track: { background: "#ef4444", strokeWidth: '97%' }, // El fondo es el GASTO (Rojo)
                 dataLabels: {
-                    value: { fontSize: '16px', formatter: (val) => val + '%' }
+                    name: { show: true, fontSize: '10px', offsetY: 20, label: 'INVERSIÓN' },
+                    value: { fontSize: '18px', formatter: (val) => val + '%' }
                 }
             }
         }
@@ -466,7 +468,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
     new ApexCharts(document.querySelector("#chartLocalEval"), {
         ...commonOptions,
         series: [{{ $evaluacionLocal }}],
-        colors: ["{{ $balanceLocal > 0 ? '#22c55e' : '#ef4444' }}"]
+        colors: ["{{ $balanceLocal >= 0 ? '#22c55e' : '#ef4444' }}"]
     }).render();
 
     // --- SECTOR INTERNET ---
