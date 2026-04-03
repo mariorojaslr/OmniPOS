@@ -18,7 +18,14 @@ class CRMController extends Controller
         $pendientes = User::where('status', 'pendiente_pago')->where('role', 'empresa')->latest()->paginate(15, ['*'], 'pendientes');
         $activos = User::where('status', 'activo')->where('role', 'empresa')->latest()->paginate(25, ['*'], 'activos');
 
-        return view('owner.crm.index', compact('prospectos', 'pendientes', 'activos'));
+        // Conteos Reales por Fuente para los Reportes de Agentes
+        $counts = User::where('status', 'prospecto')
+            ->selectRaw('lead_source, count(*) as total')
+            ->groupBy('lead_source')
+            ->pluck('total', 'lead_source')
+            ->toArray();
+
+        return view('owner.crm.index', compact('prospectos', 'pendientes', 'activos', 'counts'));
     }
 
     /**

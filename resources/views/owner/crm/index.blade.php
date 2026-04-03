@@ -294,12 +294,12 @@
             
             <div class="grid-centered">
                 @foreach([
-                    'LinkedIn' => ['total'=>'58', 'h'=>'12', 'i'=>'4', 'c'=>'sky'],
-                    'Instagram' => ['total'=>'42', 'h'=>'8', 'i'=>'2', 'c'=>'amber'],
-                    'Facebook' => ['total'=>'31', 'h'=>'5', 'i'=>'1', 'c'=>'primary'],
-                    'WhatsApp' => ['total'=>'24', 'h'=>'15', 'i'=>'9', 'c'=>'emerald'],
-                    'Telegram' => ['total'=>'15', 'h'=>'3', 'i'=>'0', 'c'=>'info'],
-                    'System Mail' => ['total'=>'08', 'h'=>'1', 'i'=>'0', 'c'=>'secondary']
+                    'LinkedIn' => ['total'=>'58', 'h'=>'12', 'i'=>$counts['LinkedIn'] ?? 1, 'c'=>'sky'],
+                    'Instagram' => ['total'=>'42', 'h'=>'8', 'i'=>$counts['Instagram'] ?? 0, 'c'=>'amber'],
+                    'Facebook' => ['total'=>'31', 'h'=>'5', 'i'=>$counts['Facebook'] ?? 0, 'c'=>'primary'],
+                    'WhatsApp' => ['total'=>'24', 'h'=>'15', 'i'=>$counts['WhatsApp'] ?? 0, 'c'=>'emerald'],
+                    'Telegram' => ['total'=>'15', 'h'=>'3', 'i'=>$counts['Telegram'] ?? 0, 'c'=>'info'],
+                    'System Mail' => ['total'=>'08', 'h'=>'1', 'i'=>$counts['System Mail'] ?? 0, 'c'=>'secondary']
                 ] as $n => $d)
                     <div class="mini-card" onclick="openAgentReport('{{ $n }}', {{ $d['total'] }}, {{ $d['h'] }}, {{ $d['i'] }}, '{{ $d['c'] }}')">
                         <span class="text-white fw-black text-2xl" style="line-height:1">{{ $d['total'] }}</span>
