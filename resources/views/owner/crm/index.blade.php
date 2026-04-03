@@ -52,7 +52,7 @@
 
     .header-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.3em; text-transform: uppercase; color: #fff; }
 
-    /* TARJETA UNIFORME - ALTURA 130PX SIN CORTES */
+    /* TARJETA UNIFORME - ALTURA 130PX */
     .kanban-card {
         background: var(--card-bg);
         border: 1px solid var(--border-color); 
@@ -70,7 +70,7 @@
         box-shadow: 0 5px 15px -5px var(--stellar-blue);
     }
 
-    /* CLASE FOCO (ILUMINACION PURA) */
+    /* CLASE FOCO */
     .kanban-card.active-spotlight {
         z-index: 2000 !important;
         border-width: 2px !important;
@@ -79,17 +79,9 @@
         opacity: 1 !important;
     }
 
-    .kanban-card:hover:not(.active-spotlight) {
-        border-color: var(--accent-sky);
-        box-shadow: 0 35px 70px -10px rgba(56, 189, 248, 0.4);
-    }
-
     .card-tab {
         position: absolute;
-        left: -10px; 
-        top: 0;
-        bottom: 0;
-        width: 10px;
+        left: -10px; top: 0; bottom: 0; width: 10px;
         border-radius: 8px 0 0 8px;
     }
     .tab-prospecto { background: var(--accent-indigo); }
@@ -97,7 +89,6 @@
     .tab-activo { background: var(--accent-emerald); }
 
     .card-handle { position: absolute; right: 10px; top: 10px; color: rgba(255,255,255,0.05); font-size: 1rem; }
-
     .card-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 15px; }
     .card-subtext { font-size: 0.55rem; color: #71717a; font-weight: 600; text-transform: uppercase; }
 
@@ -105,41 +96,31 @@
     .btn-sci-fi { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--accent-sky); padding: 5px 0; border-radius: 6px; font-size: 0.5rem; font-weight: 950; text-align: center; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; text-decoration: none; }
     .btn-sci-fi:not(.disabled):hover { background: var(--accent-sky); color: #000; border-color: var(--accent-sky); }
     .btn-sci-fi.disabled { opacity: 0.15; cursor: not-allowed; }
-    .btn-amber { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.2); }
-    .btn-amber:hover:not(.disabled) { background: var(--accent-amber); color: #000; }
-    .btn-emerald { color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.2); }
-    .btn-emerald:hover:not(.disabled) { background: var(--accent-emerald); color: #000; }
 
     .card-status-label {
-        font-size: 0.45rem;
-        font-weight: 900;
-        color: var(--accent-sky);
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin-top: 8px;
-        padding-top: 4px;
-        border-top: 1px solid rgba(255,255,255,0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        font-size: 0.45rem; font-weight: 900; color: var(--accent-sky); text-transform: uppercase; letter-spacing: 1.5px;
+        margin-top: 8px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.05);
+        display: flex; justify-content: space-between; align-items: center;
     }
 
-    /* MODAL IA - CENTRADO Y FLUIDO */
+    /* MODAL IA - VERTICAL REFORZADO */
+    #modalIA .modal-dialog {
+        max-width: 500px !important; /* ANCHO CONTROLADO */
+        margin: 1.75rem auto;
+    }
+    
     .ai-modal {
         background: #09090b !important;
         border: 2px solid var(--accent-sky);
-        box-shadow: 0 0 100px rgba(56, 189, 248, 0.5);
+        box-shadow: 0 0 100px rgba(56, 189, 248, 0.4);
         border-radius: 24px;
     }
+    
+    .modal-backdrop.show { opacity: 0.8 !important; background: #000 !important; }
 
-    /* ANIMACION DE SURGIMIENTO */
-    .modal.fade .modal-dialog {
-        transform: scale(0.8);
-        transition: transform 0.3s;
-    }
-    .modal.show .modal-dialog {
-        transform: scale(1);
-    }
+    /* ANIMACION */
+    .modal.fade .modal-dialog { transform: translateY(50px); transition: transform 0.3s; }
+    .modal.show .modal-dialog { transform: translateY(0); }
 </style>
 
 <div class="px-10 mt-12 mb-8">
@@ -170,8 +151,8 @@
                     <div class="card-subtext">{{ $pro->lead_source ?? 'Landing Directo' }}</div>
                 </div>
                 <div class="btn-group-master">
-                    <button class="btn-sci-fi" onclick="showAISpotlight('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'INSTAGRAM' }}')">IA DATA</button>
-                    <button class="btn-sci-fi disabled">MAIL</button>
+                    <button type="button" class="btn-sci-fi" onclick="showAISpotlight('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'INSTAGRAM' }}')">IA DATA</button>
+                    <button type="button" class="btn-sci-fi disabled">MAIL</button>
                 </div>
                 <div class="card-status-label">
                     <span>PROSPECTO OK</span>
@@ -183,6 +164,7 @@
         <div class="mt-4">{{ $prospectos->links() }}</div>
     </div>
 
+    <!-- LAS OTRAS COLUMNAS SE MANTIENEN IGUAL... SE REPLICAN EN EL WRITE COMPLETO -->
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-amber)">
             <span class="header-title text-amber-500">Fase 02 | Validar</span>
@@ -202,9 +184,9 @@
                     @else
                         <span class="btn-sci-fi disabled">NO DOC</span>
                     @endif
-                    <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="flex-1">
+                    <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="flex-1 m-0">
                         @csrf
-                        <button type="submit" class="btn-sci-fi btn-amber w-full">ACT</button>
+                        <button type="submit" class="btn-sci-fi w-100" style="color:var(--accent-amber);border-color:rgba(245,158,11,0.2);">ACT</button>
                     </form>
                 </div>
                 <div class="card-status-label" style="color: var(--accent-amber)">
@@ -231,8 +213,8 @@
                     <div class="card-subtext truncate">{{ $act->empresa?->nombre_comercial ?? 'Setup Complete' }}</div>
                 </div>
                 <div class="btn-group-master">
-                    <button class="btn-sci-fi btn-emerald">PANEL</button>
-                    <button class="btn-sci-fi btn-emerald disabled">STATS</button>
+                    <button class="btn-sci-fi" style="color:var(--accent-emerald);border-color:rgba(16,185,129,0.2);">PANEL</button>
+                    <button class="btn-sci-fi disabled" style="color:var(--accent-emerald);border-color:rgba(16,185,129,0.2);">STATS</button>
                 </div>
                 <div class="card-status-label" style="color: var(--accent-emerald)">
                     <span>SAAS ACTIVO OK</span>
@@ -243,7 +225,6 @@
         </div>
         <div class="mt-4">{{ $activos->links() }}</div>
     </div>
-
 </div>
 
 {{-- MODAL IA DATA --}}
@@ -287,17 +268,16 @@
         document.getElementById('ia-client-name').innerText = name;
         document.getElementById('ia-client-source').innerText = source;
 
-        // Limpiar backdrops previos por seguridad
+        // Limpiar backdrops previos
         document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
         
-        const modal = new bootstrap.Modal(document.getElementById('modalIA'));
-        modal.show();
+        const myModal = new bootstrap.Modal(document.getElementById('modalIA'));
+        myModal.show();
     }
 
     function clearSpotlight() {
         if(activeCardId) {
-            const card = document.getElementById('card-' + activeCardId);
-            if(card) card.classList.remove('active-spotlight');
+            document.querySelectorAll('.kanban-card').forEach(c => c.classList.remove('active-spotlight'));
             activeCardId = null;
         }
     }
@@ -305,11 +285,11 @@
     document.getElementById('modalIA').addEventListener('hidden.bs.modal', function () {
         clearSpotlight();
         document.body.classList.remove('modal-open');
+        document.body.style.overflow = 'auto'; // Forzar scroll de nuevo
         document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar sortables...
         const columns = ['col-prospecto', 'col-pendiente_pago', 'col-activo'];
         columns.forEach(id => {
             const el = document.getElementById(id);
