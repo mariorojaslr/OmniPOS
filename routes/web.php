@@ -117,6 +117,8 @@ Route::middleware(['auth', 'owner'])
         Route::post('crm/{user}/activate', [App\Http\Controllers\Owner\CRMController::class, 'activate'])->name('crm.activate');
         Route::patch('crm/{user}/notes', [App\Http\Controllers\Owner\CRMController::class, 'updateNotes'])->name('crm.notes');
         Route::post('crm/move', [App\Http\Controllers\Owner\CRMController::class, 'move'])->name('crm.move');
+        Route::post('crm/archive', [App\Http\Controllers\Owner\CRMController::class, 'archive'])->name('crm.archive');
+        Route::post('crm/delete', [App\Http\Controllers\Owner\CRMController::class, 'delete'])->name('crm.delete');
 
     });
 

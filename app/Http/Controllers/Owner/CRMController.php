@@ -68,4 +68,32 @@ class CRMController extends Controller
             'message' => "¡Movimiento exitoso! " . ($user->name ?? 'Usuario') . " ahora está en " . $newStatus
         ]);
     }
+    /**
+     * Olvidar (Archivar) un lead para limpiar la pizarra sin perder datos
+     */
+    public function archive(Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+        $user->update(['status' => 'archivado']);
+
+        return response()->json([
+            'success' => true,
+            'message' => "¡Lead Olvidado! " . ($user->name ?? 'Usuario') . " ahora está en el archivo histórico."
+        ]);
+    }
+
+    /**
+     * Borrar (Eliminar) definitivamente un lead (para pruebas y basura)
+     */
+    public function delete(Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+        $name = $user->name;
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "¡Lead Borrado! " . $name . " ha sido eliminado permanentemente."
+        ]);
+    }
 }
