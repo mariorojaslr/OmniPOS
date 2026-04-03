@@ -292,6 +292,9 @@ body{
                         </a></li>
                         
                         @if($user->role === 'empresa')
+                        <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.backup.index') }}">
+                            <i class="bi bi-shield-shaded me-2"></i> Bóveda de Resguardo
+                        </a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.configuracion.index') }}">
                             <i class="bi bi-gear me-2"></i> Configuración
                         </a></li>

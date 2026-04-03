@@ -121,4 +121,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Empresa::class);
     }
+
+    public function asistencias()
+    {
+        return $this->hasMany(Asistencia::class);
+    }
 }

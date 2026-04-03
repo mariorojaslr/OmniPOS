@@ -158,8 +158,8 @@
                             <div class="accordion-item mb-3 border rounded-3 shadow-sm border-0 overflow-hidden">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#colMP">
-                                        <img src="https://logotipous.com/wp-content/uploads/2021/08/Mercado-Pago-Logo.png" height="25" class="me-3">
-                                        <span class="fw-bold">Mercado Pago</span>
+                                        <img src="https://img.icons8.com/color/48/mercado-pago.png" height="28" class="me-3">
+                                        <span class="fw-bold fs-5">Mercado Pago</span>
                                     </button>
                                 </h2>
                                 <div id="colMP" class="accordion-collapse collapse" data-bs-parent="#accordionGateways">
@@ -319,16 +319,7 @@
 
                 </div>
 
-                <div class="sticky-bottom bg-white p-3 border-top mt-5 mx-n4 mb-n4 rounded-bottom text-end shadow-sm">
-                    <button class="btn btn-primary btn-lg px-5 shadow rounded-pill">
-                        <i class="bi bi-save me-2"></i>💾 Guardar Configuración Global
-                    </button>
                 </div>
-
-            </form>
-
-        </div>
-    </div>
 
             </form>
 

@@ -187,9 +187,13 @@
 
     <div class="premium-bg"></div>
     <div class="guest-wrapper {{ isset($isCatalog) && $isCatalog ? 'flex-column align-items-stretch pt-0 px-0 w-100' : 'align-items-center justify-content-center px-2 px-md-4' }}">
-        <div class="auth-container {{ isset($isBroad) && $isBroad ? 'broad' : '' }}">
+        @if(isset($isCatalog) && $isCatalog)
             @yield('content')
-        </div>
+        @else
+            <div class="auth-container {{ isset($isBroad) && $isBroad ? 'broad' : '' }}">
+                @yield('content')
+            </div>
+        @endif
     </div>
 
     {{-- Bootstrap JS --}}

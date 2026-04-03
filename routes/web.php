@@ -224,6 +224,9 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/configuracion', [ConfiguracionEmpresaController::class , 'index'])->name('configuracion.index');
         Route::post('/configuracion', [ConfiguracionEmpresaController::class , 'save'])->name('configuracion.save');
 
+        // BÓVEDA DE RESGUARDO (BACKUPS)
+        Route::get('/backup', [App\Http\Controllers\Empresa\BackupController::class, 'index'])->name('backup.index');
+
         Route::resource('soporte', SupportTicketController::class)->names('soporte');
         Route::post('soporte/upload-media', [SupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');
 

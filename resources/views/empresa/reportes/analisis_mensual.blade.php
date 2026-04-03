@@ -23,7 +23,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php $maxTotal = $meses->max('total') ?: 1; @endphp
+                    @php $maxTotal = max($meses->max('total'), 1); @endphp
                     @foreach($meses as $m)
                         @php $porc = ($m->total / $maxTotal) * 100; @endphp
                         <tr>
