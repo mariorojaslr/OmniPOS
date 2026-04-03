@@ -30,12 +30,12 @@
     }
 
     .kanban-col {
-        width: 320px;
+        width: 330px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
         padding: 0 1.5rem;
-        border-right: 1px dashed rgba(255,255,255,0.08); /* LÍNEAS DIVISORIAS PUNTEADAS */
+        border-right: 1px dashed rgba(255,255,255,0.08);
     }
 
     .col-header {
@@ -51,31 +51,29 @@
 
     .header-title { font-size: 0.8rem; font-weight: 950; letter-spacing: 0.35em; text-transform: uppercase; white-space: nowrap; color: #fff; }
 
-    /* TARJETA ELITE SIMÉTRICA 130PX CON POST-IT */
+    /* TARJETA ELITE SIN DESBORDES */
     .kanban-card {
         background: var(--card-bg);
-        border: 1px solid #ffffff; /* LÍNEA BLANCA 1PX SAGRADA */
+        border: 1px solid #ffffff; 
         border-radius: 14px;
-        padding: 1.2rem 1.2rem 1rem 2.5rem; /* EQUIDISTANCIA VERTICAL */
+        padding: 1.2rem 1.2rem 1.2rem 2.8rem; /* PADDING EQUILIBRADO */
         margin-bottom: 22px; 
-        height: 140px; 
+        height: 155px; /* UN POCO MÁS PARA EVITAR APLASTAMIENTO */
         position: relative;
         display: flex;
         flex-direction: column;
         justify-content: center; 
-        gap: 0.8rem;
+        gap: 0.6rem;
         cursor: grab;
         transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
     }
     .kanban-card:hover {
         border-color: var(--accent-sky);
-        box-shadow: 0 0 50px -10px var(--stellar-blue); /* SOMBRA AZUL ESTELAR PROFUNDA */
+        box-shadow: 0 0 50px -10px var(--stellar-blue); 
         transform: translateY(-5px);
-        animation: cardBlink 1.5s infinite alternate;
     }
-    @keyframes cardBlink { from { border-color: #fff; } to { border-color: var(--accent-sky); } }
 
-    /* EL POST-IT LATERAL */
     .post-it {
         position: absolute;
         left: 0;
@@ -92,31 +90,42 @@
 
     .card-controls { position: absolute; right: 12px; top: 12px; display: flex; gap: 12px; opacity: 0.2; }
     .kanban-card:hover .card-controls { opacity: 1; }
-    .card-handle { color: var(--accent-sky); font-size: 1.5rem; opacity: 0.3; }
+    .card-handle { color: var(--accent-sky); font-size: 1.5rem; }
 
-    /* TEXTO DELICADO 1 RENGLÓN */
-    .card-name { font-size: 0.9rem; font-weight: 950; text-transform: uppercase; color: #fff; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
-    .card-subtext { font-size: 0.65rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    /* NOMBRE CON LÍMITE DE 2 RENGLONES */
+    .card-name { 
+        font-size: 0.85rem; 
+        font-weight: 950; 
+        text-transform: uppercase; 
+        color: #fff; 
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .card-subtext { font-size: 0.6rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
     .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 5px; }
     .btn-sci-fi { 
         background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); color: var(--accent-sky); 
-        padding: 7px 0; border-radius: 8px; font-size: 0.55rem; font-weight: 950; text-align: center; text-transform: uppercase;
+        padding: 6px 0; border-radius: 8px; font-size: 0.52rem; font-weight: 950; text-align: center; text-transform: uppercase;
+        cursor: pointer;
     }
 
-    /* FOOTER STATUS INSIDE */
     .status-line {
-        border-top: 1px solid rgba(255,255,255,0.08); /* RAYA SUTIL */
+        border-top: 1px solid rgba(255,255,255,0.08);
         padding-top: 8px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.55rem;
+        font-size: 0.5rem;
         font-weight: 950;
         letter-spacing: 1.5px;
     }
 
-    /* HUB DE SCANNER - MARCO CELESTE CENTRADO TOTAL */
+    /* SCANNER HUB - SIMETRÍA BLANCA TOTAL */
     .scanner-hub-box {
         flex: 1;
         display: flex;
@@ -125,52 +134,54 @@
         min-width: 480px;
     }
     .scanner-card {
-        width: 400px;
+        width: 420px;
         background: #000;
-        border: 2px solid var(--accent-sky); /* MARCO CELESTE */
+        border: 2px solid #ffffff; 
         border-radius: 40px;
-        padding: 3rem;
+        padding: 3rem 2rem;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 2rem;
-        box-shadow: 0 0 100px rgba(56, 189, 248, 0.1);
+        gap: 2.5rem;
+    }
+
+    .box-info-white {
+        width: 100%;
+        border: 1px solid #ffffff; 
+        border-radius: 12px;
+        padding: 0.8rem;
+        font-size: 0.7rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        color: #ffffff;
+        text-align: center;
+        letter-spacing: 2px;
     }
     
     .grid-centered {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center; 
+        gap: 1.2rem;
         width: 100%;
-        justify-items: center; /* CENTRADO EQUIDISTANTE */
     }
     .mini-card {
         width: 155px;
         background: rgba(255,255,255,0.02);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.2); 
+        border-radius: 20px;
         padding: 1.4rem;
         display: flex;
         flex-direction: column;
-        align-items: center; /* ALINEACIÓN DE TEXTO CENTRADA */
+        align-items: center;
         justify-content: center;
-        transition: 0.25s;
+        transition: 0.3s;
+        cursor: pointer;
     }
-    .mini-card:hover { border-color: #fff; background: rgba(56, 189, 248, 0.05); }
-
-    /* PROTOCOLO COMPACTO INTERIOR UN SOLO RENGLÓN */
-    .btn-protocol-compact {
-        width: 100%;
-        background: #000;
-        border: 1.5px solid var(--accent-sky);
-        border-radius: 12px;
-        padding: 1rem;
-        font-size: 0.7rem;
-        font-weight: 950;
-        text-transform: uppercase;
-        color: var(--accent-sky);
-        text-align: center;
-        letter-spacing: 2px;
+    .mini-card:hover { 
+        border-color: var(--accent-sky); 
+        background: rgba(56, 189, 248, 0.05); 
+        box-shadow: 0 0 30px -5px var(--stellar-blue);
     }
 </style>
 
@@ -198,15 +209,15 @@
                 
                 <div class="flex flex-col gap-0.5">
                     <div class="card-name">{{ $u->name }}</div>
-                    <div class="card-subtext">{{ ($col['st'] == 'activo') ? ($u->empresa?->nombre_comercial ?? 'Setup OK') : ($u->lead_source ?? 'LinkedIn') }}</div>
+                    <div class="card-subtext">{{ ($col['st'] == 'activo') ? ($u->empresa?->nombre_comercial ?? 'GRAFILAR - MCR') : ($u->lead_source ?? 'LinkedIn') }}</div>
                 </div>
 
                 <div class="btn-group-card">
                     @if($col['st'] == 'prospecto')
-                        <button class="btn-sci-fi">IA DATA</button>
+                        <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">IA DATA</button>
                         <button class="btn-sci-fi" style="opacity:0.2" disabled>MAIL</button>
                     @elseif($col['st'] == 'pendiente_pago')
-                        <button class="btn-sci-fi" style="opacity:0.3">DOC</button>
+                        <button class="btn-sci-fi" style="opacity:0.3" disabled>DOC</button>
                         <button class="btn-sci-fi">ACT</button>
                     @else
                         <button class="btn-sci-fi">PANEL</button>
@@ -226,24 +237,35 @@
 
     <div class="scanner-hub-box">
         <div class="scanner-card">
-            <div class="text-[0.75rem] font-black tracking-widest text-sky-400 uppercase flex justify-between w-full">
-                <span>Scan Operations</span>
-                <div style="width:10px; height:10px;" class="bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_#10b981]"></div>
-            </div>
+            <div class="box-info-white">Scan Operations</div>
             
             <div class="grid-centered">
-                @foreach(['LinkedIn'=>'58','Instagram'=>'42','Facebook'=>'31','WhatsApp'=>'24','Telegram'=>'15'] as $n => $v)
+                @foreach(['LinkedIn'=>'58','Instagram'=>'42','Facebook'=>'31','WhatsApp'=>'24','Telegram'=>'15','System Mail'=>'08'] as $n => $v)
                     <div class="mini-card">
-                        <span class="text-white fw-black text-2xl">{{ $v }}</span>
-                        <span class="text-[0.55rem] text-zinc-600 fw-black uppercase mt-1">{{ $n }}</span>
+                        <span class="text-white fw-black text-2xl" style="line-height:1">{{ $v }}</span>
+                        <span class="text-[0.45rem] text-zinc-600 fw-black uppercase mt-1">{{ $n }}</span>
                     </div>
                 @endforeach
             </div>
 
-            <div class="btn-protocol-compact">Protocolo Maestro Agent</div>
+            <div class="box-info-white">Protocolo Maestro Agent</div>
         </div>
     </div>
 
+</div>
+
+{{-- MODAL IA --}}
+<div id="ia-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:50000; align-items:center; justify-content:center; backdrop-filter:blur(20px);">
+    <div style="width:580px; background:#000; border:3px solid var(--accent-sky); border-radius:50px; padding:4rem; box-shadow:0 0 100px var(--stellar-blue);">
+        <h4 class="text-sky-400 font-black uppercase tracking-widest text-center mb-8">IA REPORT DATA</h4>
+        <div id="ia-content" class="bg-zinc-900/50 p-10 rounded-[40px] font-mono text-[0.9rem] text-zinc-400 border border-white/5 shadow-inner">
+            >>> TARGET: <span id="ia-target" class="text-white"></span><br>
+            <hr class="border-white/5 my-6">
+            >>> ANALYZING PROFILE...<br>
+            >>> STATUS: QUALIFIED.
+        </div>
+        <button onclick="document.getElementById('ia-modal').style.display='none'" class="btn-sci-fi w-full py-6 mt-10 bg-sky-500 text-black border-0 fw-black text-[0.9rem]">FINALIZAR REPORTE</button>
+    </div>
 </div>
 
 @endsection
@@ -251,10 +273,13 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
+    function openIA(name) { document.getElementById('ia-target').innerText = name; document.getElementById('ia-modal').style.display='flex'; }
     document.addEventListener('DOMContentLoaded', function() {
         ['col-prospecto', 'col-pendiente_pago', 'col-activo'].forEach(id => {
             const el = document.getElementById(id);
-            if(el) { new Sortable(el, { group:'kanban', handle:'.card-handle', animation:200 }); }
+            if(el) { new Sortable(el, { group:'kanban', handle:'.card-handle', animation:200, swapThreshold: 0.65, onEnd: function(evt) {
+                fetch("{{ route('owner.crm.move') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ user_id: evt.item.getAttribute('data-id'), status: evt.to.getAttribute('data-status') }) });
+            }}); }
         });
     });
 </script>
