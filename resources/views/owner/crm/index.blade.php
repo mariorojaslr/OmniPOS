@@ -242,11 +242,21 @@
             @foreach($col['data'] as $u)
             <div class="kanban-card" data-id="{{ $u->id }}" id="card-{{ $u->id }}">
                 <div class="post-it p-{{ $col['c'] }}"></div>
-                <div class="card-controls"><div class="card-handle"><i class="bi bi-grip-vertical"></i></div></div>
+                <div class="card-controls">
+                    <div class="flex gap-2">
+                        <button onclick="forgetLead({{ $u->id }})" class="text-amber-500 hover:text-amber-400" title="Olvidar Lead">
+                            <i class="bi bi-eye-slash-fill"></i>
+                        </button>
+                        <button onclick="deleteLead({{ $u->id }})" class="text-red-500 hover:text-red-400" title="Borrar Definitivamente">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </div>
+                    <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
+                </div>
                 
                 <div class="flex flex-col gap-0.5">
                     <div class="card-name">{{ $u->name }}</div>
-                    <div class="card-subtext">{{ ($col['st'] == 'activo') ? ($u->empresa?->nombre_comercial ?? 'GRAFILAR - MCR') : ($u->lead_source ?? 'LinkedIn') }}</div>
+                    <div class="card-subtext">{{ ($col['st'] == 'activo' || ($u->empresa && $u->empresa->activo)) ? ($u->empresa?->nombre_comercial ?? 'GRAFILAR - MCR') : ($u->lead_source ?? 'LinkedIn') }}</div>
                 </div>
 
                 <div class="btn-group-card">
@@ -277,9 +287,16 @@
             <div class="box-info-white">Scan Operations</div>
             
             <div class="grid-centered">
-                @foreach(['LinkedIn'=>'58','Instagram'=>'42','Facebook'=>'31','WhatsApp'=>'24','Telegram'=>'15','System Mail'=>'08'] as $n => $v)
-                    <div class="mini-card">
-                        <span class="text-white fw-black text-2xl" style="line-height:1">{{ $v }}</span>
+                @foreach([
+                    'LinkedIn' => ['total'=>'58', 'h'=>'12', 'i'=>'4', 'c'=>'sky'],
+                    'Instagram' => ['total'=>'42', 'h'=>'8', 'i'=>'2', 'c'=>'amber'],
+                    'Facebook' => ['total'=>'31', 'h'=>'5', 'i'=>'1', 'c'=>'primary'],
+                    'WhatsApp' => ['total'=>'24', 'h'=>'15', 'i'=>'9', 'c'=>'emerald'],
+                    'Telegram' => ['total'=>'15', 'h'=>'3', 'i'=>'0', 'c'=>'info'],
+                    'System Mail' => ['total'=>'08', 'h'=>'1', 'i'=>'0', 'c'=>'secondary']
+                ] as $n => $d)
+                    <div class="mini-card" onclick="openAgentReport('{{ $n }}', {{ $d['total'] }}, {{ $d['h'] }}, {{ $d['i'] }}, '{{ $d['c'] }}')">
+                        <span class="text-white fw-black text-2xl" style="line-height:1">{{ $d['total'] }}</span>
                         <span class="text-[0.45rem] text-zinc-600 fw-black uppercase mt-1">{{ $n }}</span>
                     </div>
                 @endforeach
@@ -288,7 +305,35 @@
             <div class="box-info-white">Protocolo Maestro Agent</div>
         </div>
     </div>
+</div>
 
+{{-- MODAL REPORTE AGENTE --}}
+<div id="agent-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:60000; align-items:center; justify-content:center; backdrop-filter:blur(15px);">
+    <div style="width:500px; background:#0c0c0e; border:2px solid #fff; border-radius:40px; padding:3rem; box-shadow:0 0 80px rgba(255,255,255,0.05);">
+        <div class="text-center mb-5">
+            <div id="agent-icon" class="mb-3 fs-1 text-sky-400"><i class="bi bi-robot"></i></div>
+            <h3 id="agent-name" class="text-white font-black uppercase tracking-widest">LinkedIn Agent</h3>
+        </div>
+        
+        <div class="space-y-4">
+            <div class="flex justify-between border-b border-white/5 pb-2">
+                <span class="text-zinc-500 text-[0.7rem] font-bold uppercase">Perfiles Escaneados</span>
+                <span id="stat-scanned" class="text-white font-black">58</span>
+            </div>
+            <div class="flex justify-between border-b border-white/5 pb-2">
+                <span class="text-zinc-500 text-[0.7rem] font-bold uppercase">Intereses Detectados</span>
+                <span id="stat-hits" class="text-amber-500 font-black">12</span>
+            </div>
+            <div class="flex justify-between border-b border-white/5 pb-2">
+                <span class="text-zinc-500 text-[0.7rem] font-bold uppercase">Leads Generados</span>
+                <span id="stat-leads" class="text-emerald-500 font-black">4</span>
+            </div>
+        </div>
+        
+        <p class="text-[0.6rem] text-zinc-600 mt-6 text-center italic">>>> EL AGENTE ESTÁ TRABAJANDO EN SEGUNDO PLANO...</p>
+        
+        <button onclick="document.getElementById('agent-modal').style.display='none'" class="btn-sci-fi w-full py-4 mt-8 bg-white text-black border-0 fw-black text-[0.7rem]">ENTENDIDO</button>
+    </div>
 </div>
 
 {{-- MODAL IA --}}
@@ -311,6 +356,28 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
     function openIA(name) { document.getElementById('ia-target').innerText = name; document.getElementById('ia-modal').style.display='flex'; }
+    
+    function openAgentReport(name, total, hits, leads, color) {
+        document.getElementById('agent-name').innerText = name + ' Agent';
+        document.getElementById('stat-scanned').innerText = total;
+        document.getElementById('stat-hits').innerText = hits;
+        document.getElementById('stat-leads').innerText = leads;
+        document.getElementById('agent-icon').className = 'mb-3 fs-1 text-' + color;
+        document.getElementById('agent-modal').style.display = 'flex';
+    }
+
+    function forgetLead(userId) {
+        if(!confirm('¿Seguro quieres olvidar este lead? Se archivará fuera del panel principal.')) return;
+        fetch("{{ route('owner.crm.archive') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ user_id: userId }) })
+        .then(r => r.json()).then(d => { if(d.success) document.getElementById('card-' + userId).remove(); });
+    }
+
+    function deleteLead(userId) {
+        if(!confirm('¡CUIDADO! Esto borrará el usuario de forma DEFINITIVA. ¿Proceder?')) return;
+        fetch("{{ route('owner.crm.delete') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ user_id: userId }) })
+        .then(r => r.json()).then(d => { if(d.success) document.getElementById('card-' + userId).remove(); });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         ['col-prospecto', 'col-pendiente_pago', 'col-activo'].forEach(id => {
             const el = document.getElementById(id);
