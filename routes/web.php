@@ -114,6 +114,7 @@ Route::middleware(['auth', 'owner'])
 
         // CRM DE PROSPECTOS (NUEVO)
         Route::get('crm', [App\Http\Controllers\Owner\CRMController::class, 'index'])->name('crm.index');
+        Route::post('crm/agent-report', [App\Http\Controllers\Owner\CRMController::class, 'agentReport'])->name('crm.agent-report');
         Route::post('crm/{user}/activate', [App\Http\Controllers\Owner\CRMController::class, 'activate'])->name('crm.activate');
         Route::patch('crm/{user}/notes', [App\Http\Controllers\Owner\CRMController::class, 'updateNotes'])->name('crm.notes');
         Route::post('crm/move', [App\Http\Controllers\Owner\CRMController::class, 'move'])->name('crm.move');

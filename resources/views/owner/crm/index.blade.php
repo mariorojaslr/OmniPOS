@@ -293,16 +293,9 @@
             <div class="box-info-white">Scan Operations</div>
             
             <div class="grid-centered">
-                @foreach([
-                    'LinkedIn' => ['total'=>'58', 'h'=>'12', 'i'=>$counts['LinkedIn'] ?? 1, 'c'=>'sky'],
-                    'Instagram' => ['total'=>'42', 'h'=>'8', 'i'=>$counts['Instagram'] ?? 0, 'c'=>'amber'],
-                    'Facebook' => ['total'=>'31', 'h'=>'5', 'i'=>$counts['Facebook'] ?? 0, 'c'=>'primary'],
-                    'WhatsApp' => ['total'=>'24', 'h'=>'15', 'i'=>$counts['WhatsApp'] ?? 0, 'c'=>'emerald'],
-                    'Telegram' => ['total'=>'15', 'h'=>'3', 'i'=>$counts['Telegram'] ?? 0, 'c'=>'info'],
-                    'System Mail' => ['total'=>'08', 'h'=>'1', 'i'=>$counts['System Mail'] ?? 0, 'c'=>'secondary']
-                ] as $n => $d)
-                    <div class="mini-card" onclick="openAgentReport('{{ $n }}', {{ $d['total'] }}, {{ $d['h'] }}, {{ $d['i'] }}, '{{ $d['c'] }}')">
-                        <span class="text-white fw-black text-2xl" style="line-height:1">{{ $d['total'] }}</span>
+                @foreach($agent_data as $n => $d)
+                    <div class="mini-card" onclick="openAgentReport('{{ $n }}', {{ $d['scanned'] }}, {{ $d['hits'] }}, {{ $d['hunted'] }}, '{{ $d['color'] }}')">
+                        <span class="text-white fw-black text-2xl" style="line-height:1">{{ str_pad($d['scanned'], 2, '0', STR_PAD_LEFT) }}</span>
                         <span class="text-[0.45rem] text-zinc-600 fw-black uppercase mt-1">{{ $n }}</span>
                     </div>
                 @endforeach
@@ -368,28 +361,33 @@
 <script>
     function openIA(name) { document.getElementById('ia-target').innerText = name; document.getElementById('ia-modal').style.display='flex'; }
     
-    function openAgentReport(name, total, hits, leads, color) {
+    function openAgentReport(name, scanned, hits, leads, color) {
         document.getElementById('agent-name').innerText = name + ' Agent';
-        document.getElementById('stat-scanned').innerText = total;
+        document.getElementById('stat-scanned').innerText = scanned;
         document.getElementById('stat-hits').innerText = hits;
         document.getElementById('stat-leads').innerText = leads;
         document.getElementById('agent-icon').className = 'mb-3 fs-1 text-' + color;
-        
-        // Simulación de Bitácora Real
-        const logs = [
-            { t: '15:20', m: 'Escaneo profundo en sector Retail...' },
-            { t: '15:24', m: 'Detección de 3 perfiles con bajo stock detectado.' },
-            { t: '15:30', m: 'Enviado mensaje a @marta_g: "Optimizá tu POS hoy".' },
-            { t: '15:45', m: 'Respuesta recibida: "¿Hacen factura electrónica?".' }
-        ];
-        
-        let logHtml = '';
-        logs.forEach(l => {
-            logHtml += `<div class="mb-2"><span class="text-zinc-600">[${l.t}]</span> <span class="text-${color}-500">>>></span> <span class="text-zinc-300">${l.m}</span></div>`;
-        });
-        
-        document.getElementById('agent-logs').innerHTML = logHtml;
+        document.getElementById('agent-logs').innerHTML = '<div class="text-zinc-500 animate-pulse">Sincronizando con base de datos...</div>';
         document.getElementById('agent-modal').style.display = 'flex';
+        
+        // Fetch Bitácora Real via AJAX
+        fetch("{{ route('owner.crm.agent-report') }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            body: JSON.stringify({ channel: name })
+        })
+        .then(r => r.json())
+        .then(logs => {
+            let logHtml = '';
+            if(logs.length === 0) {
+                logHtml = '<div class="text-zinc-600 italic">No hay actividad reciente registrada en este canal.</div>';
+            } else {
+                logs.forEach(l => {
+                    logHtml += `<div class="mb-2"><span class="text-zinc-600">[${l.t}]</span> <span class="text-${color}-500">>>></span> <span class="text-zinc-300 font-bold">${l.m}</span></div>`;
+                });
+            }
+            document.getElementById('agent-logs').innerHTML = logHtml;
+        });
     }
 
     function forgetLead(userId) {
