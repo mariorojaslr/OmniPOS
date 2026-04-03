@@ -5,14 +5,15 @@
     :root {
         --oled-bg: #000;
         --card-bg: #0c0c0e;
-        --border-color: rgba(255, 255, 255, 1);
+        --border-color: rgba(255, 255, 255, 0.1);
         --accent-sky: #38bdf8;
+        --accent-amber: #f59e0b;
+        --accent-emerald: #10b981;
         --stellar-blue: rgba(30, 58, 138, 0.7);
     }
 
     body { background-color: var(--oled-bg) !important; color: #fff; overflow-x: hidden; }
 
-    /* CABECERA BALACEADA - 15% DE MARGEN */
     .header-hub {
         padding: 4rem 15% 2rem 15%; 
         display: flex;
@@ -42,7 +43,7 @@
         border-radius: 14px;
         border-left: 6px solid var(--accent-sky);
         margin-bottom: 3rem;
-        height: 60px; /* SIMETRIA TOTAL HORIZONTAL */
+        height: 60px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -50,52 +51,99 @@
 
     .header-title { font-size: 0.85rem; font-weight: 950; letter-spacing: 0.3em; text-transform: uppercase; }
 
-    /* TARJETAS SIMÉTRICAS - LEY DE HIERRO 130PX */
+    /* TARJETAS SIMÉTRICAS ELITE 130PX */
     .kanban-card {
         background: var(--card-bg);
-        border: 1px solid var(--border-color); 
+        border: 1px solid rgba(255,255,255,0.6); 
         border-radius: 18px;
         padding: 1.2rem;
         margin-bottom: 20px; 
         height: 130px; 
-        width: 100%;
         position: relative;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        transition: transform 0.3s, border-color 0.3s;
+        cursor: grab;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .card-name { font-size: 0.95rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+    .kanban-card:hover {
+        border-color: var(--accent-sky);
+        box-shadow: 0 15px 40px -10px rgba(56, 189, 248, 0.4);
+        transform: translateY(-5px);
+    }
+
+    /* CONTROLES SUPERIORES (GRIP + TRASH) */
+    .card-controls {
+        position: absolute;
+        right: 12px;
+        top: 8px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+    .card-handle { color: rgba(255,255,255,0.1); font-size: 1.1rem; }
+    .kanban-card:hover .card-handle { color: var(--accent-sky); }
+    
+    .btn-trash { 
+        color: rgba(239, 68, 68, 0.2); 
+        background: transparent; 
+        border: 0; 
+        padding: 0; 
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+    .kanban-card:hover .btn-trash { color: rgba(239, 68, 68, 0.6); }
+    .btn-trash:hover { color: #ef4444 !important; }
+
+    .card-name { font-size: 0.9rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; padding-right: 40px; }
     .card-subtext { font-size: 0.7rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
-    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-    .btn-card { 
+    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-sci-fi { 
         background: rgba(255,255,255,0.03); 
         border: 1px solid rgba(255,255,255,0.1); 
         color: var(--accent-sky); 
-        padding: 8px 0; 
-        border-radius: 12px; 
-        font-size: 0.65rem; 
+        padding: 7px 0; 
+        border-radius: 10px; 
+        font-size: 0.55rem; 
         font-weight: 950; 
         text-align: center; 
         text-decoration: none;
         text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: 0.2s;
     }
-    .btn-card:hover:not(.disabled) { background: var(--accent-sky); color: #000; }
-    .btn-card.disabled { opacity: 0.1; }
+    .btn-sci-fi:hover:not(.disabled) { background: var(--accent-sky); color: #000; border-color: var(--accent-sky); }
+    .btn-sci-fi.disabled { opacity: 0.1; cursor: not-allowed; }
 
-    /* OVERLAY CUSTOM MASTER (EL LABEL) */
+    .status-label {
+        font-size: 0.5rem;
+        font-weight: 900;
+        color: var(--accent-sky);
+        letter-spacing: 1.5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding-top: 6px;
+        text-transform: uppercase;
+    }
+
+    /* OVERLAY CUSTOM OLED */
     #ia-overlay {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
         width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9);
+        background: rgba(0,0,0,0.92);
         z-index: 10000;
         display: none; 
         align-items: center;
         justify-content: center;
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(8px);
     }
 
     .report-card {
@@ -104,16 +152,16 @@
         border: 2px solid var(--accent-sky);
         border-radius: 32px;
         padding: 3rem;
-        box-shadow: 0 0 150px rgba(56, 189, 248, 0.2);
+        box-shadow: 0 0 150px rgba(56, 189, 248, 0.25);
         animation: springIn 0.4s cubic-bezier(0.19, 1.2, 0.22, 1);
     }
 
     @keyframes springIn {
-        from { transform: scale(0.8) translateY(20px); opacity: 0; }
+        from { transform: scale(0.9) translateY(30px); opacity: 0; }
         to { transform: scale(1) translateY(0); opacity: 1; }
     }
 
-    .active-spotlight { border-color: var(--accent-sky) !important; box-shadow: 0 0 60px rgba(56, 189, 248, 0.3) !important; }
+    .active-spotlight { border-color: var(--accent-sky) !important; box-shadow: 0 0 80px rgba(56, 189, 248, 0.5) !important; z-index: 100 !important; }
 </style>
 
 <div class="header-hub">
@@ -124,9 +172,9 @@
     </div>
 </div>
 
-<div class="crm-container custom-scrollbar" id="crmContainer">
+<div class="crm-container custom-scrollbar px-12" id="crmContainer">
     
-    <!-- FASE 01 -->
+    <!-- PHASE 01 -->
     <div class="kanban-col">
         <div class="col-header">
             <span class="header-title">Fase 01 | Leads</span>
@@ -135,13 +183,25 @@
         <div id="col-prospecto" class="kanban-list" data-status="prospecto">
             @foreach($prospectos as $pro)
             <div class="kanban-card" data-id="{{ $pro->id }}" id="card-{{ $pro->id }}">
+                <div class="card-controls">
+                    <button type="button" class="btn-trash" onclick="deleteLead('{{ $pro->id }}')"><i class="bi bi-trash3-fill"></i></button>
+                    <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
+                </div>
                 <div>
                     <div class="card-name">{{ $pro->name }}</div>
                     <div class="card-subtext">{{ $pro->lead_source ?? 'Landing Directo' }}</div>
                 </div>
                 <div class="btn-group-card">
-                    <button type="button" class="btn-card" onclick="openReport('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'META ADS' }}')">IA DATA</button>
-                    <button type="button" class="btn-card disabled">MAIL</button>
+                    <button type="button" class="btn-sci-fi" onclick="openReport('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'INSTAGRAM' }}')">
+                        <i class="bi bi-robot"></i> IA DATA
+                    </button>
+                    <button type="button" class="btn-sci-fi disabled">
+                        <i class="bi bi-envelope"></i> MAIL
+                    </button>
+                </div>
+                <div class="status-label">
+                    <span>PROSPECTO OK</span>
+                    <i class="bi bi-person-plus-fill"></i>
                 </div>
             </div>
             @endforeach
@@ -149,7 +209,7 @@
         <div class="mt-4">{{ $prospectos->links() }}</div>
     </div>
 
-    <!-- FASE 02 -->
+    <!-- PHASE 02 -->
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-amber)">
             <span class="header-title text-amber-500">Fase 02 | Validar</span>
@@ -157,27 +217,38 @@
         <div id="col-pendiente_pago" class="kanban-list" data-status="pendiente_pago">
             @foreach($pendientes as $pen)
             <div class="kanban-card" data-id="{{ $pen->id }}" id="card-{{ $pen->id }}">
+                <div class="card-controls">
+                    <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
+                </div>
                 <div>
                     <div class="card-name">{{ $pen->name }}</div>
-                    <div class="card-subtext text-amber-500/30">PAGO EN CURSO</div>
+                    <div class="card-subtext text-amber-500/30">Validación Pago</div>
                 </div>
                 <div class="btn-group-card">
                     @if($pen->payment_voucher)
-                        <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-card" style="color:var(--accent-amber)">VOUCHER</a>
+                        <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-sci-fi" style="color:var(--accent-amber)">
+                           <i class="bi bi-file-earmark-pdf"></i> DOC
+                        </a>
                     @else
-                        <span class="btn-card disabled">SIN DOC</span>
+                        <span class="btn-sci-fi disabled"><i class="bi bi-x-circle"></i> NO DOC</span>
                     @endif
                     <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="m-0 p-0 d-grid">
                         @csrf
-                        <button type="submit" class="btn-card" style="color:var(--accent-amber);border-color:rgba(245,158,11,0.2);">ACTIVAR</button>
+                        <button type="submit" class="btn-sci-fi" style="color:var(--accent-amber);border-color:rgba(245,158,11,0.2);">
+                            <i class="bi bi-lightning-charge-fill"></i> ACT
+                        </button>
                     </form>
+                </div>
+                <div class="status-label" style="color: var(--accent-amber)">
+                    <span>VALIDAR PAGO</span>
+                    <i class="bi bi-lightning-fill"></i>
                 </div>
             </div>
             @endforeach
         </div>
     </div>
 
-    <!-- FASE 03 -->
+    <!-- PHASE 03 -->
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-emerald)">
             <span class="header-title text-emerald-500">Fase 03 | Activos</span>
@@ -185,13 +256,24 @@
         <div id="col-activo" class="kanban-list" data-status="activo">
             @foreach($activos as $act)
             <div class="kanban-card" data-id="{{ $act->id }}" id="card-{{ $act->id }}">
+                <div class="card-controls">
+                    <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
+                </div>
                 <div>
                     <div class="card-name text-zinc-300">{{ $act->name }}</div>
-                    <div class="card-subtext truncate">{{ $act->empresa?->nombre_comercial ?? 'SaaS Activo OK' }}</div>
+                    <div class="card-subtext truncate">{{ $act->empresa?->nombre_comercial ?? 'Setup OK' }}</div>
                 </div>
                 <div class="btn-group-card">
-                    <button class="btn-card" style="color:var(--accent-emerald);border-color:rgba(16,185,129,0.2);">PANEL</button>
-                    <button class="btn-card disabled">STATS</button>
+                    <button class="btn-sci-fi" style="color:var(--accent-emerald);border-color:rgba(16,185,129,0.2);">
+                        <i class="bi bi-gear-fill"></i> PANEL
+                    </button>
+                    <button class="btn-sci-fi disabled" style="color:var(--accent-emerald);border-color:rgba(16,185,129,0.2);">
+                        <i class="bi bi-bar-chart-fill"></i> STATS
+                    </button>
+                </div>
+                <div class="status-label" style="color: var(--accent-emerald)">
+                    <span>SAAS ACTIVO</span>
+                    <i class="bi bi-shield-check-fill"></i>
                 </div>
             </div>
             @endforeach
@@ -200,7 +282,7 @@
 
 </div>
 
-{{-- MODAL CUSTOM OLED INDEPENDIENTE --}}
+{{-- OVERLAY IA MASTER --}}
 <div id="ia-overlay">
     <div class="report-card">
         <div class="flex justify-between items-center mb-10">
@@ -215,12 +297,12 @@
             
             <div class="bg-black/30 p-8 rounded-3xl border border-white/5 shadow-inner mb-10">
                 <div class="mb-4"><span class="text-zinc-600">CANAL:</span> <span id="report-source" class="text-emerald-400"></span></div>
-                <div class="text-zinc-400 leading-relaxed">
-                    "El Agente Social Live ha detectado una alta probabilidad de conversión. El perfil busca una solución robusta pero amigable para la gestión de su negocio multi-sede."
+                <div class="text-zinc-400 leading-relaxed text-[0.75rem]">
+                    "El Agente Social Live ha detectado intención de compra inmediata basada en historial de búsqueda POS."
                 </div>
             </div>
 
-            <button onclick="closeReport()" class="btn-card w-full py-4 bg-sky-500 text-black border-0 fw-black text-[0.8rem] shadow-xl shadow-sky-500/10">
+            <button onclick="closeReport()" class="btn-sci-fi w-full py-4 bg-sky-500 text-black border-0 fw-black text-[0.8rem] shadow-xl shadow-sky-500/10">
                 VOLVER A LA CONSOLA
             </button>
         </div>
@@ -232,11 +314,12 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
-    let currentActiveId = null;
+    let currentId = null;
 
     function openReport(id, name, source) {
-        currentActiveId = id;
-        document.getElementById('card-'+id).classList.add('active-spotlight');
+        currentId = id;
+        const card = document.getElementById('card-'+id);
+        if(card) card.classList.add('active-spotlight');
         document.getElementById('report-name').innerText = name;
         document.getElementById('report-source').innerText = source;
         document.getElementById('ia-overlay').style.display = 'flex';
@@ -245,10 +328,19 @@
 
     function closeReport() {
         document.getElementById('ia-overlay').style.display = 'none';
-        if(currentActiveId) {
-            document.getElementById('card-'+currentActiveId).classList.remove('active-spotlight');
+        if(currentId) {
+            const card = document.getElementById('card-'+currentId);
+            if(card) card.classList.remove('active-spotlight');
         }
         document.body.style.overflow = 'auto';
+    }
+
+    function deleteLead(id) {
+        if(confirm('¿Seguro que quieres eliminar este lead?')) {
+            document.getElementById('card-'+id).style.opacity = '0.3';
+            // Aquí iría el fetch para borrar en DB si fuera necesario
+            document.getElementById('card-'+id).remove();
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -257,13 +349,15 @@
             if(el) {
                 new Sortable(el, {
                     group: 'kanban',
-                    handle: '.kanban-card',
+                    handle: '.card-handle',
                     animation: 250,
                     onEnd: function(evt) {
+                        const uid = evt.item.getAttribute('data-id');
+                        const status = evt.to.getAttribute('data-status');
                         fetch("{{ route('owner.crm.move') }}", {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: JSON.stringify({ user_id: evt.item.getAttribute('data-id'), status: evt.to.getAttribute('data-status') })
+                            body: JSON.stringify({ user_id: uid, status: status })
                         });
                     }
                 });
