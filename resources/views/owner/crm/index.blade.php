@@ -5,84 +5,75 @@
     :root {
         --oled-bg: #000;
         --card-bg: #0c0c0e;
-        --border-color: rgba(255, 255, 255, 0.15);
         --accent-sky: #38bdf8;
         --accent-amber: #f59e0b;
         --accent-emerald: #10b981;
-        --stellar-blue: rgba(30, 58, 138, 0.7);
-        --glow-blue: rgba(30, 58, 138, 0.9);
+        --stellar-blue: #1e3a8a;
     }
 
     body { background-color: var(--oled-bg) !important; color: #fff; overflow-x: hidden; }
 
     .header-hub {
-        padding: 4rem 4% 2rem 4%; 
+        padding: 3rem 4% 1.5rem 4%; 
         display: flex;
         align-items: center;
-        gap: 5rem;
+        gap: 4rem;
     }
 
     .crm-container {
         display: flex;
         width: 100vw;
-        padding: 0 4%; 
+        padding: 0 3%; 
         gap: 0;
-        height: 75vh;
+        height: 78vh;
         overflow-x: auto;
     }
 
     .kanban-col {
-        width: 340px;
+        width: 320px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
-        padding: 0 1.5rem;
-        border-right: 1px dashed rgba(255,255,255,0.08); /* DIVISOR FINO */
+        padding: 0 1.2rem;
+        border-right: 1px dashed rgba(255,255,255,0.08); /* DIVISORES DE LA IMAGEN */
     }
 
     .col-header {
-        background: linear-gradient(90deg, #1e3a8a 0%, transparent 100%);
-        padding: 1rem 1.75rem;
+        background: linear-gradient(90deg, var(--stellar-blue) 0%, transparent 100%);
+        padding: 0.8rem 1.5rem;
         border-radius: 12px;
         margin-bottom: 3.5rem;
-        height: 60px;
+        height: 55px;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-    .header-title { font-size: 0.85rem; font-weight: 950; letter-spacing: 0.3em; text-transform: uppercase; }
+    .header-title { font-size: 0.75rem; font-weight: 950; letter-spacing: 0.35em; text-transform: uppercase; white-space: nowrap; }
 
-    /* TARJETA ELITE RESTAURADA 130PX + FONDO ESTELAR */
+    /* TARJETA ELITE SIMÉTRICA 130PX CON POST-IT */
     .kanban-card {
         background: var(--card-bg);
         border: 1px solid #ffffff; /* LÍNEA BLANCA 1PX */
         border-radius: 14px;
-        padding: 1.2rem 1.2rem 0.8rem 2.2rem; 
+        padding: 1.2rem 1.2rem 1.2rem 2.2rem; /* EQUIDISTANTE */
         margin-bottom: 22px; 
-        height: 135px; /* PROPORCIÓN PERFECTA */
+        height: 135px; 
         position: relative;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center; 
+        gap: 0.6rem;
         cursor: grab;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .kanban-card:hover {
         border-color: var(--accent-sky);
-        box-shadow: 0 0 45px -5px var(--glow-blue); /* SOMBRA AZUL PROFUNDO ESTELAR */
+        box-shadow: 0 0 50px -10px var(--stellar-blue); /* SOMBRA AZUL ESTELAR */
         transform: translateY(-5px);
-        background: #0e0e0f;
-        animation: cardBlink 1.5s infinite alternate; /* BLINKING */
     }
 
-    @keyframes cardBlink {
-        from { border-color: #fff; }
-        to { border-color: var(--accent-sky); }
-    }
-
-    /* POST-IT MAESTRO */
     .post-it {
         position: absolute;
         left: 0;
@@ -98,72 +89,75 @@
     .p-emerald { background: var(--accent-emerald); }
 
     .card-controls { position: absolute; right: 12px; top: 10px; display: flex; gap: 12px; opacity: 0.2; }
-    .kanban-card:hover .card-controls { opacity: 1; }
+    .kanban-card:hover .card-controls { opacity: 0.9; }
 
-    /* TEXTO DELICADO Y PROBADO */
-    .card-name { font-size: 0.9rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
-    .card-subtext { font-size: 0.65rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    .card-name { font-size: 0.85rem; font-weight: 950; text-transform: uppercase; color: #fff; line-height: 1.2; }
+    .card-subtext { font-size: 0.6rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
-    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 5px; }
+    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
     .btn-sci-fi { 
         background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); color: var(--accent-sky); 
-        padding: 6px 0; border-radius: 8px; font-size: 0.55rem; font-weight: 950; text-align: center; text-transform: uppercase;
-        display: flex; align-items: center; justify-content: center; gap: 5px;
+        padding: 5px 0; border-radius: 8px; font-size: 0.5rem; font-weight: 950; text-align: center; text-transform: uppercase;
     }
+    .btn-sci-fi:hover { background: var(--accent-sky); color: #000; }
 
-    /* FOOTER STATUS INSIDE */
-    .status-inside {
-        border-top: 1px solid rgba(255,255,255,0.05);
-        margin-top: 8px;
+    .status-line {
+        border-top: 1px solid rgba(255,255,255,0.08);
         padding-top: 6px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.55rem;
+        font-size: 0.52rem;
         font-weight: 950;
         letter-spacing: 1px;
     }
 
-    /* SIDEBAR SCANNER - ALINEACIÓN TOTAL */
+    /* SCANNER HUB BOX BLANCO CENTRADO */
     .scanner-hub-box {
         flex: 1;
         display: flex;
         justify-content: center;
         padding-top: 4rem;
-        min-width: 420px;
+        min-width: 440px;
     }
     .scanner-card {
-        width: 380px;
+        width: 400px;
         background: #000;
-        border: 2px solid rgba(56, 189, 248, 0.4);
+        border: 2px solid #ffffff; /* MARCO BLANCO TOTAL */
         border-radius: 40px;
         padding: 3rem;
-        box-shadow: 0 0 80px rgba(30, 58, 138, 0.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 0 100px rgba(30, 58, 138, 0.2);
     }
-    .scanner-divider { border-top: 3px solid var(--accent-sky); margin: 2rem 0; box-shadow: 0 0 15px var(--accent-sky); }
+    .scanner-divider { width: 100%; border-top: 4px solid var(--accent-sky); margin: 2rem 0; box-shadow: 0 0 15px var(--accent-sky); }
     
-    .grid-equidistant {
+    .grid-centered {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
-        justify-items: center; /* CENTRADO QUIRÚRGICO */
+        width: 100%;
+        justify-items: center;
     }
     .mini-card {
         width: 100%;
         background: rgba(255,255,255,0.02);
-        border: 1px solid rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.1);
         border-radius: 20px;
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
         align-items: center;
-        transition: 0.2s;
+        justify-content: center;
+        transition: 0.25s;
     }
-    .mini-card:hover { border-color: var(--accent-sky); }
+    .mini-card:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
+
 </style>
 
 <div class="header-hub">
-    <h1 class="text-white text-3xl font-black uppercase tracking-[0.6em]">Command Hub</h1>
+    <h1 class="text-white text-3xl font-black uppercase tracking-[0.5em]">Command Hub</h1>
     <div class="h-px bg-zinc-800 flex-1 opacity-10"></div>
     <div class="flex items-center gap-6 text-sky-400 font-black text-xs uppercase tracking-[0.25em] animate-pulse">
         <i class="bi bi-robot fs-2"></i> AGENTE SOCIAL LIVE
@@ -182,11 +176,11 @@
             @foreach($col['data'] as $u)
             <div class="kanban-card" data-id="{{ $u->id }}" id="card-{{ $u->id }}">
                 <div class="post-it p-{{ $col['c'] }}"></div>
-                <div class="card-controls"><div class="card-handle fs-4 text-white/10"><i class="bi bi-grip-vertical"></i></div></div>
+                <div class="card-controls"><div class="card-handle fs-3 text-sky-400/20"><i class="bi bi-grip-vertical"></i></div></div>
                 
-                <div>
+                <div class="flex flex-col gap-0.5">
                     <div class="card-name">{{ $u->name }}</div>
-                    <div class="card-subtext">{{ ($col['st'] == 'activo') ? ($u->empresa?->nombre_comercial ?? 'GRAFILAR - MCR') : ($u->lead_source ?? 'ORGANIC') }}</div>
+                    <div class="card-subtext">{{ ($col['st'] == 'activo') ? ($u->empresa?->nombre_comercial ?? 'Setup OK') : ($u->lead_source ?? 'LinkedIn') }}</div>
                 </div>
 
                 <div class="btn-group-card">
@@ -202,32 +196,33 @@
                     @endif
                 </div>
 
-                <div class="status-inside" style="color: var(--accent-{{ $col['c'] }})">
+                <div class="status-line" style="color: var(--accent-{{ $col['c'] }})">
                     <span>{{ $col['tag'] }}</span>
                     <i class="bi {{ $col['ic'] }}"></i>
                 </div>
             </div>
             @endforeach
         </div>
+        <div class="mt-4">{{ $col['data']->links() }}</div>
     </div>
     @endforeach
 
     <div class="scanner-hub-box">
         <div class="scanner-card">
-            <div class="text-[0.8rem] font-black tracking-widest text-sky-400 uppercase flex justify-between border-b border-white/5 pb-5">
+            <div class="text-[0.75rem] font-black tracking-widest text-sky-400 uppercase flex justify-between w-full border-b border-white/5 pb-4">
                 <span>Scan Operations</span>
                 <div style="width:12px; height:12px;" class="bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_#10b981]"></div>
             </div>
             <div class="scanner-divider"></div>
-            <div class="grid-equidistant">
-                @foreach(['LinkedIn'=>'58','Instagram'=>'42','Facebook'=>'31','WhatsApp'=>'24','Telegram'=>'15'] as $name => $val)
+            <div class="grid-centered">
+                @foreach(['LinkedIn'=>'58','Instagram'=>'42','Facebook'=>'31','WhatsApp'=>'24','Telegram'=>'15'] as $n => $v)
                     <div class="mini-card">
-                        <span class="text-white fw-black text-2xl">{{ $val }}</span>
-                        <span class="text-[0.55rem] text-zinc-500 fw-black uppercase">{{ $name }}</span>
+                        <span class="text-white fw-black text-2xl">{{ $v }}</span>
+                        <span class="text-[0.55rem] text-zinc-500 fw-black uppercase">{{ $n }}</span>
                     </div>
                 @endforeach
             </div>
-            <button class="w-full bg-zinc-950 border-2 border-sky-500/20 text-sky-400 text-[0.75rem] font-black uppercase py-5 rounded-3xl mt-12 hover:bg-sky-500 hover:text-black transition-all">Protocolo Maestro Agent</button>
+            <button class="w-full bg-zinc-950 border-2 border-white/20 text-white text-[0.7rem] font-black uppercase py-6 rounded-[35px] mt-12 hover:bg-white hover:text-black transition-all">Protocolo Maestro Agent</button>
         </div>
     </div>
 
