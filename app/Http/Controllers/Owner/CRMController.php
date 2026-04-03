@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\CrmActivity;
+use App\Services\LeadScannerService;
 use Illuminate\Http\Request;
 
 class CRMController extends Controller
@@ -78,14 +79,20 @@ class CRMController extends Controller
     public function agentReport(Request $request)
     {
         $channel = $request->channel;
-        $logs = CrmActivity::where('channel', $channel)
-            ->latest()
-            ->limit(10)
+        
+        $query = CrmActivity::query();
+        
+        if (!empty($channel)) {
+            $query->where('channel', $channel);
+        }
+        
+        $logs = $query->latest()
+            ->limit(20)
             ->get()
             ->map(function($act) {
                 return [
-                    't' => $act->created_at->format('H:i'),
-                    'm' => "Target: {$act->target_name} ({$act->target_origin}) - " . ($act->details ?? 'Sin detalles')
+                    't' => $act->created_at->format('d/m H:i'),
+                    'm' => "[{$act->channel}] Target: {$act->target_name} ({$act->target_origin}) - " . ($act->details ?? 'Sin detalles')
                 ];
             });
 
@@ -217,6 +224,52 @@ class CRMController extends Controller
             'target_origin' => $origin,
             'details'       => $details,
             'status'        => $status
+        ]);
+    }
+
+    /**
+     * ESCANEO REAL: Dispara el agente de búsqueda para un canal específico.
+     * Usa DuckDuckGo (gratis) para encontrar negocios que podrían necesitar POS.
+     */
+    public function scanChannel(Request $request)
+    {
+        $channel = $request->channel;
+        
+        if (!$channel) {
+            return response()->json(['error' => 'Canal no especificado'], 400);
+        }
+
+        $scanner = new LeadScannerService();
+        $result = $scanner->scan($channel);
+
+        return response()->json([
+            'success'    => true,
+            'channel'    => $channel,
+            'found'      => $result['found'],
+            'stored'     => $result['stored'],
+            'duplicates' => $result['duplicates'],
+            'errors'     => $result['errors'],
+            'message'    => "Agente {$channel}: {$result['stored']} nuevos leads encontrados de {$result['found']} resultados."
+        ]);
+    }
+
+    /**
+     * ESCANEO TOTAL: Dispara todos los agentes a la vez.
+     */
+    public function scanAll()
+    {
+        $scanner = new LeadScannerService();
+        $summary = $scanner->scanAll();
+
+        $totalStored = 0;
+        foreach ($summary as $ch => $data) {
+            $totalStored += $data['stored'];
+        }
+
+        return response()->json([
+            'success' => true,
+            'summary' => $summary,
+            'message' => "Misión completa: {$totalStored} leads nuevos en total."
         ]);
     }
 }

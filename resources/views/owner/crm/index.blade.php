@@ -290,33 +290,39 @@
 
     <div class="scanner-hub-box">
         <div class="scanner-card">
-            <div class="box-info-white">Scan Operations</div>
+            <div class="box-info-white" onclick="scanAllChannels()" style="cursor:pointer; transition:0.3s;" onmouseover="this.style.background='rgba(56,189,248,0.15)'; this.style.borderColor='var(--accent-sky)'" onmouseout="this.style.background=''; this.style.borderColor='#fff'">
+                <i class="bi bi-radar" id="scan-icon"></i> Scan Operations
+            </div>
             
             <div class="grid-centered">
                 @foreach($agent_data as $n => $d)
-                    <div class="mini-card" onclick="openAgentReport('{{ $n }}', {{ $d['scanned'] }}, {{ $d['hits'] }}, {{ $d['hunted'] }}, '{{ $d['color'] }}')">
-                        <span class="text-white fw-black text-2xl" style="line-height:1">{{ str_pad($d['scanned'], 2, '0', STR_PAD_LEFT) }}</span>
+                    <div class="mini-card" onclick="scanSingleChannel('{{ $n }}', this)" title="Clic para escanear {{ $n }}">
+                        <span class="text-white fw-black text-2xl" style="line-height:1" id="counter-{{ Str::slug($n) }}">{{ str_pad($d['scanned'], 2, '0', STR_PAD_LEFT) }}</span>
                         <span class="text-[0.45rem] text-zinc-600 fw-black uppercase mt-1">{{ $n }}</span>
+                        <div class="mt-1" id="status-{{ Str::slug($n) }}" style="font-size:0.4rem; color: var(--accent-emerald); letter-spacing:1px; font-weight:900; opacity:0;">LISTO</div>
                     </div>
                 @endforeach
             </div>
 
-            <div class="box-info-white">Protocolo Maestro Agent</div>
+            <div class="box-info-white" onclick="openFullReport()" style="cursor:pointer; transition:0.3s;" onmouseover="this.style.background='rgba(56,189,248,0.15)'; this.style.borderColor='var(--accent-sky)'" onmouseout="this.style.background=''; this.style.borderColor='#fff'">
+                Protocolo Maestro Agent
+            </div>
         </div>
     </div>
 </div>
 
 {{-- MODAL REPORTE AGENTE --}}
 <div id="agent-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:60000; align-items:center; justify-content:center; backdrop-filter:blur(15px);">
-    <div style="width:650px; background:#0c0c0e; border:2px solid #fff; border-radius:40px; padding:3rem; box-shadow:0 0 80px rgba(255,255,255,0.05);">
+    <div style="width:700px; max-width:95vw; max-height:90vh; overflow-y:auto; background:#0c0c0e; border:2px solid #fff; border-radius:40px; padding:3rem; box-shadow:0 0 80px rgba(255,255,255,0.05);">
         <div class="text-center mb-5">
             <div id="agent-icon" class="mb-3 fs-1 text-sky-400"><i class="bi bi-robot"></i></div>
             <h3 id="agent-name" class="text-white font-black uppercase tracking-widest">LinkedIn Agent</h3>
+            <small id="agent-status" class="text-zinc-500">Esperando instrucción...</small>
         </div>
         
         <div class="bg-zinc-900/40 p-4 rounded-2xl mb-6">
-            <h5 class="text-[0.65rem] font-black uppercase tracking-widest text-zinc-500 mb-3 border-b border-white/5 pb-2">Bitácora de Conversación en Vivo</h5>
-            <div id="agent-logs" class="space-y-3 font-mono text-[0.75rem]" style="max-height: 250px; overflow-y: auto;">
+            <h5 class="text-[0.65rem] font-black uppercase tracking-widest text-zinc-500 mb-3 border-b border-white/5 pb-2">Bitácora de Operaciones en Vivo</h5>
+            <div id="agent-logs" class="space-y-3 font-mono text-[0.75rem]" style="max-height: 350px; overflow-y: auto;">
                 {{-- Inyectado por JS --}}
             </div>
         </div>
@@ -324,15 +330,15 @@
         <div class="grid grid-cols-3 gap-4">
             <div class="text-center">
                 <span class="block text-zinc-500 text-[0.6rem] font-bold uppercase">Escaneos</span>
-                <span id="stat-scanned" class="text-white font-black fs-5">58</span>
+                <span id="stat-scanned" class="text-white font-black fs-5">0</span>
             </div>
             <div class="text-center border-x border-white/5">
                 <span class="block text-zinc-500 text-[0.6rem] font-bold uppercase">Intereses</span>
-                <span id="stat-hits" class="text-amber-500 font-black fs-5">12</span>
+                <span id="stat-hits" class="text-amber-500 font-black fs-5">0</span>
             </div>
             <div class="text-center">
-                <span class="block text-zinc-500 text-[0.6rem] font-bold uppercase">Hunted</span>
-                <span id="stat-leads" class="text-emerald-500 font-black fs-5">4</span>
+                <span class="block text-zinc-500 text-[0.6rem] font-bold uppercase">Con Email</span>
+                <span id="stat-leads" class="text-emerald-500 font-black fs-5">0</span>
             </div>
         </div>
         
@@ -359,31 +365,179 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
+    const csrfToken = '{{ csrf_token() }}';
+    const scanChannelUrl = "{{ route('owner.crm.scan-channel') }}";
+    const scanAllUrl = "{{ route('owner.crm.scan-all') }}";
+    const agentReportUrl = "{{ route('owner.crm.agent-report') }}";
+
     function openIA(name) { document.getElementById('ia-target').innerText = name; document.getElementById('ia-modal').style.display='flex'; }
     
-    function openAgentReport(name, scanned, hits, leads, color) {
-        document.getElementById('agent-name').innerText = name + ' Agent';
-        document.getElementById('stat-scanned').innerText = scanned;
-        document.getElementById('stat-hits').innerText = hits;
-        document.getElementById('stat-leads').innerText = leads;
-        document.getElementById('agent-icon').className = 'mb-3 fs-1 text-' + color;
-        document.getElementById('agent-logs').innerHTML = '<div class="text-zinc-500 animate-pulse">Sincronizando con base de datos...</div>';
+    /**
+     * ESCANEAR UN CANAL INDIVIDUAL
+     */
+    function scanSingleChannel(channelName, element) {
+        // Abrir modal con estado "escaneando"
+        document.getElementById('agent-name').innerText = channelName + ' Agent';
+        document.getElementById('agent-status').innerText = '🔍 ESCANEANDO... Buscando prospectos reales...';
+        document.getElementById('agent-status').style.color = '#f59e0b';
+        document.getElementById('agent-logs').innerHTML = '<div class="text-amber-500 animate-pulse font-bold">>>> AGENTE ACTIVO: Conectando con DuckDuckGo...<br>>>> Buscando negocios que necesiten POS en Argentina...<br>>>> Esto puede tomar 15-30 segundos...</div>';
+        document.getElementById('stat-scanned').innerText = '...';
+        document.getElementById('stat-hits').innerText = '...';
+        document.getElementById('stat-leads').innerText = '...';
         document.getElementById('agent-modal').style.display = 'flex';
-        
-        // Fetch Bitácora Real via AJAX
-        fetch("{{ route('owner.crm.agent-report') }}", {
+
+        // Disparar escaneo real
+        fetch(scanChannelUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ channel: name })
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            body: JSON.stringify({ channel: channelName })
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('agent-status').innerText = '✅ MISIÓN COMPLETA';
+            document.getElementById('agent-status').style.color = '#10b981';
+            document.getElementById('stat-scanned').innerText = data.found || 0;
+            document.getElementById('stat-hits').innerText = data.stored || 0;
+            document.getElementById('stat-leads').innerText = data.duplicates || 0;
+
+            // Actualizar contador en la mini-card
+            let slug = channelName.toLowerCase().replace(/\s+/g, '-');
+            let counterEl = document.getElementById('counter-' + slug);
+            let statusEl = document.getElementById('status-' + slug);
+            if (counterEl) {
+                let current = parseInt(counterEl.innerText) || 0;
+                counterEl.innerText = String(current + (data.stored || 0)).padStart(2, '0');
+            }
+            if (statusEl) {
+                statusEl.style.opacity = '1';
+                statusEl.innerText = data.stored > 0 ? '+' + data.stored + ' NUEVOS' : 'SIN NUEVOS';
+                statusEl.style.color = data.stored > 0 ? 'var(--accent-emerald)' : 'var(--accent-amber)';
+            }
+
+            // Cargar bitácora real del canal
+            loadAgentLogs(channelName, data);
+        })
+        .catch(err => {
+            document.getElementById('agent-status').innerText = '❌ ERROR EN ESCANEO';
+            document.getElementById('agent-status').style.color = '#ef4444';
+            document.getElementById('agent-logs').innerHTML = '<div class="text-red-500">Error: ' + err.message + '</div>';
+        });
+    }
+
+    /**
+     * CARGAR BITÁCORA REAL (después del escaneo o al hacer clic)
+     */
+    function loadAgentLogs(channelName, scanData) {
+        fetch(agentReportUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            body: JSON.stringify({ channel: channelName })
         })
         .then(r => r.json())
         .then(logs => {
             let logHtml = '';
+            
+            // Primero mostrar resumen del escaneo
+            if (scanData) {
+                logHtml += '<div class="mb-3 p-3 rounded-xl" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2);">';
+                logHtml += '<div class="text-emerald-500 font-bold text-[0.7rem] mb-1">📊 RESULTADO DEL ESCANEO</div>';
+                logHtml += '<div class="text-zinc-300">' + (scanData.found || 0) + ' resultados encontrados, ' + (scanData.stored || 0) + ' nuevos almacenados, ' + (scanData.duplicates || 0) + ' duplicados filtrados.</div>';
+                if (scanData.errors && scanData.errors.length > 0) {
+                    logHtml += '<div class="text-amber-500 mt-1">⚠️ ' + scanData.errors.join(', ') + '</div>';
+                }
+                logHtml += '</div>';
+            }
+
             if(logs.length === 0) {
-                logHtml = '<div class="text-zinc-600 italic">No hay actividad reciente registrada en este canal.</div>';
+                logHtml += '<div class="text-zinc-600 italic">No hay actividad histórica en este canal.</div>';
             } else {
                 logs.forEach(l => {
-                    logHtml += `<div class="mb-2"><span class="text-zinc-600">[${l.t}]</span> <span class="text-${color}-500">>>></span> <span class="text-zinc-300 font-bold">${l.m}</span></div>`;
+                    logHtml += `<div class="mb-2 p-2 rounded" style="background:rgba(255,255,255,0.02)"><span class="text-zinc-600">[${l.t}]</span> <span class="text-sky-500">>>></span> <span class="text-zinc-300">${l.m}</span></div>`;
+                });
+            }
+            document.getElementById('agent-logs').innerHTML = logHtml;
+        });
+    }
+
+    /**
+     * ESCANEO TOTAL: Todos los canales a la vez
+     */
+    function scanAllChannels() {
+        let scanIcon = document.getElementById('scan-icon');
+        if (scanIcon) {
+            scanIcon.className = 'bi bi-radar';
+            scanIcon.style.animation = 'spin 1s linear infinite';
+        }
+
+        // Agregar animación CSS
+        if (!document.getElementById('scan-spin-style')) {
+            let style = document.createElement('style');
+            style.id = 'scan-spin-style';
+            style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+            document.head.appendChild(style);
+        }
+
+        fetch(scanAllUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (scanIcon) scanIcon.style.animation = '';
+            
+            // Actualizar todos los contadores
+            if (data.summary) {
+                Object.keys(data.summary).forEach(ch => {
+                    let slug = ch.toLowerCase().replace(/\s+/g, '-');
+                    let counterEl = document.getElementById('counter-' + slug);
+                    let statusEl = document.getElementById('status-' + slug);
+                    if (counterEl) {
+                        let current = parseInt(counterEl.innerText) || 0;
+                        counterEl.innerText = String(current + (data.summary[ch].stored || 0)).padStart(2, '0');
+                    }
+                    if (statusEl) {
+                        statusEl.style.opacity = '1';
+                        let stored = data.summary[ch].stored || 0;
+                        statusEl.innerText = stored > 0 ? '+' + stored : 'OK';
+                        statusEl.style.color = stored > 0 ? 'var(--accent-emerald)' : 'var(--accent-amber)';
+                    }
+                });
+            }
+
+            alert('🎯 ' + (data.message || 'Escaneo completado'));
+        })
+        .catch(err => {
+            if (scanIcon) scanIcon.style.animation = '';
+            alert('Error en escaneo: ' + err.message);
+        });
+    }
+
+    /**
+     * REPORTE COMPLETO: Muestra un resumen de todos los agentes
+     */
+    function openFullReport() {
+        document.getElementById('agent-name').innerText = 'Reporte Global';
+        document.getElementById('agent-status').innerText = 'Cargando bitácora completa...';
+        document.getElementById('agent-status').style.color = '#38bdf8';
+        document.getElementById('agent-logs').innerHTML = '<div class="text-sky-400 animate-pulse">Cargando datos...</div>';
+        document.getElementById('agent-modal').style.display = 'flex';
+
+        // Cargar las últimas 10 actividades de todos los canales
+        fetch(agentReportUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            body: JSON.stringify({ channel: '' })
+        })
+        .then(r => r.json())
+        .then(logs => {
+            document.getElementById('agent-status').innerText = 'Bitácora cargada';
+            document.getElementById('agent-status').style.color = '#10b981';
+            let logHtml = '';
+            if(logs.length === 0) {
+                logHtml = '<div class="text-zinc-600 italic">No hay actividad registrada. Hacé clic en un canal para iniciar el primer escaneo.</div>';
+            } else {
+                logs.forEach(l => {
+                    logHtml += `<div class="mb-2 p-2 rounded" style="background:rgba(255,255,255,0.02)"><span class="text-zinc-600">[${l.t}]</span> <span class="text-sky-500">>>></span> <span class="text-zinc-300">${l.m}</span></div>`;
                 });
             }
             document.getElementById('agent-logs').innerHTML = logHtml;
@@ -392,13 +546,13 @@
 
     function forgetLead(userId) {
         if(!confirm('¿Seguro quieres olvidar este lead? Se archivará fuera del panel principal.')) return;
-        fetch("{{ route('owner.crm.archive') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ user_id: userId }) })
+        fetch("{{ route('owner.crm.archive') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ user_id: userId }) })
         .then(r => r.json()).then(d => { if(d.success) document.getElementById('card-' + userId).remove(); });
     }
 
     function deleteLead(userId) {
         if(!confirm('¡CUIDADO! Esto borrará el usuario de forma DEFINITIVA. ¿Proceder?')) return;
-        fetch("{{ route('owner.crm.delete') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ user_id: userId }) })
+        fetch("{{ route('owner.crm.delete') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ user_id: userId }) })
         .then(r => r.json()).then(d => { if(d.success) document.getElementById('card-' + userId).remove(); });
     }
 
@@ -406,7 +560,7 @@
         ['col-prospecto', 'col-pendiente_pago', 'col-activo'].forEach(id => {
             const el = document.getElementById(id);
             if(el) { new Sortable(el, { group:'kanban', handle:'.card-handle', animation:200, swapThreshold: 0.65, onEnd: function(evt) {
-                fetch("{{ route('owner.crm.move') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ user_id: evt.item.getAttribute('data-id'), status: evt.to.getAttribute('data-status') }) });
+                fetch("{{ route('owner.crm.move') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ user_id: evt.item.getAttribute('data-id'), status: evt.to.getAttribute('data-status') }) });
             }}); }
         });
     });

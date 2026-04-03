@@ -120,6 +120,8 @@ Route::middleware(['auth', 'owner'])
         Route::post('crm/move', [App\Http\Controllers\Owner\CRMController::class, 'move'])->name('crm.move');
         Route::post('crm/archive', [App\Http\Controllers\Owner\CRMController::class, 'archive'])->name('crm.archive');
         Route::post('crm/delete', [App\Http\Controllers\Owner\CRMController::class, 'delete'])->name('crm.delete');
+        Route::post('crm/scan-channel', [App\Http\Controllers\Owner\CRMController::class, 'scanChannel'])->name('crm.scan-channel');
+        Route::post('crm/scan-all', [App\Http\Controllers\Owner\CRMController::class, 'scanAll'])->name('crm.scan-all');
 
     });
 
