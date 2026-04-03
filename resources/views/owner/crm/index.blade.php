@@ -6,34 +6,31 @@
         --oled-bg: #000;
         --card-bg: #0c0c0e;
         --border-color: rgba(255, 255, 255, 1);
-        --accent-indigo: #6366f1;
-        --accent-amber: #f59e0b;
-        --accent-emerald: #10b981;
         --accent-sky: #38bdf8;
         --stellar-blue: rgba(30, 58, 138, 0.7);
     }
 
-    body { background-color: var(--oled-bg) !important; color: #fff; overflow: hidden; }
+    body { background-color: var(--oled-bg) !important; color: #fff; overflow-x: hidden; }
 
-    /* CABECERA CON ESPACIO Y PROPORCIÓN REFORZADA */
+    /* CABECERA BALACEADA - 15% DE MARGEN */
     .header-hub {
-        padding: 4rem 10% 2rem 10%; /* MUCHO MAS AIRE */
+        padding: 4rem 15% 2rem 15%; 
         display: flex;
         align-items: center;
-        gap: 4rem;
+        gap: 5rem;
     }
 
     .crm-container {
         display: flex;
         width: 100vw;
-        padding: 0 10%;
-        gap: 2rem;
+        padding: 0 15%;
+        gap: 2.5rem;
         height: 70vh;
         overflow-x: auto;
     }
 
     .kanban-col {
-        width: 310px;
+        width: 320px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
@@ -41,89 +38,95 @@
 
     .col-header {
         background: linear-gradient(90deg, var(--stellar-blue) 0%, transparent 100%);
-        padding: 0.8rem 1.5rem;
-        border-radius: 12px;
-        border-left: 5px solid var(--accent-sky);
-        margin-bottom: 2.5rem;
-        height: 55px; /* ALINEACION HORIZONTAL GARANTIZADA */
+        padding: 0.9rem 1.75rem;
+        border-radius: 14px;
+        border-left: 6px solid var(--accent-sky);
+        margin-bottom: 3rem;
+        height: 60px; /* SIMETRIA TOTAL HORIZONTAL */
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-    .header-title { font-size: 0.8rem; font-weight: 900; letter-spacing: 0.25em; text-transform: uppercase; }
+    .header-title { font-size: 0.85rem; font-weight: 950; letter-spacing: 0.3em; text-transform: uppercase; }
 
-    /* TARJETAS SIMÉTRICAS 130PX */
+    /* TARJETAS SIMÉTRICAS - LEY DE HIERRO 130PX */
     .kanban-card {
         background: var(--card-bg);
         border: 1px solid var(--border-color); 
-        border-radius: 16px;
-        padding: 1rem;
+        border-radius: 18px;
+        padding: 1.2rem;
         margin-bottom: 20px; 
         height: 130px; 
+        width: 100%;
         position: relative;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        transition: all 0.3s;
+        transition: transform 0.3s, border-color 0.3s;
     }
 
-    .card-name { font-size: 0.9rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-subtext { font-size: 0.65rem; color: #71717a; font-weight: 700; text-transform: uppercase; }
+    .card-name { font-size: 0.95rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+    .card-subtext { font-size: 0.7rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
-    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .btn-card { 
         background: rgba(255,255,255,0.03); 
         border: 1px solid rgba(255,255,255,0.1); 
         color: var(--accent-sky); 
-        padding: 7px 0; 
-        border-radius: 10px; 
-        font-size: 0.6rem; 
-        font-weight: 900; 
+        padding: 8px 0; 
+        border-radius: 12px; 
+        font-size: 0.65rem; 
+        font-weight: 950; 
         text-align: center; 
         text-decoration: none;
+        text-transform: uppercase;
     }
     .btn-card:hover:not(.disabled) { background: var(--accent-sky); color: #000; }
     .btn-card.disabled { opacity: 0.1; }
 
-    /* CUSTOM OLED MODAL (EL LABEL) */
+    /* OVERLAY CUSTOM MASTER (EL LABEL) */
     #ia-overlay {
         position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0,0,0,0.85);
-        z-index: 9999;
-        display: none; /* OCULTO POR DEFECTO */
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9);
+        z-index: 10000;
+        display: none; 
         align-items: center;
         justify-content: center;
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(5px);
     }
 
-    .custom-ai-card {
-        width: 500px;
-        background: #0c0c0e;
+    .report-card {
+        width: 550px;
+        background: #09090b;
         border: 2px solid var(--accent-sky);
-        border-radius: 28px;
-        padding: 2.5rem;
-        box-shadow: 0 0 120px rgba(56, 189, 248, 0.25);
-        position: relative;
+        border-radius: 32px;
+        padding: 3rem;
+        box-shadow: 0 0 150px rgba(56, 189, 248, 0.2);
+        animation: springIn 0.4s cubic-bezier(0.19, 1.2, 0.22, 1);
     }
 
-    .active-spotlight {
-        border-color: var(--accent-sky) !important;
-        box-shadow: 0 0 50px rgba(56, 189, 248, 0.4) !important;
+    @keyframes springIn {
+        from { transform: scale(0.8) translateY(20px); opacity: 0; }
+        to { transform: scale(1) translateY(0); opacity: 1; }
     }
+
+    .active-spotlight { border-color: var(--accent-sky) !important; box-shadow: 0 0 60px rgba(56, 189, 248, 0.3) !important; }
 </style>
 
 <div class="header-hub">
-    <h1 class="text-white text-3xl font-black uppercase tracking-[0.6em]">Command Hub</h1>
+    <h1 class="text-white text-3xl font-black uppercase tracking-[0.5em]">Command Hub</h1>
     <div class="h-px bg-zinc-800 flex-1 opacity-20"></div>
-    <div class="flex items-center gap-6 text-sky-400 font-black text-[0.9rem] uppercase tracking-widest animate-pulse">
+    <div class="flex items-center gap-6 text-sky-400 font-black text-xs uppercase tracking-[0.3em] animate-pulse">
         <i class="bi bi-robot fs-2"></i> AGENTE SOCIAL LIVE
     </div>
 </div>
 
 <div class="crm-container custom-scrollbar" id="crmContainer">
-    <!-- COLUMNA 1 -->
+    
+    <!-- FASE 01 -->
     <div class="kanban-col">
         <div class="col-header">
             <span class="header-title">Fase 01 | Leads</span>
@@ -137,7 +140,7 @@
                     <div class="card-subtext">{{ $pro->lead_source ?? 'Landing Directo' }}</div>
                 </div>
                 <div class="btn-group-card">
-                    <button type="button" class="btn-card" onclick="openCustomIA('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'INSTAGRAM' }}')">IA DATA</button>
+                    <button type="button" class="btn-card" onclick="openReport('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'META ADS' }}')">IA DATA</button>
                     <button type="button" class="btn-card disabled">MAIL</button>
                 </div>
             </div>
@@ -146,7 +149,7 @@
         <div class="mt-4">{{ $prospectos->links() }}</div>
     </div>
 
-    <!-- COLUMNA 2 -->
+    <!-- FASE 02 -->
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-amber)">
             <span class="header-title text-amber-500">Fase 02 | Validar</span>
@@ -156,17 +159,17 @@
             <div class="kanban-card" data-id="{{ $pen->id }}" id="card-{{ $pen->id }}">
                 <div>
                     <div class="card-name">{{ $pen->name }}</div>
-                    <div class="card-subtext text-amber-500/40">Validar Pago</div>
+                    <div class="card-subtext text-amber-500/30">PAGO EN CURSO</div>
                 </div>
                 <div class="btn-group-card">
                     @if($pen->payment_voucher)
-                        <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-card text-amber-500">DOC</a>
+                        <a href="{{ asset('storage/' . $pen->payment_voucher) }}" target="_blank" class="btn-card" style="color:var(--accent-amber)">VOUCHER</a>
                     @else
                         <span class="btn-card disabled">SIN DOC</span>
                     @endif
                     <form action="{{ route('owner.crm.activate', $pen->id) }}" method="POST" class="m-0 p-0 d-grid">
                         @csrf
-                        <button type="submit" class="btn-card" style="color:var(--accent-amber);border-color:rgba(245,158,11,0.2);">ACT</button>
+                        <button type="submit" class="btn-card" style="color:var(--accent-amber);border-color:rgba(245,158,11,0.2);">ACTIVAR</button>
                     </form>
                 </div>
             </div>
@@ -174,7 +177,7 @@
         </div>
     </div>
 
-    <!-- COLUMNA 3 -->
+    <!-- FASE 03 -->
     <div class="kanban-col">
         <div class="col-header" style="border-left-color: var(--accent-emerald)">
             <span class="header-title text-emerald-500">Fase 03 | Activos</span>
@@ -184,7 +187,7 @@
             <div class="kanban-card" data-id="{{ $act->id }}" id="card-{{ $act->id }}">
                 <div>
                     <div class="card-name text-zinc-300">{{ $act->name }}</div>
-                    <div class="card-subtext truncate">{{ $act->empresa?->nombre_comercial ?? 'Setup OK' }}</div>
+                    <div class="card-subtext truncate">{{ $act->empresa?->nombre_comercial ?? 'SaaS Activo OK' }}</div>
                 </div>
                 <div class="btn-group-card">
                     <button class="btn-card" style="color:var(--accent-emerald);border-color:rgba(16,185,129,0.2);">PANEL</button>
@@ -194,19 +197,30 @@
             @endforeach
         </div>
     </div>
+
 </div>
 
-{{-- MODAL CUSTOM OLED --}}
-<div id="ia-overlay" onclick="closeCustomIA()">
-    <div class="custom-ai-card" onclick="event.stopPropagation()">
-        <h4 class="text-sky-400 font-black uppercase tracking-widest mb-6"> <i class="bi bi-robot me-2"></i> Reporte IA</h4>
-        <div class="text-zinc-300 font-monospace" style="font-size: 0.8rem;">
-            <div class="mb-6 border-b border-white/5 pb-4">>>> ANALIZANDO: <span id="ia-name" class="text-white"></span></div>
-            <div class="bg-black/40 p-6 rounded-2xl border border-white/5 shadow-inner mb-8">
-                <div class="mb-4"><span class="text-zinc-600">CANAL:</span> <span id="ia-source" class="text-emerald-400"></span></div>
-                <div class="text-zinc-400">"El Agente Social Live detectó una búsqueda de solución POS rápida para entorno móvil."</div>
+{{-- MODAL CUSTOM OLED INDEPENDIENTE --}}
+<div id="ia-overlay">
+    <div class="report-card">
+        <div class="flex justify-between items-center mb-10">
+            <h4 class="text-sky-400 font-black uppercase tracking-[0.2em] m-0"><i class="bi bi-robot me-2"></i> Reporte Agente IA</h4>
+            <button onclick="closeReport()" class="bg-transparent border-0 text-white/20 hover:text-white transition-colors">
+                <i class="bi bi-x-lg fs-4"></i>
+            </button>
+        </div>
+        
+        <div class="text-zinc-300 font-monospace" style="font-size: 0.85rem;">
+            <div class="mb-8 border-b border-white/5 pb-6">>>> ANALIZANDO: <span id="report-name" class="text-white text-bold"></span></div>
+            
+            <div class="bg-black/30 p-8 rounded-3xl border border-white/5 shadow-inner mb-10">
+                <div class="mb-4"><span class="text-zinc-600">CANAL:</span> <span id="report-source" class="text-emerald-400"></span></div>
+                <div class="text-zinc-400 leading-relaxed">
+                    "El Agente Social Live ha detectado una alta probabilidad de conversión. El perfil busca una solución robusta pero amigable para la gestión de su negocio multi-sede."
+                </div>
             </div>
-            <button onclick="closeCustomIA()" class="btn-card w-full py-4 bg-sky-500 text-black border-0 fw-black text-[0.8rem]">
+
+            <button onclick="closeReport()" class="btn-card w-full py-4 bg-sky-500 text-black border-0 fw-black text-[0.8rem] shadow-xl shadow-sky-500/10">
                 VOLVER A LA CONSOLA
             </button>
         </div>
@@ -218,19 +232,23 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
-    let activeCard = null;
+    let currentActiveId = null;
 
-    function openCustomIA(id, name, source) {
-        activeCard = id;
+    function openReport(id, name, source) {
+        currentActiveId = id;
         document.getElementById('card-'+id).classList.add('active-spotlight');
-        document.getElementById('ia-name').innerText = name;
-        document.getElementById('ia-source').innerText = source;
+        document.getElementById('report-name').innerText = name;
+        document.getElementById('report-source').innerText = source;
         document.getElementById('ia-overlay').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
 
-    function closeCustomIA() {
+    function closeReport() {
         document.getElementById('ia-overlay').style.display = 'none';
-        if(activeCard) document.getElementById('card-'+activeCard).classList.remove('active-spotlight');
+        if(currentActiveId) {
+            document.getElementById('card-'+currentActiveId).classList.remove('active-spotlight');
+        }
+        document.body.style.overflow = 'auto';
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -239,7 +257,8 @@
             if(el) {
                 new Sortable(el, {
                     group: 'kanban',
-                    animation: 200,
+                    handle: '.kanban-card',
+                    animation: 250,
                     onEnd: function(evt) {
                         fetch("{{ route('owner.crm.move') }}", {
                             method: 'POST',
