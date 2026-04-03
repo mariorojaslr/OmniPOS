@@ -41,6 +41,12 @@
         border-right: 1px dashed rgba(255,255,255,0.08);
     }
 
+    .kanban-list {
+        flex: 1;
+        min-height: 500px; /* Asegura que se pueda soltar en columnas vacías */
+        padding-bottom: 200px; /* Margen de maniobra inferior */
+    }
+
     /* MEDIA QUERY PARA MÓVILES */
     @media (max-width: 768px) {
         .header-hub {
@@ -238,7 +244,7 @@
             <span class="header-title">{{ $col['t'] }}</span>
             <span class="text-white/40 font-bold">{{ $col['data']->total() }}</span>
         </div>
-        <div id="{{ $col['id'] }}" class="kanban-list" data-status="{{ $col['st'] }}">
+        <div id="{{ $col['id'] }}" class="kanban-list" data-status="{{ $col['st'] }}" style="min-height: 60vh; padding-bottom: 100px;">
             @foreach($col['data'] as $u)
             <div class="kanban-card" data-id="{{ $u->id }}" id="card-{{ $u->id }}">
                 <div class="post-it p-{{ $col['c'] }}"></div>
@@ -254,7 +260,7 @@
                     <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 </div>
                 
-                <div class="flex flex-col gap-0.5">
+                <div class="flex flex-col gap-0.5" onclick="openIA('{{ $u->name }}')">
                     <div class="card-name">{{ $u->name }}</div>
                     <div class="card-subtext">{{ ($col['st'] == 'activo' || ($u->empresa && $u->empresa->activo)) ? ($u->empresa?->nombre_comercial ?? 'GRAFILAR - MCR') : ($u->lead_source ?? 'LinkedIn') }}</div>
                 </div>
@@ -264,10 +270,10 @@
                         <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">IA DATA</button>
                         <button class="btn-sci-fi" style="opacity:0.2" disabled>MAIL</button>
                     @elseif($col['st'] == 'pendiente_pago')
-                        <button class="btn-sci-fi" style="opacity:0.3" disabled>DOC</button>
-                        <button class="btn-sci-fi">ACT</button>
+                        <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">REPORTE</button>
+                        <button onclick="window.location.href='{{ route('owner.crm.activate', $u->id) }}'" class="btn-sci-fi" style="border-color: var(--accent-emerald); color: var(--accent-emerald);">ACT</button>
                     @else
-                        <button class="btn-sci-fi">PANEL</button>
+                        <button onclick="window.location.href='{{ route('owner.empresas.users.index', $u->empresa->id) }}'" class="btn-sci-fi">PANEL</button>
                         <button class="btn-sci-fi" style="opacity:0.1" disabled>STATS</button>
                     @endif
                 </div>
@@ -309,30 +315,35 @@
 
 {{-- MODAL REPORTE AGENTE --}}
 <div id="agent-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:60000; align-items:center; justify-content:center; backdrop-filter:blur(15px);">
-    <div style="width:500px; background:#0c0c0e; border:2px solid #fff; border-radius:40px; padding:3rem; box-shadow:0 0 80px rgba(255,255,255,0.05);">
+    <div style="width:650px; background:#0c0c0e; border:2px solid #fff; border-radius:40px; padding:3rem; box-shadow:0 0 80px rgba(255,255,255,0.05);">
         <div class="text-center mb-5">
             <div id="agent-icon" class="mb-3 fs-1 text-sky-400"><i class="bi bi-robot"></i></div>
             <h3 id="agent-name" class="text-white font-black uppercase tracking-widest">LinkedIn Agent</h3>
         </div>
         
-        <div class="space-y-4">
-            <div class="flex justify-between border-b border-white/5 pb-2">
-                <span class="text-zinc-500 text-[0.7rem] font-bold uppercase">Perfiles Escaneados</span>
-                <span id="stat-scanned" class="text-white font-black">58</span>
+        <div class="bg-zinc-900/40 p-4 rounded-2xl mb-6">
+            <h5 class="text-[0.65rem] font-black uppercase tracking-widest text-zinc-500 mb-3 border-b border-white/5 pb-2">Bitácora de Conversación en Vivo</h5>
+            <div id="agent-logs" class="space-y-3 font-mono text-[0.75rem]" style="max-height: 250px; overflow-y: auto;">
+                {{-- Inyectado por JS --}}
             </div>
-            <div class="flex justify-between border-b border-white/5 pb-2">
-                <span class="text-zinc-500 text-[0.7rem] font-bold uppercase">Intereses Detectados</span>
-                <span id="stat-hits" class="text-amber-500 font-black">12</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+            <div class="text-center">
+                <span class="block text-zinc-500 text-[0.6rem] font-bold uppercase">Escaneos</span>
+                <span id="stat-scanned" class="text-white font-black fs-5">58</span>
             </div>
-            <div class="flex justify-between border-b border-white/5 pb-2">
-                <span class="text-zinc-500 text-[0.7rem] font-bold uppercase">Leads Generados</span>
-                <span id="stat-leads" class="text-emerald-500 font-black">4</span>
+            <div class="text-center border-x border-white/5">
+                <span class="block text-zinc-500 text-[0.6rem] font-bold uppercase">Intereses</span>
+                <span id="stat-hits" class="text-amber-500 font-black fs-5">12</span>
+            </div>
+            <div class="text-center">
+                <span class="block text-zinc-500 text-[0.6rem] font-bold uppercase">Hunted</span>
+                <span id="stat-leads" class="text-emerald-500 font-black fs-5">4</span>
             </div>
         </div>
         
-        <p class="text-[0.6rem] text-zinc-600 mt-6 text-center italic">>>> EL AGENTE ESTÁ TRABAJANDO EN SEGUNDO PLANO...</p>
-        
-        <button onclick="document.getElementById('agent-modal').style.display='none'" class="btn-sci-fi w-full py-4 mt-8 bg-white text-black border-0 fw-black text-[0.7rem]">ENTENDIDO</button>
+        <button onclick="document.getElementById('agent-modal').style.display='none'" class="btn-sci-fi w-full py-4 mt-8 bg-white text-black border-0 fw-black text-[0.75rem]">SALIR DEL REPORTE</button>
     </div>
 </div>
 
@@ -363,6 +374,21 @@
         document.getElementById('stat-hits').innerText = hits;
         document.getElementById('stat-leads').innerText = leads;
         document.getElementById('agent-icon').className = 'mb-3 fs-1 text-' + color;
+        
+        // Simulación de Bitácora Real
+        const logs = [
+            { t: '15:20', m: 'Escaneo profundo en sector Retail...' },
+            { t: '15:24', m: 'Detección de 3 perfiles con bajo stock detectado.' },
+            { t: '15:30', m: 'Enviado mensaje a @marta_g: "Optimizá tu POS hoy".' },
+            { t: '15:45', m: 'Respuesta recibida: "¿Hacen factura electrónica?".' }
+        ];
+        
+        let logHtml = '';
+        logs.forEach(l => {
+            logHtml += `<div class="mb-2"><span class="text-zinc-600">[${l.t}]</span> <span class="text-${color}-500">>>></span> <span class="text-zinc-300">${l.m}</span></div>`;
+        });
+        
+        document.getElementById('agent-logs').innerHTML = logHtml;
         document.getElementById('agent-modal').style.display = 'flex';
     }
 
