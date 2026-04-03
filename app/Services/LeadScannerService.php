@@ -6,50 +6,53 @@ use App\Models\CrmActivity;
 use Illuminate\Support\Str;
 
 /**
- * LEAD SCANNER SERVICE
+ * LEAD SCANNER SERVICE v3
  * 
- * Motor gratuito de búsqueda de prospectos usando DuckDuckGo HTML (sin API, sin costo).
- * Busca negocios que podrían necesitar un sistema POS en Argentina.
+ * Motor gratuito de búsqueda de prospectos usando Startpage (proxy de Google, gratis).
+ * Encuentra perfiles de LinkedIn, Instagram, Facebook de negocios argentinos que
+ * podrían necesitar un sistema POS.
  */
 class LeadScannerService
 {
-    /**
-     * Queries de búsqueda por canal.
-     * Cada canal tiene queries diferentes para buscar distintos perfiles.
-     */
     private $queries = [
         'LinkedIn' => [
-            'site:linkedin.com/in "punto de venta" OR "POS" OR "retail" argentina',
-            'site:linkedin.com/in "dueño" OR "comerciante" OR "emprendedor" tienda argentina',
-            'site:linkedin.com/in "gerente comercial" OR "administrador" negocio minorista argentina',
+            'punto de venta sistema POS negocio Argentina linkedin',
+            'emprendedor comercio minorista dueño tienda Argentina linkedin',
+            'gerente comercial retail negocio Argentina linkedin',
         ],
         'Instagram' => [
-            'site:instagram.com "tienda" OR "local" negocio emprendimiento argentina',
-            'site:instagram.com "kiosco" OR "almacen" OR "ferreteria" OR "libreria" argentina',
-            'site:instagram.com "indumentaria" OR "ropa" OR "zapatillas" tienda argentina',
+            'tienda local negocio emprendimiento instagram Argentina',
+            'kiosco almacen ferreteria libreria instagram Argentina',
+            'indumentaria ropa accesorios tienda instagram Argentina',
         ],
         'Facebook' => [
-            'site:facebook.com "punto de venta" OR "sistema POS" necesito argentina',
-            'site:facebook.com "negocio" OR "tienda" "busco sistema" comercio argentina',
-            'site:facebook.com "emprendimiento" OR "pyme" "venta" argentina',
+            'punto de venta necesito sistema POS facebook Argentina',
+            'negocio tienda comercio emprendimiento facebook Argentina',
+            'pyme venta facturacion stock facebook Argentina',
         ],
         'WhatsApp' => [
-            '"necesito sistema punto de venta" OR "busco software comercial" argentina whatsapp',
-            '"sistema de ventas" OR "software para negocio" pyme argentina contacto',
+            'necesito sistema punto de venta software comercial Argentina contacto',
+            'sistema ventas software negocio pyme Argentina whatsapp',
         ],
         'Telegram' => [
-            'site:t.me "punto de venta" OR "comercio" OR "ventas" argentina',
-            '"grupo telegram" "comerciantes" OR "emprendedores" OR "pymes" argentina',
+            'telegram comerciantes emprendedores pymes Argentina',
+            'grupo telegram negocios ventas retail Argentina',
         ],
         'System Mail' => [
-            '"punto de venta" OR "software comercial" argentina email contacto @gmail.com',
-            '"sistema pos" OR "control stock" negocio argentina @hotmail.com OR @gmail.com',
+            'punto de venta software comercial Argentina email contacto',
+            'sistema pos control stock inventario Argentina negocio',
         ],
     ];
 
+    private $userAgents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    ];
+
     /**
-     * EJECUTAR ESCANEO de un canal específico.
-     * Retorna la cantidad de leads nuevos encontrados.
+     * EJECUTAR ESCANEO de un canal.
      */
     public function scan(string $channel): array
     {
@@ -59,20 +62,30 @@ class LeadScannerService
 
         foreach ($queries as $query) {
             try {
-                $results = $this->searchDuckDuckGo($query);
+                $results = $this->searchStartpage($query);
                 $allResults = array_merge($allResults, $results);
-
-                // Esperar 2-3 segundos entre queries para no ser bloqueado
-                usleep(rand(2000000, 3000000));
+                // Pausa entre queries (2-4 segundos)
+                usleep(rand(2000000, 4000000));
             } catch (\Throwable $e) {
                 $errors[] = $e->getMessage();
             }
         }
 
-        // Almacenar resultados únicos
+        // Filtrar duplicados dentro del mismo escaneo por URL
+        $seen = [];
+        $unique = [];
+        foreach ($allResults as $r) {
+            $key = md5($r['url'] ?? $r['title']);
+            if (!isset($seen[$key])) {
+                $seen[$key] = true;
+                $unique[] = $r;
+            }
+        }
+
+        // Almacenar en BD (solo nuevos)
         $stored = 0;
         $duplicates = 0;
-        foreach ($allResults as $result) {
+        foreach ($unique as $result) {
             $exists = CrmActivity::where('target_name', $result['title'])
                 ->where('channel', $channel)
                 ->exists();
@@ -82,7 +95,7 @@ class LeadScannerService
                     'channel'       => $channel,
                     'target_name'   => $result['title'],
                     'target_origin' => $result['url'] ?? 'Web',
-                    'details'       => $result['snippet'] ?? 'Sin detalles',
+                    'details'       => $result['snippet'] ?? 'Prospecto encontrado por búsqueda automática.',
                     'status'        => 'encontrado',
                 ]);
                 $stored++;
@@ -93,7 +106,7 @@ class LeadScannerService
 
         return [
             'channel'    => $channel,
-            'found'      => count($allResults),
+            'found'      => count($unique),
             'stored'     => $stored,
             'duplicates' => $duplicates,
             'errors'     => $errors,
@@ -113,92 +126,77 @@ class LeadScannerService
     }
 
     /**
-     * Buscar en DuckDuckGo HTML (GRATIS, sin API key).
+     * ==========================================================
+     * MOTOR PRINCIPAL: STARTPAGE (proxy privado de Google, gratis)
+     * ==========================================================
      */
-    private function searchDuckDuckGo(string $query): array
+    private function searchStartpage(string $query): array
     {
-        $url = 'https://html.duckduckgo.com/html/?q=' . urlencode($query);
+        $url = 'https://www.startpage.com/sp/search?q=' . urlencode($query) . '&language=espanol';
+        $html = $this->makeRequest($url);
 
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL            => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_TIMEOUT        => 20,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_HTTPHEADER     => [
-                'Accept: text/html,application/xhtml+xml',
-                'Accept-Language: es-AR,es;q=0.9,en;q=0.8',
-            ],
-        ]);
-
-        $html = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error || $httpCode !== 200 || empty($html)) {
-            throw new \Exception("DuckDuckGo error: HTTP {$httpCode} - {$error}");
+        if (empty($html)) {
+            throw new \Exception("Startpage no respondió o bloqueó la solicitud.");
         }
 
-        return $this->parseDuckDuckGoResults($html);
+        return $this->parseStartpageResults($html);
     }
 
     /**
-     * Parsear los resultados HTML de DuckDuckGo.
+     * Parsear resultados de Startpage.
+     * Startpage usa: <a class="result-title" href="URL">TITULO</a>
+     *                <p class="result-description">SNIPPET</p>
      */
-    private function parseDuckDuckGoResults(string $html): array
+    private function parseStartpageResults(string $html): array
     {
         $results = [];
 
-        // DuckDuckGo HTML usa la clase "result" para cada resultado
-        // Extraer bloques de resultados
+        // Extraer títulos y URLs
         preg_match_all(
-            '/<a[^>]*class="result__a"[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/si',
+            '/<a[^>]*class="[^"]*result-title[^"]*"[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/si',
             $html,
-            $linkMatches,
+            $titleMatches,
             PREG_SET_ORDER
         );
 
-        // Extraer snippets
+        // Extraer snippets/descripciones
         preg_match_all(
-            '/<a[^>]*class="result__snippet"[^>]*>(.*?)<\/a>/si',
+            '/<p[^>]*class="[^"]*result-description[^"]*"[^>]*>(.*?)<\/p>/si',
             $html,
             $snippetMatches,
             PREG_SET_ORDER
         );
 
-        $maxResults = min(count($linkMatches), 15); // Máximo 15 resultados por query
+        $maxResults = min(count($titleMatches), 15);
 
         for ($i = 0; $i < $maxResults; $i++) {
-            $rawUrl = $linkMatches[$i][1] ?? '';
-            $title = strip_tags($linkMatches[$i][2] ?? '');
+            $url = $titleMatches[$i][1] ?? '';
+            $title = strip_tags($titleMatches[$i][2] ?? '');
             $snippet = strip_tags($snippetMatches[$i][1] ?? '');
 
-            // DuckDuckGo envuelve las URLs en un redirect, extraer la URL real
-            $realUrl = $this->extractRealUrl($rawUrl);
-
-            // Limpiar el título
             $title = trim(html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
             $snippet = trim(html_entity_decode($snippet, ENT_QUOTES, 'UTF-8'));
 
-            if (empty($title) || strlen($title) < 5) {
-                continue;
-            }
+            if (empty($title) || strlen($title) < 5) continue;
 
-            // Intentar extraer emails del snippet
+            // Filtrar URLs de motores de búsqueda
+            if (preg_match('/(google|startpage|bing|yahoo)\.(com|net|org)/i', $url)) continue;
+
+            // Enriquecer con emails y teléfonos encontrados
             $emails = $this->extractEmails($snippet);
+            $phones = $this->extractPhones($snippet);
 
-            // Enriquecer el detalle con emails encontrados
             $detail = $snippet;
             if (!empty($emails)) {
-                $detail .= ' | EMAILS: ' . implode(', ', $emails);
+                $detail .= ' | 📧 ' . implode(', ', $emails);
+            }
+            if (!empty($phones)) {
+                $detail .= ' | 📞 ' . implode(', ', $phones);
             }
 
             $results[] = [
-                'title'   => Str::limit($title, 120),
-                'url'     => $realUrl,
+                'title'   => Str::limit($title, 150),
+                'url'     => $url,
                 'snippet' => Str::limit($detail, 500),
             ];
         }
@@ -207,37 +205,60 @@ class LeadScannerService
     }
 
     /**
-     * Extraer la URL real del redirect de DuckDuckGo.
+     * HTTP Request con user-agent rotativo.
      */
-    private function extractRealUrl(string $duckUrl): string
+    private function makeRequest(string $url): string
     {
-        // DuckDuckGo usa: //duckduckgo.com/l/?uddg=https%3A%2F%2F...
-        if (preg_match('/uddg=([^&]+)/', $duckUrl, $m)) {
-            return urldecode($m[1]);
+        $ua = $this->userAgents[array_rand($this->userAgents)];
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_USERAGENT      => $ua,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_HTTPHEADER     => [
+                'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language: es-AR,es;q=0.9,en;q=0.8',
+                'Accept-Encoding: identity',
+                'Cache-Control: no-cache',
+                'DNT: 1',
+            ],
+            CURLOPT_ENCODING       => '',
+        ]);
+
+        $html = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200 || empty($html)) {
+            return '';
         }
-        return $duckUrl;
+
+        return $html;
     }
 
-    /**
-     * Extraer emails de un texto.
-     */
     private function extractEmails(string $text): array
     {
         preg_match_all('/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/', $text, $matches);
         return array_unique($matches[0] ?? []);
     }
 
-    /**
-     * Obtener las queries configuradas (para mostrar en UI).
-     */
+    private function extractPhones(string $text): array
+    {
+        preg_match_all('/(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/', $text, $matches);
+        $phones = array_unique($matches[0] ?? []);
+        return array_values(array_filter($phones, fn($p) => strlen(preg_replace('/\D/', '', $p)) >= 8));
+    }
+
     public function getQueries(): array
     {
         return $this->queries;
     }
 
-    /**
-     * Obtener estadísticas actuales de la base de datos.
-     */
     public function getStats(): array
     {
         $stats = [];
