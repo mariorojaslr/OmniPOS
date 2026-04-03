@@ -79,17 +79,21 @@ body{
 }
 
 .navbar{
-    background: rgba(11, 26, 43, 0.7) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom:1px solid rgba(31, 45, 61, 0.5);
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     position: relative;
     z-index: 1050;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
 .navbar .nav-link,
-.navbar .navbar-brand{
-    color:#e6edf3 !important;
+.navbar .navbar-brand,
+.navbar .nav-link i,
+.navbar .dropdown-toggle {
+    color: #313131 !important;
+    font-weight: 600 !important;
 }
 
 .card{
@@ -122,11 +126,12 @@ body{
 
 @if(!$modoOscuro)
 .navbar {
-    background: rgba(255, 255, 255, 0.8) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
+.navbar .nav-link, .navbar .navbar-brand { color: #313131 !important; }
 .card {
-    background: rgba(255, 255, 255, 0.85);
+    background: #ffffff;
 }
 @endif
 
@@ -166,14 +171,14 @@ body{
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ route('empresa.products.index') }}">Listado / Alta</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.rubros.index') }}">Gestionar Rubros</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.stock.index') }}">📦 Inventario / Stock</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.stock.faltantes') }}">🤖 Centro de Reposición</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.labels.index') }}">🏷️ Imprimir etiquetas</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.inventory_scan') }}">🔍 Escanear Inventario (QR)</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.products.bulk-price-update') }}">Act. de Precios</a></li>
                     </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('empresa.stock.index') }}">
+                        <i class="bi bi-database-fill-gear"></i> Inventario
+                    </a>
                 </li>
 
                 <li class="nav-item">
@@ -190,6 +195,22 @@ body{
                         <li><a class="dropdown-item fw-bold text-dark" href="{{ route('empresa.logistica.reporte') }}">📦 Reporte de Guarda</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.ventas.manual') }}">✍️ Venta Manual</a></li>
+                    </ul>
+                </li>
+
+                {{-- COMPRAS (ABASTECIMIENTO) --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-cart-check"></i> Compras
+                    </a>
+                    <ul class="dropdown-menu border-0 shadow-sm">
+                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.compras.create') }}"><i class="bi bi-plus-circle me-2 text-success"></i> Nueva Compra</a></li>
+                        <li><a class="dropdown-item" href="{{ route('empresa.compras.index') }}"><i class="bi bi-list-ul me-2"></i> Historial de Compras</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ route('empresa.proveedores.index') }}"><i class="bi bi-truck me-2"></i> Proveedores</a></li>
+                        <li><a class="dropdown-item" href="{{ route('empresa.stock.faltantes') }}"><i class="bi bi-exclamation-triangle me-2 text-warning"></i> Reposición / Faltantes</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ route('empresa.labels.index') }}"><i class="bi bi-qr-code me-2"></i> Etiquetas & Barcodes</a></li>
                     </ul>
                 </li>
 
@@ -231,6 +252,14 @@ body{
                     @endphp
                     <a class="nav-link fw-bold text-success" href="{{ $targetEmpresa ? route('catalog.index', $catalogParam) : '#' }}" target="_blank">🌐 Catálogo</a>
                 </li>
+
+                @if(auth()->user()->role === 'empresa')
+                <li class="nav-item">
+                    <a class="nav-link fw-bold text-success" href="{{ route('empresa.backup.index') }}">
+                        <i class="bi bi-shield-shaded me-1"></i> Bóveda
+                    </a>
+                </li>
+                @endif
 
                 <li class="nav-item">
                     <a class="nav-link text-warning fw-bold" href="{{ route('empresa.novedades') }}">🔥 Novedades</a>

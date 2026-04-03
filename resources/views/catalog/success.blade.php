@@ -1,184 +1,176 @@
 @extends('layouts.guest')
 
 @php
+    $order->load('items.product');
     $config = $empresa->config ?? null;
-    $primary = $config->color_primary ?? '#3b82f6';
+    $primary = $config->color_primary ?? '#2563eb';
+    $cartCount = 0;
+    $isCatalog = true;
 @endphp
 
 @section('content')
 <style>
     :root {
-        --oled-bg: #000000;
-        --oled-card: #0a0a0a;
-        --oled-border: rgba(255, 255, 255, 0.1);
-        --accent-glow: rgba(59, 130, 246, 0.3);
+        --catalog-primary: {{ $primary }};
+        --bg-light: #f8fafc;
+        --card-white: #ffffff;
+        --text-slate: #1e293b;
     }
 
     body {
-        background-color: var(--oled-bg) !important;
-        color: #e5e7eb;
+        background-color: var(--bg-light) !important;
+        color: var(--text-slate);
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     .success-container {
-        max-width: 600px;
-        margin: 60px auto;
-        padding: 20px;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 50px 20px;
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 
-    .oled-card {
-        background: var(--oled-card);
-        border: 1px solid var(--oled-border);
-        border-radius: 30px;
-        padding: 40px;
-        box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+    .success-card {
+        background: var(--card-white);
+        border: 1px solid #e2e8f0;
+        border-radius: 25px;
+        padding: 50px;
+        width: 100%;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.05);
         text-align: center;
-        position: relative;
-        overflow: hidden;
     }
 
     .success-icon {
-        width: 100px;
-        height: 100px;
-        background: rgba(16, 185, 129, 0.1);
-        border: 2px solid rgba(16, 185, 129, 0.3);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 30px;
-        color: #10b981;
-        font-size: 3rem;
-        box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
-        animation: pulse 2s infinite;
+        font-size: 4rem;
+        color: #22c55e;
+        margin-bottom: 20px;
     }
 
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-
-    .order-id {
+    .order-number-badge {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
         display: inline-block;
-        background: rgba(255,255,255,0.03);
-        border: 1px solid var(--oled-border);
-        padding: 10px 25px;
-        border-radius: 12px;
+        padding: 10px 30px;
+        border-radius: 15px;
+        font-size: 1.25rem;
         font-weight: 800;
-        letter-spacing: 2px;
-        color: #fff;
-        margin-bottom: 25px;
-        font-size: 1.2rem;
+        color: #0f172a;
+        margin: 20px 0;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        max-width: 900px;
+        margin: 30px auto;
+        text-align: left;
     }
 
     .summary-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 15px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 25px;
+        border-radius: 15px;
     }
 
-    .btn-return {
-        background: #fff;
-        color: #000;
-        padding: 15px 40px;
-        border-radius: 100px;
-        font-weight: 800;
-        text-decoration: none;
-        display: inline-block;
-        margin-top: 40px;
-        transition: all 0.3s ease;
+    .summary-label {
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        font-weight: 800;
+        color: #64748b;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
     }
 
-    .btn-return:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(255,255,255,0.2);
-        background: #f8f9fa;
-    }
-
-    .whatsapp-btn {
-        background: #25D366;
-        color: white;
-        padding: 15px 30px;
-        border-radius: 100px;
+    .summary-value {
+        font-size: 1.15rem;
         font-weight: 700;
+        color: #1e293b;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 40px;
+    }
+
+    .btn-action {
+        flex: 1;
+        min-width: 250px;
+        padding: 15px 30px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
         text-decoration: none;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 10px;
-        margin-top: 15px;
-        transition: all 0.3s ease;
+        transition: all 0.3s;
     }
 
-    .whatsapp-btn:hover {
-        transform: translateY(-3px);
-        filter: brightness(1.1);
-        color: white;
-    }
+    .btn-whatsapp { background: #22c55e; color: #fff; }
+    .btn-whatsapp:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(34, 197, 94, 0.2); color: #fff; }
 
-    .celebration {
-        position: absolute;
-        top: -50px;
-        right: -50px;
-        opacity: 0.05;
-        font-size: 10rem;
-        transform: rotate(15deg);
-    }
+    .btn-catalog { background: #0f172a; color: #fff; }
+    .btn-catalog:hover { transform: translateY(-3px); background: #1e293b; color: #fff; }
+
 </style>
 
 <div class="success-container">
-    <div class="oled-card">
-        <div class="celebration">🛒</div>
+    <div class="success-card">
         
         <div class="success-icon">
-            <i class="fas fa-check"></i>
+            <i class="bi bi-check-circle-fill"></i>
         </div>
 
-        <h1 class="display-6 fw-extrabold text-white mb-2">¡Pedido Recibido!</h1>
-        <p class="text-secondary mb-4">Gracias por tu compra en <b>{{ $empresa->nombre_comercial }}</b>. <br>Nos pondremos en contacto contigo pronto.</p>
+        <h1 class="display-5 fw-bold mb-3">¡Pedido Recibido!</h1>
+        <p class="fs-5 text-secondary">Gracias por tu compra en <span class="fw-bold text-dark">{{ $empresa->nombre_comercial }}</span>.</p>
 
-        <div class="order-id">ORDEN #{{ $order->id }}</div>
+        <div class="order-number-badge">
+            ORDEN #{{ $order->id }}
+        </div>
 
-        <div class="mt-4 text-start bg-dark bg-opacity-25 p-4 rounded-4" style="border: 1px solid var(--oled-border)">
-            <h6 class="text-secondary text-uppercase fw-bold small letter-spacing-1 mb-3">Resumen de tu pedido</h6>
-            
+        <div class="summary-grid">
             <div class="summary-item">
-                <span class="text-secondary">Productos:</span>
-                <span class="text-white fw-bold">{{ $order->items->sum('cantidad') }} unidades</span>
+                <div class="summary-label">Resumen pedido</div>
+                <div class="summary-value">
+                    @php $qty = 0; foreach($order->items as $i) $qty += $i->cantidad; @endphp
+                    {{ $qty }} {{ $qty == 1 ? 'unidad' : 'unidades' }}
+                </div>
             </div>
-            
             <div class="summary-item">
-                <span class="text-secondary">Importe Total:</span>
-                <span class="text-white fw-bold">$ {{ number_format($order->total, 0, ',', '.') }}</span>
+                <div class="summary-label">Importe Total</div>
+                <div class="summary-value" style="color: var(--catalog-primary);">
+                    $ {{ number_format($order->total, 0, ',', '.') }}
+                </div>
             </div>
-
-            <div class="summary-item border-0">
-                <span class="text-secondary">Forma de Pago:</span>
-                <span class="text-info fw-bold text-uppercase small">{{ $order->metodo_pago }}</span>
+            <div class="summary-item">
+                <div class="summary-label">Forma de Pago</div>
+                <div class="summary-value text-uppercase">
+                    {{ $order->metodo_pago }}
+                </div>
             </div>
         </div>
 
-        <div class="d-grid gap-2 mt-4">
-            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $empresa->telefono ?? '') }}?text=Hola!%20Acabo%20de%20realizar%20un%20pedido%20(%23{{ $order->id }}).%20" 
-               class="whatsapp-btn">
-                <i class="fab fa-whatsapp fs-4"></i> Consultar por WhatsApp
+        <div class="action-buttons">
+            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $empresa->telefono) }}?text=Hola!%20Acabo%20de%20realizar%20el%20pedido%20%23{{ $order->id }}%20en%20{{ $empresa->nombre_comercial }}" target="_blank" class="btn-action btn-whatsapp shadow-sm">
+                <i class="bi bi-whatsapp"></i> WhatsApp
             </a>
-            
-            <a href="{{ route('catalog.index', $empresa->id) }}" class="btn-return">
-                Seguir Comprando
+            <a href="{{ route('catalog.index', $empresa->slug ?? $empresa->id) }}" class="btn-action btn-catalog shadow-sm">
+                 Seguir Comprando
             </a>
         </div>
 
-    </div>
-
-    <div class="text-center mt-5">
-        <p class="small text-secondary fw-bold text-uppercase letter-spacing-1">
-            Multipro - Soluciones Digitales
-        </p>
     </div>
 </div>
+
 @endsection

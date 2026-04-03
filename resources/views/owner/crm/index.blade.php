@@ -14,27 +14,27 @@
     body { background-color: var(--oled-bg) !important; color: #fff; overflow-x: hidden; }
 
     .header-hub {
-        padding: 3rem 4% 1.5rem 4%; 
+        padding: 1rem 1.5% 0.5rem 1.5%; 
         display: flex;
         align-items: center;
-        gap: 4rem;
+        gap: 2rem;
     }
 
     .crm-container {
         display: flex;
         width: 100%;
-        padding: 0 4%; 
-        gap: 0;
-        height: 78vh;
+        padding: 0 1.5%; 
+        gap: 0.5rem;
+        height: 82vh;
         overflow-x: auto;
     }
 
     .kanban-col {
-        width: 330px;
-        flex-shrink: 0;
+        flex: 1;
+        min-width: 320px;
         display: flex;
         flex-direction: column;
-        padding: 0 1.5rem;
+        padding: 0 1rem;
         border-right: 1px dashed rgba(255,255,255,0.08);
     }
 
@@ -42,8 +42,8 @@
         background: linear-gradient(90deg, var(--stellar-blue) 0%, transparent 100%);
         padding: 0.8rem 1.6rem;
         border-radius: 12px;
-        margin-bottom: 3.5rem;
-        height: 55px; 
+        margin-bottom: 1.5rem;
+        height: 50px; 
         display: flex;
         align-items: center;
         justify-content: space-between;
