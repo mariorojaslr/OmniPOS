@@ -1,102 +1,82 @@
-@extends('layouts.empresa')
-
 @section('styles')
 <style>
-/* ESTÉTICA OLED CENTRAL UNIFICADA */
-body { background: #000 !important; }
-
-.glass-card-oled {
-    background: rgba(20, 20, 25, 0.7) !important;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    padding: 1.5rem;
+/* RESTAURACIÓN ESTÉTICA ORIGINAL - MODO CLARO PROFESIONAL */
+.card-stats {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
 }
+.card-stats:hover { transform: translateY(-5px); }
 
-.stat-box-oled {
-    background: #000;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 18px;
-    padding: 1.2rem;
-    text-align: center;
-    transition: 0.3s;
-}
-.stat-box-oled:hover { border-color: var(--color-primario); box-shadow: 0 0 20px rgba(var(--color-primario-rgb), 0.2); }
-
-.oled-title { color: #fff; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; }
-.oled-text-muted { color: rgba(255,255,255,0.4); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; }
-
-.table-oled { background: transparent !important; }
-.table-oled thead th { 
-    background: rgba(255,255,255,0.03); 
-    color: #fff; 
-    font-size: 0.65rem; 
-    font-weight: 900; 
-    text-transform: uppercase; 
-    letter-spacing: 2px;
-    border-bottom: 2px solid rgba(255,255,255,0.05);
-    padding: 1.2rem;
-}
-.table-oled tbody td { 
-    padding: 1.2rem; 
-    color: #e5e7eb; 
-    border-bottom: 1px solid rgba(255,255,255,0.03); 
-}
-
-.oled-badge {
-    padding: 6px 16px;
-    border-radius: 30px;
-    font-size: 0.6rem;
-    font-weight: 950;
+.table-premium thead th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+.table-premium tbody td {
+    padding: 1rem;
+    color: #1e293b;
+    vertical-align: middle;
 }
 </style>
 @endsection
 
 @section('content')
-<div class="p-3">
+<div class="container-fluid py-4">
     
-    {{-- HEADER OLED --}}
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    {{-- HEADER --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="oled-title mb-1" style="font-size: 2.2rem;">Gestión de Presupuestos</h1>
-            <p class="oled-text-muted mb-0">SEGUIMIENTO COMERCIAL EN TIEMPO REAL • MULTIPOS CENTRAL</p>
+            <h2 class="fw-bold text-dark mb-1">Gestión de Presupuestos</h2>
+            <p class="text-muted small mb-0">Seguimiento comercial y cotizaciones en tiempo real</p>
         </div>
-        <div class="d-flex gap-3">
-            <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-primary fw-black rounded-pill px-4 py-2 text-uppercase" style="font-size: 0.75rem;">
+        <div class="d-flex gap-2">
+            <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
                 <i class="bi bi-plus-lg me-2"></i> Nueva Cotización
             </a>
-            <button class="btn btn-dark border-secondary fw-bold rounded-pill px-4 py-2" style="font-size: 0.75rem;">
+            <button class="btn btn-outline-secondary fw-bold rounded-pill px-4 shadow-sm">
                 <i class="bi bi-file-earmark-pdf me-2"></i> Reportes
             </button>
         </div>
     </div>
 
-    {{-- INDICADORES OLED --}}
-    <div class="row g-4 mb-5">
+    {{-- INDICADORES --}}
+    <div class="row g-3 mb-4">
         @foreach([
-            ['L'=>'TOTAL EMITIDOS', 'V'=>$stats['total'], 'C'=>'#fff'],
-            ['L'=>'PENDIENTES', 'V'=>$stats['pendientes'], 'C'=>'#f59e0b'],
-            ['L'=>'ACEPTADOS', 'V'=>$stats['aceptados'], 'C'=>'#10b981'],
-            ['L'=>'VENCIDOS', 'V'=>$stats['vencidos'], 'C'=>'#ef4444']
+            ['L'=>'Total Emitidos', 'V'=>$stats['total'], 'C'=>'primary', 'I' => 'bi-file-text'],
+            ['L'=>'Pendientes', 'V'=>$stats['pendientes'], 'C'=>'warning', 'I' => 'bi-clock-history'],
+            ['L'=>'Aceptados', 'V'=>$stats['aceptados'], 'C'=>'success', 'I' => 'bi-check-circle'],
+            ['L'=>'Vencidos', 'V'=>$stats['vencidos'], 'C'=>'danger', 'I' => 'bi-exclamation-octagon']
         ] as $s)
         <div class="col-md-3">
-            <div class="stat-box-oled">
-                <div class="oled-text-muted mb-2">{{ $s['L'] }}</div>
-                <div class="fw-black fs-2" style="color: {{ $s['C'] }}">{{ $s['V'] }}</div>
+            <div class="card card-stats h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-{{ $s['C'] }} bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="bi {{ $s['I'] }} text-{{ $s['C'] }} fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">{{ $s['L'] }}</div>
+                        <div class="h3 fw-bold mb-0">{{ $s['V'] }}</div>
+                    </div>
+                </div>
             </div>
         </div>
         @endforeach
     </div>
 
-    {{-- TABLA OLED --}}
-    <div class="glass-card-oled p-0 overflow-hidden">
+    {{-- LISTADO --}}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="table-responsive">
-            <table class="table table-oled table-hover align-middle mb-0">
+            <table class="table table-premium table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th>REF #</th>
+                        <th width="120">REF #</th>
                         <th>CLIENTE / PROSPECTO</th>
                         <th>EMISIÓN</th>
                         <th>VENCIMIENTO</th>
@@ -108,12 +88,12 @@ body { background: #000 !important; }
                 <tbody>
                     @forelse ($presupuestos as $presu)
                     <tr>
-                        <td><span class="fw-black text-white bg-white/5 px-3 py-1 rounded-pill">#{{ $presu->numero }}</span></td>
+                        <td class="fw-bold text-primary">#{{ $presu->numero }}</td>
                         <td>
-                            <div class="fw-bold text-white fs-6">{{ $presu->client->name ?? 'Cliente Ocasional' }}</div>
-                            <div class="oled-text-muted small">{{ $presu->client->email ?? '-' }}</div>
+                            <div class="fw-bold fs-6">{{ $presu->client->name ?? 'Cliente Ocasional' }}</div>
+                            <div class="text-muted small">{{ $presu->client->email ?? '-' }}</div>
                         </td>
-                        <td class="small">{{ $presu->fecha ? $presu->fecha->format('d M, Y') : '-' }}</td>
+                        <td class="small">{{ $presu->fecha ? $presu->fecha->format('d/m/Y') : '-' }}</td>
                         <td class="small">
                             @if($presu->vencimiento && $presu->vencimiento < now() && $presu->estado == 'pendiente')
                                 <span class="text-danger fw-bold">{{ $presu->vencimiento->format('d/m/Y') }}</span>
@@ -121,29 +101,36 @@ body { background: #000 !important; }
                                 {{ $presu->vencimiento ? $presu->vencimiento->format('d/m/Y') : '-' }}
                             @endif
                         </td>
-                        <td class="text-end fw-black fs-5 text-success">$ {{ number_format($presu->total, 2, ',', '.') }}</td>
+                        <td class="text-end fw-bold fs-5 text-success">$ {{ number_format($presu->total, 2, ',', '.') }}</td>
                         <td class="text-center">
                             @php
-                                $badgeStyle = match($presu->estado) {
-                                    'pendiente' => 'background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid #f59e0b;',
-                                    'aceptado'  => 'background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981;',
-                                    'vencido'   => 'background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444;',
-                                    default     => 'background: rgba(255,255,255,0.05); color: #fff; border: 1px solid #fff;'
+                                $badgeClass = match($presu->estado) {
+                                    'pendiente' => 'bg-warning',
+                                    'aceptado'  => 'bg-success',
+                                    'vencido'   => 'bg-danger',
+                                    default     => 'bg-secondary'
                                 };
                             @endphp
-                            <span class="oled-badge" style="{{ $badgeStyle }}">{{ $presu->estado }}</span>
+                            <span class="badge {{ $badgeClass }} rounded-pill px-3 py-2 text-uppercase" style="font-size: 0.65rem;">{{ $presu->estado }}</span>
                         </td>
                         <td class="text-end pe-4">
-                            <button class="btn btn-dark border-secondary rounded-pill btn-sm px-4 fw-black text-uppercase" style="font-size: 0.6rem;">
-                                Gestionar
-                            </button>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-dark rounded-pill px-3 ms-1">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="7" class="text-center py-5">
-                            <i class="bi bi-folder2-open fs-1 text-white/5"></i>
-                            <div class="oled-text-muted mt-3">NO HAY PRESUPUESTOS EMITIDOS HASTA EL MOMENTO</div>
+                            <div class="text-muted">
+                                <i class="bi bi-inbox-fill fs-1 opacity-25"></i>
+                                <p class="mt-2 fw-bold">No hay presupuestos emitidos hasta el momento</p>
+                            </div>
                         </td>
                     </tr>
                     @endforelse

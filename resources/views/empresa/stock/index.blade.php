@@ -11,9 +11,14 @@
         <h2 class="fw-bold mb-0">Control de Stock</h2>
         <small class="text-muted">Inventario en tiempo real</small>
     </div>
-    <a href="{{ route('empresa.stock.faltantes') }}" class="btn btn-primary d-flex align-items-center shadow-sm">
-        <span class="fs-5 me-2">🤖</span> Centro de Reposición Inteligente
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('empresa.inventory_scan') }}" class="btn btn-outline-primary d-flex align-items-center shadow-sm">
+            <span class="fs-5 me-2">📲</span> Escáner Móvil
+        </a>
+        <a href="{{ route('empresa.stock.faltantes') }}" class="btn btn-primary d-flex align-items-center shadow-sm">
+            <span class="fs-5 me-2">🤖</span> Centro de Reposición Inteligente
+        </a>
+    </div>
 </div>
 
 

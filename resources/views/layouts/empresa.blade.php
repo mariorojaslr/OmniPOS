@@ -172,6 +172,10 @@ body{
                         <li><a class="dropdown-item" href="{{ route('empresa.products.index') }}">Listado / Alta</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.rubros.index') }}">Gestionar Rubros</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.products.bulk-price-update') }}">Act. de Precios</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.inventory_scan') }}"><i class="bi bi-qr-code-scan me-2"></i> ESCÁNER MÓVIL</a></li>
+                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.labels.index') }}"><i class="bi bi-printer me-2"></i> IMPRIMIR ETIQUETAS</a></li>
+                        <li><a class="dropdown-item text-warning" href="{{ route('empresa.stock.faltantes') }}"><i class="bi bi-exclamation-triangle me-2"></i> CENTRO DE REPOSICIÓN</a></li>
                     </ul>
                 </li>
 

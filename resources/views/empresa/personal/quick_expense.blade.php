@@ -6,15 +6,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
     :root {
-        --accent-color: #3b82f6;
-        --oled-black: #000000;
-        --card-bg: #0a0a0a;
-        --input-bg: #111111;
+        --accent-color: #2563eb;
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --input-bg: #f1f5f9;
+        --text-main: #1e293b;
     }
 
     body { 
-        background-color: var(--oled-black) !important; 
-        color: #f8fafc; 
+        background-color: var(--bg-color) !important; 
+        color: var(--text-main); 
         font-family: 'Outfit', sans-serif; 
         margin: 0; 
         padding: 0; 
@@ -37,31 +38,20 @@
 
     .neon-card { 
         background: var(--card-bg); 
-        border: 1px solid rgba(255, 255, 255, 0.08); 
+        border: 1px solid rgba(0, 0, 0, 0.05); 
         border-radius: 28px; 
         padding: 2.5rem 1.5rem; 
-        box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         margin-bottom: 25px;
         position: relative;
         overflow: hidden;
-    }
-
-    .neon-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle at center, rgba(59, 130, 246, 0.05), transparent 70%);
-        pointer-events: none;
     }
 
     .huge-input { 
         background: transparent; 
         border: none; 
         font-size: 4.5rem; 
-        color: #fff; 
+        color: var(--text-main); 
         font-weight: 800; 
         text-align: center; 
         width: 100%; 
@@ -69,7 +59,7 @@
         letter-spacing: -2px;
     }
 
-    .huge-input::placeholder { color: #1e293b; }
+    .huge-input::placeholder { color: #cbd5e1; }
 
     .category-grid {
         display: grid;
@@ -79,11 +69,11 @@
     }
 
     .category-btn { 
-        background: var(--input-bg); 
-        border: 1px solid rgba(255, 255, 255, 0.05); 
+        background: var(--card-bg); 
+        border: 1px solid #e2e8f0; 
         border-radius: 20px; 
         padding: 18px 10px; 
-        color: #94a3b8; 
+        color: #64748b; 
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
         text-align: center; 
         cursor: pointer;
@@ -94,44 +84,44 @@
     }
 
     .category-btn i { font-size: 1.5rem; }
-    .category-btn small { font-weight: 600; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 1px; }
+    .category-btn small { font-weight: 700; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 1px; }
 
     .category-btn.active { 
         background: var(--accent-color); 
         color: #fff;
-        border-color: #60a5fa; 
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.4); 
+        border-color: var(--accent-color); 
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); 
         transform: translateY(-3px);
     }
 
     .field-label {
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #64748b;
+        color: #475569;
         margin-bottom: 10px;
         padding-left: 5px;
     }
 
     .glass-input {
-        background: var(--input-bg) !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        color: #fff !important;
+        background: #fff !important;
+        border: 1px solid #e2e8f0 !important;
+        color: var(--text-main) !important;
         padding: 15px 25px !important;
         border-radius: 50px !important;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.3s;
     }
 
     .glass-input:focus {
         border-color: var(--accent-color) !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
+        box-shadow: 0 0 15px rgba(37, 99, 235, 0.1) !important;
     }
 
     .photo-upload-zone {
-        background: linear-gradient(145deg, #0a0a0a, #111);
-        border: 2px dashed rgba(59, 130, 246, 0.3);
+        background: #fff;
+        border: 2px dashed #cbd5e1;
         border-radius: 22px;
         padding: 25px;
         text-align: center;
@@ -141,12 +131,12 @@
         flex-direction: column;
         align-items: center;
         gap: 10px;
-        color: #94a3b8;
+        color: #64748b;
     }
 
     .photo-upload-zone.captured {
         border-color: #10b981;
-        background: rgba(16, 185, 129, 0.05);
+        background: #f0fdf4;
         color: #10b981;
     }
 
@@ -159,7 +149,7 @@
         font-weight: 800; 
         font-size: 1.25rem; 
         margin-top: 30px; 
-        box-shadow: 0 15px 40px rgba(37, 99, 235, 0.4); 
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3); 
         transition: all 0.3s;
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -168,14 +158,14 @@
     .submit-btn:active { transform: scale(0.98); }
 
     .back-link {
-        color: #475569;
+        color: #94a3b8;
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 0.9rem;
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        margin-top: 20px;
+        margin-top: 25px;
     }
 </style>
 @endsection

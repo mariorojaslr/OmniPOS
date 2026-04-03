@@ -82,10 +82,28 @@
             </div>
         </div>
 
-        <div class="d-flex gap-2">
-            <a href="{{ route('empresa.products.export') }}" class="btn btn-outline-dark border-0 bg-light rounded-pill px-3" style="font-size:0.8rem; font-weight:700;">📊 Exportar</a>
-            <button type="button" class="btn btn-outline-dark border-0 bg-light rounded-pill px-3" style="font-size:0.8rem; font-weight:700;" data-bs-toggle="modal" data-bs-target="#importModal">📥 Importar</button>
-            <a href="{{ route('empresa.products.create') }}" class="btn btn-primary shadow-sm rounded-pill px-4" style="font-size:0.8rem; font-weight:700;">+ Nuevo Producto</a>
+        <div class="d-flex gap-2 flex-wrap justify-content-end">
+            {{-- BOTONES DE EXCEL (PROMINENTES) --}}
+            <a href="{{ route('empresa.products.export') }}" class="btn btn-success shadow-sm rounded-pill px-4 d-flex align-items-center gap-2" style="font-size:0.85rem; font-weight:800;">
+                <i class="bi bi-file-earmark-excel fs-5"></i> EXPORTAR EXCEL
+            </a>
+            <button type="button" class="btn btn-info text-white shadow-sm rounded-pill px-4 d-flex align-items-center gap-2" style="font-size:0.85rem; font-weight:800;" data-bs-toggle="modal" data-bs-target="#importModal">
+                <i class="bi bi-cloud-arrow-up fs-5"></i> IMPORTAR EXCEL
+            </button>
+
+            <div class="vr mx-2 opacity-10"></div>
+
+            {{-- BOTONES DE UTILIDAD --}}
+            <a href="{{ route('empresa.inventory_scan') }}" class="btn btn-outline-primary shadow-sm rounded-pill px-3 d-flex align-items-center gap-2" style="font-size:0.8rem; font-weight:700;">
+                <i class="bi bi-qr-code-scan"></i> ESCÁNER
+            </a>
+            <a href="{{ route('empresa.labels.index') }}" class="btn btn-outline-dark shadow-sm rounded-pill px-3 d-flex align-items-center gap-2" style="font-size:0.8rem; font-weight:700;">
+                <i class="bi bi-printer"></i> ETIQUETAS
+            </a>
+
+            <a href="{{ route('empresa.products.create') }}" class="btn btn-primary shadow-lg rounded-pill px-4 d-flex align-items-center gap-2" style="font-size:0.85rem; font-weight:800; background: linear-gradient(45deg, #2563eb, #1d4ed8);">
+                <i class="bi bi-plus-circle-fill"></i> NUEVO PRODUCTO
+            </a>
         </div>
     </div>
 
