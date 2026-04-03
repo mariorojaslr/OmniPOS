@@ -52,7 +52,7 @@
 <div class="row align-items-center mb-5">
     <div class="col-md-8">
         <h1 class="fw-bold mb-0">🛡️ Bóveda de Resguardo</h1>
-        <p class="text-secondary small">Gestión de copias de seguridad de <span class="fw-bold">{{ $empresa->nombre_comercial }}</span></p>
+        <p class="text-secondary small">Gestión de activos y copias de seguridad de <span class="fw-bold">{{ $empresa->nombre_comercial }}</span></p>
     </div>
 </div>
 
@@ -61,7 +61,7 @@
     <div class="col-md-4">
         <div class="vault-card">
             <h4 class="vault-title">🗄️ Base de Datos</h4>
-            <p class="text-secondary small mb-4">Descarga el volcado completo de tus productos, ventas y configuraciones en formato SQL/JSON.</p>
+            <p class="text-secondary small mb-4">Descarga el volcado completo de tus productos, ventas, clientes y configuraciones operativas.</p>
             <button class="btn btn-download">DESCARGAR SQL</button>
         </div>
     </div>
@@ -69,17 +69,17 @@
     <!-- Archivos & Media -->
     <div class="col-md-4">
         <div class="vault-card">
-            <h4 class="vault-title">🖼️ Media & Bunny</h4>
-            <p class="text-secondary small mb-4">Acceso a la sincronización con Bunny.net para respaldar imágenes de productos y videos.</p>
-            <button class="btn btn-download" style="background: #3b82f6;">SINC BIZARRE</button>
+            <h4 class="vault-title">🖼️ Repositorio de Activos</h4>
+            <p class="text-secondary small mb-4">Sincronización con el servidor central de alto rendimiento para el resguardo de imágenes y media.</p>
+            <button class="btn btn-download" style="background: #3b82f6;">SINCRONIZAR</button>
         </div>
     </div>
 
     <!-- Pasarelas -->
     <div class="col-md-4">
         <div class="vault-card">
-            <h4 class="vault-title">🔑 Keys Pasarelas</h4>
-            <p class="text-secondary small mb-4">Respaldo blindado de tus credenciales de Mercado Pago, Stripe y tokens de envíos.</p>
+            <h4 class="vault-title">🔑 Tokens de Conexión</h4>
+            <p class="text-secondary small mb-4">Respaldo de seguridad de tus credenciales de cobro electrónico (Mercado Pago, Stripe) y envíos.</p>
             <button class="btn btn-download" style="background: #0f172a;">VER TOKENS</button>
         </div>
     </div>
@@ -90,7 +90,7 @@
         <span class="fs-1">💡</span>
         <div>
             <h5 class="fw-bold mb-1">¿Sabías qué?</h5>
-            <p class="text-secondary mb-0">MultiPOS genera automáticamente un respaldo semanal de tus datos críticos, el cual puedes descargar o restaurar en cualquier momento desde esta bóveda.</p>
+            <p class="text-secondary mb-0">MultiPOS genera automáticamente un respaldo semanal de tus datos críticos, el cual puedes descargar o restaurar en cualquier momento desde esta bóveda privada.</p>
         </div>
     </div>
 </div>
