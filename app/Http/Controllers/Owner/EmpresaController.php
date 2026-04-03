@@ -96,14 +96,20 @@ class EmpresaController extends Controller
             ->with('success', $msg);
     }
 
-    public function edit(Empresa $empresa)
+    /**
+     * Editar empresa - Usa $empresaId (entero) para evitar conflicto con slug binding
+     */
+    public function edit($empresaId)
     {
+        $empresa = Empresa::findOrFail($empresaId);
         $planes = \App\Models\Plan::where('is_active', true)->get();
         return view('owner.empresas.edit', compact('empresa', 'planes'));
     }
 
-    public function update(Request $request, Empresa $empresa)
+    public function update(Request $request, $empresaId)
     {
+        $empresa = Empresa::findOrFail($empresaId);
+
         $data = $request->validate([
             'nombre_comercial'  => 'required|string|max:255',
             'email'             => 'nullable|email',
@@ -123,8 +129,9 @@ class EmpresaController extends Controller
     /**
      * ACTIVAR / DESACTIVAR EMPRESA
      */
-    public function toggleStatus(Empresa $empresa): RedirectResponse
+    public function toggleStatus($empresaId): RedirectResponse
     {
+        $empresa = Empresa::findOrFail($empresaId);
         $empresa->update([
             'activo' => ! $empresa->activo,
         ]);
@@ -135,8 +142,9 @@ class EmpresaController extends Controller
     /**
      * RENOVAR EMPRESA
      */
-    public function renovar(Empresa $empresa): RedirectResponse
+    public function renovar($empresaId): RedirectResponse
     {
+        $empresa = Empresa::findOrFail($empresaId);
         $empresa->renovar(30);
 
         return back()->with('success', 'Empresa renovada por 30 días');
@@ -145,8 +153,10 @@ class EmpresaController extends Controller
     /**
      * MIMETIZACIÓN (ENTRAR COMO USUARIO)
      */
-    public function impersonate(Empresa $empresa, User $user): RedirectResponse
+    public function impersonate($empresaId, User $user): RedirectResponse
     {
+        $empresa = Empresa::findOrFail($empresaId);
+
         // Verificar que el usuario pertenezca a la empresa
         if ($user->empresa_id !== $empresa->id) {
             return back()->with('error', 'El usuario no pertenece a esta empresa.');

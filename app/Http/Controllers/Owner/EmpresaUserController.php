@@ -12,16 +12,19 @@ use Illuminate\Support\Str;
 
 class EmpresaUserController extends Controller
 {
-    public function index(Empresa $empresa)
+    public function index($empresaId)
     {
+        $empresa = Empresa::findOrFail($empresaId);
+        
         return view('owner.empresas.users.index', [
             'empresa' => $empresa,
             'users'   => $empresa->users()->orderBy('name')->get(),
         ]);
     }
 
-    public function create(Empresa $empresa)
+    public function create($empresaId)
     {
+        $empresa = Empresa::findOrFail($empresaId);
         return view('owner.empresas.users.create', compact('empresa'));
     }
 
@@ -30,8 +33,10 @@ class EmpresaUserController extends Controller
     | CREAR USUARIO (password manual o automático)
     |--------------------------------------------------------------------------
     */
-    public function store(Request $request, Empresa $empresa)
+    public function store(Request $request, $empresaId)
     {
+        $empresa = Empresa::findOrFail($empresaId);
+
         $data = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
@@ -53,7 +58,7 @@ class EmpresaUserController extends Controller
         ]);
 
         return redirect()
-            ->route('owner.empresas.users.index', $empresa)
+            ->route('owner.empresas.users.index', $empresa->id)
             ->with('success', "Usuario creado correctamente. Password: {$password}");
     }
 
@@ -62,8 +67,9 @@ class EmpresaUserController extends Controller
     | Activar / Desactivar usuario
     |--------------------------------------------------------------------------
     */
-    public function toggle(Empresa $empresa, User $usuario)
+    public function toggle($empresaId, User $usuario)
     {
+        $empresa = Empresa::findOrFail($empresaId);
         abort_if($usuario->empresa_id !== $empresa->id, 403);
 
         $usuario->update([
@@ -78,8 +84,9 @@ class EmpresaUserController extends Controller
     | Resetear password (siempre automático)
     |--------------------------------------------------------------------------
     */
-    public function resetPassword(Empresa $empresa, User $usuario)
+    public function resetPassword($empresaId, User $usuario)
     {
+        $empresa = Empresa::findOrFail($empresaId);
         abort_if($usuario->empresa_id !== $empresa->id, 403);
 
         $password = Str::random(8);

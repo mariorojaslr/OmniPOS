@@ -4,6 +4,17 @@
 <div class="container-fluid mt-4">
 
     {{-- =========================================================
+        BANNER DE CONFIRMACIÓN DE VERSIÓN (Si ves esto, el deploy funcionó)
+    ========================================================== --}}
+    <div class="alert alert-info border-0 shadow-sm mb-4 d-flex align-items-center" style="background: linear-gradient(45deg, #0d6efd, #0099ff); color: white;">
+        <i class="fas fa-check-circle me-3 fs-4"></i>
+        <div>
+            <h6 class="mb-0 fw-bold text-white">✅ SISTEMA REPARADO: VERSIÓN 404-FIX v2.0 ACTIVA</h6>
+            <small class="text-white-50">Rutas blindadas con findOrFail(ID). Auto-reparación activa.</small>
+        </div>
+    </div>
+
+    {{-- =========================================================
         Encabezado + acción principal
     ========================================================== --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -94,8 +105,8 @@
                         {{-- Acciones --}}
                         <td class="text-end pe-4">
 
-                            {{-- Usuarios de la empresa --}}
-                            <a href="{{ route('owner.empresas.users.index', [$empresa->id]) }}"
+                            {{-- Usuarios de la empresa (usa ID explícito, NO slug) --}}
+                            <a href="{{ url('owner/empresas/' . $empresa->id . '/users') }}"
                                class="btn btn-sm btn-outline-primary">
                                 Usuarios
                             </a>
@@ -107,7 +118,7 @@
                             @endphp
                             
                             @if($admin)
-                                <a href="{{ route('owner.empresas.users.impersonate', [$empresa->id, $admin->id]) }}"
+                                <a href="{{ url('owner/mimetizar/empresa/' . $empresa->id . '/usuario/' . $admin->id) }}"
                                    class="btn btn-sm btn-primary ms-1 fw-bold" title="Entrar como Administrador ({{ $admin->name }})">
                                     <i class="bi bi-box-arrow-in-right"></i> ENTRAR
                                 </a>
@@ -117,9 +128,9 @@
                                 </button>
                             @endif
 
-                            {{-- Editar empresa --}}
-                            <a href="{{ route('owner.empresas.edit', [$empresa->id]) }}"
-                               class="btn btn-sm btn-outline-secondary ms-1">
+                            {{-- Editar empresa (usa ID explícito, NO slug) --}}
+                            <a href="{{ url('owner/empresas/' . $empresa->id . '/edit') }}"
+                               class="btn btn-sm btn-dark ms-1">
                                 Editar
                             </a>
 

@@ -90,16 +90,16 @@ Route::middleware(['auth', 'owner'])
         Route::get('/dashboard', [OwnerDashboardController::class , 'index'])->name('dashboard')->middleware('can:isOwner');
         
         // MIMETIZACIÓN (Ruta Única Anti-Conflicto)
-        Route::get('/mimetizar/empresa/{empresa}/usuario/{usuario}', [App\Http\Controllers\Owner\EmpresaUserController::class, 'impersonate'])->name('empresas.users.impersonate');
+        Route::get('/mimetizar/empresa/{empresaId}/usuario/{usuario}', [App\Http\Controllers\Owner\EmpresaUserController::class, 'impersonate'])->name('empresas.users.impersonate');
 
-        // GESTIÓN DE USUARIOS DE EMPRESA (Restaurado Full)
-        Route::get('empresas/{empresa}/users', [EmpresaUserController::class , 'index'])->name('empresas.users.index');
-        Route::get('empresas/{empresa}/users/create', [EmpresaUserController::class , 'create'])->name('empresas.users.create');
-        Route::post('empresas/{empresa}/users', [EmpresaUserController::class , 'store'])->name('empresas.users.store');
-        Route::patch('empresas/{empresa}/users/{usuario}/toggle', [EmpresaUserController::class , 'toggle'])->name('empresas.users.toggle');
-        Route::patch('empresas/{empresa}/users/{usuario}/reset-password', [EmpresaUserController::class , 'resetPassword'])->name('empresas.users.reset');
+        // GESTIÓN DE USUARIOS DE EMPRESA (Restaurado Full - Usa {empresaId} para evitar slug binding)
+        Route::get('empresas/{empresaId}/users', [EmpresaUserController::class , 'index'])->name('empresas.users.index');
+        Route::get('empresas/{empresaId}/users/create', [EmpresaUserController::class , 'create'])->name('empresas.users.create');
+        Route::post('empresas/{empresaId}/users', [EmpresaUserController::class , 'store'])->name('empresas.users.store');
+        Route::patch('empresas/{empresaId}/users/{usuario}/toggle', [EmpresaUserController::class , 'toggle'])->name('empresas.users.toggle');
+        Route::patch('empresas/{empresaId}/users/{usuario}/reset-password', [EmpresaUserController::class , 'resetPassword'])->name('empresas.users.reset');
 
-        Route::resource('empresas', EmpresaController::class)->except(['show']);
+        Route::resource('empresas', EmpresaController::class)->except(['show'])->parameters(['empresas' => 'empresaId']);
         Route::resource('planes', PlanController::class)->except(['show'])->parameters(['planes' => 'plan']);
         Route::resource('updates', SystemUpdateController::class);
 
@@ -109,8 +109,8 @@ Route::middleware(['auth', 'owner'])
         Route::resource('soporte', OwnerSupportTicketController::class)->names('soporte');
         Route::post('soporte/upload-media', [OwnerSupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');
 
-        Route::patch('empresas/{empresa}/toggle', [EmpresaController::class , 'toggleStatus'])->name('empresas.toggle');
-        Route::patch('empresas/{empresa}/renovar', [EmpresaController::class , 'renovar'])->name('empresas.renovar');
+        Route::patch('empresas/{empresaId}/toggle', [EmpresaController::class , 'toggleStatus'])->name('empresas.toggle');
+        Route::patch('empresas/{empresaId}/renovar', [EmpresaController::class , 'renovar'])->name('empresas.renovar');
 
         // CRM DE PROSPECTOS (NUEVO)
         Route::get('crm', [App\Http\Controllers\Owner\CRMController::class, 'index'])->name('crm.index');
