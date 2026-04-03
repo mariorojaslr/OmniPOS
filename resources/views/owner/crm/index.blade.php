@@ -22,8 +22,8 @@
 
     .crm-container {
         display: flex;
-        width: 100vw;
-        padding: 0 3%; 
+        width: 100%;
+        padding: 0 4%; 
         gap: 0;
         height: 78vh;
         overflow-x: auto;
@@ -34,51 +34,53 @@
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
-        padding: 0 1.2rem;
-        border-right: 1px dashed rgba(255,255,255,0.08); /* DIVISORES DE LA IMAGEN */
+        padding: 0 1.5rem;
+        border-right: 1px dashed rgba(255,255,255,0.08); /* LÍNEAS DIVISORIAS PUNTEADAS */
     }
 
     .col-header {
         background: linear-gradient(90deg, var(--stellar-blue) 0%, transparent 100%);
-        padding: 0.8rem 1.5rem;
+        padding: 0.8rem 1.6rem;
         border-radius: 12px;
         margin-bottom: 3.5rem;
-        height: 55px;
+        height: 55px; 
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-    .header-title { font-size: 0.75rem; font-weight: 950; letter-spacing: 0.35em; text-transform: uppercase; white-space: nowrap; }
+    .header-title { font-size: 0.8rem; font-weight: 950; letter-spacing: 0.35em; text-transform: uppercase; white-space: nowrap; color: #fff; }
 
     /* TARJETA ELITE SIMÉTRICA 130PX CON POST-IT */
     .kanban-card {
         background: var(--card-bg);
-        border: 1px solid #ffffff; /* LÍNEA BLANCA 1PX */
+        border: 1px solid #ffffff; /* LÍNEA BLANCA 1PX SAGRADA */
         border-radius: 14px;
-        padding: 1.2rem 1.2rem 1.2rem 2.2rem; /* EQUIDISTANTE */
+        padding: 1.2rem 1.2rem 1rem 2.5rem; /* EQUIDISTANCIA VERTICAL */
         margin-bottom: 22px; 
-        height: 135px; 
+        height: 140px; 
         position: relative;
         display: flex;
         flex-direction: column;
         justify-content: center; 
-        gap: 0.6rem;
+        gap: 0.8rem;
         cursor: grab;
         transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
     .kanban-card:hover {
         border-color: var(--accent-sky);
-        box-shadow: 0 0 50px -10px var(--stellar-blue); /* SOMBRA AZUL ESTELAR */
+        box-shadow: 0 0 50px -10px var(--stellar-blue); /* SOMBRA AZUL ESTELAR PROFUNDA */
         transform: translateY(-5px);
+        animation: cardBlink 1.5s infinite alternate;
     }
+    @keyframes cardBlink { from { border-color: #fff; } to { border-color: var(--accent-sky); } }
 
+    /* EL POST-IT LATERAL */
     .post-it {
         position: absolute;
         left: 0;
         top: 0;
-        width: 9px;
+        width: 10px;
         height: 100%;
         border-radius: 14px 0 0 14px;
         z-index: 10;
@@ -88,72 +90,88 @@
     .p-amber { background: var(--accent-amber); }
     .p-emerald { background: var(--accent-emerald); }
 
-    .card-controls { position: absolute; right: 12px; top: 10px; display: flex; gap: 12px; opacity: 0.2; }
-    .kanban-card:hover .card-controls { opacity: 0.9; }
+    .card-controls { position: absolute; right: 12px; top: 12px; display: flex; gap: 12px; opacity: 0.2; }
+    .kanban-card:hover .card-controls { opacity: 1; }
+    .card-handle { color: var(--accent-sky); font-size: 1.5rem; opacity: 0.3; }
 
-    .card-name { font-size: 0.85rem; font-weight: 950; text-transform: uppercase; color: #fff; line-height: 1.2; }
-    .card-subtext { font-size: 0.6rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    /* TEXTO DELICADO 1 RENGLÓN */
+    .card-name { font-size: 0.9rem; font-weight: 950; text-transform: uppercase; color: #fff; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
+    .card-subtext { font-size: 0.65rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
-    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 5px; }
     .btn-sci-fi { 
         background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); color: var(--accent-sky); 
-        padding: 5px 0; border-radius: 8px; font-size: 0.5rem; font-weight: 950; text-align: center; text-transform: uppercase;
+        padding: 7px 0; border-radius: 8px; font-size: 0.55rem; font-weight: 950; text-align: center; text-transform: uppercase;
     }
-    .btn-sci-fi:hover { background: var(--accent-sky); color: #000; }
 
+    /* FOOTER STATUS INSIDE */
     .status-line {
-        border-top: 1px solid rgba(255,255,255,0.08);
-        padding-top: 6px;
+        border-top: 1px solid rgba(255,255,255,0.08); /* RAYA SUTIL */
+        padding-top: 8px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.52rem;
+        font-size: 0.55rem;
         font-weight: 950;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
     }
 
-    /* SCANNER HUB BOX BLANCO CENTRADO */
+    /* HUB DE SCANNER - MARCO CELESTE CENTRADO TOTAL */
     .scanner-hub-box {
         flex: 1;
         display: flex;
         justify-content: center;
         padding-top: 4rem;
-        min-width: 440px;
+        min-width: 480px;
     }
     .scanner-card {
         width: 400px;
         background: #000;
-        border: 2px solid #ffffff; /* MARCO BLANCO TOTAL */
+        border: 2px solid var(--accent-sky); /* MARCO CELESTE */
         border-radius: 40px;
         padding: 3rem;
         display: flex;
         flex-direction: column;
         align-items: center;
-        box-shadow: 0 0 100px rgba(30, 58, 138, 0.2);
+        gap: 2rem;
+        box-shadow: 0 0 100px rgba(56, 189, 248, 0.1);
     }
-    .scanner-divider { width: 100%; border-top: 4px solid var(--accent-sky); margin: 2rem 0; box-shadow: 0 0 15px var(--accent-sky); }
     
     .grid-centered {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
         width: 100%;
-        justify-items: center;
+        justify-items: center; /* CENTRADO EQUIDISTANTE */
     }
     .mini-card {
-        width: 100%;
+        width: 155px;
         background: rgba(255,255,255,0.02);
         border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 20px;
-        padding: 1.5rem;
+        border-radius: 18px;
+        padding: 1.4rem;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: center; /* ALINEACIÓN DE TEXTO CENTRADA */
         justify-content: center;
         transition: 0.25s;
     }
-    .mini-card:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
+    .mini-card:hover { border-color: #fff; background: rgba(56, 189, 248, 0.05); }
 
+    /* PROTOCOLO COMPACTO INTERIOR UN SOLO RENGLÓN */
+    .btn-protocol-compact {
+        width: 100%;
+        background: #000;
+        border: 1.5px solid var(--accent-sky);
+        border-radius: 12px;
+        padding: 1rem;
+        font-size: 0.7rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        color: var(--accent-sky);
+        text-align: center;
+        letter-spacing: 2px;
+    }
 </style>
 
 <div class="header-hub">
@@ -176,7 +194,7 @@
             @foreach($col['data'] as $u)
             <div class="kanban-card" data-id="{{ $u->id }}" id="card-{{ $u->id }}">
                 <div class="post-it p-{{ $col['c'] }}"></div>
-                <div class="card-controls"><div class="card-handle fs-3 text-sky-400/20"><i class="bi bi-grip-vertical"></i></div></div>
+                <div class="card-controls"><div class="card-handle"><i class="bi bi-grip-vertical"></i></div></div>
                 
                 <div class="flex flex-col gap-0.5">
                     <div class="card-name">{{ $u->name }}</div>
@@ -189,9 +207,9 @@
                         <button class="btn-sci-fi" style="opacity:0.2" disabled>MAIL</button>
                     @elseif($col['st'] == 'pendiente_pago')
                         <button class="btn-sci-fi" style="opacity:0.3">DOC</button>
-                        <button class="btn-sci-fi" style="border-color:var(--accent-amber); color:var(--accent-amber)">ACT</button>
+                        <button class="btn-sci-fi">ACT</button>
                     @else
-                        <button class="btn-sci-fi" style="color:var(--accent-emerald)">PANEL</button>
+                        <button class="btn-sci-fi">PANEL</button>
                         <button class="btn-sci-fi" style="opacity:0.1" disabled>STATS</button>
                     @endif
                 </div>
@@ -203,26 +221,26 @@
             </div>
             @endforeach
         </div>
-        <div class="mt-4">{{ $col['data']->links() }}</div>
     </div>
     @endforeach
 
     <div class="scanner-hub-box">
         <div class="scanner-card">
-            <div class="text-[0.75rem] font-black tracking-widest text-sky-400 uppercase flex justify-between w-full border-b border-white/5 pb-4">
+            <div class="text-[0.75rem] font-black tracking-widest text-sky-400 uppercase flex justify-between w-full">
                 <span>Scan Operations</span>
-                <div style="width:12px; height:12px;" class="bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_#10b981]"></div>
+                <div style="width:10px; height:10px;" class="bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_#10b981]"></div>
             </div>
-            <div class="scanner-divider"></div>
+            
             <div class="grid-centered">
                 @foreach(['LinkedIn'=>'58','Instagram'=>'42','Facebook'=>'31','WhatsApp'=>'24','Telegram'=>'15'] as $n => $v)
                     <div class="mini-card">
                         <span class="text-white fw-black text-2xl">{{ $v }}</span>
-                        <span class="text-[0.55rem] text-zinc-500 fw-black uppercase">{{ $n }}</span>
+                        <span class="text-[0.55rem] text-zinc-600 fw-black uppercase mt-1">{{ $n }}</span>
                     </div>
                 @endforeach
             </div>
-            <button class="w-full bg-zinc-950 border-2 border-white/20 text-white text-[0.7rem] font-black uppercase py-6 rounded-[35px] mt-12 hover:bg-white hover:text-black transition-all">Protocolo Maestro Agent</button>
+
+            <div class="btn-protocol-compact">Protocolo Maestro Agent</div>
         </div>
     </div>
 
