@@ -13,26 +13,19 @@
             <small class="text-muted">Gestión de clientes y cuentas corrientes</small>
         </div>
 
-        <div class="d-flex gap-2">
-            {{-- Botón Amarillo de Exportación (Planilla) --}}
-            <a href="{{ route('empresa.clientes.export') }}" 
-               class="btn btn-warning d-flex align-items-center gap-2 text-dark fw-bold shadow-sm">
-                <i class="bi bi-download"></i>
-                Bajar Planilla
+        <div class="d-flex gap-2 flex-wrap justify-content-end">
+            {{-- BOTONES DE EXCEL (PROMINENTES) --}}
+            <a href="{{ route('empresa.clientes.export') }}" class="btn btn-success shadow-sm rounded-pill px-4 d-flex align-items-center gap-2" style="font-size:0.85rem; font-weight:800;">
+                <i class="bi bi-file-earmark-excel fs-5"></i> EXPORTAR EXCEL
             </a>
-
-            {{-- Botón de Importación --}}
-            <button type="button" 
-                    class="btn btn-outline-secondary d-flex align-items-center gap-2 shadow-sm"
-                    data-bs-toggle="modal" 
-                    data-bs-target="#importModalClientes">
-                <i class="bi bi-upload"></i>
-                Importar
+            <button type="button" class="btn btn-info text-white shadow-sm rounded-pill px-4 d-flex align-items-center gap-2" style="font-size:0.85rem; font-weight:800;" data-bs-toggle="modal" data-bs-target="#importModalClientes">
+                <i class="bi bi-cloud-arrow-up fs-5"></i> IMPORTAR EXCEL
             </button>
 
-            <a href="{{ route('empresa.clientes.create') }}" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
-                <i class="bi bi-plus-circle"></i>
-                Nuevo cliente
+            <div class="vr mx-2 opacity-10"></div>
+
+            <a href="{{ route('empresa.clientes.create') }}" class="btn btn-primary shadow-lg rounded-pill px-4 d-flex align-items-center gap-2" style="font-size:0.85rem; font-weight:800; background: linear-gradient(45deg, #2563eb, #1d4ed8);">
+                <i class="bi bi-plus-circle-fill"></i> NUEVO CLIENTE
             </a>
         </div>
     </div>
