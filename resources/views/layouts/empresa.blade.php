@@ -253,14 +253,6 @@ body{
                     <a class="nav-link fw-bold text-success" href="{{ $targetEmpresa ? route('catalog.index', $catalogParam) : '#' }}" target="_blank">🌐 Catálogo</a>
                 </li>
 
-                @if(auth()->user()->role === 'empresa')
-                <li class="nav-item">
-                    <a class="nav-link fw-bold text-success" href="{{ route('empresa.backup.index') }}">
-                        <i class="bi bi-shield-shaded me-1"></i> Bóveda
-                    </a>
-                </li>
-                @endif
-
                 <li class="nav-item">
                     <a class="nav-link text-warning fw-bold" href="{{ route('empresa.novedades') }}">🔥 Novedades</a>
                 </li>
