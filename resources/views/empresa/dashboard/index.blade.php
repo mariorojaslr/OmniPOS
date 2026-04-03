@@ -447,21 +447,34 @@ $secondary = $config?->color_secondary ?? '#16a34a';
         colors: ["#22c55e"]
     }).render();
 
-    // 2. Gasto vs Inversión Local (Arco Dual Proporcional)
+    // 2. Gasto vs Inversión Local (Doble Arco Concéntrico Premium)
     new ApexCharts(document.querySelector("#chartLocalEgresos"), {
-        ...commonOptions,
-        series: [{{ $comprasPerc }}],
-        colors: ["#3b82f6"],
+        chart: { 
+            type: 'radialBar', 
+            height: 200, 
+            sparkline: { enabled: true },
+            animations: { enabled: true, easing: 'easeinout', speed: 800 }
+        },
+        series: [{{ $gastosPerc }}, {{ $comprasPerc }}],
+        colors: ["#ef4444", "#3b82f6"], // Rojo: Gasto | Azul: Inversión
         plotOptions: {
             radialBar: {
-                startAngle: -90, endAngle: 90,
-                track: { background: "#ef4444", strokeWidth: '97%' }, // El fondo es el GASTO (Rojo)
+                startAngle: -90,
+                endAngle: 90,
+                hollow: { size: '45%' }, // Espacio central elegante
+                track: { 
+                    background: "#f1f5f9", 
+                    strokeWidth: '95%',
+                    margin: 5 // Separación sutil entre los dos arcos
+                },
                 dataLabels: {
-                    name: { show: true, fontSize: '10px', offsetY: 20, label: 'INVERSIÓN' },
-                    value: { fontSize: '18px', formatter: (val) => val + '%' }
+                    name: { show: false },
+                    value: { show: false }
                 }
             }
-        }
+        },
+        grid: { padding: { top: -20 } },
+        stroke: { lineCap: "round", width: 2 }
     }).render();
 
     // 3. Evaluación Local (Verde/Rojo)
