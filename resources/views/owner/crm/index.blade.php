@@ -54,7 +54,7 @@
     /* TARJETAS SIMÉTRICAS ELITE 130PX */
     .kanban-card {
         background: var(--card-bg);
-        border: 1px solid rgba(255,255,255,0.6); 
+        border: 1px solid rgba(255,255,255,0.4); 
         border-radius: 18px;
         padding: 1.2rem;
         margin-bottom: 20px; 
@@ -73,39 +73,44 @@
         transform: translateY(-5px);
     }
 
-    /* CONTROLES SUPERIORES (GRIP + TRASH) */
+    /* CONTROLES SUPERIORES (GRIP + ARCHIVE + TRASH) */
     .card-controls {
         position: absolute;
         right: 12px;
         top: 8px;
         display: flex;
-        gap: 12px;
+        gap: 10px;
         align-items: center;
     }
-    .card-handle { color: rgba(255,255,255,0.1); font-size: 1.1rem; }
-    .kanban-card:hover .card-handle { color: var(--accent-sky); }
-    
-    .btn-trash { 
-        color: rgba(239, 68, 68, 0.2); 
-        background: transparent; 
-        border: 0; 
-        padding: 0; 
-        font-size: 0.9rem;
-        transition: color 0.2s;
-    }
-    .kanban-card:hover .btn-trash { color: rgba(239, 68, 68, 0.6); }
-    .btn-trash:hover { color: #ef4444 !important; }
 
-    .card-name { font-size: 0.9rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; padding-right: 40px; }
+    .btn-control {
+        background: transparent;
+        border: 0;
+        padding: 0;
+        font-size: 0.9rem;
+        opacity: 0.15;
+        transition: all 0.2s;
+        color: #fff;
+    }
+    .kanban-card:hover .btn-control { opacity: 0.5; }
+    .btn-control:hover { opacity: 1 !important; transform: scale(1.2); }
+    
+    .btn-archive:hover { color: var(--accent-amber); }
+    .btn-trash:hover { color: #ef4444; }
+
+    .card-handle { color: rgba(255,255,255,0.15); font-size: 1.1rem; }
+    .kanban-card:hover .card-handle { color: var(--accent-sky); opacity: 1; }
+
+    .card-name { font-size: 0.9rem; font-weight: 950; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; padding-right: 55px; }
     .card-subtext { font-size: 0.7rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
-    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .btn-sci-fi { 
         background: rgba(255,255,255,0.03); 
         border: 1px solid rgba(255,255,255,0.1); 
         color: var(--accent-sky); 
         padding: 7px 0; 
-        border-radius: 10px; 
+        border-radius: 12px; 
         font-size: 0.55rem; 
         font-weight: 950; 
         text-align: center; 
@@ -130,10 +135,9 @@
         align-items: center;
         border-top: 1px solid rgba(255,255,255,0.05);
         padding-top: 6px;
-        text-transform: uppercase;
     }
 
-    /* OVERLAY CUSTOM OLED */
+    /* OVERLAY IA MASTER */
     #ia-overlay {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -184,7 +188,8 @@
             @foreach($prospectos as $pro)
             <div class="kanban-card" data-id="{{ $pro->id }}" id="card-{{ $pro->id }}">
                 <div class="card-controls">
-                    <button type="button" class="btn-trash" onclick="deleteLead('{{ $pro->id }}')"><i class="bi bi-trash3-fill"></i></button>
+                    <button type="button" class="btn-control btn-archive" title="Olvidar por ahora" onclick="archiveLead('{{ $pro->id }}')"><i class="bi bi-archive-fill"></i></button>
+                    <button type="button" class="btn-control btn-trash" title="Borrar para siempre" onclick="deleteLead('{{ $pro->id }}')"><i class="bi bi-trash3-fill"></i></button>
                     <div class="card-handle"><i class="bi bi-grip-vertical"></i></div>
                 </div>
                 <div>
@@ -192,7 +197,7 @@
                     <div class="card-subtext">{{ $pro->lead_source ?? 'Landing Directo' }}</div>
                 </div>
                 <div class="btn-group-card">
-                    <button type="button" class="btn-sci-fi" onclick="openReport('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'INSTAGRAM' }}')">
+                    <button type="button" class="btn-sci-fi" onclick="openReport('{{ $pro->id }}', '{{ $pro->name }}', '{{ $pro->lead_source ?? 'META ADS' }}')">
                         <i class="bi bi-robot"></i> IA DATA
                     </button>
                     <button type="button" class="btn-sci-fi disabled">
@@ -298,7 +303,7 @@
             <div class="bg-black/30 p-8 rounded-3xl border border-white/5 shadow-inner mb-10">
                 <div class="mb-4"><span class="text-zinc-600">CANAL:</span> <span id="report-source" class="text-emerald-400"></span></div>
                 <div class="text-zinc-400 leading-relaxed text-[0.75rem]">
-                    "El Agente Social Live ha detectado intención de compra inmediata basada en historial de búsqueda POS."
+                    "El Agente Social Live ha detectado intención de compra inmediata basada en comportamiento social registrado."
                 </div>
             </div>
 
@@ -335,11 +340,31 @@
         document.body.style.overflow = 'auto';
     }
 
+    function archiveLead(id) {
+        if(confirm('¿Olvidar este lead? (Se guardará pero no ocupará espacio aquí)')) {
+            const card = document.getElementById('card-'+id);
+            card.style.opacity = '0.3';
+            card.style.transform = 'scale(0.9)';
+            
+            fetch("{{ route('owner.crm.archive') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ user_id: id })
+            }).then(() => card.remove());
+        }
+    }
+
     function deleteLead(id) {
-        if(confirm('¿Seguro que quieres eliminar este lead?')) {
-            document.getElementById('card-'+id).style.opacity = '0.3';
-            // Aquí iría el fetch para borrar en DB si fuera necesario
-            document.getElementById('card-'+id).remove();
+        if(confirm('¿Borrar definitivamente? Se perderá todo el historial.')) {
+            const card = document.getElementById('card-'+id);
+            card.style.opacity = '0.3';
+            card.style.transform = 'translateX(100px)';
+            
+            fetch("{{ route('owner.crm.delete') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ user_id: id })
+            }).then(() => card.remove());
         }
     }
 
