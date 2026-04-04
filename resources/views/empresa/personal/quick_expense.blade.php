@@ -6,11 +6,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
     :root {
-        --accent-color: #2563eb;
-        --bg-color: #f8fafc;
-        --card-bg: #ffffff;
-        --input-bg: #f1f5f9;
-        --text-main: #1e293b;
+        --accent-color: #39ff14; /* Neon green */
+        --accent-dim: #1a5c10;
+        --bg-color: #000000;
+        --card-bg: #040404;
+        --text-main: #39ff14;
     }
 
     body { 
@@ -38,10 +38,10 @@
 
     .neon-card { 
         background: var(--card-bg); 
-        border: 1px solid rgba(0, 0, 0, 0.05); 
+        border: 1px solid var(--accent-dim); 
         border-radius: 28px; 
         padding: 2.5rem 1.5rem; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        box-shadow: 0 0 20px rgba(57, 255, 20, 0.05);
         margin-bottom: 25px;
         position: relative;
         overflow: hidden;
@@ -51,15 +51,16 @@
         background: transparent; 
         border: none; 
         font-size: 4.5rem; 
-        color: var(--text-main); 
+        color: var(--accent-color); 
         font-weight: 800; 
         text-align: center; 
         width: 100%; 
         outline: none; 
         letter-spacing: -2px;
+        text-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
     }
 
-    .huge-input::placeholder { color: #cbd5e1; }
+    .huge-input::placeholder { color: var(--accent-dim); }
 
     .category-grid {
         display: grid;
@@ -70,10 +71,10 @@
 
     .category-btn { 
         background: var(--card-bg); 
-        border: 1px solid #e2e8f0; 
+        border: 1px solid var(--accent-dim); 
         border-radius: 20px; 
         padding: 18px 10px; 
-        color: #64748b; 
+        color: var(--accent-dim); 
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
         text-align: center; 
         cursor: pointer;
@@ -87,10 +88,10 @@
     .category-btn small { font-weight: 700; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 1px; }
 
     .category-btn.active { 
-        background: var(--accent-color); 
-        color: #fff;
+        background: rgba(57, 255, 20, 0.1); 
+        color: var(--accent-color);
         border-color: var(--accent-color); 
-        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); 
+        box-shadow: 0 0 15px rgba(57, 255, 20, 0.3); 
         transform: translateY(-3px);
     }
 
@@ -99,15 +100,16 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #475569;
+        color: var(--accent-color);
         margin-bottom: 10px;
         padding-left: 5px;
+        opacity: 0.8;
     }
 
     .glass-input {
-        background: #fff !important;
-        border: 1px solid #e2e8f0 !important;
-        color: var(--text-main) !important;
+        background: #000 !important;
+        border: 1px solid var(--accent-dim) !important;
+        color: var(--accent-color) !important;
         padding: 15px 25px !important;
         border-radius: 50px !important;
         font-weight: 600;
@@ -116,12 +118,12 @@
 
     .glass-input:focus {
         border-color: var(--accent-color) !important;
-        box-shadow: 0 0 15px rgba(37, 99, 235, 0.1) !important;
+        box-shadow: 0 0 15px rgba(57, 255, 20, 0.2) !important;
     }
 
     .photo-upload-zone {
-        background: #fff;
-        border: 2px dashed #cbd5e1;
+        background: #000;
+        border: 2px dashed var(--accent-dim);
         border-radius: 22px;
         padding: 25px;
         text-align: center;
@@ -131,34 +133,40 @@
         flex-direction: column;
         align-items: center;
         gap: 10px;
-        color: #64748b;
+        color: var(--accent-color);
     }
 
     .photo-upload-zone.captured {
-        border-color: #10b981;
-        background: #f0fdf4;
-        color: #10b981;
+        border-color: var(--accent-color);
+        background: rgba(57, 255, 20, 0.1);
+        color: var(--accent-color);
+        box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
     }
 
     .submit-btn { 
-        background: linear-gradient(135deg, #2563eb, #1d4ed8); 
-        border: none; 
+        background: transparent; 
+        border: 2px solid var(--accent-color); 
         border-radius: 24px; 
         padding: 20px; 
-        color: #fff; 
+        color: var(--accent-color); 
         font-weight: 800; 
         font-size: 1.25rem; 
         margin-top: 30px; 
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3); 
+        box-shadow: 0 0 20px rgba(57, 255, 20, 0.2); 
         transition: all 0.3s;
         text-transform: uppercase;
         letter-spacing: 1px;
+    }
+    
+    .submit-btn:hover {
+        background: rgba(57, 255, 20, 0.1); 
+        box-shadow: 0 0 30px rgba(57, 255, 20, 0.4); 
     }
 
     .submit-btn:active { transform: scale(0.98); }
 
     .back-link {
-        color: #94a3b8;
+        color: var(--accent-dim);
         text-decoration: none;
         font-weight: 700;
         font-size: 0.9rem;
@@ -166,6 +174,10 @@
         align-items: center;
         gap: 5px;
         margin-top: 25px;
+        transition: color 0.2s;
+    }
+    .back-link:hover {
+        color: var(--accent-color);
     }
 </style>
 @endsection
@@ -175,23 +187,23 @@
     
     <div class="header-section">
         <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="text-primary fw-800" style="font-size: 0.7rem; letter-spacing: 2px;">FIELD APP v2.0</span>
-            <span class="text-muted" style="font-size: 0.7rem;">{{ now()->format('H:i') }}</span>
+            <span class="fw-800" style="color: var(--accent-color); font-size: 0.7rem; letter-spacing: 2px; text-shadow: 0 0 5px var(--accent-color);">FIELD APP v2.0</span>
+            <span class="" style="color: var(--accent-dim); font-size: 0.7rem;">{{ now()->format('H:i') }}</span>
         </div>
-        <h2 class="fw-800 mb-0">Registrar Gasto</h2>
+        <h2 class="fw-800 mb-0" style="color: var(--accent-color);">Registrar Gasto</h2>
     </div>
 
     <form action="{{ route('empresa.gastos.store-quick') }}" method="POST" enctype="multipart/form-data" class="d-flex flex-column h-100">
         @csrf
         
         <div class="neon-card">
-            <div class="field-label text-center opacity-50">Monto del Comprobante</div>
+            <div class="field-label text-center">Monto del Comprobante</div>
             <div class="d-flex align-items-center justify-content-center">
-                <span class="fs-1 fw-800 text-primary opacity-50" style="margin-right: -10px;">$</span>
+                <span class="fs-1 fw-800" style="color: var(--accent-color); margin-right: -10px; opacity: 0.8">$</span>
                 <input type="number" name="amount" class="huge-input" placeholder="0" required autofocus step="0.01" inputmode="decimal">
             </div>
             <div class="text-center mt-2">
-                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-600" style="font-size: 0.65rem;">
+                <span class="badge rounded-pill px-3 py-2 fw-600" style="background: rgba(57, 255, 20, 0.1); color: var(--accent-color); border: 1px solid var(--accent-color); font-size: 0.65rem;">
                     SESIÓN DE CAJA ACTIVA
                 </span>
             </div>
@@ -254,7 +266,7 @@
         </button>
 
         <!-- Botón de Instalación PWA (Visible siempre) -->
-        <button type="button" id="installAppBtn" onclick="installAppPrompt()" class="btn btn-outline-primary btn-lg rounded-pill fw-bold border-2 mb-4" style="color: #3b82f6; border-color: #3b82f6;">
+        <button type="button" id="installAppBtn" onclick="installAppPrompt()" class="btn btn-outline-primary btn-lg rounded-pill fw-bold border-2 mb-4 mt-3" style="color: var(--accent-dim); border-color: var(--accent-dim);">
             <i class="bi bi-phone-fill me-2"></i> INSTALAR APP EN TELÉFONO
         </button>
 
