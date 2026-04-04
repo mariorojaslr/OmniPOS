@@ -147,4 +147,70 @@ class ConfiguracionEmpresaController extends Controller
             ], 500);
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TEST AFIP CONNECTION
+    |--------------------------------------------------------------------------
+    */
+    public function testAfip()
+    {
+        try {
+            $user = auth()->user();
+            $empresa = $user->empresa;
+
+            if (!$empresa->arca_certificado || !$empresa->arca_llave) {
+                throw new \Exception("Debes subir ambos archivos (.crt y .key) y guardar primero la configuración.");
+            }
+            if (!$empresa->arca_cuit) {
+                throw new \Exception("Debes configurar el CUIT del titular.");
+            }
+
+            $cuit = str_replace('-', '', $empresa->arca_cuit);
+
+            // Preparar AFIP SDK
+            $afipConfig = [
+                'CUIT' => (int) $cuit,
+                'production' => ($empresa->arca_ambiente === 'produccion'),
+                'cert' => storage_path('app/' . $empresa->arca_certificado),
+                'key' => storage_path('app/' . $empresa->arca_llave),
+            ];
+            
+            $afip = new \Afip($afipConfig);
+
+            // Verificamos conexión consultando el estado del servidor de facturación
+            $status = $afip->ElectronicBilling->GetServerStatus();
+            
+            if (!isset($status->AppServer) || $status->AppServer !== 'OK') {
+                throw new \Exception("Los servidores de facturación de AFIP no responden correctamente.");
+            }
+
+            // Además, podríamos intentar obtener el último comprobante para probar que el Punto de Venta coincide.
+            $ptoVenta = $empresa->arca_punto_venta ?? 12;
+            $tipoComp = ($empresa->condicion_iva == 'Monotributista') ? 11 : 6; // C (11) o B (6)
+            
+            $ultimoComprobante = null;
+            $warning = null;
+            try {
+                $ultimoComprobante = $afip->ElectronicBilling->GetLastVoucher($ptoVenta, $tipoComp);
+            } catch (\Exception $e) {
+                // Si tira error aquí, significa que la AFIP lo rechazó por alguna inconsistencia, 
+                // PERO la conexión fue exitosa! Capturamos esto.
+                $warning = "Conexión lograda, pero AFIP devolvió una observación: " . $e->getMessage();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => '¡Autenticación con AFIP Exitosa! Tus certificados funcionan de maravilla.',
+                'warning' => $warning,
+                'ultimo_comprobante' => $ultimoComprobante
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

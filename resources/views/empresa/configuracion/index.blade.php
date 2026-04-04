@@ -145,6 +145,13 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- BOTON TEST AFIP -->
+                            <div class="col-12 mt-3 text-end">
+                                <button type="button" id="btnTestAfip" class="btn btn-outline-success fw-bold">
+                                    <i class="bi bi-shield-check me-2"></i> Probar Conexión con AFIP
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -345,6 +352,11 @@
 document.getElementById('configForm').addEventListener('submit', function(e){
     e.preventDefault();
 
+    let btn = this.querySelector('button[type="submit"]');
+    let originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
     let form = this;
     let data = new FormData(form);
 
@@ -357,6 +369,8 @@ document.getElementById('configForm').addEventListener('submit', function(e){
     })
     .then(r => r.json())
     .then(res => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
         if(res.success){
             let box = document.getElementById('okBox');
             box.classList.remove('d-none');
@@ -365,7 +379,44 @@ document.getElementById('configForm').addEventListener('submit', function(e){
             alert('Error al guardar: ' + (res.error || 'Desconocido'));
         }
     })
-    .catch(err => alert('Error de red: ' + err));
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        alert('Error de red: ' + err);
+    });
+});
+
+document.getElementById('btnTestAfip').addEventListener('click', function() {
+    let btn = this;
+    let originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Conectando con AFIP...';
+
+    fetch("{{ route('empresa.configuracion.test_afip') }}", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json"
+        }
+    })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        if(res.success) {
+            let msg = res.message;
+            if(res.warning) msg += "\n\nOJO: " + res.warning;
+            msg += "\n\nEstado de AFIP: AppServer OK.";
+            alert(msg);
+        } else {
+            alert("Error de Conexión AFIP:\n" + res.error);
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        alert('Error de red al intentar probar AFIP: ' + err);
+    });
 });
 
 </script>
