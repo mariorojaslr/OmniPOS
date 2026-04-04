@@ -98,6 +98,18 @@ class LeadScannerService
                     'details'       => $result['snippet'] ?? 'Prospecto encontrado por búsqueda automática.',
                     'status'        => 'encontrado',
                 ]);
+
+                // ¡INYECTAR DIRECTAMENTE EN LA NUEVA FASE 00 DEL KANBAN (OwnerCrmLead)!
+                \App\Models\OwnerCrmLead::create([
+                    'name'         => Str::limit($result['title'], 100),
+                    'company_name' => 'Auto-Detectado',
+                    'email'        => !empty($emails) ? $emails[0] : null,
+                    'phone'        => !empty($phones) ? $phones[0] : null,
+                    'source'       => 'Bot ' . $channel,
+                    'status'       => 'nuevo',
+                    'notes'        => $result['snippet'] ?? 'Autogenerado por LeadScanner',
+                ]);
+
                 $stored++;
             } else {
                 $duplicates++;
