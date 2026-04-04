@@ -317,8 +317,13 @@
                         </div>
                     </div>
 
-                </div>
+                </div> <!-- End tab-content -->
 
+                <hr class="mt-5 mb-4 border-secondary opacity-25">
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary btn-lg shadow fw-bold px-5">
+                        <i class="bi bi-floppy me-2"></i> Grabar Configuración
+                    </button>
                 </div>
 
             </form>
