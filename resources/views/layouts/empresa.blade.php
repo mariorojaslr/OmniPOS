@@ -317,6 +317,9 @@ body{
                         </a></li>
                         
                         @if($user->role === 'empresa')
+                        <li><a class="dropdown-item fw-bold text-primary bg-primary bg-opacity-10" href="{{ route('empresa.suscripcion.index') }}">
+                            <i class="bi bi-star-fill text-warning me-2"></i> Mi Suscripción
+                        </a></li>
                         <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.backup.index') }}">
                             <i class="bi bi-shield-shaded me-2"></i> Bóveda de Resguardo
                         </a></li>

@@ -250,6 +250,11 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/configuracion', [ConfiguracionEmpresaController::class , 'index'])->name('configuracion.index');
         Route::post('/configuracion', [ConfiguracionEmpresaController::class , 'save'])->name('configuracion.save');
 
+        // MI SUSCRIPCIÓN (SaaS CLIENT PORTAL)
+        Route::get('/mi-suscripcion', [\App\Http\Controllers\Empresa\SuscripcionController::class, 'index'])->name('suscripcion.index');
+        Route::post('/mi-suscripcion/pago', [\App\Http\Controllers\Empresa\SuscripcionController::class, 'reportPayment'])->name('suscripcion.pago');
+
+
         // BÓVEDA DE RESGUARDO (BACKUPS)
         Route::get('/backup', [App\Http\Controllers\Empresa\BackupController::class, 'index'])->name('backup.index');
 
