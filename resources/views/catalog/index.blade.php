@@ -243,7 +243,7 @@
                 </div>
             </div>
         @empty
-            <div class="col-12 text-center py-5">
+            <div class="text-center py-5" style="grid-column: 1 / -1;">
                 <p class="text-secondary fw-bold fs-4">AÚN NO HAY PRODUCTOS DISPONIBLES.</p>
             </div>
         @endforelse
