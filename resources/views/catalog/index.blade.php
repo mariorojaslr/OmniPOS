@@ -52,6 +52,9 @@
     .catalog-main {
         width: 100%;
         padding: 40px 50px 100px 50px;
+        flex-grow: 1; /* Para que complete el alto de la pantalla si hay pocos productos */
+        display: flex;
+        flex-direction: column;
     }
 
     /* BUSCADOR CLARO */
@@ -149,6 +152,44 @@
     }
     .btn-buy-ultra:hover { filter: brightness(1.1); transform: scale(1.02); color: #fff; }
 
+    /* RESPONSIVE MEDIA QUERIES */
+    @media (max-width: 768px) {
+        .glass-nav {
+            padding: 15px 20px;
+        }
+        .brand-id {
+            font-size: 1.2rem;
+        }
+        .catalog-main {
+            padding: 20px 20px 80px 20px;
+        }
+        .search-wrapper {
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .search-input-ultra {
+            font-size: 1rem;
+            padding: 12px 15px;
+        }
+        .product-grid-max {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .content-area {
+            padding: 15px;
+        }
+        .product-title {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .product-cost {
+            font-size: 1.1rem;
+        }
+        .btn-buy-ultra {
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+    }
 </style>
 
 <div class="glass-nav">
