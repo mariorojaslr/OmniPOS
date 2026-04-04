@@ -564,9 +564,51 @@
     document.addEventListener('DOMContentLoaded', function() {
         ['col-prospecto', 'col-pendiente_pago', 'col-activo'].forEach(id => {
             const el = document.getElementById(id);
-            if(el) { new Sortable(el, { group:'kanban', handle:'.card-handle', animation:200, swapThreshold: 0.65, onEnd: function(evt) {
-                fetch("{{ route('owner.crm.move') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ user_id: evt.item.getAttribute('data-id'), status: evt.to.getAttribute('data-status') }) });
-            }}); }
+            if(el) { 
+                new Sortable(el, { 
+                    group:'kanban', 
+                    handle:'.card-handle', 
+                    animation:200, 
+                    swapThreshold: 0.65, 
+                    onEnd: function(evt) {
+                        let toStatus = evt.to.getAttribute('data-status');
+                        let userId = evt.item.getAttribute('data-id');
+                        
+                        if (toStatus === 'activo') {
+                            let method = prompt('💸 REGISTRAR PAGO (SaaS)\n¿Método de pago? (efectivo, transferencia, cortesia)', 'efectivo');
+                            if (method === null) {
+                                // Cancelado: devolvemos la tarjeta a la columna original
+                                evt.from.appendChild(evt.item);
+                                return;
+                            }
+                            method = method.toLowerCase().trim();
+                            if (!['efectivo', 'transferencia', 'cortesia'].includes(method)) method = 'efectivo';
+                            
+                            let amount = 0;
+                            if (method !== 'cortesia') {
+                                amount = prompt('💵 Monto del cobro ($):', '25000');
+                                if (amount === null) amount = 0;
+                            }
+                            
+                            fetch("{{ route('owner.crm.move') }}", { 
+                                method: 'POST', 
+                                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, 
+                                body: JSON.stringify({ user_id: userId, status: toStatus, payment_method: method, payment_amount: amount }) 
+                            })
+                            .then(r => r.json())
+                            .then(d => {
+                                alert("¡ÉXITO! " + d.message + "\nSe extendió la plataforma 30 días automáticamente.");
+                            });
+                        } else {
+                            fetch("{{ route('owner.crm.move') }}", { 
+                                method: 'POST', 
+                                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, 
+                                body: JSON.stringify({ user_id: userId, status: toStatus }) 
+                            });
+                        }
+                    }
+                }); 
+            }
         });
     });
 </script>

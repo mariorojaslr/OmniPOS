@@ -139,7 +139,7 @@ class CRMController extends Controller
      */
     public function move(Request $request)
     {
-        $user = User::findOrFail($request->user_id);
+        $user = User::with('empresa')->findOrFail($request->user_id);
         $oldStatus = $user->status;
         $newStatus = $request->status;
 
@@ -148,7 +148,34 @@ class CRMController extends Controller
 
         if ($newStatus === 'activo') {
             $updateData['activo'] = 1;
-            $updateData['crm_notes'] = ($user->crm_notes . "\n-- ACTIVADO VIA CRM DRAG & DROP EL " . now()->format('d/m/Y H:i'));
+            
+            $method = $request->payment_method ?? 'efectivo';
+            $amount = $request->payment_amount ?? 0;
+            
+            $noteAdd = "\n-- ACTIVADO VIA CRM (Pago: {$method}) EL " . now()->format('d/m/Y H:i');
+            $updateData['crm_notes'] = $user->crm_notes . $noteAdd;
+            
+            // Renovar mes de servicio en la persistencia Multi-Empresa
+            if ($user->empresa) {
+                // Removemos alertas de cobro o gracia
+                $vencimiento = $user->empresa->fecha_vencimiento && $user->empresa->fecha_vencimiento > now() 
+                    ? $user->empresa->fecha_vencimiento->addDays(30) 
+                    : now()->addDays(30);
+                    
+                $user->empresa->update([
+                    'fecha_vencimiento' => $vencimiento,
+                    'fecha_cierre' => null // cancelamos suspension si tenia
+                ]);
+                
+                // Generar registro real de Ingreso SaaS 
+                \App\Models\OwnerPayment::create([
+                    'empresa_id' => $user->empresa->id,
+                    'user_id'    => $user->id,
+                    'amount'     => $amount,
+                    'method'     => $method,
+                    'notes'      => 'Renovación generada desde CRM Drag & Drop'
+                ]);
+            }
         }
 
         $user->update($updateData);
