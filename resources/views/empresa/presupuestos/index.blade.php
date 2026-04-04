@@ -1,3 +1,5 @@
+@extends('layouts.empresa')
+
 @section('styles')
 <style>
 /* RESTAURACIÓN ESTÉTICA ORIGINAL - MODO CLARO PROFESIONAL */

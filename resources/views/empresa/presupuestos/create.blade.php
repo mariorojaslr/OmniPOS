@@ -68,7 +68,7 @@
         <div class="row g-2 mb-2">
             <div class="col-md-5">
                 <label class="form-label small fw-bold mb-1" style="color: #111827;">Seleccionar Cliente</label>
-                <select name="client_id" class="form-select form-select-sm border-secondary-subtle" required @change="updateClientInfo($event.target.value)">
+                <select name="client_id" class="form-select form-select-sm border-secondary-subtle" @change="updateClientInfo($event.target.value)">
                     <option value="">Cliente Ocasional / Final</option>
                     @foreach($clientes as $cliente)
                         <option value="{{ $cliente->id }}">{{ $cliente->name }}</option>
@@ -116,7 +116,7 @@
                                         <i class="bi bi-upc-scan"></i>
                                     </span>
                                     <input type="text" class="form-control border-start-0 ps-0" placeholder="Scanner / Código..." 
-                                           @keyup.enter="lookupBarcode($event.target.value, item); $event.target.value = ''"
+                                           @keydown.enter.prevent="lookupBarcode($event.target.value, item); $event.target.value = ''"
                                            style="max-width: 140px; font-size: 0.75rem;">
                                     
                                     <select x-model="item.product_id" @change="updatePrice(item)" class="form-select fw-bold ms-1" :name="'items['+index+'][product_id]'">
@@ -180,7 +180,6 @@
             </div>
         </div>
     </form>
-    </form>
 
 </div>
 @endsection
@@ -210,6 +209,18 @@
 
             updateClientInfo(clientId) {
                 this.selectedClient = this.clientes.find(c => c.id == clientId);
+            },
+            
+            lookupBarcode(barcode, item) {
+                if (!barcode) return;
+                // Intentar buscar por código de barras o SKU localmente en la lista cargada
+                const prod = this.productos.find(p => p.barcode === barcode || p.sku === barcode || p.id == barcode);
+                if (prod) {
+                    item.product_id = prod.id;
+                    this.updatePrice(item);
+                } else {
+                    alert('Producto no encontrado con el código: ' + barcode);
+                }
             },
             
             updatePrice(item) {
