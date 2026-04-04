@@ -69,9 +69,14 @@ class EmpresaActivaMiddleware
             abort(403, 'SU EMPRESA SE ENCUENTRA INACTIVA. POR FAVOR CONTACTE A SOPORTE.');
         }
 
-        // 2. Empresa Vencida
-        if ($empresa->estaVencida()) {
-            abort(403, 'LA SUSCRIPCIÓN DE SU EMPRESA HA VENCIDO. POR FAVOR RENUEVE SU PLAN.');
+        // 2. Empresa Vencida Definitiva (> 24 Hs)
+        if ($empresa->estaVencidaTotalmente()) {
+            abort(403, 'EL SERVICIO HA SIDO SUSPENDIDO POR FALTA DE PAGO. SU CÓDIGO BANCARIO ESTÁ EN SU PANEL PRINCIPAL. REALICE EL PAGO Y SUBA EL COMPROBANTE PARA REACTIVAR.');
+        }
+
+        // 3. Empresa en Período de Gracia (Vencida, pero dentro de las 24 Hs)
+        if ($empresa->estaEnPeriodoDeGracia()) {
+            session()->now('warning', '⚠️ ATENCIÓN URGENTE: Su ciclo de facturación se ha vencido. Tiene 24 horas de gracia para operar. Por favor renueve inmediatamente para evitar el corte total.');
         }
 
         // 3. Usuario Inactivo

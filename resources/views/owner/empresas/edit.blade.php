@@ -55,7 +55,7 @@
                                 <option value="">Sin Plan asignado</option>
                                 @foreach($planes as $plan)
                                     <option value="{{ $plan->id }}" {{ $empresa->plan_id == $plan->id ? 'selected' : '' }}>
-                                        {{ $plan->name }} ({{ env('APP_CURRENCY', '$') }}{{ number_format($plan->price, 2) }})
+                                        {{ $plan->name ?? $plan->nombre }} ({{ env('APP_CURRENCY', '$') }}{{ number_format((float)($plan->price ?? $plan->precio ?? 0), 2) }})
                                     </option>
                                 @endforeach
                             </select>

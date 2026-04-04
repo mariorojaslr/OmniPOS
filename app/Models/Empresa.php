@@ -129,12 +129,21 @@ class Empresa extends Model
     }
 
     /**
-     * INDICA SI LA EMPRESA ESTÁ VENCIDA
+     * INDICA SI LA EMPRESA ESTÁ TOTALMENTE VENCIDA (+24 Hs de gracia)
      */
-    public function estaVencida(): bool
+    public function estaVencidaTotalmente(): bool
     {
-        return $this->fecha_vencimiento instanceof Carbon
-            && $this->fecha_vencimiento->isPast();
+        if (!$this->fecha_vencimiento instanceof Carbon) return false;
+        return now()->isAfter($this->fecha_vencimiento->copy()->addHours(24));
+    }
+
+    /**
+     * INDICA SI ESTÁ EN EL PERÍODO DE GRACIA (0 a 24hs)
+     */
+    public function estaEnPeriodoDeGracia(): bool
+    {
+        if (!$this->fecha_vencimiento instanceof Carbon) return false;
+        return now()->isAfter($this->fecha_vencimiento) && !now()->isAfter($this->fecha_vencimiento->copy()->addHours(24));
     }
 
     /**

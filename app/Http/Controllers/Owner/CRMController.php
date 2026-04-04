@@ -15,6 +15,9 @@ class CRMController extends Controller
      */
     public function index()
     {
+        // Leads puros detectados por el Bot
+        $botLeads = \App\Models\OwnerCrmLead::where('status', 'nuevo')->latest()->paginate(15, ['*'], 'botLeads');
+
         // Segmentamos a los usuarios segun su estado comercial con paginacion independiente
         $prospectos = User::where('status', 'prospecto')->where('role', 'empresa')->latest()->paginate(15, ['*'], 'prospectos');
         $pendientes = User::where('status', 'pendiente_pago')->where('role', 'empresa')->latest()->paginate(15, ['*'], 'pendientes');
@@ -54,7 +57,7 @@ class CRMController extends Controller
             ];
         }
 
-        return view('owner.crm.index', compact('prospectos', 'pendientes', 'activos', 'agent_data'));
+        return view('owner.crm.index', compact('botLeads', 'prospectos', 'pendientes', 'activos', 'agent_data'));
     }
 
     /**

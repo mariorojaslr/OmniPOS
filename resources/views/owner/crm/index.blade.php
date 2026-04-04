@@ -238,7 +238,12 @@
 
 <div class="crm-container custom-scrollbar">
     
-    @foreach([['id'=>'col-prospecto', 't'=>'Fase 01 | Leads', 'st'=>'prospecto', 'data'=>$prospectos, 'c'=>'sky', 'tag'=>'PROSPECTO OK', 'ic'=>'bi-person-fill'], ['id'=>'col-pendiente_pago', 't'=>'Fase 02 | Validar', 'st'=>'pendiente_pago', 'data'=>$pendientes, 'c'=>'amber', 'tag'=>'VALIDAR PAGO', 'ic'=>'bi-lightning-fill'], ['id'=>'col-activo', 't'=>'Fase 03 | Activos', 'st'=>'activo', 'data'=>$activos, 'c'=>'emerald', 'tag'=>'SAAS ACTIVO OK', 'ic'=>'bi-shield-fill-check']] as $col)
+    @foreach([
+        ['id'=>'col-bot', 't'=>'Fase 00 | Bot Raw', 'st'=>'nuevo_bot', 'data'=>$botLeads, 'c'=>'emerald', 'tag'=>'DETECTADO', 'ic'=>'bi-robot'],
+        ['id'=>'col-prospecto', 't'=>'Fase 01 | Registrados', 'st'=>'prospecto', 'data'=>$prospectos, 'c'=>'sky', 'tag'=>'REGISTRO OK', 'ic'=>'bi-person-fill'],
+        ['id'=>'col-pendiente_pago', 't'=>'Fase 02 | Validar', 'st'=>'pendiente_pago', 'data'=>$pendientes, 'c'=>'amber', 'tag'=>'VALIDAR PAGO', 'ic'=>'bi-lightning-fill'],
+        ['id'=>'col-activo', 't'=>'Fase 03 | Activos', 'st'=>'activo', 'data'=>$activos, 'c'=>'emerald', 'tag'=>'SAAS ACTIVO', 'ic'=>'bi-shield-fill-check']
+    ] as $col)
     <div class="kanban-col">
         <div class="col-header" style="border-left: 6px solid var(--accent-{{ $col['c'] }})">
             <span class="header-title">{{ $col['t'] }}</span>

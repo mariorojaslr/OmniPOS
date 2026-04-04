@@ -135,14 +135,62 @@
 
     .stat-mini-label { font-size: 0.7rem; color: #ffffff; letter-spacing: 1px; opacity: 0.8; }
 
-    /* Animaciones */
+    /* Animaciones & Interactividad Premium */
+    .clickable-card {
+        display: block;
+        text-decoration: none !important;
+        color: inherit;
+        cursor: pointer;
+        outline: none;
+    }
+    .clickable-card:active {
+        transform: scale(0.97) !important;
+        border-color: #fff;
+    }
+    .radar-sweep {
+        position: absolute;
+        top: 0; left: 0;
+        width: 150%; height: 100%;
+        background: linear-gradient(110deg, transparent, rgba(168, 85, 247, 0.15), transparent);
+        animation: radar 3s linear infinite;
+        opacity: 0.8;
+        pointer-events: none;
+    }
+    .radar-sweep-green {
+        background: linear-gradient(110deg, transparent, rgba(34, 197, 94, 0.15), transparent);
+    }
+    .radar-sweep-blue {
+        background: linear-gradient(110deg, transparent, rgba(59, 130, 246, 0.15), transparent);
+    }
+    @keyframes radar {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
     @keyframes pulse-border {
         0% { border-color: rgba(59, 130, 246, 0.1); }
-        50% { border-color: rgba(59, 130, 246, 0.4); }
+        50% { border-color: rgba(59, 130, 246, 0.6); }
         100% { border-color: rgba(59, 130, 246, 0.1); }
     }
 
     .live-indicator {
+        width: 8px; height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        box-shadow: 0 0 10px #22c55e;
+        animation: blink 2s infinite;
+    }
+    .live-indicator-fast {
+        width: 8px; height: 8px;
+        background: #ef4444;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        box-shadow: 0 0 15px #ef4444;
+        animation: blink 1s infinite;
+    }
         width: 8px; height: 8px;
         background: #22c55e;
         border-radius: 50%;
@@ -200,9 +248,9 @@
     </div>
 
     {{-- METRICAS CORE (LEVEL 1) --}}
-    <div class="row g-4 mb-5">
+    <div class="row g-4 mb-4">
         <div class="col-md-3">
-            <div class="oled-card">
+            <a href="{{ route('owner.empresas.index') }}" class="oled-card clickable-card">
                 <div class="stat-label">Empresas Activas</div>
                 <div class="stat-value text-glow-primary">{{ $empresasCount }}</div>
                 <div class="mt-3">
@@ -211,11 +259,11 @@
                         <div class="progress-bar bg-primary" style="width: 85%"></div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-md-3">
-            <div class="oled-card">
+            <a href="{{ route('owner.empresas.index') }}" class="oled-card clickable-card">
                 <div class="stat-label">Usuarios Globales</div>
                 <div class="stat-value text-glow-purple">{{ $usuariosCount }}</div>
                 <div class="mt-3">
@@ -224,27 +272,68 @@
                         <div class="progress-bar bg-purple" style="width: 40%"></div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-md-3">
-            <div class="oled-card">
-                <div class="stat-label">MRR Proyectado</div>
+            <a href="{{ route('owner.facturacion.index') }}" class="oled-card clickable-card" style="border-color: rgba(34, 197, 94, 0.3);">
+                <div class="radar-sweep radar-sweep-green"></div>
+                <div class="stat-label text-success">MRR Proyectado</div>
                 <div class="stat-value text-glow-success" style="font-size: 2.2rem;">{{ $mrr }}</div>
                 <div class="mt-3">
                     <span class="stat-mini-label">CRECIMIENTO +12%</span>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-md-3">
-            <div class="oled-card">
-                <div class="stat-label">Ventas del Mes</div>
+            <a href="{{ route('owner.facturacion.index') }}" class="oled-card clickable-card">
+                <div class="stat-label text-warning">Ventas del Mes</div>
                 <div class="stat-value text-glow-warning" style="font-size: 2.2rem;">{{ $facturacionMes }}</div>
                 <div class="mt-3">
                     <span class="stat-mini-label">RENOVACIONES OK</span>
                 </div>
-            </div>
+            </a>
+        </div>
+    </div>
+
+    {{-- RADAR DE ADQUISICIÓN Y TRÁFICO (LEVEL 1.5) --}}
+    <div class="row g-4 mb-5">
+        <div class="col-md-12 mb-1">
+            <h5 class="stat-mini-label mb-0"><span class="live-indicator-fast"></span> RADAR DE ADQUISICIÓN EXTERNA (LIVE)</h5>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('owner.crm.index') }}" class="oled-card clickable-card" style="border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 0 20px rgba(168, 85, 247, 0.1) inset;">
+                <div class="radar-sweep"></div>
+                <div class="stat-label" style="color: #c084fc;"><i class="bi bi-globe2 me-1"></i> Visitantes Landing Page</div>
+                <div class="d-flex align-items-end gap-3 mb-1 mt-2">
+                    <span class="fs-1 fw-bold text-white text-glow-purple lh-1">{{ $landingVisits }}</span>
+                    <span class="text-success small fw-bold mb-1"><i class="bi bi-arrow-up-right"></i> +14%</span>
+                </div>
+                <div class="stat-mini-label">PERSONAS HOY</div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('owner.crm.index') }}" class="oled-card clickable-card" style="border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 0 20px rgba(59, 130, 246, 0.1) inset;">
+                <div class="radar-sweep radar-sweep-blue"></div>
+                <div class="stat-label" style="color: #93c5fd;"><i class="bi bi-play-circle me-1"></i> Entradas al DEMO</div>
+                <div class="d-flex align-items-end gap-3 mb-1 mt-2">
+                    <span class="fs-1 fw-bold text-white text-glow-primary lh-1">{{ $demoEntries }}</span>
+                    <span class="text-success small fw-bold mb-1"><i class="bi bi-arrow-up-right"></i> Activos</span>
+                </div>
+                <div class="stat-mini-label">PRUEBAS EN CURSO</div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('owner.crm.index') }}" class="oled-card clickable-card" style="border-color: rgba(34, 197, 94, 0.4); box-shadow: 0 0 20px rgba(34, 197, 94, 0.1) inset;">
+                <div class="radar-sweep radar-sweep-green"></div>
+                <div class="stat-label" style="color: #86efac;"><i class="bi bi-funnel me-1"></i> Conversión de Bot</div>
+                <div class="d-flex align-items-end gap-3 mb-1 mt-2">
+                    <span class="fs-1 fw-bold text-white text-glow-success lh-1">{{ $conversionRate }}%</span>
+                    <span class="text-white-50 small fw-bold mb-1">Efectividad</span>
+                </div>
+                <div class="stat-mini-label">LEADS CALIENTES GENERADOS</div>
+            </a>
         </div>
     </div>
 
@@ -259,34 +348,46 @@
                 
                 <div class="col-md-6 text-center">
                     <div class="oled-card border-0 bg-transparent text-start p-0">
-                        <div class="stat-label mb-2">Storage Consumed</div>
+                        <div class="stat-label mb-2"><i class="bi bi-hdd-network text-info me-1"></i> Storage Consumed</div>
                         <div class="d-flex align-items-baseline gap-2">
                             <span class="fs-1 fw-bold text-white">{{ explode(' ', $consumoStorage)[0] }}</span>
                             <span class="text-muted fw-bold">GB</span>
                         </div>
                         <div class="progress mt-2" style="height: 4px; background: rgba(255,255,255,0.05);">
-                            <div class="progress-bar bg-info" style="width: 25%"></div>
+                            <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="width: 25%"></div>
                         </div>
-                        <div class="mt-3 d-flex gap-2">
-                            <span class="infra-tag">99.9% Uptime</span>
-                            <span class="infra-tag">Tier 1 SSD</span>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                <span class="infra-tag">99.9% Uptime</span>
+                                <span class="infra-tag">Tier 1 SSD</span>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted" style="font-size: 0.65rem;">Costo Proyectado</small>
+                                <div class="text-info fw-bold">{{ $costoStorage }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-6 text-center">
                     <div class="oled-card border-0 bg-transparent text-start p-0">
-                        <div class="stat-label mb-2">Network Traffic</div>
+                        <div class="stat-label mb-2"><i class="bi bi-activity text-warning me-1"></i> Network Traffic</div>
                         <div class="d-flex align-items-baseline gap-2">
                             <span class="fs-1 fw-bold text-white">{{ explode(' ', $consumoTrafico)[0] }}</span>
                             <span class="text-muted fw-bold">GB</span>
                         </div>
                         <div class="progress mt-2" style="height: 4px; background: rgba(255,255,255,0.05);">
-                            <div class="progress-bar bg-warning" style="width: 60%"></div>
+                            <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: 60%"></div>
                         </div>
-                        <div class="mt-3 d-flex gap-2">
-                            <span class="infra-tag">Global Edge</span>
-                            <span class="infra-tag">SSL Active</span>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                <span class="infra-tag">Global Edge</span>
+                                <span class="infra-tag">SSL Active</span>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted" style="font-size: 0.65rem;">Costo Proyectado</small>
+                                <div class="text-warning fw-bold">{{ $costoTrafico }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
