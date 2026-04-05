@@ -262,10 +262,11 @@ class ConfiguracionEmpresaController extends Controller
             $afip = new \Afip([
                 'CUIT'         => (int) str_replace('-', '', $empresa->arca_cuit),
                 'production'   => ($empresa->arca_ambiente === 'produccion'),
-                'cert'         => $certContent, // Contenido Real
-                'key'          => $keyContent,  // Contenido Real
+                'cert'         => $certContent, 
+                'key'          => $keyContent,  
                 'ta_folder'    => $taPath,
-                'access_token' => 'LOCAL_CERT_MODE' // Dummy para silenciar el error de falta de token
+                // FORZAR MODO COMUNIDAD (LOCAL CERT)
+                'access_token' => null, 
             ]);
 
             // Intentar con un servicio más estándar (Padrón A4 / A10)
@@ -278,7 +279,7 @@ class ConfiguracionEmpresaController extends Controller
                     // Fallback al 4
                     $res = $afip->RegisterScopeFour->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
                 } catch (\Exception $e2) {
-                    throw new \Exception("AFIP error (Certs detectados): " . $e1->getMessage());
+                    throw new \Exception("AFIP error: " . $e1->getMessage());
                 }
             }
 
