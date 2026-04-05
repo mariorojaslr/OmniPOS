@@ -165,9 +165,6 @@ class ConfiguracionEmpresaController extends Controller
             $user = auth()->user();
             $empresa = $user->empresa;
 
-            if (!$empresa->arca_certificado || !$empresa->arca_llave) {
-                throw new \Exception("Debes subir ambos archivos (.crt y .key) y guardar primero la configuración.");
-            }
             if (!$empresa->arca_cuit) {
                 throw new \Exception("Debes configurar el CUIT del titular.");
             }
@@ -179,12 +176,20 @@ class ConfiguracionEmpresaController extends Controller
                 mkdir($resFolder, 0777, true);
             }
 
-            // Preparar AFIP SDK
+            // Forzar las rutas a la carpeta ARCA que armamos a mano en el servidor
+            $certPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_cert.crt');
+            $keyPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_key.key');
+
+            if (!file_exists($certPathOnDisk) || !file_exists($keyPathOnDisk)) {
+                throw new \Exception("No se encontraron los archivos en la carpeta ARCA del servidor. Asegúrate de subirlos con los nombres correctos.");
+            }
+
+            // Preparar AFIP SDK leyendo el contenido directamente
             $afipConfig = [
                 'CUIT' => (int) $cuit,
                 'production' => ($empresa->arca_ambiente === 'produccion'),
-                'cert' => file_get_contents(storage_path('app/' . $empresa->arca_certificado)),
-                'key' => file_get_contents(storage_path('app/' . $empresa->arca_llave)),
+                'cert' => file_get_contents($certPathOnDisk),
+                'key' => file_get_contents($keyPathOnDisk),
                 'res_folder' => $resFolder,
                 'access_token' => env('AFIP_ACCESS_TOKEN', ''),
             ];
