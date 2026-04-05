@@ -278,7 +278,7 @@
                         <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">REPORTE</button>
                         <button onclick="window.location.href='{{ route('owner.crm.activate', $u->id) }}'" class="btn-sci-fi" style="border-color: var(--accent-emerald); color: var(--accent-emerald);">ACT</button>
                     @else
-                        <button onclick="window.location.href='{{ url('owner/empresas/' . $u->empresa->id . '/users') }}'" class="btn-sci-fi">PANEL</button>
+                        <button onclick="window.location.href='{{ $u->empresa ? url('owner/empresas/' . $u->empresa->id . '/users') : '#' }}'" class="btn-sci-fi">PANEL</button>
                         <button class="btn-sci-fi" style="opacity:0.1" disabled>STATS</button>
                     @endif
                 </div>
