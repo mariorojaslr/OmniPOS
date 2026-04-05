@@ -254,10 +254,11 @@ class ConfiguracionEmpresaController extends Controller
             if(!is_dir($taPath)) mkdir($taPath, 0775, true);
 
             // 📜 Cargar contenido real de los certificados
-            $certContent = file_get_contents($certPathOnDisk);
-            $keyContent  = file_get_contents($keyPathOnDisk);
+            $certContent = @file_get_contents($certPathOnDisk);
+            $keyContent  = @file_get_contents($keyPathOnDisk);
 
-            if (!$certContent || !$keyContent) throw new \Exception("Los archivos de certificado en ARCA están vacíos o no se pueden leer.");
+            if (!$certContent || strlen($certContent) < 10) throw new \Exception("Error: No se pudo leer el contenido del certificado en $certPathOnDisk");
+            if (!$keyContent || strlen($keyContent) < 10) throw new \Exception("Error: No se pudo leer el contenido de la llave en $keyPathOnDisk");
 
             $afip = new \Afip([
                 'CUIT'         => (int) str_replace('-', '', $empresa->arca_cuit),
@@ -265,21 +266,23 @@ class ConfiguracionEmpresaController extends Controller
                 'cert'         => $certContent, 
                 'key'          => $keyContent,  
                 'ta_folder'    => $taPath,
-                // FORZAR MODO COMUNIDAD (LOCAL CERT)
-                'access_token' => null, 
+                'access_token' => null, // Desactivar cualquier token previo
+                // Opciones para forzar el uso local
             ]);
 
-            // Intentar con un servicio más estándar (Padrón A4 / A10)
+            // Intentar con un servicio más estándar (Padrón A11 o el que esté disponible)
             $res = null;
             try {
-                // Probamos con el 10
-                $res = $afip->RegisterScopeTen->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+                $res = $afip->RegisterScopeThirteen->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
             } catch (\Exception $e1) {
                 try {
-                    // Fallback al 4
-                    $res = $afip->RegisterScopeFour->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+                    $res = $afip->RegisterScopeTen->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
                 } catch (\Exception $e2) {
-                    throw new \Exception("AFIP error: " . $e1->getMessage());
+                    try {
+                        $res = $afip->RegisterScopeFour->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+                    } catch (\Exception $e3) {
+                        throw new \Exception("Error de conexión directa AFIP: " . $e1->getMessage());
+                    }
                 }
             }
 
