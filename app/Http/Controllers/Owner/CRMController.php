@@ -222,25 +222,39 @@ class CRMController extends Controller
      */
     public function delete(Request $request)
     {
-        $user = User::findOrFail($request->user_id);
-        $name = $user->name;
-        $source = $user->lead_source ?? 'LinkedIn';
-        
-        // Registro en Bitácora Real antes de borrar
-        $this->logActivity(
-            $source,
-            $name,
-            'Argentina',
-            "ELIMINACION TOTAL: User borrado permanentemente del sistema por el Owner.",
-            'eliminado'
-        );
+        try {
+            $userId = $request->user_id;
+            $status = $request->status ?? 'user';
+            
+            if ($status === 'nuevo_bot') {
+                $lead = \App\Models\OwnerCrmLead::findOrFail($userId);
+                $name = $lead->name;
+                $source = $lead->origin ?? 'Bot Raw';
+                $lead->delete();
+            } else {
+                $user = User::findOrFail($userId);
+                $name = $user->name;
+                $source = $user->lead_source ?? 'LinkedIn';
+                $user->delete();
+            }
 
-        $user->delete();
+            // Registro en Bitácora Real
+            $this->logActivity(
+                $source,
+                $name,
+                'Argentina',
+                "ELIMINACION DEFINITIVA: El registro ha sido borrado permanentemente por el Owner.",
+                'eliminado'
+            );
 
-        return response()->json([
-            'success' => true,
-            'message' => "¡Lead Borrado! " . $name . " ha sido eliminado permanentemente."
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => "¡Registro Borrado! " . $name . " ha sido eliminado."
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -301,5 +315,39 @@ class CRMController extends Controller
             'summary' => $summary,
             'message' => "Misión completa: {$totalStored} leads nuevos en total."
         ]);
+    }
+
+    /**
+     * PROMOVER MANUALMENTE: Convierte un lead de Fase 00 en un Prospecto Real (Fase 01)
+     */
+    public function promote(Request $request)
+    {
+        try {
+            $leadId = $request->lead_id;
+            $lead = \App\Models\OwnerCrmLead::findOrFail($leadId);
+
+            // Crear el usuario prospecto
+            $user = User::create([
+                'name'        => $lead->name,
+                'email'       => $lead->email ?? (str_replace(' ', '-', strtolower($lead->name)) . '@detectado.multipos.system'),
+                'password'    => \Illuminate\Support\Facades\Hash::make('prospecto123'),
+                'role'        => 'empresa',
+                'status'      => 'prospecto',
+                'lead_source' => $lead->origin ?? 'LinkedIn',
+                'country'     => 'Argentina',
+                'activo'      => false
+            ]);
+
+            // Borrar de la lista de leads "crudos" para que no se duplique
+            $lead->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => "¡Lead promovido! " . $user->name . " ahora es un prospecto registrado."
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
     }
 }

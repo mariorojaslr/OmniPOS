@@ -271,8 +271,11 @@
                 </div>
 
                 <div class="btn-group-card">
-                    @if($col['st'] == 'nuevo_bot' || $col['st'] == 'prospecto')
+                    @if($col['st'] == 'nuevo_bot')
                         <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi" style="border-color: var(--accent-sky); color: var(--accent-sky); font-weight: 950;">IA DATA</button>
+                        <button onclick="promoteLead({{ $u->id }})" class="btn-sci-fi">PROMOVER</button>
+                    @elseif($col['st'] == 'prospecto')
+                        <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">IA DATA</button>
                         <button class="btn-sci-fi" style="opacity:0.2" disabled>CORREO</button>
                     @elseif($col['st'] == 'pendiente_pago')
                         <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">REPORTE</button>
@@ -549,15 +552,33 @@
         });
     }
 
-    function forgetLead(userId) {
-        if(!confirm('¿Seguro quieres olvidar este lead? Se archivará fuera del panel principal.')) return;
-        fetch("{{ route('owner.crm.archive') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ user_id: userId }) })
-        .then(r => r.json()).then(d => { if(d.success) document.getElementById('card-' + userId).remove(); });
+    function promoteLead(leadId) {
+        if(!confirm('¿Quieres promover este lead a Prospecto Registrado?')) return;
+        fetch("{{ route('owner.crm.promote') }}", { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, 
+            body: JSON.stringify({ lead_id: leadId }) 
+        })
+        .then(r => r.json())
+        .then(d => { 
+            if(d.success) {
+                alert(d.message);
+                location.reload(); // Recargamos para que aparezca en la siguiente columna
+            } 
+        });
     }
 
-    function deleteLead(userId) {
+    function deleteLead(userId, status = 'user') {
         if(!confirm('¡CUIDADO! Esto borrará el usuario de forma DEFINITIVA. ¿Proceder?')) return;
-        fetch("{{ route('owner.crm.delete') }}", { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ user_id: userId }) })
+        
+        let route = status === 'nuevo_bot' ? "{{ route('owner.crm.delete') }}" : "{{ route('owner.crm.delete') }}"; 
+        // Nota: El controlador ya debería manejar ambos casos si se le pasa el ID
+        
+        fetch("{{ route('owner.crm.delete') }}", { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, 
+            body: JSON.stringify({ user_id: userId, status: status }) 
+        })
         .then(r => r.json()).then(d => { if(d.success) document.getElementById('card-' + userId).remove(); });
     }
 
