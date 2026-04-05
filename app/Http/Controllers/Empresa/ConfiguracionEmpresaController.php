@@ -249,24 +249,29 @@ class ConfiguracionEmpresaController extends Controller
 
             if (!file_exists($certPathOnDisk)) throw new \Exception("Configura primero tus certificados AFIP.");
 
+            // 📂 Carpeta Temporal para los Tokens de AFIP (TA)
+            $taPath = storage_path('app/afip/ta');
+            if(!is_dir($taPath)) mkdir($taPath, 0775, true);
+
             $afip = new \Afip([
                 'CUIT'         => (int) str_replace('-', '', $empresa->arca_cuit),
                 'production'   => ($empresa->arca_ambiente === 'produccion'),
-                'cert'         => file_get_contents($certPathOnDisk),
-                'key'          => file_get_contents($keyPathOnDisk),
-                'token'        => env('AFIP_ACCESS_TOKEN'), // Usar token si existe
+                'cert'         => $certPathOnDisk, // Pasamos la RUTA, no el contenido
+                'key'          => $keyPathOnDisk,  // Pasamos la RUTA, no el contenido
+                'ta_folder'    => $taPath,         // Carpeta para autorizaciones
             ]);
 
-            // Intentar primero con Padrón A10 (que es el que el usuario tiene activo)
+            // Intentar con un servicio más estándar (Padrón A4 es muy común)
             $res = null;
             try {
+                // Probamos con el 10 primero
                 $res = $afip->RegisterScopeTen->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
             } catch (\Exception $e1) {
-                // Fallback a Inscription Server (Constancia de Inscripción) si el 10 falla
                 try {
-                    $res = $afip->RegisterInscriptionServer->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+                    // Fallback al 4 que es el que vi en tus capturas
+                    $res = $afip->RegisterScopeFour->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
                 } catch (\Exception $e2) {
-                    throw new \Exception("No se pudo obtener datos del CUIT $cuit (" . $e1->getMessage() . ")");
+                    throw new \Exception("AFIP error: " . $e1->getMessage());
                 }
             }
 
