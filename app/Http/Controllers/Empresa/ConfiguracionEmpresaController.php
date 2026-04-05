@@ -176,9 +176,9 @@ class ConfiguracionEmpresaController extends Controller
                 mkdir($resFolder, 0777, true);
             }
 
-            // Forzar las rutas a la carpeta ARCA que armamos a mano en el servidor
-            $certPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_cert.crt');
-            $keyPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_key.key');
+            // Forzar las rutas a la carpeta ARCA de la raíz
+            $certPathOnDisk = base_path('ARCA/empresa_' . $empresa->id . '_cert.crt');
+            $keyPathOnDisk = base_path('ARCA/empresa_' . $empresa->id . '_key.key');
 
             if (!file_exists($certPathOnDisk) || !file_exists($keyPathOnDisk)) {
                 throw new \Exception("No se encontraron los archivos en la carpeta ARCA del servidor. Asegúrate de subirlos con los nombres correctos.");
@@ -243,9 +243,9 @@ class ConfiguracionEmpresaController extends Controller
 
             $empresa = auth()->user()->empresa;
             
-            // Forzar las rutas a la carpeta ARCA que ya vimos que existe
-            $certPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_cert.crt');
-            $keyPathOnDisk  = storage_path('app/ARCA/empresa_' . $empresa->id . '_key.key');
+            // Forzar las rutas a la carpeta ARCA de la raíz
+            $certPathOnDisk = base_path('ARCA/empresa_' . $empresa->id . '_cert.crt');
+            $keyPathOnDisk  = base_path('ARCA/empresa_' . $empresa->id . '_key.key');
             $taPath         = storage_path('app/ARCA/ta');
 
             if (!file_exists($certPathOnDisk) || !file_exists($keyPathOnDisk)) {
