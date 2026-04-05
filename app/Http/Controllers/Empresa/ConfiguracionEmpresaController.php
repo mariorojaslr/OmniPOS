@@ -177,8 +177,8 @@ class ConfiguracionEmpresaController extends Controller
             $afipConfig = [
                 'CUIT' => (int) $cuit,
                 'production' => ($empresa->arca_ambiente === 'produccion'),
-                'cert' => storage_path('app/' . $empresa->arca_certificado),
-                'key' => storage_path('app/' . $empresa->arca_llave),
+                'cert' => file_get_contents(storage_path('app/' . $empresa->arca_certificado)),
+                'key' => file_get_contents(storage_path('app/' . $empresa->arca_llave)),
                 'res_folder' => $resFolder,
                 'access_token' => env('AFIP_ACCESS_TOKEN', ''),
             ];
