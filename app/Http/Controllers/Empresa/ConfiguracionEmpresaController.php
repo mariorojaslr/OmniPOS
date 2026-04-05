@@ -257,8 +257,8 @@ class ConfiguracionEmpresaController extends Controller
             $certContent = @file_get_contents($certPathOnDisk);
             $keyContent  = @file_get_contents($keyPathOnDisk);
 
-            if (!$certContent || strlen($certContent) < 10) throw new \Exception("Error: No se pudo leer el contenido del certificado en $certPathOnDisk");
-            if (!$keyContent || strlen($keyContent) < 10) throw new \Exception("Error: No se pudo leer el contenido de la llave en $keyPathOnDisk");
+            if (!$certContent || strlen($certContent) < 10) throw new \Exception("Certificado no legible");
+            if (!$keyContent || strlen($keyContent) < 10) throw new \Exception("Llave no legible");
 
             $afip = new \Afip([
                 'CUIT'         => (int) str_replace('-', '', $empresa->arca_cuit),
@@ -266,22 +266,34 @@ class ConfiguracionEmpresaController extends Controller
                 'cert'         => $certContent, 
                 'key'          => $keyContent,  
                 'ta_folder'    => $taPath,
-                'access_token' => null, // Desactivar cualquier token previo
-                // Opciones para forzar el uso local
+                'access_token' => null, 
+                // Opciones del Cliente SOAP (Forzado Directo)
+                'soap_params' => [
+                    'stream_context' => stream_context_create([
+                        'ssl' => [
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                            'allow_self_signed' => true
+                        ]
+                    ]),
+                    'connection_timeout' => 5,
+                    'exceptions' => true
+                ]
             ]);
 
-            // Intentar con un servicio más estándar (Padrón A11 o el que esté disponible)
+            // Intentar con el servicio más común (Padrón A5 o A4)
             $res = null;
             try {
-                $res = $afip->RegisterScopeThirteen->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+                // El 5 es el que la mayoría de los CUITs tienen para consulta básica
+                $res = $afip->RegisterScopeFive->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
             } catch (\Exception $e1) {
                 try {
                     $res = $afip->RegisterScopeTen->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
                 } catch (\Exception $e2) {
                     try {
-                        $res = $afip->RegisterScopeFour->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+                        $res = $afip->RegisterInscriptionServer->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
                     } catch (\Exception $e3) {
-                        throw new \Exception("Error de conexión directa AFIP: " . $e1->getMessage());
+                        throw new \Exception("AFIP: " . $e1->getMessage());
                     }
                 }
             }
