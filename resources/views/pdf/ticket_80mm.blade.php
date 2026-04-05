@@ -48,24 +48,8 @@
     $letra = $esA ? 'A' : 'B';
     $cod_id = $esA ? '001' : '006';
     
-    // QR data para ARCA (AFIP)
-    $qrData = [
-        "ver" => 1,
-        "fecha" => $venta->created_at->format('Y-m-d'),
-        "cuit" => (int)$empresa->cuit,
-        "ptoVta" => (int)($empresa->arca_punto_venta ?? 1),
-        "tipoCod" => (int)$cod_id,
-        "nroCmp" => (int)$venta->id,
-        "importe" => (float)$venta->total_con_iva,
-        "moneda" => "PES",
-        "ctz" => 1,
-        "tipoDocRec" => (int)($venta->cliente->document_type ?? 99),
-        "nroDocRec" => (int)($venta->cliente->document ?? 0),
-        "tipoCodAut" => "E",
-        "codAut" => (int)$venta->cae
-    ];
-    $qrBase64_afip = base64_encode(json_encode($qrData));
-    $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.afip.gob.ar/genericos/comprobante/cae.aspx?p=" . $qrBase64_afip;
+    // El número que viene de AFIP o el interno
+    $numeroCompleto = $venta->numero_comprobante ?: (str_pad($empresa->arca_punto_venta ?? '12', 4, '0', STR_PAD_LEFT) . '-' . str_pad($venta->id, 8, '0', STR_PAD_LEFT));
 @endphp
 
 <div class="header">
@@ -85,7 +69,7 @@
     <strong>FACTURA "{{ $letra }}"</strong>
 </div>
 <div class="text-center bold" style="font-size: 10pt; margin-bottom: 4px;">
-    {{ str_pad($empresa->arca_punto_venta ?? '1', 5, '0', STR_PAD_LEFT) }} - {{ str_pad($venta->id, 8, '0', STR_PAD_LEFT) }}
+    {{ $numeroCompleto }}
 </div>
 <div class="text-center divider">
     {{ $venta->created_at->format('d/m/Y H:i') }} hs
@@ -129,20 +113,22 @@
 
 <div class="footer">
     <div class="cae-box">
-        CAE: {{ $venta->cae ?? 'N/A' }}<br>
-        VTO: {{ $venta->cae_vto ? \Carbon\Carbon::parse($venta->cae_vto)->format('d/m/Y') : 'N/A' }}
+        CAE: {{ $venta->cae ?? '-' }}<br>
+        VTO: {{ $venta->cae_vencimiento ? \Carbon\Carbon::parse($venta->cae_vencimiento)->format('d/m/Y') : '-' }}
     </div>
     
+    @if(isset($qrUrl) && $qrUrl)
     <div class="text-center">
-        <img src="{{ $qrUrl }}" class="qr-img">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($qrUrl) }}" class="qr-img">
     </div>
+    @endif
     
     <div style="font-size: 7.5pt; line-height: 1.2; margin-top: 5px;">
         Esta administración no se responsabiliza por los datos declarados en este comprobante.
     </div>
 
     <div class="divider"></div>
-    <div style="font-style: italic; font-weight: bold; margin-bottom: 10px;">
+    <div style="font-style: italic; font-weight: bold; margin-bottom: 20px;">
         ¡GRACIAS POR SU COMPRA!<br>
         MultiPOS SaaS - gentepiola.net
     </div>

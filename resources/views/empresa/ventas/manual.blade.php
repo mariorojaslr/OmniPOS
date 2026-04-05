@@ -50,11 +50,14 @@
         <div class="col-md-9">
             
             {{-- SECCIÓN CLIENTE --}}
-            <div class="card luxury-card mb-4">
+            <div class="card luxury-card mb-4 border-start border-4 border-primary">
                 <div class="card-body p-4">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-uppercase text-secondary">Cliente / Razón Social</label>
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <div class="d-flex justify-content-between">
+                                <label class="form-label fw-bold small text-uppercase text-secondary">Cliente / Razón Social</label>
+                                <button type="button" class="btn btn-link btn-sm p-0 mb-1 text-decoration-none" onclick="setConsumidorFinal()">👤 Consumidor Final</button>
+                            </div>
                             <select name="client_id" id="clientSelect" class="form-select" required>
                                 <option value="">Seleccionar Cliente del Catálogo...</option>
                                 @foreach($clients as $client)
@@ -63,17 +66,28 @@
                             </select>
                         </div>
                         <div class="col-md-3">
+                            <label class="form-label fw-bold small text-uppercase text-secondary">🔍 Buscar por CUIT/CUIL</label>
+                            <div class="input-group">
+                                <input type="text" id="cuitSearch" class="form-control" placeholder="CUIT Sin guiones">
+                                <button class="btn btn-primary" type="button" id="btnSearchCuit" title="Buscar en AFIP">
+                                    <span class="spinner-border spinner-border-sm d-none" id="searchSpinner"></span>
+                                    🚀
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
                             <label class="form-label fw-bold small text-uppercase text-secondary">Comprobante</label>
-                            <select name="tipo_comprobante" class="form-select">
+                            <select name="tipo_comprobante" id="tipoComprobante" class="form-select">
                                 <option value="A">Factura A</option>
                                 <option value="B">Factura B</option>
                                 <option value="C">Factura C</option>
-                                <option value="X" selected>Presupuesto / Interno</option>
+                                <option value="F">Factura</option>
+                                <option value="X" selected>Presupuesto</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold small text-uppercase text-secondary">Nro. Manual</label>
-                            <input type="text" name="numero_comprobante" class="form-control" placeholder="Ej: 0001-00012345">
+                            <input type="text" name="numero_comprobante" class="form-control" placeholder="Auto" title="Si usa AFIP, se genera solo">
                         </div>
                     </div>
                 </div>
@@ -204,6 +218,47 @@ $(document).ready(function() {
 
     console.log("MultiPOS JS Cargado ✅");
 
+    // 🚀 BUSQUEDA POR CUIT (PADRON AFIP)
+    $('#btnSearchCuit').on('click', function() {
+        let cuit = $('#cuitSearch').val().trim();
+        if(!cuit) return alert("Ingresa un CUIT primero");
+
+        const btn = $(this);
+        const spinner = $('#searchSpinner');
+        
+        btn.prop('disabled', true);
+        spinner.removeClass('d-none');
+
+        fetch(`{{ route('tax.search_cuit') }}?cuit=${cuit}`)
+            .then(res => res.json())
+            .then(res => {
+                if(res.success) {
+                    // Si el cliente existe en el catálogo, lo seleccionamos
+                    // (Esto requiere buscar por nombre o haberlo precargado)
+                    let found = false;
+                    $('#clientSelect option').each(function() {
+                        if ($(this).text().includes(cuit)) {
+                            $('#clientSelect').val($(this).val()).trigger('change');
+                            found = true;
+                        }
+                    });
+
+                    if(!found) {
+                        if(confirm(`Encontrado: ${res.data.nombre}\n¿Deseas dar de ALTA este cliente ahora mismo?`)) {
+                            quickCreateClient(res.data, cuit);
+                        }
+                    }
+                } else {
+                    alert("Error ARCA: " + res.error);
+                }
+            })
+            .catch(err => alert("Error técnico: " + err))
+            .finally(() => {
+                btn.prop('disabled', false);
+                spinner.addClass('d-none');
+            });
+    });
+
     // 📝 Lógica de Formateo de Número Manual (e.g. 1-35 -> 0001-00000035)
     $(document).on('change blur', 'input[name="numero_comprobante"]', function() {
         console.log("Formateando número...");
@@ -221,7 +276,7 @@ $(document).ready(function() {
     // Agregar primera fila por defecto
     agregarFila();
 
-    // Lector de barras global
+    // 🍎 Lector de barras global (Restaurado)
     let barcodeBuffer = "";
     document.addEventListener('keydown', function(e) {
         if(e.key === 'Enter') {
@@ -238,6 +293,50 @@ $(document).ready(function() {
         setTimeout(() => { barcodeBuffer = ""; }, 200);
     });
 });
+
+function setConsumidorFinal() {
+    // Buscar opción que diga Consumidor Final
+    $('#clientSelect option').each(function() {
+        if ($(this).text().toUpperCase().includes('CONSUMIDOR FINAL')) {
+            $('#clientSelect').val($(this).val()).trigger('change');
+        }
+    });
+    $('#tipoComprobante').val('B').trigger('change');
+}
+
+function quickCreateClient(data, cuit) {
+    // API Call para crear cliente rápido (Ruta corregida a 'clientes')
+    fetch("{{ route('empresa.clientes.store') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            name: data.nombre,
+            document: cuit,
+            address: data.direccion + ' ' + data.localidad,
+            condicion_iva: data.condicion_iva,
+            email: 'automatico@multipos.system'
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+        if(res.id) {
+            // Agregar al select y seleccionar
+            let newOption = new Option(res.name, res.id, true, true);
+            $('#clientSelect').append(newOption).trigger('change');
+            
+            // Sugerir comprobante según IVA
+            if(data.condicion_iva.includes('Inscripto')) {
+                $('#tipoComprobante').val('A');
+            } else {
+                $('#tipoComprobante').val('B');
+            }
+        }
+    });
+}
 
 function agregarFila() {
     const tbody = document.querySelector("#tablaVentaManual tbody");

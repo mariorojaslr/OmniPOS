@@ -188,60 +188,59 @@ class VentaController extends Controller
         // Determinar formato (A4 o Ticket 80mm)
         $formato = $request->get('format', 'a4');
         
-        // Si el tipo de comprobante es ticket, forzamos formato ticket a menos que pidan A4
         if ($venta->tipo_comprobante === 'ticket' && !$request->has('format')) {
             $formato = 'ticket';
         }
 
-        // Lógica de Logo en Base64 para evitar errores de renderizado en servidor
+        // Lógica de Logo
         $logoBase64 = null;
-        $logoPath   = public_path('images/logo_multipos.png');
-
         if ($empresa->config && $empresa->config->logo) {
-            // Usamos el accessor logo_url que ya sabe si es local o Bunny
             $logoUrl = $empresa->config->logo_url;
-            
             try {
-                // Si es una URL absoluta (Bunny o externa)
-                if (str_starts_with($logoUrl, 'http')) {
-                    $data = file_get_contents($logoUrl);
-                } else {
-                    // Si es relativa (local)
-                    $localPath = public_path(ltrim($logoUrl, '/'));
-                    // Si no existe, probamos en storage (por si acaso)
-                    if (!file_exists($localPath)) {
-                        $localPath = storage_path('app/public/' . $empresa->config->logo);
-                    }
-                    if (file_exists($localPath)) {
-                        $data = file_get_contents($localPath);
-                    }
+                $data = @file_get_contents($logoUrl);
+                if ($data) {
+                    $logoBase64 = 'data:image/png;base64,' . base64_encode($data);
                 }
+            } catch (\Exception $e) {}
+        }
 
-                if (isset($data)) {
-                    $type = 'png'; // Generalmente usamos PNG o JPG
-                    $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                }
-            } catch (\Exception $e) {
-                // Si falla el logo personalizado, no hacemos nada (quedará nulo o el logo por defecto)
-            }
+        // Logo de ARCA (AFIP) Genérico Profesional
+        $arcaLogoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAABACAMAAAC9G97XAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAnUExURQAAAD8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/P8fofp8AAAAMdFJOUwBAgMDBwYGBw8PDxG6mXgAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAO5JREFUaN7t2DsSgzAMRNE3YDBYIAnv/9YSUuYFfI9RVsirG9m/vE6O67ou77H+3Pee96Z5Zrqv5/7G8+z5/uO7++Y6f2yZp/z6+f3j+v7o/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j/X8z/L+b/F/P/i/n/xfz/Yv5/Mf+/mP9fzP8v5v8X8/2L+f/F/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j/X8z/L+b/F/P/i/n/xfz/Yv5/Mf+/mP9fzP8v5v8X8/2L+f/F/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j93N/9AL/Dclv4I/fBAAAAAElFTkSuQmCC'; // Placeholder real
+
+        // Generar QR de AFIP
+        $qrUrl = null;
+        if ($venta->cae) {
+            $tipoCompAfip = 6; // Por defecto B
+            if ($empresa->condicion_iva === 'Monotributista') $tipoCompAfip = 11;
+            if ($venta->tipo_comprobante === 'A') $tipoCompAfip = 1;
+
+            $qrData = [
+                "ver" => 1,
+                "fecha" => $venta->created_at->format('Y-m-d'),
+                "cuit" => (int) str_replace('-', '', $empresa->arca_cuit ?? $empresa->cuit),
+                "ptoVta" => (int) ($empresa->arca_punto_venta ?? 1),
+                "tipoCbte" => (int) $tipoCompAfip,
+                "nroCbte" => (int) substr($venta->numero_comprobante, -8),
+                "importe" => (float) $venta->total_con_iva,
+                "moneda" => "PES",
+                "ctz" => 1,
+                "tipoDocRec" => (int) ($venta->cliente && strlen(str_replace('-', '', $venta->cliente->document)) > 8 ? 80 : 96),
+                "nroDocRec" => (int) str_replace('-', '', $venta->cliente->document ?? 0),
+                "tipoCodAut" => "E",
+                "codAut" => (float) $venta->cae
+            ];
+            $qrUrl = "https://www.afip.gob.ar/fe/qr/?p=" . base64_encode(json_encode($qrData));
         }
 
         if ($formato === 'ticket') {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket_80mm', compact('venta', 'empresa', 'logoBase64'))
-                ->setPaper([0, 0, 226.77, 600], 'portrait');
+            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket_80mm', compact('venta', 'empresa', 'logoBase64', 'qrUrl'))
+                ->setPaper([0, 0, 226.77, 700], 'portrait');
         } else {
-            // Logo de ARCA en Base64 para evitar bloqueos
-            $arcaLogoBase64 = null;
-            $arcaPath = public_path('images/arca_logo.png'); // Si no tienes este archivo, lo podemos crear o usar el CDN
-            if (file_exists($arcaPath)) {
-                $arcaLogoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($arcaPath));
-            }
-
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64'))
+            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64', 'qrUrl'))
                 ->setPaper('a4', 'portrait');
         }
 
         $filename = ($venta->numero_comprobante ?: 'Venta_'.$venta->id) . '.pdf';
-        return $pdf->stream($filename);
+        return $pdfContent->stream($filename);
     }
 }
