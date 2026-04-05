@@ -13,25 +13,25 @@ class AfipService
      */
     protected function getAfipInstance(Empresa $empresa)
     {
-        $resFolder = storage_path('app/afip_res/');
-        if (!file_exists($resFolder)) {
-            mkdir($resFolder, 0777, true);
+        $taPath = storage_path('app/ARCA/ta');
+        if (!is_dir($taPath)) {
+            mkdir($taPath, 0775, true);
         }
 
         $certPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_cert.crt');
-        $keyPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_key.key');
+        $keyPathOnDisk  = storage_path('app/ARCA/empresa_' . $empresa->id . '_key.key');
 
         if (!file_exists($certPathOnDisk) || !file_exists($keyPathOnDisk)) {
-            throw new \Exception("Faltan certificados AFIP en la carpeta ARCA.");
+            throw new \Exception("Faltan certificados AFIP en la carpeta ARCA (empresa_{$empresa->id}).");
         }
 
-        return new Afip([
+        return new \Afip([
             'CUIT'         => (int) str_replace('-', '', $empresa->arca_cuit),
             'production'   => ($empresa->arca_ambiente === 'produccion'),
-            'cert'         => file_get_contents($certPathOnDisk),
-            'key'          => file_get_contents($keyPathOnDisk),
-            'res_folder'   => $resFolder,
-            'access_token' => env('AFIP_ACCESS_TOKEN'),
+            'cert'         => $certPathOnDisk,
+            'key'          => $keyPathOnDisk,
+            'ta_folder'    => $taPath,
+            'access_token' => null, // Forzar uso local
         ]);
     }
 
