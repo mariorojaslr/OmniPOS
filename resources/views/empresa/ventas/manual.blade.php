@@ -229,7 +229,7 @@ $(document).ready(function() {
         btn.prop('disabled', true);
         spinner.removeClass('d-none');
 
-        fetch(`{{ route('tax.search_cuit') }}?cuit=${cuit}`)
+        fetch(`{{ route('empresa.tax.search_cuit') }}?cuit=${cuit}`)
             .then(res => res.json())
             .then(res => {
                 if(res.success) {
