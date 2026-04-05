@@ -113,7 +113,7 @@
 
 <div class="footer">
     <div class="cae-box">
-        CAE: {{ $venta->cae ?? '-' }}<br>
+        CAE: {{ $venta->cae ?? 'PENDIENTE' }}<br>
         VTO: {{ $venta->cae_vencimiento ? \Carbon\Carbon::parse($venta->cae_vencimiento)->format('d/m/Y') : '-' }}
     </div>
     

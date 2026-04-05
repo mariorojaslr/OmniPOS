@@ -192,29 +192,30 @@ class VentaController extends Controller
             $formato = 'ticket';
         }
 
-        // Lógica de Logo
+        // Lógica de Logo - Acceso directo a disco para evitar fallos de red en producción
         $logoBase64 = null;
         if ($empresa->config && $empresa->config->logo) {
-            $logoUrl = $empresa->config->logo_url;
             try {
-                $data = @file_get_contents($logoUrl);
-                if ($data) {
-                    $logoBase64 = 'data:image/png;base64,' . base64_encode($data);
+                $path = storage_path('app/public/' . $empresa->config->logo);
+                if (file_exists($path)) {
+                    $type = pathinfo($path, PATHINFO_EXTENSION);
+                    $data = file_get_contents($path);
+                    $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
                 }
             } catch (\Exception $e) {}
         }
 
         // Logo de ARCA (AFIP) Genérico Profesional
-        $arcaLogoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAABACAMAAAC9G97XAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAnUExURQAAAD8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/P8fofp8AAAAMdFJOUwBAgMDBwYGBw8PDxG6mXgAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAO5JREFUaN7t2DsSgzAMRNE3YDBYIAnv/9YSUuYFfI9RVsirG9m/vE6O67ou77H+3Pee96Z5Zrqv5/7G8+z5/uO7++Y6f2yZp/z6+f3j+v7o/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j/X8z/L+b/F/P/i/n/xfz/Yv5/Mf+/mP9fzP8v5v8X8/2L+f/F/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j/X8z/L+b/F/P/i/n/xfz/Yv5/Mf+/mP9fzP8v5v8X8/2L+f/F/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j93N/9AL/Dclv4I/fBAAAAAElFTkSuQmCC'; // Placeholder real
+        $arcaLogoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAABACAMAAAC9G97XAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAnUExURQAAAD8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/P8fofp8AAAAMdFJOUwBAgMDBwYGBw8PDxG6mXgAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAO5JREFUaN7t2DsSgzAMRNE3YDBYIAnv/9YSUuYFfI9RVsirG9m/vE6O67ou77H+3Pee96Z5Zrqv5/7G8+z5/uO7++Y6f2yZp/z6+f3j+v7o/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j/X8z/L+b/F/P/i/n/xfz/Yv5/Mf+/mP9fzP8v5v8X8/2L+f/F/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j/X8z/L+b/F/P/i/n/xfz/Yv5/Mf+/mP9fzP8v5v8X8/2L+f/F/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j93N/9AL/Dclv4I/fBAAAAAElFTkSuQmCC'; 
 
-        // Generar QR de AFIP
+        // Generar URL de QR de AFIP basado en los datos almacenados o generados
         $qrUrl = null;
-        if ($venta->cae) {
-            $tipoCompAfip = 6; // Por defecto B
-            if ($empresa->condicion_iva === 'Monotributista') $tipoCompAfip = 11;
-            if ($venta->tipo_comprobante === 'A') $tipoCompAfip = 1;
-
-            $qrData = [
+        $qrRaw = $venta->qr_data;
+        
+        // Si no tiene qr_data almacenado, intentamos regenerarlo para facturas antiguas
+        if (!$qrRaw && $venta->cae) {
+             $tipoCompAfip = ($empresa->condicion_iva === 'Monotributista') ? 11 : (($venta->tipo_comprobante === 'A') ? 1 : 6);
+             $qrData = [
                 "ver" => 1,
                 "fecha" => $venta->created_at->format('Y-m-d'),
                 "cuit" => (int) str_replace('-', '', $empresa->arca_cuit ?? $empresa->cuit),
@@ -229,7 +230,11 @@ class VentaController extends Controller
                 "tipoCodAut" => "E",
                 "codAut" => (float) $venta->cae
             ];
-            $qrUrl = "https://www.afip.gob.ar/fe/qr/?p=" . base64_encode(json_encode($qrData));
+            $qrRaw = base64_encode(json_encode($qrData));
+        }
+
+        if ($qrRaw) {
+            $qrUrl = "https://www.afip.gob.ar/fe/qr/?p=" . $qrRaw;
         }
 
         if ($formato === 'ticket') {
