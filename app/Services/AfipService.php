@@ -13,8 +13,8 @@ class AfipService
      */
     protected function getAfipInstance(Empresa $empresa)
     {
-        // Carpeta para los archivos temporales (Token de Acceso)
-        $taPath = storage_path('app/ARCA/ta');
+        // Carpeta para los archivos temporales (Token de Acceso) específica por empresa
+        $taPath = storage_path('app/ARCA/ta/' . $empresa->id);
         if (!is_dir($taPath)) {
             mkdir($taPath, 0775, true);
         }
