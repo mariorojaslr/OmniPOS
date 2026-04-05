@@ -83,6 +83,7 @@ class VentaService
             $numeroComprobante = $this->generarNumeroComprobante($empresaActual, $tipoComprobante);
             $cae = null;
             $caeVencimiento = null;
+            $qrData = null;
             $afipError = null;
 
             // FACTURACIÓN ELECTRÓNICA AFIP (SI CORRESPONDE)
