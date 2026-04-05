@@ -300,7 +300,7 @@
     {{-- RADAR DE ADQUISICIÓN Y TRÁFICO (LEVEL 1.5) --}}
     <div class="row g-4 mb-5">
         <div class="col-md-12 mb-1">
-            <h5 class="stat-mini-label mb-0"><span class="live-indicator-fast"></span> RADAR DE ADQUISICIÓN EXTERNA (LIVE)</h5>
+            <h5 class="stat-mini-label mb-0"><span class="live-indicator-fast"></span> RADAR DE ADQUISICIÓN EXTERNA (EN VIVO)</h5>
         </div>
         <div class="col-md-4">
             <a href="{{ route('owner.crm.index') }}" class="oled-card clickable-card" style="border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 0 20px rgba(168, 85, 247, 0.1) inset;">
