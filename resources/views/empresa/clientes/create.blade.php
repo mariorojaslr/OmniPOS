@@ -139,31 +139,42 @@ document.getElementById('btnSearchCuit').addEventListener('click', function() {
     btn.disabled = true;
     spinner.classList.remove('d-none');
 
+    // Usar la ruta de búsqueda de CUIT (Padrón A10 habilitado)
     fetch(`{{ route('empresa.tax.search_cuit') }}?cuit=${cuit}`)
         .then(res => res.json())
         .then(res => {
             if(res.success) {
-                // Autocompletar campos
+                // 1. Nombre / Razón Social
                 document.querySelector('input[name="name"]').value = res.data.nombre;
-                document.getElementById('addressInput').value = res.data.direccion + ' ' + (res.data.localidad || '');
                 
-                // Mapear Condición IVA
+                // 2. Dirección Completa
+                const loc = res.data.localidad ? (', ' + res.data.localidad) : '';
+                document.getElementById('addressInput').value = res.data.direccion + loc;
+                
+                // 3. Mapear Condición Fiscal
                 const cond = res.data.condicion_iva.toLowerCase();
-                const select = document.getElementById('taxConditionSelect');
+                const taxSelect = document.getElementById('taxConditionSelect');
+                const typeSelect = document.querySelector('select[name="type"]');
                 
-                if(cond.includes('inscripto')) select.value = 'responsable_inscripto';
-                else if(cond.includes('monotributo')) select.value = 'monotributo';
-                else if(cond.includes('exento')) select.value = 'exento';
-                else select.value = 'consumidor_final';
+                if(cond.includes('inscripto')) {
+                    taxSelect.value = 'responsable_inscripto';
+                    typeSelect.value = 'mayorista'; // Sugerir mayorista para RI
+                } else if(cond.includes('monotributo')) {
+                    taxSelect.value = 'monotributo';
+                    typeSelect.value = 'minorista';
+                } else if(cond.includes('exento')) {
+                    taxSelect.value = 'exento';
+                } else {
+                    taxSelect.value = 'consumidor_final';
+                }
 
-                // Sugerir tipo de cliente
-                if(cond.includes('inscripto')) document.querySelector('select[name="type"]').value = 'mayorista';
+                alert("✅ Datos cargados correctamente desde ARCA.");
 
             } else {
-                alert("Error AFIP: " + res.error);
+                alert("❌ Error AFIP: " + res.error);
             }
         })
-        .catch(err => alert("Error técnico: " + err))
+        .catch(err => alert("⚠️ Error técnico: " + err))
         .finally(() => {
             btn.disabled = false;
             spinner.classList.add('d-none');

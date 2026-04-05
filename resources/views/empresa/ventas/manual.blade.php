@@ -305,6 +305,17 @@ function setConsumidorFinal() {
 }
 
 function quickCreateClient(data, cuit) {
+    // Mapear Condición IVA a Slugs del sistema
+    let taxCond = 'consumidor_final';
+    const cond = data.condicion_iva.toLowerCase();
+    if(cond.includes('inscripto')) taxCond = 'responsable_inscripto';
+    else if(cond.includes('monotributo')) taxCond = 'monotributo';
+    else if(cond.includes('exento')) taxCond = 'exento';
+
+    // Sugerir Tipo de Cliente
+    let type = 'minorista';
+    if(taxCond === 'responsable_inscripto') type = 'mayorista';
+
     // API Call para crear cliente rápido (Ruta corregida a 'clientes')
     fetch("{{ route('empresa.clientes.store') }}", {
         method: 'POST',
@@ -316,8 +327,9 @@ function quickCreateClient(data, cuit) {
         body: JSON.stringify({
             name: data.nombre,
             document: cuit,
-            address: data.direccion + ' ' + data.localidad,
-            condicion_iva: data.condicion_iva,
+            address: data.direccion + ' ' + (data.localidad || ''),
+            tax_condition: taxCond,
+            type: type,
             email: 'automatico@multipos.system'
         })
     })
