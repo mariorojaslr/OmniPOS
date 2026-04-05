@@ -257,23 +257,34 @@ class ConfiguracionEmpresaController extends Controller
                 'access_token' => env('AFIP_ACCESS_TOKEN'),
             ]);
 
-            $data = $afip->RegisterScopeFive->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+            $res = $afip->RegisterScopeFive->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
 
-            if (!$data) throw new \Exception("No se encontró información para el CUIT $cuit");
+            if (!$res) throw new \Exception("No se encontró información oficial para el CUIT $cuit");
+
+            // AFIP puede devolver nombre/apellido o razonSocial según el tipo de contribuyente
+            $nombre = trim(($res->apellido ?? '') . ' ' . ($res->nombre ?? ''));
+            if(empty($nombre)) $nombre = $res->razonSocial ?? 'Contribuyente Desconocido';
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'nombre' => $data->apellido . ' ' . $data->nombre ?? ($data->razonSocial ?? ''),
-                    'direccion' => $data->domicilioFiscal->direccion ?? '',
-                    'localidad' => $data->domicilioFiscal->localidad ?? '',
-                    'provincia' => $data->domicilioFiscal->idProvincia ?? '',
-                    'condicion_iva' => $this->parseCondicionIvaAfip($data->impuestos ?? [])
+                    'nombre' => $nombre,
+                    'direccion' => $res->domicilioFiscal->direccion ?? ($res->domicilioFiscal->domicilio ?? ''),
+                    'localidad' => $res->domicilioFiscal->localidad ?? '',
+                    'provincia' => $res->domicilioFiscal->idProvincia ?? '',
+                    'condicion_iva' => $this->parseCondicionIvaAfip($res->impuestos ?? [])
                 ]
             ]);
 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
+            $msg = $e->getMessage();
+            
+            // Traducción amigable de errores técnicos de AFIP
+            if (str_contains($msg, 'notAuthorized')) {
+                $msg = "Tu CUIT no tiene autorizado el servicio 'ws_sr_padron_a5' en AFIP. Debes delegarlo/asociarlo al certificado en la web oficial.";
+            }
+
+            return response()->json(['success' => false, 'error' => $msg], 200); // 200 para que el frontend maneje el msg
         }
     }
 
