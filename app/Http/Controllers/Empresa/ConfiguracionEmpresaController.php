@@ -254,12 +254,23 @@ class ConfiguracionEmpresaController extends Controller
                 'production'   => ($empresa->arca_ambiente === 'produccion'),
                 'cert'         => file_get_contents($certPathOnDisk),
                 'key'          => file_get_contents($keyPathOnDisk),
-                'access_token' => env('AFIP_ACCESS_TOKEN'),
+                'token'        => env('AFIP_ACCESS_TOKEN'), // Usar token si existe
             ]);
 
-            $res = $afip->RegisterScopeFive->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+            // Intentar primero con Padrón A10 (que es el que el usuario tiene activo)
+            $res = null;
+            try {
+                $res = $afip->RegisterScopeTen->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+            } catch (\Exception $e1) {
+                // Fallback a Inscription Server (Constancia de Inscripción) si el 10 falla
+                try {
+                    $res = $afip->RegisterInscriptionServer->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+                } catch (\Exception $e2) {
+                    throw new \Exception("No se pudo obtener datos del CUIT $cuit (" . $e1->getMessage() . ")");
+                }
+            }
 
-            if (!$res) throw new \Exception("No se encontró información oficial para el CUIT $cuit");
+            if (!$res) throw new \Exception("AFIP no devolvió información para el CUIT $cuit");
 
             // AFIP puede devolver nombre/apellido o razonSocial según el tipo de contribuyente
             $nombre = trim(($res->apellido ?? '') . ' ' . ($res->nombre ?? ''));
