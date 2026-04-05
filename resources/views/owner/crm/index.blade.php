@@ -255,7 +255,7 @@
                 <div class="post-it p-{{ $col['c'] }}"></div>
                 <div class="card-controls">
                     <div class="flex gap-2">
-                        <button onclick="forgetLead({{ $u->id }})" class="text-amber-500 hover:text-amber-400" title="Olvidar Lead">
+                        <button onclick="forgetLead({{ $u->id }})" class="text-amber-500 hover:text-amber-400" title="Archivar Lead">
                             <i class="bi bi-eye-slash-fill"></i>
                         </button>
                         <button onclick="deleteLead({{ $u->id }})" class="text-red-500 hover:text-red-400" title="Borrar Definitivamente">
@@ -267,19 +267,19 @@
                 
                 <div class="flex flex-col gap-0.5" onclick="openIA('{{ $u->name }}')">
                     <div class="card-name">{{ $u->name }}</div>
-                    <div class="card-subtext">{{ ($col['st'] == 'activo' || ($u->empresa && $u->empresa->activo)) ? ($u->empresa?->nombre_comercial ?? 'GRAFILAR - MCR') : ($u->lead_source ?? 'LinkedIn') }}</div>
+                    <div class="card-subtext" style="color: var(--accent-sky)">{{ ($col['st'] == 'nuevo_bot') ? ($u->origin ?? 'Buscador Automático') : (($col['st'] == 'activo' || ($u->empresa && $u->empresa->activo)) ? ($u->empresa?->nombre_comercial ?? 'EMPRESA ACTIVA') : ($u->lead_source ?? 'LinkedIn')) }}</div>
                 </div>
 
                 <div class="btn-group-card">
-                    @if($col['st'] == 'prospecto')
-                        <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">IA DATA</button>
-                        <button class="btn-sci-fi" style="opacity:0.2" disabled>MAIL</button>
+                    @if($col['st'] == 'nuevo_bot' || $col['st'] == 'prospecto')
+                        <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi" style="border-color: var(--accent-sky); color: var(--accent-sky); font-weight: 950;">IA DATA</button>
+                        <button class="btn-sci-fi" style="opacity:0.2" disabled>CORREO</button>
                     @elseif($col['st'] == 'pendiente_pago')
                         <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">REPORTE</button>
-                        <button onclick="window.location.href='{{ route('owner.crm.activate', $u->id) }}'" class="btn-sci-fi" style="border-color: var(--accent-emerald); color: var(--accent-emerald);">ACT</button>
+                        <button onclick="window.location.href='{{ route('owner.crm.activate', $u->id) }}'" class="btn-sci-fi" style="border-color: var(--accent-emerald); color: var(--accent-emerald);">ACTIVAR</button>
                     @else
-                        <button onclick="window.location.href='{{ $u->empresa ? url('owner/empresas/' . $u->empresa->id . '/users') : '#' }}'" class="btn-sci-fi">PANEL</button>
-                        <button class="btn-sci-fi" style="opacity:0.1" disabled>STATS</button>
+                        <button onclick="window.location.href='{{ $u->empresa ? url('owner/empresas/' . $u->empresa->id . '/users') : '#' }}'" class="btn-sci-fi">TABLERO</button>
+                        <button class="btn-sci-fi" style="opacity:0.1" disabled>ESTADÍSTICAS</button>
                     @endif
                 </div>
 
