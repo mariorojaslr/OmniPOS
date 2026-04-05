@@ -13,16 +13,18 @@ class AfipService
      */
     protected function getAfipInstance(Empresa $empresa)
     {
+        // Carpeta para los archivos temporales (Token de Acceso)
         $taPath = storage_path('app/ARCA/ta');
         if (!is_dir($taPath)) {
             mkdir($taPath, 0775, true);
         }
 
-        $certPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_cert.crt');
-        $keyPathOnDisk  = storage_path('app/ARCA/empresa_' . $empresa->id . '_key.key');
+        // Buscamos los certificados en la carpeta ARCA de la raíz
+        $certPathOnDisk = base_path('ARCA/empresa_' . $empresa->id . '_cert.crt');
+        $keyPathOnDisk  = base_path('ARCA/empresa_' . $empresa->id . '_key.key');
 
         if (!file_exists($certPathOnDisk) || !file_exists($keyPathOnDisk)) {
-            throw new \Exception("Faltan certificados AFIP en la carpeta ARCA (empresa_{$empresa->id}).");
+            throw new \Exception("No se encontraron los certificados AFIP en la carpeta /ARCA/. Se esperan: empresa_{$empresa->id}_cert.crt y empresa_{$empresa->id}_key.key");
         }
 
         return new \Afip([
@@ -31,7 +33,6 @@ class AfipService
             'cert'         => $certPathOnDisk,
             'key'          => $keyPathOnDisk,
             'ta_folder'    => $taPath,
-            'access_token' => null, // Forzar uso local
         ]);
     }
 
@@ -45,7 +46,7 @@ class AfipService
             
             // Determinar Tipo de Comprobante según AFIP Codes
             // 1=A, 6=B, 11=C, 3=NC A, 8=NC B, 13=NC C
-            $tipoCompAfip = $this->getTipoComprobanteAfip($venta->tipo_comprobante, $empresa->condicion_iva);
+            $tipoCompAfip = $this->getTipoComprobanteAfip($venta->tipo_comprobante, $empresa->condicion_iva, $venta->cliente);
             $puntoVenta = $empresa->arca_punto_venta ?? ($empresa->punto_venta ?? 1);
 
             $lastVoucher = $afip->ElectronicBilling->GetLastVoucher($puntoVenta, $tipoCompAfip);
@@ -104,21 +105,55 @@ class AfipService
     /**
      * Mapeo de tipos de comprobante AFIP
      */
-    protected function getTipoComprobanteAfip($tipo, $condicionIva)
+    protected function getTipoComprobanteAfip($tipo, $condicionIva, $cliente = null)
     {
         if ($condicionIva === 'Monotributista') {
             return ($tipo === 'NC' || $tipo === 'nota_credito') ? 13 : 11; // 11=FC C, 13=NC C
         }
 
-        // Simplificado para B (6) o NC B (8) - Asumimos B si no es Monotributista por ahora
-        // Podríamos discriminar A si el cliente es resp. inscripto
-        return ($tipo === 'NC' || $tipo === 'nota_credito') ? 8 : 6; 
+        // Si el cliente es Responsable Inscripto -> Comprobante A (1 o 3)
+        $clienteEsRI = ($cliente && $cliente->tax_condition === 'responsable_inscripto');
+
+        // ⚖️ DISCRIMINACIÓN A o B (RI -> RI = A | RI -> Otros = B)
+        return ($tipo === 'NC' || $tipo === 'nota_credito') 
+            ? ($clienteEsRI ? 3 : 8)  // 3=NC A, 8=NC B
+            : ($clienteEsRI ? 1 : 6); // 1=FC A, 6=FC B
     }
 
     protected function getDocTipo($cliente)
     {
         if (!$cliente || !$cliente->document) return 99; // Sin identificación
         $doc = str_replace('-', '', $cliente->document);
-        return (strlen($doc) > 8) ? 80 : 96; // 80=CUIT, 96=DNI
+        // Si es CUIT (11 dígitos) debe ser 80
+        return (strlen($doc) >= 10) ? 80 : 96; // 80=CUIT, 96=DNI
+    }
+
+    /**
+     * Consultar datos de una persona por CUIT (Padron AFIP)
+     */
+    public function getDatosPersona(Empresa $empresa, $cuit)
+    {
+        try {
+            $afip = $this->getAfipInstance($empresa);
+            $taxpayer_details = $afip->RegisterCMS->GetTaxpayerDetails($cuit);
+
+            if (!$taxpayer_details) {
+                return ['success' => false, 'error' => 'No se encontraron datos para ese CUIT.'];
+            }
+
+            return [
+                'success'       => true,
+                'nombre'        => $taxpayer_details->datosGenerales->nombre ?? ($taxpayer_details->datosGenerales->razonSocial ?? ''),
+                'direccion'     => $taxpayer_details->datosGenerales->domicilioFiscal->direccion ?? '',
+                'localidad'     => $taxpayer_details->datosGenerales->domicilioFiscal->localidad ?? '',
+                'id_persona'    => $taxpayer_details->datosGenerales->idPersona,
+                'tipo_persona'  => $taxpayer_details->datosGenerales->tipoPersona,
+                'estado'        => $taxpayer_details->datosGenerales->estadoClave,
+                'detalles'      => $taxpayer_details
+            ];
+
+        } catch (\Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
 }

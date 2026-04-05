@@ -216,7 +216,7 @@
             <div class="stat-mini-label mb-1">
                 <span class="live-indicator"></span> SISTEMA OPERATIVO MASTER · v1.02.0
             </div>
-            <h1 class="header-title mb-0">MultiPOS COMMAND CENTER</h1>
+            <h1 class="header-title mb-0">CENTRO DE MANDO MultiPOS</h1>
         </div>
         <div class="text-end">
             <a href="{{ route('owner.empresas.create') }}" class="btn btn-primary px-4 py-2 fw-bold" style="border-radius: 12px; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);">
@@ -230,19 +230,19 @@
         <div class="col-md-4">
             <div class="oled-card text-center p-3">
                 <div id="chartSales" style="min-height: 200px;"></div>
-                <div class="stat-label">SALES VELOCITY</div>
+                <div class="stat-label">VELOCIDAD DE VENTAS</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="oled-card text-center p-3">
                 <div id="chartExpenses" style="min-height: 200px;"></div>
-                <div class="stat-label">BURN RATE (GASTOS)</div>
+                <div class="stat-label">TASA DE GASTOS</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="oled-card text-center p-3">
                 <div id="chartGlobal" style="min-height: 200px;"></div>
-                <div class="stat-label">GLOBAL MISSION STATUS</div>
+                <div class="stat-label">ESTADO GLOBAL DE LA MISIÓN</div>
             </div>
         </div>
     </div>
@@ -348,7 +348,7 @@
                 
                 <div class="col-md-6 text-center">
                     <div class="oled-card border-0 bg-transparent text-start p-0">
-                        <div class="stat-label mb-2"><i class="bi bi-hdd-network text-info me-1"></i> Storage Consumed</div>
+                        <div class="stat-label mb-2"><i class="bi bi-hdd-network text-info me-1"></i> Almacenamiento Consumido</div>
                         <div class="d-flex align-items-baseline gap-2">
                             <span class="fs-1 fw-bold text-white">{{ explode(' ', $consumoStorage)[0] }}</span>
                             <span class="text-muted fw-bold">GB</span>
@@ -371,7 +371,7 @@
 
                 <div class="col-md-6 text-center">
                     <div class="oled-card border-0 bg-transparent text-start p-0">
-                        <div class="stat-label mb-2"><i class="bi bi-activity text-warning me-1"></i> Network Traffic</div>
+                        <div class="stat-label mb-2"><i class="bi bi-activity text-warning me-1"></i> Tráfico de Red</div>
                         <div class="d-flex align-items-baseline gap-2">
                             <span class="fs-1 fw-bold text-white">{{ explode(' ', $consumoTrafico)[0] }}</span>
                             <span class="text-muted fw-bold">GB</span>
@@ -401,12 +401,12 @@
                                 <div class="stat-mini-label mt-1">BUNNY STREAM</div>
                             </div>
                             <div class="col-md-4 border-start border-end border-white border-opacity-10">
-                                <div class="stat-label">Media Assets</div>
+                                <div class="stat-label">Contenido Multimedia</div>
                                 <div class="fs-4 fw-bold text-white">{{ $archivosSubidos }}</div>
                                 <div class="stat-mini-label mt-1">TOTAL ARCHIVOS</div>
                             </div>
                             <div class="col-md-4">
-                                <div class="stat-label">Visual Content</div>
+                                <div class="stat-label">Contenido Visual</div>
                                 <div class="fs-4 fw-bold text-white">{{ $imagenesSubidas }}</div>
                                 <div class="stat-mini-label mt-1">IMÁGENES</div>
                             </div>

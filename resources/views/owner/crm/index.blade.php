@@ -148,7 +148,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    .card-subtext { font-size: 0.6rem; color: #52525b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    .card-subtext { font-size: 0.6rem; color: #38bdf8; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
     .btn-group-card { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 5px; }
     .btn-sci-fi { 
@@ -229,7 +229,7 @@
 </style>
 
 <div class="header-hub">
-    <h1 class="text-white text-3xl font-black uppercase tracking-[0.5em]">Command Hub</h1>
+    <h1 class="text-white text-3xl font-black uppercase tracking-[0.5em]">Centro de Comando</h1>
     <div class="h-px bg-zinc-800 flex-1 opacity-10"></div>
     <div class="flex items-center gap-6 text-sky-400 font-black text-xs uppercase tracking-[0.25em] animate-pulse">
         <i class="bi bi-robot fs-2"></i> AGENTE SOCIAL LIVE
@@ -296,7 +296,7 @@
     <div class="scanner-hub-box">
         <div class="scanner-card">
             <div class="box-info-white" onclick="scanAllChannels()" style="cursor:pointer; transition:0.3s;" onmouseover="this.style.background='rgba(56,189,248,0.15)'; this.style.borderColor='var(--accent-sky)'" onmouseout="this.style.background=''; this.style.borderColor='#fff'">
-                <i class="bi bi-radar" id="scan-icon"></i> Scan Operations
+                <i class="bi bi-radar" id="scan-icon"></i> Escanear Canales
             </div>
             
             <div class="grid-centered">
@@ -310,7 +310,7 @@
             </div>
 
             <div class="box-info-white" onclick="openFullReport()" style="cursor:pointer; transition:0.3s;" onmouseover="this.style.background='rgba(56,189,248,0.15)'; this.style.borderColor='var(--accent-sky)'" onmouseout="this.style.background=''; this.style.borderColor='#fff'">
-                Protocolo Maestro Agent
+                Protocolo Maestro del Agente
             </div>
         </div>
     </div>
@@ -354,12 +354,12 @@
 {{-- MODAL IA --}}
 <div id="ia-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:50000; align-items:center; justify-content:center; backdrop-filter:blur(20px);">
     <div style="width:580px; background:#000; border:3px solid var(--accent-sky); border-radius:50px; padding:4rem; box-shadow:0 0 100px var(--stellar-blue);">
-        <h4 class="text-sky-400 font-black uppercase tracking-widest text-center mb-8">IA REPORT DATA</h4>
+        <h4 class="text-sky-400 font-black uppercase tracking-widest text-center mb-8">REPORTE DE DATOS IA</h4>
         <div id="ia-content" class="bg-zinc-900/50 p-10 rounded-[40px] font-mono text-[0.9rem] text-zinc-400 border border-white/5 shadow-inner">
-            >>> TARGET: <span id="ia-target" class="text-white"></span><br>
+            >>> OBJETIVO: <span id="ia-target" class="text-white"></span><br>
             <hr class="border-white/5 my-6">
-            >>> ANALYZING PROFILE...<br>
-            >>> STATUS: QUALIFIED.
+            >>> ANALIZANDO PERFIL...<br>
+            >>> ESTADO: CALIFICADO.
         </div>
         <button onclick="document.getElementById('ia-modal').style.display='none'" class="btn-sci-fi w-full py-6 mt-10 bg-sky-500 text-black border-0 fw-black text-[0.9rem]">FINALIZAR REPORTE</button>
     </div>

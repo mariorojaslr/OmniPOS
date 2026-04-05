@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MultiPOS | Master Suite</title>
+    <title>MultiPOS | Suite Maestra</title>
     <link rel="icon" href="{{ asset('favicon.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -25,13 +25,13 @@
         <div class="flex items-center gap-10">
             <div class="flex items-center gap-3">
                 <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS" style="max-height: 28px;">
-                <span class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] border-l border-white/10 ps-3">Master Suite</span>
+                <span class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] border-l border-white/10 ps-3">Suite Maestra</span>
             </div>
 
             <div class="flex items-center gap-2">
                 <a href="{{ route('owner.dashboard') }}" 
                    class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.dashboard') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
-                    Dashboard
+                    Panel de Control
                 </a>
                 <a href="{{ route('owner.crm.index') }}" 
                    class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.crm.*') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
