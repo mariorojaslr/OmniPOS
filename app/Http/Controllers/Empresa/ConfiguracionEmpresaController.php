@@ -231,4 +231,60 @@ class ConfiguracionEmpresaController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * 🔍 Buscar datos en AFIP por CUIT (Padron)
+     */
+    public function searchByCuit(Request $request)
+    {
+        try {
+            $cuit = $request->input('cuit');
+            if (empty($cuit)) throw new \Exception("CUIT requerido");
+
+            $empresa = auth()->user()->empresa;
+            
+            // Usamos lógica similar a testAfip para instanciar
+            $certPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_cert.crt');
+            $keyPathOnDisk = storage_path('app/ARCA/empresa_' . $empresa->id . '_key.key');
+
+            if (!file_exists($certPathOnDisk)) throw new \Exception("Configura primero tus certificados AFIP.");
+
+            $afip = new \Afip([
+                'CUIT'         => (int) str_replace('-', '', $empresa->arca_cuit),
+                'production'   => ($empresa->arca_ambiente === 'produccion'),
+                'cert'         => file_get_contents($certPathOnDisk),
+                'key'          => file_get_contents($keyPathOnDisk),
+                'access_token' => env('AFIP_ACCESS_TOKEN'),
+            ]);
+
+            $data = $afip->RegisterScopeFive->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+
+            if (!$data) throw new \Exception("No se encontró información para el CUIT $cuit");
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'nombre' => $data->apellido . ' ' . $data->nombre ?? ($data->razonSocial ?? ''),
+                    'direccion' => $data->domicilioFiscal->direccion ?? '',
+                    'localidad' => $data->domicilioFiscal->localidad ?? '',
+                    'provincia' => $data->domicilioFiscal->idProvincia ?? '',
+                    'condicion_iva' => $this->parseCondicionIvaAfip($data->impuestos ?? [])
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
+        }
+    }
+
+    protected function parseCondicionIvaAfip($impuestos)
+    {
+        // Simplificado
+        foreach ($impuestos as $imp) {
+            if ($imp == 20) return 'Responsable Inscripto';
+            if ($imp == 32) return 'Exento';
+            if ($imp == 33) return 'Monotributista';
+        }
+        return 'Consumidor Final';
+    }
 }

@@ -250,6 +250,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/configuracion', [ConfiguracionEmpresaController::class , 'index'])->name('configuracion.index');
         Route::post('/configuracion', [ConfiguracionEmpresaController::class , 'save'])->name('configuracion.save');
         Route::post('/configuracion/test-afip', [ConfiguracionEmpresaController::class , 'testAfip'])->name('configuracion.test_afip');
+        Route::get('/tax/search-cuit', [ConfiguracionEmpresaController::class, 'searchByCuit'])->name('tax.search_cuit');
 
         // MI SUSCRIPCIÓN (SaaS CLIENT PORTAL)
         Route::get('/mi-suscripcion', [\App\Http\Controllers\Empresa\SuscripcionController::class, 'index'])->name('suscripcion.index');

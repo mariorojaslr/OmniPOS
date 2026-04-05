@@ -81,6 +81,35 @@ class VentaService
             */
 
             $numeroComprobante = $this->generarNumeroComprobante($empresaActual, $tipoComprobante);
+            $cae = null;
+            $caeVencimiento = null;
+            $afipError = null;
+
+            // FACTURACIÓN ELECTRÓNICA AFIP (SI CORRESPONDE)
+            if ($empresaActual->arca_cuit && in_array($tipoComprobante, ['factura', 'F', 'B', 'C', 'NC', 'nota_credito'])) {
+                try {
+                    $totales = $this->calcularTotalesItems($items, $empresaActual);
+                    $ventaFicticia = (object) [
+                        'tipo_comprobante' => $tipoComprobante,
+                        'total_con_iva' => $totales['total_con_iva'],
+                        'total_sin_iva' => $totales['total_sin_iva'],
+                        'total_iva' => $totales['total_iva'],
+                        'cliente' => $clienteId ? \App\Models\Client::find($clienteId) : null
+                    ];
+
+                    $resAfip = app(\App\Services\AfipService::class)->solicitarCAE($empresaActual, $ventaFicticia);
+
+                    if ($resAfip['success']) {
+                        $cae = $resAfip['cae'];
+                        $caeVencimiento = date('Y-m-d', strtotime($resAfip['cae_vencimiento']));
+                        $numeroComprobante = $resAfip['numero_comprobante'];
+                    } else {
+                        $afipError = $resAfip['error'];
+                    }
+                } catch (\Exception $e) {
+                    $afipError = $e->getMessage();
+                }
+            }
 
             $venta = Venta::create([
                 'empresa_id'         => $empresaActual->id,
@@ -88,15 +117,21 @@ class VentaService
                 'client_id'          => $clienteId,
                 'tipo_comprobante'   => $tipoComprobante,
                 'numero_comprobante' => $numeroComprobante,
-                'metodo_pago'        => $metodoPago, // Guardado aquí
+                'cae'                => $cae,
+                'cae_vencimiento'    => $caeVencimiento,
+                'afip_error'         => $afipError,
+                'metodo_pago'        => $metodoPago, 
                 'total_sin_iva'      => 0,
                 'total_iva'          => 0,
                 'total_con_iva'      => 0,
             ]);
 
-            // Incrementar el próximo número en la empresa
-            $empresaActual->proximo_numero_factura++;
-            $empresaActual->save();
+            // Incrementar el próximo número en la empresa solo si no usamos AFIP 
+            // (AFIP ya nos da el número correlativo oficial)
+            if (!$cae) {
+                $empresaActual->proximo_numero_factura++;
+                $empresaActual->save();
+            }
 
 
             /*
@@ -354,6 +389,36 @@ class VentaService
         return $remito;
     }
 
+    public function calcularTotalesItems($items, $empresa)
+    {
+        $totalSinIva = 0;
+        $totalIva    = 0;
+        $totalConIva = 0;
+
+        foreach ($items as $item) {
+            $product = \App\Models\Product::find($item['id']);
+            $variant = isset($item['variant_id']) ? \App\Models\ProductVariant::find($item['variant_id']) : null;
+            
+            $precioFinalUnitario = (float) ($item['price'] ?? ($variant ? ($variant->price ?: $product->price) : $product->price));
+            $cantidad  = (float) $item['quantity'];
+
+            $totalItemConIva     = $precioFinalUnitario * $cantidad;
+            $precioSinIvaUnitario = round($precioFinalUnitario / 1.21, 2);
+            $subtotalItemSinIva   = round($precioSinIvaUnitario * $cantidad, 2);
+            $ivaItem              = round($totalItemConIva - $subtotalItemSinIva, 2);
+
+            $totalSinIva += $subtotalItemSinIva;
+            $totalIva    += $ivaItem;
+            $totalConIva += $totalItemConIva;
+        }
+
+        return [
+            'total_sin_iva' => $totalSinIva,
+            'total_iva'     => $totalIva,
+            'total_con_iva' => $totalConIva
+        ];
+    }
+
     protected function generarNumeroRemito($empresa)
     {
         $pv = str_pad($empresa->punto_venta ?? 1, 4, '0', STR_PAD_LEFT);
@@ -362,7 +427,7 @@ class VentaService
     }
     protected function generarNumeroComprobante($empresa, $tipo)
     {
-        $pv = str_pad($empresa->punto_venta ?? 1, 5, '0', STR_PAD_LEFT);
+        $pv = str_pad($empresa->arca_punto_venta ?? ($empresa->punto_venta ?? 1), 5, '0', STR_PAD_LEFT);
         $next = $empresa->proximo_numero_factura ?? 1;
         
         return $pv . '-' . str_pad($next, 8, '0', STR_PAD_LEFT);
