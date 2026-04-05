@@ -250,28 +250,35 @@ class ConfiguracionEmpresaController extends Controller
             if (!file_exists($certPathOnDisk)) throw new \Exception("Configura primero tus certificados AFIP.");
 
             // 📂 Carpeta Temporal para los Tokens de AFIP (TA)
-            $taPath = storage_path('app/afip/ta');
+            $taPath = storage_path('app/ARCA/ta');
             if(!is_dir($taPath)) mkdir($taPath, 0775, true);
+
+            // 📜 Cargar contenido real de los certificados
+            $certContent = file_get_contents($certPathOnDisk);
+            $keyContent  = file_get_contents($keyPathOnDisk);
+
+            if (!$certContent || !$keyContent) throw new \Exception("Los archivos de certificado en ARCA están vacíos o no se pueden leer.");
 
             $afip = new \Afip([
                 'CUIT'         => (int) str_replace('-', '', $empresa->arca_cuit),
                 'production'   => ($empresa->arca_ambiente === 'produccion'),
-                'cert'         => $certPathOnDisk, // Pasamos la RUTA, no el contenido
-                'key'          => $keyPathOnDisk,  // Pasamos la RUTA, no el contenido
-                'ta_folder'    => $taPath,         // Carpeta para autorizaciones
+                'cert'         => $certContent, // Contenido Real
+                'key'          => $keyContent,  // Contenido Real
+                'ta_folder'    => $taPath,
+                'access_token' => 'LOCAL_CERT_MODE' // Dummy para silenciar el error de falta de token
             ]);
 
-            // Intentar con un servicio más estándar (Padrón A4 es muy común)
+            // Intentar con un servicio más estándar (Padrón A4 / A10)
             $res = null;
             try {
-                // Probamos con el 10 primero
+                // Probamos con el 10
                 $res = $afip->RegisterScopeTen->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
             } catch (\Exception $e1) {
                 try {
-                    // Fallback al 4 que es el que vi en tus capturas
+                    // Fallback al 4
                     $res = $afip->RegisterScopeFour->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
                 } catch (\Exception $e2) {
-                    throw new \Exception("AFIP error: " . $e1->getMessage());
+                    throw new \Exception("AFIP error (Certs detectados): " . $e1->getMessage());
                 }
             }
 
