@@ -168,12 +168,19 @@ class ConfiguracionEmpresaController extends Controller
 
             $cuit = str_replace('-', '', $empresa->arca_cuit);
 
+            $resFolder = storage_path('app/afip_res/');
+            if (!file_exists($resFolder)) {
+                mkdir($resFolder, 0777, true);
+            }
+
             // Preparar AFIP SDK
             $afipConfig = [
                 'CUIT' => (int) $cuit,
                 'production' => ($empresa->arca_ambiente === 'produccion'),
                 'cert' => storage_path('app/' . $empresa->arca_certificado),
                 'key' => storage_path('app/' . $empresa->arca_llave),
+                'res_folder' => $resFolder,
+                'access_token' => env('AFIP_ACCESS_TOKEN', ''),
             ];
             
             $afip = new \Afip($afipConfig);
