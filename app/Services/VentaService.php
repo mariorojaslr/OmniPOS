@@ -103,6 +103,7 @@ class VentaService
                         $cae = $resAfip['cae'];
                         $caeVencimiento = date('Y-m-d', strtotime($resAfip['cae_vencimiento']));
                         $numeroComprobante = $resAfip['numero_comprobante'];
+                        $qrData = $resAfip['qr_data'] ?? null;
                     } else {
                         $afipError = $resAfip['error'];
                     }
@@ -119,6 +120,7 @@ class VentaService
                 'numero_comprobante' => $numeroComprobante,
                 'cae'                => $cae,
                 'cae_vencimiento'    => $caeVencimiento,
+                'qr_data'            => $qrData,
                 'afip_error'         => $afipError,
                 'metodo_pago'        => $metodoPago, 
                 'total_sin_iva'      => 0,
@@ -177,13 +179,14 @@ class VentaService
 
                 /*
                 |--------------------------------------------------------------------------
-                | DESGLOSE IVA
+                | DESGLOSE IVA (ESTÁNDAR AFIP)
                 |--------------------------------------------------------------------------
                 */
 
-                $precioSinIvaUnitario = round($precioFinalUnitario / 1.21, 2);
-                $subtotalItemSinIva   = round($precioSinIvaUnitario * $cantidad, 2);
-                $ivaItem              = round($totalItemConIva - $subtotalItemSinIva, 2);
+                // Calculamos hacia atrás desde el total real que paga el cliente
+                $subtotalItemSinIva = round($totalItemConIva / 1.21, 2);
+                $ivaItem            = round($totalItemConIva - $subtotalItemSinIva, 2);
+                $precioSinIvaUnitario = round($subtotalItemSinIva / $cantidad, 4);
 
 
                 /*

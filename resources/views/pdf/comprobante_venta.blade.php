@@ -151,9 +151,9 @@
                     <img src="{{ $arcaLogoBase64 }}" class="arca-logo">
                 @endif
                 <br>
-                @if(isset($qrUrl) && $qrUrl)
+                @if($venta->qr_data)
                     <div class="qr-placeholder">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data={{ urlencode($qrUrl) }}" class="qr-img">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data) }}" class="qr-img">
                     </div>
                 @endif
                 <div style="display: inline-block; vertical-align: top; margin-left: 15px; width: 180px;">

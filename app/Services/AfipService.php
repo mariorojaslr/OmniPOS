@@ -86,11 +86,29 @@ class AfipService
 
             $res = $afip->ElectronicBilling->CreateVoucher($data);
 
+            // 📱 GENERAR QR DATA (Requerido por AFIP desde 2021)
+            $qrData = [
+                "ver" => 1,
+                "fecha" => date('Y-m-d', strtotime($data['CbteFch'])),
+                "cuit" => (int) str_replace('-', '', $empresa->arca_cuit),
+                "ptoVta" => (int) $puntoVenta,
+                "tipoCbte" => (int) $tipoCompAfip,
+                "nroCbte" => (int) $nextNumber,
+                "importe" => (float) $data['ImpTotal'],
+                "moneda" => "PES",
+                "ctz" => 1,
+                "tipoDocRec" => (int) $data['DocTipo'],
+                "nroDocRec" => (int) $data['DocNro'],
+                "tipoCodAut" => "E",
+                "codAut" => (int) $res['CAE']
+            ];
+
             return [
                 'success'           => true,
                 'cae'               => $res['CAE'],
                 'cae_vencimiento'   => $res['CAEVto'],
-                'numero_comprobante' => str_pad($puntoVenta, 5, '0', STR_PAD_LEFT) . '-' . str_pad($nextNumber, 8, '0', STR_PAD_LEFT)
+                'numero_comprobante' => str_pad($puntoVenta, 5, '0', STR_PAD_LEFT) . '-' . str_pad($nextNumber, 8, '0', STR_PAD_LEFT),
+                'qr_data'           => base64_encode(json_encode($qrData))
             ];
 
         } catch (\Exception $e) {
