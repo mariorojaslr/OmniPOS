@@ -113,9 +113,26 @@ class RegisteredUserController extends Controller
         // Vinculamos usuario a su nueva empresa
         $user->update(['empresa_id' => $empresa->id]);
 
+        // CREACIÓN DE RUBROS OPERATIVOS POR DEFECTO (Arquitectura Senior)
+        $defaultRubros = [
+            'Materia Prima',
+            'Insumos de Proceso',
+            'Artículos de Limpieza',
+            'Packaging y Envases',
+            'Papelería y Oficina'
+        ];
+
+        foreach ($defaultRubros as $nombre) {
+            \App\Models\Rubro::create([
+                'empresa_id' => $empresa->id,
+                'nombre'     => $nombre,
+                'activo'     => true
+            ]);
+        }
+
         // Limpiamos sesión
         session()->forget(['selected_plan', 'payment_verified']);
 
-        return redirect()->route('empresa.dashboard')->with('success', '¡Bienvenido a MultiPOS! Tu empresa ha sido activada.');
+        return redirect()->route('empresa.dashboard')->with('success', '¡Bienvenido a MultiPOS! Tu empresa ha sido activada y configurada con rubros operativos.');
     }
 }

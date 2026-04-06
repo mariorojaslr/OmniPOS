@@ -19,6 +19,13 @@ class AfipService
             mkdir($taPath, 0775, true);
         }
 
+        // Limpieza de archivos TA obsoletos si hay errores persistentes
+        // Esto fuerza a AFIP a generar un token nuevo y fresco
+        $files = glob($taPath . "/*");
+        foreach($files as $file){
+            if(is_file($file)) @unlink($file);
+        }
+
         // Buscamos los certificados en la carpeta ARCA de la raíz
         $certPathOnDisk = base_path('ARCA/empresa_' . $empresa->id . '_cert.crt');
         $keyPathOnDisk  = base_path('ARCA/empresa_' . $empresa->id . '_key.key');
@@ -27,9 +34,12 @@ class AfipService
             throw new \Exception("No se encontraron los certificados AFIP en la carpeta /ARCA/. Se esperan: empresa_{$empresa->id}_cert.crt y empresa_{$empresa->id}_key.key");
         }
 
+        // Normalizamos el ambiente para que reconozca "Producción", "produccion", etc.
+        $isProduction = (strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
+
         return new \Afip([
-            'CUIT'         => (int) str_replace('-', '', $empresa->arca_cuit),
-            'production'   => ($empresa->arca_ambiente === 'produccion'),
+            'CUIT'         => (float) str_replace('-', '', $empresa->arca_cuit),
+            'production'   => $isProduction,
             'cert'         => $certPathOnDisk,
             'key'          => $keyPathOnDisk,
             'ta_folder'    => $taPath,

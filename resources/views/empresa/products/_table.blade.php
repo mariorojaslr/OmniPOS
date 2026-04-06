@@ -25,7 +25,17 @@
         @forelse($products as $product)
             <tr>
                 <td class="ps-4">
-                    <div class="nombre-producto fw-bold" style="font-size: 0.95rem;">{!! highlight($product->name, $buscar) !!}</div>
+                    <div class="nombre-producto fw-bold" style="font-size: 0.95rem;">
+                        {!! highlight($product->name, $buscar) !!}
+                        @if($product->usage_type !== 'sell')
+                            <span class="badge bg-secondary ms-1" style="font-size: 0.6rem; vertical-align: middle; text-transform: uppercase;">
+                                {{ $product->usage_type === 'raw_material' ? 'M. Prima' : ($product->usage_type === 'supply' ? 'Insumo' : 'Gasto') }}
+                            </span>
+                        @endif
+                        @if(!$product->is_sellable)
+                            <span class="badge bg-warning text-dark ms-1" style="font-size: 0.6rem; vertical-align: middle;">NO VENTA</span>
+                        @endif
+                    </div>
                     @if($product->barcode)
                         <div class="small text-muted" style="font-size: 0.75rem;">
                             <i class="bi bi-barcode me-1"></i> {!! highlight($product->barcode, $buscar) !!}

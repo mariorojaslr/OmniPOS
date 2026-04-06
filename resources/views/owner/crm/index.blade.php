@@ -279,7 +279,7 @@
                         <button class="btn-sci-fi" style="opacity:0.2" disabled>CORREO</button>
                     @elseif($col['st'] == 'pendiente_pago')
                         <button onclick="openIA('{{ $u->name }}')" class="btn-sci-fi">REPORTE</button>
-                        <button onclick="window.location.href='{{ route('owner.crm.activate', $u->id) }}'" class="btn-sci-fi" style="border-color: var(--accent-emerald); color: var(--accent-emerald);">ACTIVAR</button>
+                        <button onclick="activateLead({{ $u->id }})" class="btn-sci-fi" style="border-color: var(--accent-emerald); color: var(--accent-emerald);">ACTIVAR</button>
                     @else
                         <button onclick="window.location.href='{{ $u->empresa ? url('owner/empresas/' . $u->empresa->id . '/users') : '#' }}'" class="btn-sci-fi">TABLERO</button>
                         <button class="btn-sci-fi" style="opacity:0.1" disabled>ESTADÍSTICAS</button>
@@ -571,15 +571,26 @@
     function deleteLead(userId, status = 'user') {
         if(!confirm('¡CUIDADO! Esto borrará el usuario de forma DEFINITIVA. ¿Proceder?')) return;
         
-        let route = status === 'nuevo_bot' ? "{{ route('owner.crm.delete') }}" : "{{ route('owner.crm.delete') }}"; 
-        // Nota: El controlador ya debería manejar ambos casos si se le pasa el ID
-        
         fetch("{{ route('owner.crm.delete') }}", { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, 
             body: JSON.stringify({ user_id: userId, status: status }) 
         })
         .then(r => r.json()).then(d => { if(d.success) document.getElementById('card-' + userId).remove(); });
+    }
+
+    function activateLead(userId) {
+        if(!confirm('¿Deseas activar manualmente este acceso?')) return;
+        
+        let url = "{{ route('owner.crm.activate', ':id') }}".replace(':id', userId);
+        
+        fetch(url, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken }
+        }).then(() => {
+            alert('¡Usuario Activado!');
+            location.reload();
+        });
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -619,13 +630,14 @@
                             .then(r => r.json())
                             .then(d => {
                                 alert("¡ÉXITO! " + d.message + "\nSe extendió la plataforma 30 días automáticamente.");
+                                location.reload(); // Recargamos para actualizar botones y estados
                             });
                         } else {
                             fetch("{{ route('owner.crm.move') }}", { 
                                 method: 'POST', 
                                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, 
                                 body: JSON.stringify({ user_id: userId, status: toStatus }) 
-                            });
+                            }).then(() => location.reload()); // Recargamos siempre para consistencia UI
                         }
                     }
                 }); 

@@ -47,7 +47,15 @@ class Product extends Model
         'supplier_id',
 
         // Código de barras
-        'barcode'
+        'barcode',
+
+        // Uso y Ventabilidad
+        'usage_type',
+        'is_sellable',
+
+        // Valoración y Unidades
+        'cost',
+        'unit_id'
     ];
 
 
@@ -67,6 +75,8 @@ class Product extends Model
         'active'       => 'boolean',
         'has_variants' => 'boolean',
         'is_combo'     => 'boolean',
+        'is_sellable'  => 'boolean',
+        'cost'         => 'float',
     ];
 
 
@@ -84,6 +94,11 @@ class Product extends Model
     public function supplier()
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
     }
 
     // Variantes (Talles / Colores)
@@ -312,6 +327,36 @@ class Product extends Model
     public function scopeConStock($query)
     {
         return $query->where('stock', '>', 0);
+    }
+
+
+    public function scopeParaVenta($query)
+    {
+        return $query->where('is_sellable', true);
+    }
+
+
+    public function esVentaDirecta(): bool
+    {
+        return $this->usage_type === 'sell';
+    }
+
+
+    public function esMateriaPrima(): bool
+    {
+        return $this->usage_type === 'raw_material';
+    }
+
+
+    public function esInsumo(): bool
+    {
+        return $this->usage_type === 'supply';
+    }
+
+
+    public function esConsumoInterno(): bool
+    {
+        return $this->usage_type === 'internal';
     }
 
 }

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Rubro;
 use App\Models\Supplier;
+use App\Models\Unit;
 
 class ProductController extends Controller
 {
@@ -101,7 +102,15 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('empresa.products.create', compact('rubros', 'proveedores'));
+        $units       = Unit::where(function($q) {
+                $q->whereNull('empresa_id')
+                  ->orWhere('empresa_id', Auth::user()->empresa_id);
+            })
+            ->where('active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('empresa.products.create', compact('rubros', 'proveedores', 'units'));
     }
 
 
@@ -117,6 +126,8 @@ class ProductController extends Controller
         $request->validate([
             'name'              => 'required|string|max:255',
             'price'             => 'required|numeric|min:0',
+            'cost'              => 'nullable|numeric|min:0',
+            'unit_id'           => 'nullable|exists:units,id',
             'stock'             => 'nullable|numeric|min:0',
             'stock_min'         => 'nullable|numeric|min:0',
             'stock_ideal'       => 'nullable|numeric|min:0',
@@ -124,6 +135,8 @@ class ProductController extends Controller
             'supplier_id'       => 'nullable|exists:suppliers,id',
             'descripcion_corta' => 'nullable|string',
             'descripcion_larga' => 'nullable|string',
+            'usage_type'        => 'required|string|in:sell,raw_material,supply,internal',
+            'is_sellable'       => 'required|boolean',
         ]);
 
         $user = Auth::user();
@@ -147,6 +160,8 @@ class ProductController extends Controller
             'empresa_id'        => Auth::user()->empresa_id,
             'name'              => $request->name,
             'price'             => $request->price,
+            'cost'              => $request->cost ?? 0,
+            'unit_id'           => $request->unit_id,
             'stock'             => $request->stock ?? 0,
             'stock_min'         => $request->stock_min ?? 0,
             'stock_ideal'       => $request->stock_ideal ?? 0,
@@ -154,6 +169,8 @@ class ProductController extends Controller
             'rubro_id'          => $request->rubro_id,
             'supplier_id'       => $request->supplier_id,
             'active'            => true,
+            'usage_type'        => $request->usage_type ?? 'sell',
+            'is_sellable'       => $request->is_sellable ?? ($request->usage_type === 'sell'),
             'descripcion_corta' => $request->descripcion_corta,
             'descripcion_larga' => $request->descripcion_larga,
         ]);
@@ -204,13 +221,21 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
+        $units = Unit::where(function($q) {
+                $q->whereNull('empresa_id')
+                  ->orWhere('empresa_id', Auth::user()->empresa_id);
+            })
+            ->where('active', true)
+            ->orderBy('name')
+            ->get();
+
         // Todos los productos de la empresa (para armar combos)
         $allProducts = Product::where('empresa_id', Auth::user()->empresa_id)
             ->where('id', '!=', $product->id)
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('empresa.products.edit', compact('product', 'allProducts', 'rubros', 'proveedores'));
+        return view('empresa.products.edit', compact('product', 'allProducts', 'rubros', 'proveedores', 'units'));
     }
 
 
@@ -234,6 +259,8 @@ class ProductController extends Controller
         $request->validate([
             'name'              => 'required|string|max:255',
             'price'             => 'required|numeric|min:0',
+            'cost'              => 'nullable|numeric|min:0',
+            'unit_id'           => 'nullable|exists:units,id',
             'stock'             => 'nullable|numeric|min:0',
             'stock_min'         => 'nullable|numeric|min:0',
             'stock_ideal'       => 'nullable|numeric|min:0',
@@ -243,6 +270,8 @@ class ProductController extends Controller
             'barcode'           => 'nullable|string|max:100',
             'descripcion_corta' => 'nullable|string',
             'descripcion_larga' => 'nullable|string',
+            'usage_type'        => 'required|string|in:sell,raw_material,supply,internal',
+            'is_sellable'       => 'required|boolean',
         ]);
 
         /*
@@ -262,6 +291,8 @@ class ProductController extends Controller
             'rubro_id'          => $request->rubro_id,
             'supplier_id'       => $request->supplier_id,
             'active'            => $request->active,
+            'usage_type'        => $request->usage_type,
+            'is_sellable'       => $request->is_sellable,
             'descripcion_corta' => $request->descripcion_corta,
             'descripcion_larga' => $request->descripcion_larga,
             'stock_min'         => $request->stock_min ?? 0,

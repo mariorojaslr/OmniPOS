@@ -274,6 +274,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/stock/kardex/{product}/excel', [StockController::class , 'exportExcel'])->name('stock.kardex.excel');
 
         Route::get('/stock', [StockController::class , 'index'])->name('stock.index');
+        Route::get('/stock/valuation', [StockController::class , 'valuation'])->name('stock.valuation');
         Route::get('/faltantes', [ReplenishmentController::class , 'index'])->name('stock.faltantes');
         Route::get('/faltantes/export', [ReplenishmentController::class , 'export'])->name('stock.faltantes.export');
         Route::get('/faltantes/actividad/{product}', [ReplenishmentController::class , 'actividad'])->name('stock.faltantes.actividad');

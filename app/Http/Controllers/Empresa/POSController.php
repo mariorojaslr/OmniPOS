@@ -38,7 +38,8 @@ class POSController extends Controller
             60,
             function () use ($empresaId) {
 
-                return Product::with('images')
+                return Product::paraVenta()
+                    ->with('images')
                     ->where('empresa_id', $empresaId)
                     ->where(function ($q) {
                         $q->where('active', 1)
@@ -258,8 +259,8 @@ class POSController extends Controller
             return response()->json(['ok' => false, 'error' => 'Código vacío']);
         }
 
-        // 1️⃣ Buscar en variantes primero
-        $variant = ProductVariant::whereHas('product', fn($q) => $q->where('empresa_id', $empresaId))
+        // 1️⃣ Buscar en variantes primero (solo productos vendibles)
+        $variant = ProductVariant::whereHas('product', fn($q) => $q->where('empresa_id', $empresaId)->paraVenta())
             ->where('barcode', $barcode)
             ->with('product.images')
             ->first();
@@ -278,8 +279,9 @@ class POSController extends Controller
             ]);
         }
 
-        // 2️⃣ Buscar en producto principal
-        $product = Product::where('empresa_id', $empresaId)
+        // 2️⃣ Buscar en producto principal (solo productos vendibles)
+        $product = Product::paraVenta()
+            ->where('empresa_id', $empresaId)
             ->where('barcode', $barcode)
             ->with('images')
             ->first();

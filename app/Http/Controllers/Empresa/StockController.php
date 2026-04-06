@@ -13,6 +13,38 @@ use App\Exports\KardexExport;
 
 class StockController extends Controller
 {
+    /**
+     * Reporte de Valorización de Inventario
+     * (Capital Inmovilizado)
+     */
+    public function valuation()
+    {
+        $empresaId = Auth::user()->empresa_id;
+
+        // Calculamos el valor total agrupado por tipo de uso
+        $valuationData = Product::where('empresa_id', $empresaId)
+            ->where('stock', '>', 0)
+            ->where('cost', '>', 0)
+            ->selectRaw('usage_type, count(*) as count, sum(stock * cost) as total_value')
+            ->groupBy('usage_type')
+            ->get();
+
+        $totalGeneral = $valuationData->sum('total_value');
+        $totalItems = $valuationData->sum('count');
+
+        // Productos con mayor valor inmovilizado (Top 15)
+        $topValuation = Product::where('empresa_id', $empresaId)
+            ->where('stock', '>', 0)
+            ->where('cost', '>', 0)
+            ->with('unit')
+            ->select('*')
+            ->selectRaw('(stock * cost) as valuation')
+            ->orderByDesc('valuation')
+            ->limit(15)
+            ->get();
+
+        return view('empresa.stock.valuation', compact('valuationData', 'totalGeneral', 'totalItems', 'topValuation'));
+    }
 
     /*
     |--------------------------------------------------------------------------

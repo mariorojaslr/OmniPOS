@@ -158,7 +158,7 @@ class CRMController extends Controller
             // Renovar mes de servicio en la persistencia Multi-Empresa
             if ($user->empresa) {
                 // Removemos alertas de cobro o gracia
-                $vencimiento = $user->empresa->fecha_vencimiento && $user->empresa->fecha_vencimiento > now() 
+                $vencimiento = ($user->empresa->fecha_vencimiento && $user->empresa->fecha_vencimiento instanceof \Carbon\Carbon) 
                     ? $user->empresa->fecha_vencimiento->addDays(30) 
                     : now()->addDays(30);
                     
@@ -167,13 +167,16 @@ class CRMController extends Controller
                     'fecha_cierre' => null // cancelamos suspension si tenia
                 ]);
                 
-                // Generar registro real de Ingreso SaaS 
-                \App\Models\OwnerPayment::create([
-                    'empresa_id' => $user->empresa->id,
-                    'user_id'    => $user->id,
-                    'amount'     => $amount,
-                    'method'     => $method,
-                    'notes'      => 'Renovación generada desde CRM Drag & Drop'
+                // Generar registro oficial en la tabla de Suscripciones (Facturación real)
+                \App\Models\SuscripcionPago::create([
+                    'empresa_id'      => $user->empresa->id,
+                    'plan_id'         => $user->empresa->plan_id,
+                    'monto'           => $amount,
+                    'fecha_pago'      => now(),
+                    'metodo'          => $method,
+                    'estado'          => 'aprobado',
+                    'nro_comprobante' => 'CRM-' . strtoupper(str_replace(' ', '', $method)) . '-' . now()->format('Ymd'),
+                    'notas'           => 'Cobro registrado vía CRM (Drag & Drop)'
                 ]);
             }
         }

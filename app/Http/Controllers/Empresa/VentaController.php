@@ -22,7 +22,8 @@ class VentaController extends Controller
     {
         $empresaId = Auth::user()->empresa_id;
         $clients   = Client::where('empresa_id', $empresaId)->get();
-        $products  = Product::where('empresa_id', $empresaId)
+        $products  = Product::paraVenta()
+            ->where('empresa_id', $empresaId)
             ->with(['variants'])
             ->where('active', true)
             ->orderBy('name')
