@@ -276,6 +276,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         Route::get('/stock', [StockController::class , 'index'])->name('stock.index');
         Route::get('/stock/valuation', [StockController::class , 'valuation'])->name('stock.valuation');
+        Route::resource('units', App\Http\Controllers\Empresa\UnitController::class)->names('units');
         Route::get('/faltantes', [ReplenishmentController::class , 'index'])->name('stock.faltantes');
 
         // PRODUCCIÓN Y RECETAS (BOM)
