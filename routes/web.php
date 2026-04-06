@@ -26,18 +26,19 @@ use App\Http\Controllers\Empresa\VentaController;
 use App\Http\Controllers\Empresa\UsuarioDashboardController;
 use App\Http\Controllers\Empresa\UsuarioController;
 use App\Http\Controllers\Empresa\ReporteController;
+use App\Http\Controllers\Empresa\StockController;
+use App\Http\Controllers\Empresa\ReplenishmentController;
+use App\Http\Controllers\Empresa\RecipeController;
+use App\Http\Controllers\Empresa\OrderController;
+use App\Http\Controllers\Empresa\RubroController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Empresa\ConfiguracionEmpresaController;
-use App\Http\Controllers\Empresa\StockController;
 use App\Http\Controllers\Empresa\ClientController;
 use App\Http\Controllers\Empresa\SupplierController;
 use App\Http\Controllers\Empresa\PurchaseController;
-use App\Http\Controllers\Empresa\OrderController;
-use App\Http\Controllers\Empresa\ReplenishmentController;
 use App\Http\Controllers\Empresa\LabelController;
 use App\Http\Controllers\Empresa\InventoryController;
-use App\Http\Controllers\Empresa\RubroController;
 use App\Http\Controllers\Empresa\BulkPriceUpdateController;
 use App\Http\Controllers\Empresa\ExpenseController;
 use App\Http\Controllers\Empresa\ExpenseCategoryController;
@@ -276,6 +277,11 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/stock', [StockController::class , 'index'])->name('stock.index');
         Route::get('/stock/valuation', [StockController::class , 'valuation'])->name('stock.valuation');
         Route::get('/faltantes', [ReplenishmentController::class , 'index'])->name('stock.faltantes');
+
+        // PRODUCCIÓN Y RECETAS (BOM)
+        Route::resource('recipes', RecipeController::class);
+        Route::post('/recipes/{recipe}/add-item', [RecipeController::class, 'addItem'])->name('recipes.addItem');
+        Route::delete('/recipe-items/{item}', [RecipeController::class, 'removeItem'])->name('recipes.removeItem');
         Route::get('/faltantes/export', [ReplenishmentController::class , 'export'])->name('stock.faltantes.export');
         Route::get('/faltantes/actividad/{product}', [ReplenishmentController::class , 'actividad'])->name('stock.faltantes.actividad');
         Route::patch('/stock/{product}', [StockController::class , 'update'])->name('stock.update');

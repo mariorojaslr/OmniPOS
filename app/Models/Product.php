@@ -203,6 +203,16 @@ class Product extends Model
                 }
             }
 
+            // Si tiene receta activa, descontamos los ingredientes (CASCADA)
+            if ($this->recipe && $this->recipe->is_active) {
+                foreach ($this->recipe->items as $item) {
+                    $ingredient = $item->component;
+                    if ($ingredient) {
+                        $ingredient->descontarStock($item->quantity * $cantidad, $origen . " (Receta: {$this->name})");
+                    }
+                }
+            }
+
             $this->stock = max(0, $this->stock - $cantidad);
             $this->save();
 
@@ -357,6 +367,22 @@ class Product extends Model
     public function esConsumoInterno(): bool
     {
         return $this->usage_type === 'internal';
+    }
+
+    /**
+     * Relación con su receta única (si es un producto terminado)
+     */
+    public function recipe()
+    {
+        return $this->hasOne(Recipe::class);
+    }
+
+    /**
+     * Relación si este producto es usado como ingrediente en otras recetas
+     */
+    public function usedInRecipes()
+    {
+        return $this->hasMany(RecipeItem::class, 'component_product_id');
     }
 
 }

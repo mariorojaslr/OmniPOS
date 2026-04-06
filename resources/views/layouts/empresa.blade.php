@@ -175,6 +175,7 @@ body{
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.inventory_scan') }}"><i class="bi bi-qr-code-scan me-2"></i> ESCÁNER MÓVIL</a></li>
                         <li><a class="dropdown-item fw-bold" href="{{ route('empresa.labels.index') }}"><i class="bi bi-printer me-2"></i> IMPRIMIR ETIQUETAS</a></li>
+                        <li><a class="dropdown-item fw-bold text-dark border-top mt-2 pt-2" href="{{ route('empresa.recipes.index') }}"><i class="bi bi-mortarboard me-2"></i> RECETAS / PRODUCCIÓN</a></li>
                         <li><a class="dropdown-item text-warning" href="{{ route('empresa.stock.faltantes') }}"><i class="bi bi-exclamation-triangle me-2"></i> CENTRO DE REPOSICIÓN</a></li>
                         <li><a class="dropdown-item fw-bold text-success border-top mt-2 pt-2" href="{{ route('empresa.stock.valuation') }}"><i class="bi bi-currency-dollar me-2"></i> VALORIZACIÓN (CAPITAL)</a></li>
                     </ul>
