@@ -1,15 +1,15 @@
-@extends('layouts.app')
+@extends('layouts.empresa')
 
 @section('content')
 <div class="container py-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-0 text-dark">Editor de Receta (BOM)</h2>
+            <h2 class="fw-bold mb-0" style="color: var(--color-primario);">Editor de Receta (BOM)</h2>
             <p class="text-muted small">Cree la estructura interna de sus productos estrella.</p>
         </div>
         <a href="{{ route('empresa.recipes.index') }}" class="btn btn-light border fw-bold shadow-sm px-4">
-            <i class="bi bi-check2-circle text-success me-1"></i> FINALIZAR ARMAZÓN
+            <i class="bi bi-check2-all text-success me-1"></i> FINALIZAR ARMAZÓN
         </a>
     </div>
 
@@ -24,14 +24,14 @@
             <div class="card border-0 shadow-sm bg-white mb-4">
                 <div class="card-body p-4 d-flex align-items-center">
                     <div class="bg-light rounded-circle p-4 me-4 border">
-                        <i class="bi bi-box-seam fs-2 text-primary"></i>
+                        <i class="bi bi-box-seam fs-2" style="color: var(--color-primario);"></i>
                     </div>
                     <div>
                         <h4 class="fw-bold mb-1 text-dark">{{ $recipe->product->name }}</h4>
-                        <p class="mb-2 text-muted small pe-md-5">Al vender este producto, el sistema buscará esta receta y descontará los ingredientes proporcionalmente.</p>
-                        <div class="d-flex gap-3">
-                            <span class="badge bg-light text-dark border"><i class="bi bi-tag-fill text-muted me-1"></i> P. Venta: ${{ number_format($recipe->product->price, 2) }}</span>
-                            <span class="badge bg-light text-muted border border-info opacity-75"><i class="bi bi-info-circle me-1"></i> {{ $recipe->name }}</span>
+                        <p class="mb-2 text-muted small pe-md-5">Al vender este producto, el sistema descontará los ingredientes proporcionalmente.</p>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-light text-dark border">P. Venta: ${{ number_format($recipe->product->price, 2) }}</span>
+                            <span class="badge bg-light text-muted border opacity-75">{{ $recipe->name }}</span>
                         </div>
                     </div>
                 </div>
@@ -42,16 +42,16 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm bg-white mb-4 position-sticky" style="top: 2rem;">
                 <div class="card-header bg-white border-bottom py-3">
-                    <h6 class="fw-bold mb-0 text-dark text-uppercase">Agregar Ingredientes</h6>
+                    <h6 class="fw-bold mb-0 text-dark text-uppercase d-flex align-items-center"><i class="bi bi-plus-circle-fill me-2 opacity-50"></i> Agregar Material</h6>
                 </div>
                 <div class="card-body p-4">
                     <form action="{{ route('empresa.recipes.addItem', $recipe) }}" method="POST">
                         @csrf
                         
                         <div class="mb-4">
-                            <label class="form-label fw-bold small text-muted">¿Qué materia prima usarás?</label>
-                            <select name="component_product_id" id="ingredient_id" class="form-select border shadow-sm" required>
-                                <option value="" selected disabled>Buscar ingrediente...</option>
+                            <label class="form-label fw-bold small text-muted text-uppercase mb-2">Materia Prima / Insumo</label>
+                            <select name="component_product_id" id="ingredient_id" class="form-select border shadow-sm rounded-3" required>
+                                <option value="" selected disabled>Busque ingrediente...</option>
                                 @foreach($ingredients as $i)
                                     <option value="{{ $i->id }}" data-cost="{{ $i->cost }}" data-unit="{{ $i->unit ? $i->unit->short_name : 'U' }}" data-unit-id="{{ $i->unit_id }}">
                                         {{ $i->name }} (Costo: ${{ number_format($i->cost, 2) }})
@@ -62,14 +62,14 @@
 
                         <div class="row g-3 mb-4">
                             <div class="col-6">
-                                <label class="form-label fw-bold small text-muted">Cantidad</label>
+                                <label class="form-label fw-bold small text-muted text-uppercase mb-2">Cantidad</label>
                                 <div class="input-group">
                                     <input type="number" name="quantity" id="quantity" class="form-control border shadow-sm" step="0.0001" placeholder="0.00" required>
                                     <span class="input-group-text bg-light text-muted" id="unit_preview">U</span>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <label class="form-label fw-bold small text-muted">Unidad</label>
+                                <label class="form-label fw-bold small text-muted text-uppercase mb-2">Unidad</label>
                                 <select name="unit_id" id="unit_id" class="form-select border shadow-sm">
                                     @foreach($units as $u)
                                         <option value="{{ $u->id }}">{{ $u->short_name }} ({{ $u->name }})</option>
@@ -80,12 +80,12 @@
 
                         {{-- CÁLCULO DE COSTO EN VIVO --}}
                         <div class="bg-light rounded p-3 mb-4 border d-flex justify-content-between align-items-center">
-                            <span class="small fw-bold text-muted">Costo del aporte:</span>
+                            <span class="small fw-bold text-muted">Costo aporte:</span>
                             <span class="fw-bold text-dark fs-5" id="cost_preview">$0.00</span>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm py-2">
-                            AÑADIR A LA RECETA <i class="bi bi-plus-lg ms-2"></i>
+                            AÑADIR A FÓRMULA <i class="bi bi-chevron-right ms-2"></i>
                         </button>
                     </form>
                 </div>
@@ -94,20 +94,20 @@
 
         {{-- COLUMNA DERECHA: LISTADO Y VALORIZACIÓN --}}
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm bg-white overflow-hidden mb-4">
+            <div class="card border-0 shadow-sm bg-white mb-4">
                 <div class="card-header bg-white border-bottom py-3">
                     <h6 class="fw-bold mb-0 text-dark text-uppercase d-flex align-items-center">
-                        <i class="bi bi-list-stars text-primary me-2"></i> Composición de la Receta
+                        <i class="bi bi-list-columns-reverse me-2" style="color: var(--color-primario);"></i> Estructura Técnica
                     </h6>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light text-muted small text-uppercase">
                             <tr>
-                                <th class="ps-4">Ingrediente</th>
-                                <th class="text-center">Cantidad</th>
-                                <th class="text-end">Costo Unit.</th>
-                                <th class="text-end pe-4">Subtotal (Costo)</th>
+                                <th class="ps-4">Componente</th>
+                                <th class="text-center">Porción</th>
+                                <th class="text-end">Costo U.</th>
+                                <th class="text-end pe-4">Subtotal</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -121,7 +121,7 @@
                                 <tr>
                                     <td class="ps-4">
                                         <span class="fw-bold d-block text-dark">{{ $item->component->name }}</span>
-                                        <small class="text-muted">{{ strtoupper($item->component->usage_type) }}</small>
+                                        <small class="text-muted text-uppercase small">{{ $item->component->usage_type }}</small>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge bg-light text-dark border fw-bold px-3 py-2">
@@ -138,7 +138,7 @@
                                         <form action="{{ route('empresa.recipes.removeItem', $item) }}" method="POST" onsubmit="return confirm('¿Remover este ingrediente?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-link link-danger p-0">
+                                            <button class="btn btn-link link-secondary opacity-50 p-0">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </form>
@@ -147,8 +147,8 @@
                             @empty
                                 <tr>
                                     <td colspan="5" class="text-center py-5 text-muted small">
-                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                                        Empiece agregando ingredientes desde el panel izquierdo.
+                                        <i class="bi bi-inbox fs-2 d-block mb-3 opacity-25"></i>
+                                        Agregue ingredientes desde el panel izquierdo.
                                     </td>
                                 </tr>
                             @endforelse
@@ -157,42 +157,29 @@
                 </div>
 
                 @if($totalRecipeCost > 0)
-                <div class="card-footer bg-light border-top p-4">
-                    <div class="row align-items-center">
-                        <div class="col-md-6 border-end">
-                            <div class="d-flex justify-content-between align-items-center px-md-3">
-                                <span class="text-muted fw-bold">COSTO TOTAL PRODUCCIÓN:</span>
-                                <h3 class="fw-bold mb-0 text-danger">${{ number_format($totalRecipeCost, 2) }}</h3>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex justify-content-between align-items-center px-md-3">
-                                <span class="text-muted fw-bold">MARGEN PRODUCTO (BRUTO):</span>
-                                @php 
-                                    $margin = $recipe->product->price - $totalRecipeCost;
-                                    $marginPercent = $recipe->product->price > 0 ? ($margin / $recipe->product->price) * 100 : 0;
-                                @endphp
-                                <h3 class="fw-bold mb-0 text-success">${{ number_format($margin, 2) }} <small class="fs-6 opacity-75">({{ number_format($marginPercent, 1) }}%)</small></h3>
-                            </div>
-                        </div>
+                <div class="card-footer bg-light border-top p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted fw-bold small text-uppercase">Costo Producción:</span>
+                        <h4 class="fw-bold mb-0" style="color: var(--color-primario);">${{ number_format($totalRecipeCost, 2) }}</h4>
+                    </div>
+                    <div class="text-end">
+                        <span class="text-muted fw-bold small text-uppercase">Márgen Estimado:</span>
+                        @php 
+                            $margin = $recipe->product->price - $totalRecipeCost;
+                        @endphp
+                        <h4 class="fw-bold mb-0 text-success">${{ number_format($margin, 2) }}</h4>
                     </div>
                 </div>
                 @endif
             </div>
 
-            {{-- TOOLTIP / AYUDA TÁCTICA --}}
-            <div class="card border-0 shadow-sm bg-light mt-4">
-                <div class="card-body border-start border-4 border-primary">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-lightbulb-fill text-primary fs-3 me-3"></i>
-                        <h6 class="fw-bold mb-0">Ayuda: El "Descuento en Cascada"</h6>
-                    </div>
-                    <p class="text-muted small mt-2 mb-0">Cada vez que factures 1 unidad de <strong>{{ $recipe->product->name }}</strong>, el sistema realizará automáticamente los siguientes movimientos de stock:</p>
-                    <ul class="text-muted small mt-2 p-0 ps-4">
-                        @foreach($recipe->items as $item)
-                        <li>Descontará <strong>{{ floatval($item->quantity) }} {{ $item->unit->short_name }}</strong> de {{ $item->component->name }}.</li>
-                        @endforeach
-                    </ul>
+            <div class="card border-0 shadow-sm bg-white">
+                <div class="card-body border-start border-4 border-info">
+                   <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-question-circle-fill text-info fs-5 me-3"></i>
+                        <h6 class="fw-bold mb-0 text-dark">Modo de Uso: Descuento en Cascada</h6>
+                   </div>
+                   <p class="text-muted small mb-0">Cada venta de este producto disparará un descuento proporcional de sus ingredientes en el stock real de forma automática.</p>
                 </div>
             </div>
         </div>
@@ -205,7 +192,6 @@
 <script>
     document.getElementById('ingredient_id').addEventListener('change', function() {
         const selected = this.options[this.selectedIndex];
-        const cost = selected.getAttribute('data-cost');
         const unit = selected.getAttribute('data-unit');
         const unitId = selected.getAttribute('data-unit-id');
 
@@ -218,6 +204,8 @@
 
     function calculateCost() {
         const selected = document.getElementById('ingredient_id').options[document.getElementById('ingredient_id').selectedIndex];
+        if(!selected || selected.disabled) return;
+        
         const cost = parseFloat(selected.getAttribute('data-cost') || 0);
         const qty = parseFloat(document.getElementById('quantity').value || 0);
         const subtotal = cost * qty;
