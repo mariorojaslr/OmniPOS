@@ -13,11 +13,13 @@ use Illuminate\Support\Facades\DB;
 class RecipeController extends Controller
 {
     /**
-     * Listado de todas las recetas
+     * Listado de todas las recetas de la empresa
      */
     public function index()
     {
-        $recipes = Recipe::with('product.unit', 'items')->get();
+        $recipes = Recipe::where('empresa_id', auth()->user()->empresa_id)
+            ->with(['product.unit', 'items'])
+            ->get();
         return view('empresa.recipes.index', compact('recipes'));
     }
 
@@ -26,10 +28,10 @@ class RecipeController extends Controller
      */
     public function create()
     {
-        // Solo productos destinados a la VENTA pueden tener receta
-        $products = Product::where('usage_type', 'sell')
+        $products = Product::where('empresa_id', auth()->user()->empresa_id)
+            ->where('usage_type', 'sell')
             ->where('active', true)
-            ->whereDoesntHave('recipe') // Evitamos duplicados
+            ->whereDoesntHave('recipe')
             ->orderBy('name')
             ->get();
 
@@ -37,7 +39,7 @@ class RecipeController extends Controller
     }
 
     /**
-     * Guardar la base de la receta e ir al editor de items
+     * Guardar la base de la receta
      */
     public function store(Request $request)
     {
@@ -58,14 +60,18 @@ class RecipeController extends Controller
     }
 
     /**
-     * El EDITOR de Receta (Paso 2: Agregar Ingredientes)
+     * El EDITOR de Receta (Paso 2)
      */
     public function edit(Recipe $recipe)
     {
+        if ($recipe->empresa_id !== auth()->user()->empresa_id) {
+            abort(403);
+        }
+
         $recipe->load('product', 'items.component', 'items.unit');
         
-        // Ingredientes posibles (Materias Primas o Insumos)
-        $ingredients = Product::whereIn('usage_type', ['raw_material', 'supply'])
+        $ingredients = Product::where('empresa_id', auth()->user()->empresa_id)
+            ->whereIn('usage_type', ['raw_material', 'supply'])
             ->where('active', true)
             ->orderBy('name')
             ->get();
@@ -76,23 +82,26 @@ class RecipeController extends Controller
     }
 
     /**
-     * Añadir un item a la receta
+     * Añadir ingrediente
      */
     public function addItem(Request $request, Recipe $recipe)
     {
+        if ($recipe->empresa_id !== auth()->user()->empresa_id) {
+            abort(403);
+        }
+
         $request->validate([
             'component_product_id' => 'required|exists:products,id',
             'quantity'             => 'required|numeric|min:0.0001',
             'unit_id'              => 'nullable|exists:units,id',
         ]);
 
-        // Evitar duplicados del mismo ingrediente en la misma receta
         $exists = RecipeItem::where('recipe_id', $recipe->id)
             ->where('component_product_id', $request->component_product_id)
             ->first();
 
         if ($exists) {
-            return back()->with('error', 'Este ingrediente ya está en la receta. Edita su cantidad.');
+            return back()->with('error', 'Este ingrediente ya está en la receta.');
         }
 
         RecipeItem::create([
@@ -106,19 +115,27 @@ class RecipeController extends Controller
     }
 
     /**
-     * Eliminar un item de la receta
+     * Eliminar ingrediente
      */
     public function removeItem(RecipeItem $item)
     {
+        if ($item->recipe->empresa_id !== auth()->user()->empresa_id) {
+            abort(403);
+        }
+
         $item->delete();
         return back()->with('success', 'Ingrediente removido.');
     }
 
     /**
-     * Eliminar la receta completa
+     * Eliminar receta
      */
     public function destroy(Recipe $recipe)
     {
+        if ($recipe->empresa_id !== auth()->user()->empresa_id) {
+            abort(403);
+        }
+
         $recipe->delete();
         return redirect()->route('empresa.recipes.index')->with('success', 'Receta eliminada.');
     }

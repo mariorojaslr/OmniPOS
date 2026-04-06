@@ -47,7 +47,7 @@
                                     <i class="bi bi-box-seam fs-3" style="color: var(--color-primario);"></i>
                                 </div>
                                 <div class="overflow-hidden">
-                                    <h5 class="fw-bold mb-1 text-dark text-truncate">{{ $recipe->product->name }}</h5>
+                                    <h5 class="fw-bold mb-1 text-dark text-truncate">{{ $recipe->product->name ?? 'Producto no encontrado' }}</h5>
                                     <small class="text-muted d-block text-truncate">{{ $recipe->name }}</small>
                                 </div>
                             </div>
