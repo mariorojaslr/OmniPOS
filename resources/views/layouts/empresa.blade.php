@@ -328,6 +328,9 @@ body{
                         <li><a class="dropdown-item" href="{{ route('empresa.configuracion.index') }}">
                             <i class="bi bi-gear me-2"></i> Configuración
                         </a></li>
+                        <li><a class="dropdown-item fw-bold text-info" href="{{ route('empresa.soporte.index') }}">
+                            <i class="bi bi-chat-dots-fill me-2"></i> Centro de Soporte
+                        </a></li>
                         @endif
 
                         <li><hr class="dropdown-divider opacity-10"></li>
