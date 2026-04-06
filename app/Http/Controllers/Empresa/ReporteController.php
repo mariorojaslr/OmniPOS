@@ -51,19 +51,49 @@ class ReporteController extends Controller
     public function rentabilidad(Request $request)
     {
         $empresaId = auth()->user()->empresa_id;
-        $items = DB::table('venta_items as vi')
-            ->join('ventas as v', 'v.id', '=', 'vi.venta_id')
-            ->join('products as p', 'p.id', '=', 'vi.product_id')
-            ->where('v.empresa_id', $empresaId)
-            ->select('p.name', DB::raw('SUM(vi.cantidad) as cant'), DB::raw('SUM(vi.total_item_con_iva) as subtotal'))
-            ->groupBy('p.id', 'p.name')
+
+        // Traemos los productos destinados a la VENTA
+        $products = \App\Models\Product::where('empresa_id', $empresaId)
+            ->where('usage_type', 'sell')
+            ->where('active', true)
+            ->with(['recipe.items.component'])
             ->get();
 
-        foreach($items as $item) {
-            $cost = DB::table('purchase_items')->where('product_id', $item->product_id ?? 0)->latest()->value('cost') ?? 0;
-            $item->costo_total = $item->cant * $cost;
-            $item->ganancia = $item->subtotal - $item->costo_total;
+        $data = [];
+
+        foreach ($products as $p) {
+            $costoFinal = 0;
+
+            // Lógica Smart Costing
+            if ($p->recipe && $p->recipe->items->count() > 0) {
+                // Si tiene receta, sumamos sus partes
+                foreach ($p->recipe->items as $item) {
+                    $costoFinal += ($item->quantity * ($item->component->cost ?? 0));
+                }
+            } else {
+                // Si no tiene receta, usamos su costo base manual
+                $costoFinal = $p->cost ?? 0;
+            }
+
+            // Precio Neto (Venta sin IVA)
+            $precioNeto = number_format($p->price / 1.21, 2, '.', '');
+            $gananciaNeta = $precioNeto - $costoFinal;
+            $margenPercent = $precioNeto > 0 ? ($gananciaNeta / $precioNeto) * 100 : 0;
+
+            $data[] = (object) [
+                'id'         => $p->id,
+                'nombre'     => $p->name,
+                'precio_v'   => $p->price,
+                'precio_n'   => $precioNeto,
+                'costo'      => $costoFinal,
+                'ganancia'   => $gananciaNeta,
+                'margen'     => $margenPercent,
+                'tiene_r'    => ($p->recipe ? true : false)
+            ];
         }
+
+        // Ordenar por menor ganancia primero para detectar problemas
+        $items = collect($data)->sortBy('margen');
 
         return view('empresa.reportes.rentabilidad', compact('items'));
     }
