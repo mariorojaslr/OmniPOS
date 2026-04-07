@@ -8,10 +8,19 @@
             <h2 class="fw-bold mb-0" style="color: var(--color-primario);">Editor de Receta (BOM)</h2>
             <p class="text-muted small">Cree la estructura interna de sus productos estrella.</p>
         </div>
-        <a href="{{ route('empresa.recipes.index') }}" class="btn btn-light border fw-bold shadow-sm px-4">
-            <i class="bi bi-check2-all text-success me-1"></i> FINALIZAR ARMAZÓN
-        </a>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-success fw-bold shadow-sm px-4" data-bs-toggle="modal" data-bs-target="#produceBatchModal">
+                <i class="bi bi-gear-wide-connected me-1"></i> PRODUCIR LOTE
+            </button>
+            <a href="{{ route('empresa.recipes.index') }}" class="btn btn-light border fw-bold shadow-sm px-4">
+                <i class="bi bi-check2-all text-success me-1"></i> FINALIZAR ARMAZÓN
+            </a>
+        </div>
     </div>
+
+    @if(session('error'))
+        <div class="alert alert-danger border-0 shadow-sm mb-4">{{ session('error') }}</div>
+    @endif
 
     @if(session('success'))
         <div class="alert alert-success border-0 shadow-sm mb-4">{{ session('success') }}</div>
@@ -186,6 +195,48 @@
     </div>
 
 </div>
+{{-- MODAL PRODUCIR LOTE --}}
+<div class="modal fade" id="produceBatchModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-white border-0 py-4 ps-4">
+                <h5 class="modal-title fw-bold text-dark">LOTE DE PRODUCCIÓN</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('empresa.recipes.produce', $recipe) }}" method="POST">
+                @csrf
+                <div class="modal-body p-4 pt-0">
+                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-4 p-3" style="border-radius: 15px;">
+                        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                        <p class="small mb-0 opacity-75">MultiPOS descontará automáticamente los insumos segun esta receta y **incrementará el stock** de {{ $recipe->product->name }}.</p>
+                    </div>
+
+                    <div class="mb-4 text-center">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">¿Cuánto vas a fabricar?</label>
+                        <div class="input-group input-group-lg">
+                            <input type="number" name="quantity" class="form-control border-primary shadow-sm text-center fw-bold" step="0.01" min="0.01" placeholder="Ej: 100" required autofocus>
+                            <span class="input-group-text bg-primary text-white border-primary fw-bold" style="min-width: 80px;">{{ $recipe->product->unit ? $recipe->product->unit->short_name : 'U' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light border-0" style="border-radius: 15px;">
+                        <div class="card-body p-3 text-center border-start border-4 border-primary">
+                            <span class="text-muted fw-bold small text-uppercase d-block mb-1">Stock en Vitrina Total:</span>
+                            <h3 class="fw-bold mb-0 text-dark">{{ number_format($recipe->product->stock, 2) }} <small class="opacity-50 fs-6">{{ $recipe->product->unit ? $recipe->product->unit->short_name : 'U' }}</small></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0 justify-content-center">
+                    <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal">CANCELAR</button>
+                    <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm py-2">
+                        <i class="bi bi-gear-wide-connected me-1"></i> CONFIRMAR PRODUCCIÓN
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')

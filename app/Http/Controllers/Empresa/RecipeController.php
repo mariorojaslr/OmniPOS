@@ -115,6 +115,49 @@ class RecipeController extends Controller
     }
 
     /**
+     * Producir lote (Transformación de Insumos a Producto Terminado)
+     */
+    public function produce(Request $request, Recipe $recipe)
+    {
+        $request->validate([
+            'quantity' => 'required|numeric|min:0.01'
+        ]);
+
+        if ($recipe->empresa_id !== auth()->user()->empresa_id) {
+            abort(403);
+        }
+
+        $quantity = $request->quantity;
+
+        // 1. Verificar si hay stock suficiente de todos los ingredientes
+        foreach ($recipe->items as $item) {
+            if (!$item->product) continue;
+            
+            $needed = $item->quantity * $quantity;
+            if ($item->product->stock < $needed) {
+                return back()->with('error', "Stock insuficiente de '{$item->product->name}'. Se necesitan {$needed} {$item->product->unit->short_name} y solo hay {$item->product->stock}.");
+            }
+        }
+
+        // 2. Realizar la transformación (Transacción de Stock)
+        \DB::transaction(function() use ($recipe, $quantity) {
+            // Restar Insumos
+            foreach ($recipe->items as $item) {
+                if ($item->product) {
+                    $item->product->decrement('stock', $item->quantity * $quantity);
+                }
+            }
+
+            // Sumar Producto Terminado
+            if ($recipe->product) {
+                $recipe->product->increment('stock', $quantity);
+            }
+        });
+
+        return back()->with('success', "Proceso de producción exitoso: Se han fabricado {$quantity} unidades de '{$recipe->product->name}'. Los insumos han sido descontados correctamente.");
+    }
+
+    /**
      * Eliminar ingrediente
      */
     public function removeItem(RecipeItem $item)

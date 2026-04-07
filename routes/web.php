@@ -282,6 +282,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         // PRODUCCIÓN Y RECETAS (BOM)
         Route::resource('recipes', RecipeController::class);
         Route::post('/recipes/{recipe}/add-item', [RecipeController::class, 'addItem'])->name('recipes.addItem');
+        Route::post('/recipes/{recipe}/produce', [RecipeController::class, 'produce'])->name('recipes.produce');
         Route::delete('/recipe-items/{item}', [RecipeController::class, 'removeItem'])->name('recipes.removeItem');
         Route::get('/faltantes/export', [ReplenishmentController::class , 'export'])->name('stock.faltantes.export');
         Route::get('/faltantes/actividad/{product}', [ReplenishmentController::class , 'actividad'])->name('stock.faltantes.actividad');
