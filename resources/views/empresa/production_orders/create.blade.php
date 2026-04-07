@@ -8,7 +8,7 @@
             <h2 class="fw-bold mb-0" style="color: var(--color-primario);">Generar Lote de Producción</h2>
             <p class="text-muted small">Simule y transforme materia prima en producto terminado.</p>
         </div>
-        <a href="{{ route('production_orders.index') }}" class="btn btn-light border fw-bold shadow-sm px-4">
+        <a href="{{ route('empresa.production_orders.index') }}" class="btn btn-light border fw-bold shadow-sm px-4">
             CANCELAR
         </a>
     </div>
@@ -29,7 +29,7 @@
                     <h6 class="fw-bold mb-0 text-dark text-uppercase"><i class="bi bi-gear-fill me-2 opacity-50"></i> Configuración del Lote</h6>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('production_orders.create') }}" method="GET" id="simulationForm">
+                    <form action="{{ route('empresa.production_orders.create') }}" method="GET" id="simulationForm">
                         <div class="mb-4">
                             <label class="form-label fw-bold small text-muted text-uppercase mb-2">Producto a Fabricar (Receta)</label>
                             <select name="recipe_id" class="form-select form-select-lg border shadow-sm rounded-3" onchange="this.form.submit()" required>
@@ -134,7 +134,7 @@
                 </div>
                 @if($simulation && $simulation['can_produce'])
                     <div class="card-footer bg-light border-top p-4">
-                        <form action="{{ route('production_orders.store') }}" method="POST">
+                        <form action="{{ route('empresa.production_orders.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="recipe_id" value="{{ request('recipe_id') }}">
                             <input type="hidden" name="quantity" value="{{ $quantity }}">

@@ -8,7 +8,7 @@
             <h2 class="fw-bold mb-0" style="color: var(--color-primario);">Órdenes de Producción</h2>
             <p class="text-muted small">Trazabilidad completa de su fabricación y transformación de productos.</p>
         </div>
-        <a href="{{ route('production_orders.create') }}" class="btn btn-primary fw-bold shadow-sm px-4">
+        <a href="{{ route('empresa.production_orders.create') }}" class="btn btn-primary fw-bold shadow-sm px-4">
             <i class="bi bi-plus-lg me-1"></i> NUEVA ORDEN DE PRODUCCIÓN
         </a>
     </div>
