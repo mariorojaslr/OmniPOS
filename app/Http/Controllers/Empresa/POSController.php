@@ -241,7 +241,7 @@ class POSController extends Controller
 
             return response()->json([
                 'ok'    => false,
-                'error' => 'Error interno al guardar venta'
+                'error' => $e->getMessage()
             ]);
         }
     }
