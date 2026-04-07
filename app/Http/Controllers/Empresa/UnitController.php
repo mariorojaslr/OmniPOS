@@ -27,18 +27,22 @@ class UnitController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'       => 'required|string|max:255',
-            'short_name' => 'required|string|max:10',
+            'name'              => 'required|string|max:255',
+            'short_name'        => 'required|string|max:10',
+            'base_unit_id'      => 'nullable|exists:units,id',
+            'conversion_factor' => 'nullable|numeric|min:0.0001',
         ]);
 
         Unit::create([
-            'empresa_id' => auth()->user()->empresa_id,
-            'name'       => strtoupper($request->name),
-            'short_name' => strtoupper($request->short_name),
-            'active'     => true,
+            'empresa_id'        => auth()->user()->empresa_id,
+            'name'              => strtoupper($request->name),
+            'short_name'        => strtoupper($request->short_name),
+            'base_unit_id'      => $request->base_unit_id,
+            'conversion_factor' => $request->conversion_factor ?: 1,
+            'active'            => true,
         ]);
 
-        return back()->with('success', 'Nueva Unidad de Medida creada correctamente.');
+        return back()->with('success', 'Unidad de Medida / Equivalencia creada correctamente.');
     }
 
     /**

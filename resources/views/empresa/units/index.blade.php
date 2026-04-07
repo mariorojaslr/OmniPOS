@@ -30,6 +30,10 @@
                         </div>
                         <h6 class="fw-bold mb-1 text-dark text-uppercase">{{ $u->name }}</h6>
                         
+                        @if($u->base_unit_id)
+                            <p class="small text-muted mb-2">Equivale a <strong>{{ number_format($u->conversion_factor, 0) }} {{ $u->baseUnit->short_name }}</strong></p>
+                        @endif
+
                         @if($u->empresa_id)
                             <span class="badge bg-light text-primary border border-primary small opacity-75">Personalizada</span>
                         @else
@@ -72,9 +76,26 @@
                         <label class="form-label fw-bold small text-muted text-uppercase mb-3">Nombre Largo (Ej: Kilogramos)</label>
                         <input type="text" name="name" class="form-control form-control-lg border shadow-sm rounded-3" placeholder="Ej: Centímetros Cúbicos" required>
                     </div>
-                    <div>
+                    <div class="mb-4">
                         <label class="form-label fw-bold small text-muted text-uppercase mb-3">Sigla / Corto (Ej: KG)</label>
                         <input type="text" name="short_name" class="form-control form-control-lg border shadow-sm rounded-3" placeholder="Ej: CC, ML, GR" maxlength="10" required>
+                    </div>
+
+                    <div class="bg-light p-3 rounded-4 border border-secondary border-opacity-10 mt-3 pt-3 border-top">
+                        <h6 class="fw-bold small mb-3">EQUIVALENCIA (Opcional)</h6>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">¿Contiene otra unidad? </label>
+                            <select name="base_unit_id" class="form-select border-0 shadow-sm rounded-3">
+                                <option value="">No, es la unidad base</option>
+                                @foreach($units as $bu)
+                                    <option value="{{ $bu->id }}">{{ $bu->name }} ({{ $bu->short_name }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label small text-muted">¿Cuántas trae? (Ej: 500)</label>
+                            <input type="number" name="conversion_factor" class="form-control border-0 shadow-sm rounded-3" value="1" step="0.0001">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-2">

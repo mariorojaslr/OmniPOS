@@ -13,8 +13,15 @@ class Unit extends Model
         'empresa_id',
         'name',
         'short_name',
+        'base_unit_id',
+        'conversion_factor',
         'active'
     ];
+
+    public function baseUnit()
+    {
+        return $this->belongsTo(Unit::class, 'base_unit_id');
+    }
 
     public function products()
     {
