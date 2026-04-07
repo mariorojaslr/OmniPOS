@@ -123,10 +123,11 @@ class VentaService
                         $numeroComprobante = $resAfip['numero_comprobante'];
                         $qrData = $resAfip['qr_data'] ?? null;
                     } else {
-                        $afipError = $resAfip['error'];
+                         // TRABAR LA VENTA SI NO HAY CAE LEGAL
+                        throw new \Exception("ERROR AFIP: " . $resAfip['error']);
                     }
                 } catch (\Exception $e) {
-                    $afipError = $e->getMessage();
+                    throw new \Exception("BLOQUEO FISCAL: " . $e->getMessage());
                 }
             }
 
