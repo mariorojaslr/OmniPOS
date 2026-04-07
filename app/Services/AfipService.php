@@ -19,22 +19,24 @@ class AfipService
             mkdir($taPath, 0775, true);
         }
 
-        // Limpieza de archivos TA obsoletos si hay errores persistentes
-        // Esto fuerza a AFIP a generar un token nuevo y fresco
-        $files = glob($taPath . "/*");
-        foreach($files as $file){
-            if(is_file($file)) @unlink($file);
-        }
-
         // Buscamos los certificados en la carpeta ARCA de la raíz
-        $certPathOnDisk = base_path('ARCA/empresa_' . $empresa->id . '_cert.crt');
-        $keyPathOnDisk  = base_path('ARCA/empresa_' . $empresa->id . '_key.key');
+        // Probamos con el nombre específico primero, y con el genérico después
+        $certPathSpecific = base_path('ARCA/empresa_' . $empresa->id . '_cert.crt');
+        $keyPathSpecific  = base_path('ARCA/empresa_' . $empresa->id . '_key.key');
+        
+        $certPathGeneric  = base_path('ARCA/empresa.crt');
+        $keyPathGeneric   = base_path('ARCA/empresa.key');
 
-        if (!file_exists($certPathOnDisk) || !file_exists($keyPathOnDisk)) {
-            throw new \Exception("No se encontraron los certificados AFIP en la carpeta /ARCA/. Se esperan: empresa_{$empresa->id}_cert.crt y empresa_{$empresa->id}_key.key");
+        $certPathOnDisk = file_exists($certPathSpecific) ? $certPathSpecific : (file_exists($certPathGeneric) ? $certPathGeneric : null);
+        $keyPathOnDisk  = file_exists($keyPathSpecific) ? $keyPathSpecific : (file_exists($keyPathGeneric) ? $keyPathGeneric : null);
+
+        if (!$certPathOnDisk || !$keyPathOnDisk) {
+            $filesFound = glob(base_path('ARCA/*'));
+            $fileList = implode(', ', array_map('basename', $filesFound));
+            throw new \Exception("CERTIFICADOS AFIP NO ENCONTRADOS. Busqué: empresa_{$empresa->id}_cert.crt o empresa.crt. Archivos reales en /ARCA/: [" . ($fileList ?: "Ninguno") . "]");
         }
 
-        // Normalizamos el ambiente para que reconozca "Producción", "produccion", etc.
+        // Normalizamos el ambiente
         $isProduction = (strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
 
         return new \Afip([
