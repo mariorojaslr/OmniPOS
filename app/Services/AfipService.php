@@ -14,10 +14,10 @@ class AfipService
     protected function getAfipInstance(Empresa $empresa)
     {
         // Si tenemos un Token de Acceso (Cloud SDK), lo usamos como prioridad
-        $accessToken = config('services.afip.access_token') ?: env('AFIP_ACCESS_TOKEN');
+        $accessToken = env('AFIP_ACCESS_TOKEN'); // Leemos directo del .env
         $isProduction = (strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
 
-        // Definimos las rutas posibles para que el sistema sea inteligente
+        // Definimos las rutas posibles
         $paths = [
             'specific' => base_path("ARCA/empresa_{$empresa->id}_cert.crt"),
             'specific_key' => base_path("ARCA/empresa_{$empresa->id}_key.key"),
@@ -25,6 +25,12 @@ class AfipService
             'generic_key' => base_path('ARCA/empresa.key'),
             'special' => base_path('ARCA/empresa .key'),
         ];
+
+        // LOG DE DIAGNÓSTICO (Solo visible en logs del sistema)
+        Log::info("DIAGNÓSTICO AFIP - Empresa: " . $empresa->id);
+        Log::info("¿Existe Specific Cert?: " . (file_exists($paths['specific']) ? 'SÍ' : 'NO'));
+        Log::info("¿Existe Specific Key?: " . (file_exists($paths['specific_key']) ? 'SÍ' : 'NO'));
+        Log::info("¿Hay Token en .env?: " . ($accessToken ? 'SÍ ('.substr($accessToken, 0, 5).'...)' : 'NO'));
 
         // Resolución de Certificado
         $certContent = null;
@@ -55,7 +61,7 @@ class AfipService
             ]);
         }
 
-        throw new \Exception("ERROR CRÍTICO: No se encontró el certificado en /ARCA/ ni el Token en el .env");
+        throw new \Exception("BLOQUEO: No se encontró el certificado en " . $paths['specific'] . " ni el Token en el .env. Subí los archivos al servidor o cargá el Token.");
     }
 
     /**
