@@ -7,52 +7,42 @@ use App\Models\SystemUpdate;
 
 class NovedadesAbril2026Seeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        // 29 MARZO - MULTIMEDIA BUNNY.NET
-        SystemUpdate::updateOrCreate(
-            ['title' => 'Streaming 4.0: Integración con Bunny.net'],
-            [
-                'publish_date' => '2026-03-29',
-                'type' => 'nuevo',
-                'description' => 'Hemos profesionalizado la gestión de medios. Ahora MultiPOS utiliza Bunny.net (Storage & Stream) para alojar sus videos de productos e imágenes pesadas, garantizando una carga instantánea y seguridad de nivel bancario para sus archivos multimedia.',
-            ]
-        );
+        // Limpiamos novedades anteriores de abril para no duplicar
+        SystemUpdate::where('version', 'LIKE', 'v2.4%')->delete();
 
-        // 01 ABRIL - CRM Y ACTIVACIÓN
-        SystemUpdate::updateOrCreate(
-            ['title' => 'Centro de Comando CRM Profesional'],
-            [
-                'publish_date' => '2026-04-01',
-                'type' => 'nuevo',
-                'image' => 'novedad_crm.png',
-                'description' => 'El OWNER ahora cuenta con un Tablero Kanban estratégico para gestionar leads y empresas. ¡Active clientes con un solo arrastrar y soltar! Cada activación sincroniza automáticamente la facturación y los pagos en el historial de suscripciones.',
-            ]
-        );
+        // 1. FACTURACIÓN ELECTRÓNICA ARCA
+        SystemUpdate::create([
+            'title' => '🚀 Motor de Facturación AFIP (ARCA)',
+            'content' => 'Implementación del nuevo protocolo ARCA para facturación electrónica. Incluye generación automática de QR fiscal, validación de CUIT en tiempo real y descarga de comprobantes en alta resolución.',
+            'image_url' => '/assets/img/novedades/afip_arca_engine.png', 
+            'version' => 'v2.4.1',
+            'publish_date' => '2026-03-29',
+            'category' => 'Fiscal',
+            'is_active' => true
+        ]);
 
-        // 05 ABRIL - AFIP ARCA
-        SystemUpdate::updateOrCreate(
-            ['title' => 'Facturación Electrónica ARCA (AFIP)'],
-            [
-                'publish_date' => '2026-04-05',
-                'type' => 'nuevo',
-                'image' => 'novedad_afip.png',
-                'description' => '¡MultiPOS ya es legal! Integramos el servicio oficial de ARCA para emitir Facturas A, B, C y Notas de Crédito con CAE real. Incluye QR obligatorio y validez fiscal inmediata para todas sus ventas corporativas.',
-            ]
-        );
+        // 2. CRM COMANDO CENTRAL
+        SystemUpdate::create([
+            'title' => '📊 Comando Central & CRM Estratégico',
+            'content' => 'Lanzamiento del tablero Kanban para gestión de clientes desde el panel OWNER. Ahora el sistema detecta renovaciones automáticas y permite monitorear la salud de cada empresa en tiempo real.',
+            'image_url' => '/assets/img/novedades/crm_kanban_pro.png',
+            'version' => 'v2.4.2',
+            'publish_date' => '2026-04-01',
+            'category' => 'Management',
+            'is_active' => true
+        ]);
 
-        // 06 ABRIL - PRODUCCIÓN Y VALORIZACIÓN
-        SystemUpdate::updateOrCreate(
-            ['title' => 'Producción de Elite: Recetas (BOM) y Costos'],
-            [
-                'publish_date' => '2026-04-06',
-                'type' => 'nuevo',
-                'image' => 'novedad_produccion.png',
-                'description' => 'Lance su producción al siguiente nivel. Defina recetas ("Bill of Materials") para sus productos terminados y automatice el descuento de stock en cascada para sus materias primas. Además, incorporamos el reporte de Valorización de Inventario para conocer su capital real inmovilizado.',
-            ]
-        );
+        // 3. RECETAS Y PRODUCCIÓN (BOM)
+        SystemUpdate::create([
+            'title' => '🧁 Producción Inteligente: Recetas (BOM)',
+            'content' => 'Módulo de recetas avanzado con "Cascada de Stock". Al vender un producto terminado, el sistema descuenta automáticamente sus ingredientes. Incluye cálculo de rentabilidad neta "Smart Costing".',
+            'image_url' => '/assets/img/novedades/production_bom_module.png',
+            'version' => 'v2.4.3',
+            'publish_date' => '2026-04-06',
+            'category' => 'Producción',
+            'is_active' => true
+        ]);
     }
 }

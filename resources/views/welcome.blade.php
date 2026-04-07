@@ -202,6 +202,37 @@
         </div>
     </section>
 
+    {{-- NUEVO: CEREBRO DE PRODUCCIÓN & BOM --}}
+    <section id="produccion" class="py-5 mt-5">
+        <div class="container px-4">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6">
+                    <img src="{{ asset('images/novedades/production_bom_module.png') }}" class="img-fluid rounded-5 shadow-2xl border border-primary border-opacity-25" alt="Producción Inteligente BOM">
+                </div>
+                <div class="col-lg-6">
+                    <span class="badge bg-primary mb-3">TECNOLOGÍA INDUSTRIAL</span>
+                    <h2 class="display-4 fw-bold mb-4">Cerebro de Producción: <br><span class="text-primary text-gradient">De Insumos a Éxito.</span></h2>
+                    <p class="fs-5 mb-5 text-muted">¿Cocinás, fabricás o ensamblás? MultiPOS calcula el **Costo Real** de cada receta. Transformamos automáticamente tus insumos en productos terminados, descontando el stock en cascada y dándote la rentabilidad neta al centavo.</p>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i class="bi bi-recipe fs-3"></i></div>
+                                <div><h6 class="fw-bold text-white">Smart Costing</h6><p class="small text-muted">Calculá el costo exacto de cada plato o producto final.</p></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i class="bi bi-diagram-3 fs-3"></i></div>
+                                <div><h6 class="fw-bold text-white">Stock en Cascada</h6><p class="small text-muted">Vendé 1 unidad y descontá todos sus componentes a la vez.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- SECCIÓN OMNICANALIDAD --}}
     <section class="py-5" style="background: linear-gradient(180deg, #09090b 0%, #000 100%);">
         <div class="container px-4 text-center">
