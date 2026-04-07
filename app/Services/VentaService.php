@@ -86,8 +86,25 @@ class VentaService
             $qrData = null;
             $afipError = null;
 
-            // FACTURACIÓN ELECTRÓNICA AFIP (SI CORRESPONDE)
-            if ($empresaActual->arca_cuit && in_array($tipoComprobante, ['factura', 'F', 'B', 'C', 'NC', 'nota_credito'])) {
+            // FACTURACIÓN ELECTRÓNICA AFIP (AUTO-DETECCIÓN)
+            // Si la empresa tiene CUIT configurado y el comprobante es genérico, lo convertimos a fiscal.
+            if ($empresaActual->arca_cuit && in_array($tipoComprobante, ['ticket', 'factura', 'F', 'B', 'C', 'X', 'NC', 'nota_credito'])) {
+                
+                // Mapeo automático de Ticket -> Factura Fiscal según condición IVA
+                if ($tipoComprobante === 'ticket' || $tipoComprobante === 'X' || $tipoComprobante === 'factura') {
+                    if ($empresaActual->condicion_iva === 'Monotributista') {
+                        $tipoComprobante = 'C';
+                    } else {
+                        // Si es Responsable Inscripto, determinamos A o B según el cliente
+                        $cliente = $clienteId ? \App\Models\Client::find($clienteId) : null;
+                        if ($cliente && $cliente->document_type === 'CUIT' && $cliente->iva_condition === 'Responsable Inscripto') {
+                            $tipoComprobante = 'A';
+                        } else {
+                            $tipoComprobante = 'B';
+                        }
+                    }
+                }
+
                 try {
                     $totales = $this->calcularTotalesItems($items, $empresaActual);
                     $ventaFicticia = (object) [

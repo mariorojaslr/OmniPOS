@@ -226,7 +226,9 @@ class POSController extends Controller
                 'remito_id'        => $venta->remito_principal?->id, // Devolver ID si se creó remito
                 'total'            => $venta->total_con_iva,
                 'clienteId'        => $clienteId,
-                'tipo_comprobante' => $venta->tipo_comprobante
+                'tipo_comprobante' => $venta->tipo_comprobante,
+                'es_afip'          => !empty($venta->cae),
+                'cae'              => $venta->cae
             ]);
 
         } catch (\Throwable $e) {

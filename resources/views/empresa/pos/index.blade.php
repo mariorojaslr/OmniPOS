@@ -731,15 +731,15 @@ async function procesarVenta(imprimir = false) {
             return;
         }
 
-        // SI SE GENERÓ REMITO -> ABRIR PDF EN NUEVA PESTAÑA
-        if(data.remito_id) {
+        // SI SE GENERÓ REMITO -> ABRIR PDF EN NUEVA PESTAÑA (Solo si NO es venta AFIP o si se marcó explícitamente)
+        if(data.remito_id && !data.es_afip) {
             window.open("{{ url('empresa/remitos') }}/" + data.remito_id + "/pdf", '_blank');
         }
 
         modalCobrar.hide();
 
         if (imprimir) {
-            if (data.tipo_comprobante === 'factura') {
+            if (data.es_afip || data.tipo_comprobante === 'factura') {
                 window.open("{{ url('empresa/ventas') }}/" + data.venta_id + "/pdf", '_blank');
             } else {
                 let ticket = `
