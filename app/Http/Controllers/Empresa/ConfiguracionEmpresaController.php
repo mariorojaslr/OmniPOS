@@ -86,16 +86,16 @@ class ConfiguracionEmpresaController extends Controller
             ];
 
             if ($request->hasFile('arca_certificado')) {
-                $certContent = file_get_contents($request->file('arca_certificado')->getRealPath());
-                $certPath = 'ARCA/empresa_' . $empresa->id . '_cert.crt';
-                \Illuminate\Support\Facades\Storage::disk('local')->put($certPath, $certContent);
-                $updateData['arca_certificado'] = $certPath;
+                $file = $request->file('arca_certificado');
+                $certName = 'empresa_' . $empresa->id . '_cert.crt';
+                $file->move(base_path('ARCA'), $certName);
+                $updateData['arca_certificado'] = 'ARCA/' . $certName;
             }
             if ($request->hasFile('arca_llave')) {
-                $keyContent = file_get_contents($request->file('arca_llave')->getRealPath());
-                $keyPath = 'ARCA/empresa_' . $empresa->id . '_key.key';
-                \Illuminate\Support\Facades\Storage::disk('local')->put($keyPath, $keyContent);
-                $updateData['arca_llave'] = $keyPath;
+                $file = $request->file('arca_llave');
+                $keyName = 'empresa_' . $empresa->id . '_key.key';
+                $file->move(base_path('ARCA'), $keyName);
+                $updateData['arca_llave'] = 'ARCA/' . $keyName;
             }
 
             /*
