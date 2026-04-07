@@ -13,10 +13,39 @@ class AfipService
      */
     protected function getAfipInstance(Empresa $empresa)
     {
-        $isProduction = (strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
-        
         // Si tenemos un Token de Acceso (Cloud SDK), lo usamos como prioridad
         $accessToken = config('services.afip.access_token') ?: env('AFIP_ACCESS_TOKEN');
+        $isProduction = (strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
+
+        // Definimos las rutas posibles para que el sistema sea inteligente
+        $paths = [
+            'specific' => base_path("ARCA/empresa_{$empresa->id}_cert.crt"),
+            'specific_key' => base_path("ARCA/empresa_{$empresa->id}_key.key"),
+            'generic' => base_path('ARCA/empresa.crt'),
+            'generic_key' => base_path('ARCA/empresa.key'),
+            'special' => base_path('ARCA/empresa .key'),
+        ];
+
+        // Resolución de Certificado
+        $certContent = null;
+        if (file_exists($paths['specific'])) $certContent = file_get_contents($paths['specific']);
+        elseif (file_exists($paths['generic'])) $certContent = file_get_contents($paths['generic']);
+
+        // Resolución de Llave
+        $keyContent = null;
+        if (file_exists($paths['specific_key'])) $keyContent = file_get_contents($paths['specific_key']);
+        elseif (file_exists($paths['generic_key'])) $keyContent = file_get_contents($paths['generic_key']);
+        elseif (file_exists($paths['special'])) $keyContent = file_get_contents($paths['special']);
+
+        if ($certContent && $keyContent) {
+            return new \Afip([
+                'CUIT'         => (float) str_replace('-', '', $empresa->arca_cuit),
+                'production'   => $isProduction,
+                'cert'         => $certContent,
+                'key'          => $keyContent,
+                'ta_folder'    => storage_path('app/ARCA/ta/' . $empresa->id),
+            ]);
+        }
 
         if ($accessToken) {
             return new \Afip([
@@ -26,33 +55,7 @@ class AfipService
             ]);
         }
 
-        // Carpeta para los archivos temporales (Token de Acceso) específica por empresa
-        $taPath = storage_path('app/ARCA/ta/' . $empresa->id);
-        if (!is_dir($taPath)) {
-            mkdir($taPath, 0775, true);
-        }
-        $certPathSpecific = base_path('ARCA/empresa_' . $empresa->id . '_cert.crt');
-        $keyPathSpecific  = base_path('ARCA/empresa_' . $empresa->id . '_key.key');
-        
-        $certPathGeneric  = base_path('ARCA/empresa.crt');
-        $keyPathGeneric   = base_path('ARCA/empresa.key');
-
-        $certPathOnDisk = file_exists($certPathSpecific) ? $certPathSpecific : (file_exists($certPathGeneric) ? $certPathGeneric : null);
-        $keyPathOnDisk  = file_exists($keyPathSpecific) ? $keyPathSpecific : (file_exists($keyPathGeneric) ? $keyPathGeneric : null);
-
-        if (!$certPathOnDisk || !$keyPathOnDisk) {
-            $filesFound = glob(base_path('ARCA/*'));
-            $fileList = implode(', ', array_map('basename', $filesFound));
-            throw new \Exception("CERTIFICADOS AFIP NO ENCONTRADOS. Debes cargar el AFIP_ACCESS_TOKEN en el .env o subir los archivos a /ARCA/");
-        }
-
-        return new \Afip([
-            'CUIT'         => (float) str_replace('-', '', $empresa->arca_cuit),
-            'production'   => $isProduction,
-            'cert'         => $certPathOnDisk,
-            'key'          => $keyPathOnDisk,
-            'ta_folder'    => $taPath,
-        ]);
+        throw new \Exception("ERROR CRÍTICO: No se encontró el certificado en /ARCA/ ni el Token en el .env");
     }
 
     /**
