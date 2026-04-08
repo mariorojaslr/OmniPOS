@@ -253,6 +253,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/configuracion', [ConfiguracionEmpresaController::class , 'index'])->name('configuracion.index');
         Route::post('/configuracion', [ConfiguracionEmpresaController::class , 'save'])->name('configuracion.save');
         Route::post('/configuracion/test-afip', [ConfiguracionEmpresaController::class , 'testAfip'])->name('configuracion.test_afip');
+        Route::post('/configuracion/generar-cert', [ConfiguracionEmpresaController::class, 'generateCertificate'])->name('configuracion.generate_cert');
+        Route::get('/configuracion/descargar-cert/{type}', [ConfiguracionEmpresaController::class, 'downloadCert'])->name('configuracion.download_cert');
         Route::get('/tax/search-cuit', [ConfiguracionEmpresaController::class, 'searchByCuit'])->name('tax.search_cuit');
 
         // MI SUSCRIPCIÓN (SaaS CLIENT PORTAL)

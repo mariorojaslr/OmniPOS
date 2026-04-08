@@ -305,6 +305,89 @@ class ConfiguracionEmpresaController extends Controller
         }
     }
 
+    /**
+     * 🧙‍♂️ Generar CSR y Private Key para AFIP
+     */
+    public function generateCertificate(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            $empresa = $user->empresa;
+
+            $request->validate([
+                'cuit' => 'required',
+                'razon_social' => 'required|string|max:100',
+                'localidad' => 'required|string|max:100',
+                'provincia' => 'required|string|max:100',
+            ]);
+
+            $cuit = str_replace('-', '', $request->cuit);
+            $razonSocial = $request->razon_social;
+            
+            // DN para AFIP
+            $dn = [
+                "countryName" => "AR",
+                "stateOrProvinceName" => $request->provincia,
+                "localityName" => $request->localidad,
+                "organizationName" => $razonSocial,
+                "organizationalUnitName" => "Sistemas",
+                "commonName" => $razonSocial,
+                "serialNumber" => "CUIT " . $cuit
+            ];
+
+            // Generar clave privada
+            $privkey = openssl_pkey_new([
+                "private_key_bits" => 2048,
+                "private_key_type" => OPENSSL_KEYTYPE_RSA,
+            ]);
+
+            // Generar CSR
+            $csr = openssl_csr_new($dn, $privkey, array('digest_alg' => 'sha256'));
+
+            openssl_csr_export($csr, $csrout);
+            openssl_pkey_export($privkey, $pkeyout);
+
+            // Guardar temporalmente en sesión para descarga
+            $tempFolder = storage_path('app/temp_certs/' . $empresa->id);
+            if (!file_exists($tempFolder)) {
+                mkdir($tempFolder, 0777, true);
+            }
+
+            file_put_contents($tempFolder . '/afip.key', $pkeyout);
+            file_put_contents($tempFolder . '/afip.csr', $csrout);
+
+            return response()->json([
+                'success' => true,
+                'message' => '¡Archivos generados con éxito!',
+                'download_key' => route('empresa.configuracion.download_cert', ['type' => 'key']),
+                'download_csr' => route('empresa.configuracion.download_cert', ['type' => 'csr']),
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 📥 Descargar archivos generados
+     */
+    public function downloadCert($type)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $path = storage_path('app/temp_certs/' . $empresaId . '/afip.' . $type);
+
+        if (!file_exists($path)) {
+            abort(404, "Archivo no encontrado. Por favor genera los certificados nuevamente.");
+        }
+
+        $filename = ($type == 'key') ? 'afip_privada.key' : 'pedido_afip.csr';
+
+        return response()->download($path, $filename);
+    }
+
     protected function parseCondicionIvaAfip($impuestos)
     {
         // Simplificado

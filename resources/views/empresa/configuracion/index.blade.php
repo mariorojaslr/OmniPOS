@@ -128,6 +128,15 @@
                                 <div class="p-4 border rounded-4 bg-light border-warning">
                                     <h6 class="fw-bold text-warning mb-3"><i class="bi bi-shield-lock me-2"></i>Certificados Digitales</h6>
                                     <div class="row g-3">
+                                        <div class="col-12 mb-3">
+                                            <div class="card border-primary bg-primary bg-opacity-10 border-dashed p-3 text-center">
+                                                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-magic me-2"></i>¿No tienes los certificados?</h6>
+                                                <p class="small text-muted mb-3">Podemos generarlos por ti automáticamente. Solo completa unos datos y te daremos los archivos listos.</p>
+                                                <button type="button" class="btn btn-primary btn-sm fw-bold px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#wizardCertificados">
+                                                    Abrir Asistente de Gestión AFIP
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div class="col-md-6">
                                             <label class="form-label small fw-bold">Certificado (.crt)</label>
                                             <input type="file" name="arca_certificado" class="form-control form-control-sm">
@@ -340,6 +349,100 @@
 
 </div>
 
+{{-- ==========================================
+     MODAL: WIZARD DE CERTIFICADOS
+=========================================== --}}
+<div class="modal fade" id="wizardCertificados" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-magic me-2"></i>Asistente de Certificados AFIP</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                
+                {{-- STEP 1: FORMULARIO --}}
+                <div id="step1">
+                    <div class="alert alert-info border-0 shadow-sm mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Este asistente generará un archivo <strong>Pedido de Certificado (.csr)</strong> y una <strong>Llave Privada (.key)</strong>.
+                    </div>
+
+                    <form id="formWizardCert">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">CUIT del Titular</label>
+                                <input type="text" id="wiz_cuit" class="form-control" name="cuit" value="{{ $empresa->arca_cuit ?? $empresa->cuit }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">Razón Social Exacta</label>
+                                <input type="text" id="wiz_razon" class="form-control" name="razon_social" value="{{ $empresa->nombre_comercial }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">Localidad / Ciudad</label>
+                                <input type="text" id="wiz_localidad" class="form-control" name="localidad" placeholder="Ej: CABA" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">Provincia</label>
+                                <input type="text" id="wiz_provincia" class="form-control" name="provincia" placeholder="Ej: Buenos Aires" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <button type="button" id="btnGenerarWizard" class="btn btn-primary px-5 fw-bold rounded-pill shadow">
+                                <i class="bi bi-gear-wide-connected me-2"></i> Generar Archivos
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {{-- STEP 2: DESCARGA --}}
+                <div id="step2" class="d-none text-center py-4">
+                    <div class="mb-4">
+                        <div class="display-1 text-success mb-3">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h4 class="fw-bold">¡Archivos Listos!</h4>
+                        <p class="text-muted">Descarga ambos archivos y guárdalos en un lugar seguro.</p>
+                    </div>
+
+                    <div class="row g-3 justify-content-center mb-5">
+                        <div class="col-md-5">
+                            <a href="#" id="linkDownloadKey" class="btn btn-outline-dark w-100 py-3 shadow-sm fw-bold">
+                                <i class="bi bi-key h3 d-block mb-2"></i>
+                                Descargar Llave (.key)
+                            </a>
+                            <small class="text-danger fw-bold d-block mt-2">¡NUNCA compartas este archivo!</small>
+                        </div>
+                        <div class="col-md-5">
+                            <a href="#" id="linkDownloadCsr" class="btn btn-outline-primary w-100 py-3 shadow-sm fw-bold">
+                                <i class="bi bi-file-earmark-arrow-down h3 d-block mb-2"></i>
+                                Descargar Pedido (.csr)
+                            </a>
+                            <small class="text-muted d-block mt-2">Este es el que subes a AFIP.</small>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-4 border">
+                        <h6 class="fw-bold"><i class="bi bi-play-btn-fill me-2"></i>¿Qué sigue ahora?</h6>
+                        <p class="small text-muted">Mira este video tutorial que explica cómo subir el archivo (.csr) a la página de AFIP para obtener tu Certificado (.crt) final.</p>
+                        
+                        <div class="ratio ratio-16x9 shadow-sm rounded overflow-hidden">
+                            <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Tutorial AFIP" allowfullscreen></iframe>
+                        </div>
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.location.reload()">
+                                <i class="bi bi-arrow-repeat me-1"></i> Ya tengo el .crt y quiero subirlo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 
@@ -416,6 +519,48 @@ document.getElementById('btnTestAfip').addEventListener('click', function() {
         btn.disabled = false;
         btn.innerHTML = originalHtml;
         alert('Error de red al intentar probar AFIP: ' + err);
+    });
+});
+
+// ==========================================
+// WIZARD DE CERTIFICADOS (LÓGICA)
+// ==========================================
+document.getElementById('btnGenerarWizard').addEventListener('click', function() {
+    let btn = this;
+    let originalHtml = btn.innerHTML;
+    let form = document.getElementById('formWizardCert');
+    let formData = new FormData(form);
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+
+    fetch("{{ route('empresa.configuracion.generate_cert') }}", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json"
+        }
+    })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        
+        if (res.success) {
+            document.getElementById('step1').classList.add('d-none');
+            document.getElementById('step2').classList.remove('d-none');
+            
+            document.getElementById('linkDownloadKey').href = res.download_key;
+            document.getElementById('linkDownloadCsr').href = res.download_csr;
+        } else {
+            alert("Error: " + (res.error || "No se pudieron generar los archivos"));
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        alert("Error de red: " + err);
     });
 });
 
