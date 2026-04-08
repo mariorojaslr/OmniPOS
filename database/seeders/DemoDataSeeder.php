@@ -12,12 +12,16 @@ use App\Models\Client;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\Rubro;
+use App\Models\ProductImage;
+use App\Models\ProductionOrder;
+use App\Models\User;
 
 class DemoDataSeeder extends Seeder
 {
     public function run()
     {
         $empresaId = 1; // Empresa de Prueba
+        $userId = User::where('empresa_id', $empresaId)->first()?->id ?? 1;
 
         // 1. Unidades (Dinámicas)
         $uKg = Unit::firstOrCreate(['empresa_id' => $empresaId, 'short_name' => 'kg'], ['name' => 'Kilogramos'])->id;
@@ -150,5 +154,31 @@ class DemoDataSeeder extends Seeder
         // 8. Entidades
         Client::firstOrCreate(['empresa_id' => $empresaId, 'name' => 'Juan Perez (Cliente Demo)'], ['document' => '20123456789']);
         Supplier::firstOrCreate(['empresa_id' => $empresaId, 'name' => 'Textil Argentina (Proveedor Demo)'], ['document' => '30998877665']);
+
+        // 9. Imágenes (Visual Wow)
+        ProductImage::updateOrCreate(['product_id' => $remeraPadre->id], ['path' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=800', 'is_main' => true]);
+        ProductImage::updateOrCreate(['product_id' => $zapatoPadre->id], ['path' => 'https://images.unsplash.com/photo-1533867617858-e7b97e060509?auto=format&fit=crop&q=80&w=800', 'is_main' => true]);
+        ProductImage::updateOrCreate(['product_id' => $combo->id], ['path' => 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&q=80&w=800', 'is_main' => true]);
+        ProductImage::updateOrCreate(['product_id' => $tela->id], ['path' => 'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&q=80&w=800', 'is_main' => true]);
+
+        // 10. Órdenes de Producción
+        ProductionOrder::create([
+            'empresa_id'   => $empresaId,
+            'user_id'      => $userId,
+            'recipe_id'    => $recipe->id,
+            'quantity'     => 50,
+            'status'       => 'completada',
+            'completed_at' => now(),
+            'notes'        => 'Lote inicial de stock para demo'
+        ]);
+
+        ProductionOrder::create([
+            'empresa_id'   => $empresaId,
+            'user_id'      => $userId,
+            'recipe_id'    => $recipe->id,
+            'quantity'     => 100,
+            'status'       => 'pendiente',
+            'notes'        => 'Planificación para próxima semana'
+        ]);
     }
 }
