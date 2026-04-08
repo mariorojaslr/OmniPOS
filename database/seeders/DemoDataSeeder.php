@@ -148,7 +148,7 @@ class DemoDataSeeder extends Seeder
         RecipeItem::create(['recipe_id' => $recipe->id, 'component_product_id' => $rip->id, 'quantity' => 0.02, 'unit_id' => $uKg]);
 
         // 8. Entidades
-        Client::firstOrCreate(['empresa_id' => $empresaId, 'nombre' => 'Juan Perez (Cliente Demo)'], ['cuit' => '20123456789']);
-        Supplier::firstOrCreate(['empresa_id' => $empresaId, 'nombre' => 'Textil Argentina (Proveedor Demo)'], ['cuit' => '30998877665']);
+        Client::firstOrCreate(['empresa_id' => $empresaId, 'name' => 'Juan Perez (Cliente Demo)'], ['document' => '20123456789']);
+        Supplier::firstOrCreate(['empresa_id' => $empresaId, 'name' => 'Textil Argentina (Proveedor Demo)'], ['document' => '30998877665']);
     }
 }
