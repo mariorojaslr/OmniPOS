@@ -192,14 +192,7 @@
 <script>
     function presupuestoForm() {
         return {
-            items: @json($presupuesto->items->map(function($i){
-                return [
-                    'product_id' => $i->product_id,
-                    'qty' => $i->cantidad,
-                    'price' => $i->precio_unitario,
-                    'descripcion' => $i->descripcion
-                ];
-            })),
+            items: @json($itemsData),
             productos: @json($productos),
             clientes: @json($clientes),
             selectedClient: @json($presupuesto->client),

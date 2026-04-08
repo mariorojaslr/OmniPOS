@@ -104,9 +104,20 @@ class PresupuestoController extends Controller
 
         $presupuesto = $empresa->presupuestos()->with('items')->findOrFail($id);
 
+        // Preparamos los items para AlpineJS en el controlador para evitar errores de parseo en Blade
+        $itemsData = $presupuesto->items->map(function($i){
+            return [
+                'product_id'  => $i->product_id,
+                'qty'         => (float)$i->cantidad,
+                'price'       => (float)$i->precio_unitario,
+                'descripcion' => $i->descripcion
+            ];
+        });
+
         return view('empresa.presupuestos.edit', [
             'empresa'     => $empresa,
             'presupuesto' => $presupuesto,
+            'itemsData'   => $itemsData,
             'clientes'    => $empresa->clients()->orderBy('name')->get(),
             'productos'   => $empresa->products()->orderBy('name')->get(),
         ]);
