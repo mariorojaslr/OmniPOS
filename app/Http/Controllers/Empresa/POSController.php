@@ -263,7 +263,10 @@ class POSController extends Controller
 
         // 1️⃣ Buscar en variantes primero (solo productos vendibles)
         $variant = ProductVariant::whereHas('product', fn($q) => $q->where('empresa_id', $empresaId)->paraVenta())
-            ->where('barcode', $barcode)
+            ->where(function($query) use ($barcode) {
+                $query->where('barcode', $barcode)
+                      ->orWhere('sku', $barcode);
+            })
             ->with('product.images')
             ->first();
 
@@ -284,7 +287,10 @@ class POSController extends Controller
         // 2️⃣ Buscar en producto principal (solo productos vendibles)
         $product = Product::paraVenta()
             ->where('empresa_id', $empresaId)
-            ->where('barcode', $barcode)
+            ->where(function($query) use ($barcode) {
+                $query->where('barcode', $barcode)
+                      ->orWhere('sku', $barcode);
+            })
             ->with('images')
             ->first();
 

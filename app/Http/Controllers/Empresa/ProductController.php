@@ -44,6 +44,7 @@ class ProductController extends Controller
             $query->where(function($q) use ($buscar) {
                 $q->where('name', 'like', "%{$buscar}%")
                   ->orWhere('barcode', 'like', "%{$buscar}%")
+                  ->orWhere('sku', 'like', "%{$buscar}%")
                   ->orWhere('descripcion_corta', 'like', "%{$buscar}%")
                   ->orWhereHas('rubro', function($rq) use ($buscar) {
                       $rq->where('nombre', 'like', "%{$buscar}%");
@@ -137,6 +138,7 @@ class ProductController extends Controller
             'descripcion_larga' => 'nullable|string',
             'usage_type'        => 'required|string|in:sell,raw_material,supply,internal',
             'is_sellable'       => 'required|boolean',
+            'sku'               => 'nullable|string|max:100',
         ]);
 
         $user = Auth::user();
@@ -166,6 +168,7 @@ class ProductController extends Controller
             'stock_min'         => $request->stock_min ?? 0,
             'stock_ideal'       => $request->stock_ideal ?? 0,
             'barcode'           => $request->barcode,
+            'sku'               => $request->sku,
             'rubro_id'          => $request->rubro_id,
             'supplier_id'       => $request->supplier_id,
             'active'            => true,
@@ -272,6 +275,7 @@ class ProductController extends Controller
             'descripcion_larga' => 'nullable|string',
             'usage_type'        => 'required|string|in:sell,raw_material,supply,internal',
             'is_sellable'       => 'required|boolean',
+            'sku'               => 'nullable|string|max:100',
         ]);
 
         /*
@@ -288,6 +292,7 @@ class ProductController extends Controller
             'name'              => $request->name,
             'price'             => $request->price,
             'barcode'           => $request->barcode,
+            'sku'               => $request->sku,
             'rubro_id'          => $request->rubro_id,
             'supplier_id'       => $request->supplier_id,
             'active'            => $request->active,
@@ -316,6 +321,7 @@ class ProductController extends Controller
                             'product_id' => $product->id,
                             'size'       => $data['size'] ?? null,
                             'color'      => $data['color'] ?? null,
+                            'sku'        => $data['sku'] ?? null,
                             'barcode'    => $data['barcode'] ?? null,
                             'price'      => $data['price'] ?? $product->price,
                             'stock'      => $data['stock'] ?? 0,
@@ -328,6 +334,7 @@ class ProductController extends Controller
                         ->update([
                             'size'    => $data['size'] ?? null,
                             'color'   => $data['color'] ?? null,
+                            'sku'     => $data['sku'] ?? null,
                             'barcode' => $data['barcode'] ?? null,
                             'price'   => $data['price'] ?? $product->price,
                             'stock'   => $data['stock'] ?? 0,
@@ -430,6 +437,7 @@ class ProductController extends Controller
                 'ID (NO MODIFICAR)', 
                 'Nombre del Articulo', 
                 'Código de Barras',
+                'Código SKU',
                 'Rubro/Categoria',
                 'Precio', 
                 'Stock Actual', 
@@ -445,6 +453,7 @@ class ProductController extends Controller
                     $p->id,
                     $p->name,
                     $p->barcode,
+                    $p->sku,
                     $p->rubro ? $p->rubro->nombre : '',
                     $p->price,
                     $p->stock,
@@ -507,14 +516,15 @@ class ProductController extends Controller
             $id          = !empty($row[0]) ? (int) $row[0] : null;
             $nombre      = trim($row[1]);
             $barcode     = trim($row[2] ?? '');
-            $rubroName   = trim($row[3] ?? '');
-            $precio      = (float) str_replace(',', '.', $row[4] ?? 0);
-            $stock       = (float) ($row[5] ?? 0);
-            $stockMin    = (float) ($row[6] ?? 0);
-            $stockIdeal  = (float) ($row[7] ?? 0);
-            $descCorta   = $row[8] ?? '';
-            $descLarga   = $row[9] ?? '';
-            $active      = (int) ($row[10] ?? 1);
+            $sku         = trim($row[3] ?? '');
+            $rubroName   = trim($row[4] ?? '');
+            $precio      = (float) str_replace(',', '.', $row[5] ?? 0);
+            $stock       = (float) ($row[6] ?? 0);
+            $stockMin    = (float) ($row[7] ?? 0);
+            $stockIdeal  = (float) ($row[8] ?? 0);
+            $descCorta   = $row[9] ?? '';
+            $descLarga   = $row[10] ?? '';
+            $active      = (int) ($row[11] ?? 1);
 
             // Manejo "inteligente" de Rubro
             $rubroId = null;
@@ -549,6 +559,7 @@ class ProductController extends Controller
             $data = [
                 'name'              => $nombre,
                 'barcode'           => $barcode,
+                'sku'               => $sku,
                 'rubro_id'          => $rubroId,
                 'price'             => $precio,
                 'stock'             => $stock,

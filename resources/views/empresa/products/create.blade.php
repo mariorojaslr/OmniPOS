@@ -97,6 +97,22 @@
                         @enderror
                     </div>
 
+                    {{-- SKU --}}
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">SKU (Interno)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted">🆔</span>
+                            <input type="text"
+                                   name="sku"
+                                   class="form-control @error('sku') is-invalid @enderror"
+                                   placeholder="Ej: REM-BLA-L"
+                                   value="{{ old('sku') }}">
+                        </div>
+                        @error('sku')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     {{-- Clasificación Avanzada --}}
                     <div class="col-md-12 mt-3">
                         <label class="form-label fw-bold d-block mb-3">¿Para qué se usará este artículo?</label>

@@ -36,9 +36,16 @@
                             <span class="badge bg-warning text-dark ms-1" style="font-size: 0.6rem; vertical-align: middle;">NO VENTA</span>
                         @endif
                     </div>
-                    @if($product->barcode)
+                    @if($product->barcode || $product->sku)
                         <div class="small text-muted" style="font-size: 0.75rem;">
-                            <i class="bi bi-barcode me-1"></i> {!! highlight($product->barcode, $buscar) !!}
+                            @if($product->barcode)
+                                <i class="bi bi-barcode me-1"></i> {!! highlight($product->barcode, $buscar) !!}
+                            @endif
+                            @if($product->sku)
+                                <span class="ms-2">
+                                    <i class="bi bi-tag me-1"></i> SKU: {!! highlight($product->sku, $buscar) !!}
+                                </span>
+                            @endif
                         </div>
                     @endif
                 </td>

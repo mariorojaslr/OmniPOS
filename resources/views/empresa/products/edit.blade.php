@@ -111,6 +111,12 @@
                         <input type="text" name="barcode" class="form-control @error('barcode') is-invalid @enderror" value="{{ old('barcode', $product->barcode) }}" placeholder="EAN-13...">
                     </div>
 
+                    {{-- SKU --}}
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">SKU Internacional</label>
+                        <input type="text" name="sku" class="form-control @error('sku') is-invalid @enderror" value="{{ old('sku', $product->sku) }}" placeholder="Ej: REM-BLA-L">
+                    </div>
+
 
                     {{-- RUBRO --}}
                     <div class="col-md-3">
@@ -342,6 +348,7 @@
                             <tr>
                                 <th>Talle</th>
                                 <th>Color</th>
+                                <th>Código SKU</th>
                                 <th>Código Barras</th>
                                 <th>Precio (opc)</th>
                                 <th>Stock</th>
@@ -353,6 +360,7 @@
                             <tr>
                                 <td><input type="text" name="variantes[{{ $v->id }}][size]"  class="form-control form-control-sm" value="{{ $v->size }}"></td>
                                 <td><input type="text" name="variantes[{{ $v->id }}][color]" class="form-control form-control-sm" value="{{ $v->color }}"></td>
+                                <td><input type="text" name="variantes[{{ $v->id }}][sku]" class="form-control form-control-sm text-center" value="{{ $v->sku }}" placeholder="SKU..."></td>
                                 <td><input type="text" name="variantes[{{ $v->id }}][barcode]" class="form-control form-control-sm text-center" value="{{ $v->barcode }}" placeholder="EAN..."></td>
                                 <td><input type="number" step="0.01" name="variantes[{{ $v->id }}][price]" class="form-control form-control-sm" value="{{ $v->price }}"></td>
                                 <td><input type="number" name="variantes[{{ $v->id }}][stock]" class="form-control form-control-sm" value="{{ $v->stock }}"></td>
@@ -491,6 +499,7 @@ function agregarVariante() {
     tr.innerHTML = `
         <td><input type="text" name="variantes[new_${variantIdx}][size]"  class="form-control form-control-sm" placeholder="Ej: XL"></td>
         <td><input type="text" name="variantes[new_${variantIdx}][color]" class="form-control form-control-sm" placeholder="Ej: Azul"></td>
+        <td><input type="text" name="variantes[new_${variantIdx}][sku]" class="form-control form-control-sm text-center" placeholder="SKU..."></td>
         <td><input type="text" name="variantes[new_${variantIdx}][barcode]" class="form-control form-control-sm text-center" placeholder="EAN..."></td>
         <td><input type="number" step="0.01" name="variantes[new_${variantIdx}][price]" class="form-control form-control-sm" placeholder="Precio"></td>
         <td><input type="number" name="variantes[new_${variantIdx}][stock]" class="form-control form-control-sm" placeholder="0"></td>
