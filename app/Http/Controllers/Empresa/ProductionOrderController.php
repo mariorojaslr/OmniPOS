@@ -40,7 +40,7 @@ class ProductionOrderController extends Controller
         if ($request->recipe_id) {
             $selectedRecipe = Recipe::where('id', $request->recipe_id)
                 ->where('empresa_id', auth()->user()->empresa_id)
-                ->with('items.product.unit')
+                ->with('items.component.unit')
                 ->first();
                 
             if ($selectedRecipe) {
@@ -61,19 +61,19 @@ class ProductionOrderController extends Controller
         $maxPossible = 999999; // Empezamos con un número alto e iremos bajando al mínimo limitante
 
         foreach ($recipe->items as $item) {
-            if (!$item->product) continue;
+            if (!$item->component) continue;
             
             $needed = $item->quantity * $quantity;
-            $available = $item->product->stock;
+            $available = $item->component->stock;
             $shortage = max(0, $needed - $available);
             
             // Calcular cuánto se puede fabricar con el stock de ESTE ingrediente específicamente
             $possibleWithThis = $item->quantity > 0 ? floor($available / $item->quantity) : 999999;
             $maxPossible = min($maxPossible, $possibleWithThis);
-
+            
             $items[] = [
-                'product'   => $item->product->name,
-                'unit'      => $item->product->unit->short_name ?? 'U',
+                'product'   => $item->component->name,
+                'unit'      => $item->component->unit->short_name ?? 'U',
                 'needed'    => $needed,
                 'available' => $available,
                 'shortage'  => $shortage,
@@ -122,8 +122,8 @@ class ProductionOrderController extends Controller
 
             // 2. Ejecutar la Transformación de Stock
             foreach ($recipe->items as $item) {
-                if ($item->product) {
-                    $item->product->decrement('stock', $item->quantity * $request->quantity);
+                if ($item->component) {
+                    $item->component->decrement('stock', $item->quantity * $request->quantity);
                 }
             }
 
