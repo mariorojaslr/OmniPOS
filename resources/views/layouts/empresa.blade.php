@@ -459,7 +459,7 @@ body{
     #help-trigger {
         position: fixed;
         bottom: 20px;
-        right: 20px;
+        left: 20px;
         width: 54px;
         height: 54px;
         border-radius: 50%;
