@@ -129,8 +129,13 @@
                     </td>
                     <td>
                         <div class="text-truncate" style="max-width: 250px;">{{ $gasto->description }}</div>
-                        @if($gasto->image_path)
-                            <a href="{{ route('local.media', ['path' => $gasto->image_path]) }}" target="_blank" class="small text-primary text-decoration-none">
+                        @if($gasto->receipt_url)
+                            @php
+                                $finalUrl = str_starts_with($gasto->receipt_url, 'http') 
+                                            ? $gasto->receipt_url 
+                                            : route('local.media', ['path' => $gasto->receipt_url]);
+                            @endphp
+                            <a href="{{ $finalUrl }}" target="_blank" class="small text-primary text-decoration-none">
                                 <i class="bi bi-image me-1"></i> Ver Comprobante
                             </a>
                         @endif

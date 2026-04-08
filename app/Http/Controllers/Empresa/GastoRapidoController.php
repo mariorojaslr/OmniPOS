@@ -69,7 +69,7 @@ class GastoRapidoController extends Controller
             'provider' => $request->supplier ?: 'Varios',
             'description' => "Gasto rápido de campo: " . ($request->supplier ?: $catName),
             'date' => now(),
-            'receipt_url' => $photoPath,
+            'receipt_url' => $photoPath ? route('local.media', ['path' => $photoPath]) : null,
             'payment_method' => $request->input('payment_method', 'efectivo')
         ]);
 
