@@ -81,6 +81,10 @@ Route::middleware('auth')->group(function() {
         }
         return redirect('/');
     })->name('owner.return-to-owner');
+
+    // AYUDA CONTEXTUAL (MANUAL INTERACTIVO)
+    Route::get('/help/fetch', [App\Http\Controllers\HelpArticleController::class, 'fetch'])->name('help.fetch');
+    Route::post('/help/save', [App\Http\Controllers\HelpArticleController::class, 'save'])->name('help.save')->middleware('owner');
 });
 
 /* |-------------------------------------------------------------------------- | OWNER (ADMINISTRACIÓN MASTER) |-------------------------------------------------------------------------- */

@@ -454,5 +454,227 @@ body{
     }
 </script>
 
+<!-- CENTER OF KNOWLEDGE (AYUDA CONTEXTUAL) -->
+<style>
+    #help-trigger {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: var(--color-primario);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 8px 25px rgba(var(--color-primario-rgb), 0.4);
+        cursor: pointer;
+        z-index: 1060;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid rgba(255,255,255,0.2);
+    }
+    #help-trigger:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 12px 30px rgba(var(--color-primario-rgb), 0.6); }
+    
+    .help-pulse { animation: pulse-help 2s infinite; }
+    @keyframes pulse-help {
+        0% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(var(--color-primario-rgb), 0); }
+        100% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0); }
+    }
+
+    .offcanvas-help { 
+        width: 450px !important; 
+        background: rgba(255, 255, 255, 0.9) !important; 
+        backdrop-filter: blur(15px); 
+        -webkit-backdrop-filter: blur(15px);
+        border-left: 1px solid rgba(255,255,255,0.3);
+    }
+    @if($modoOscuro)
+    .offcanvas-help { background: rgba(15, 17, 21, 0.85) !important; color: #e6edf3; }
+    @endif
+
+    .help-content img { max-width: 100%; border-radius: 12px; margin: 15px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .help-content iframe { width: 100%; border-radius: 12px; aspect-ratio: 16/9; margin: 15px 0; }
+</style>
+
+<div id="help-trigger" onclick="openHelp()" title="Ayuda sobre esta página">
+    <i class="bi bi-question-lg"></i>
+</div>
+
+<div class="offcanvas offcanvas-end offcanvas-help" tabindex="-1" id="offcanvasHelp">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold d-flex align-items-center">
+            <i class="bi bi-info-circle-fill me-2 text-primary"></i> Centro de Aprendizaje
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="closeHelp()"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="help-loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Buscando instrucciones...</p>
+        </div>
+
+        <div id="help-view-mode">
+            <div id="help-empty" style="display:none;" class="text-center py-5">
+                <i class="bi bi-journal-x fs-1 text-muted"></i>
+                <h5 class="mt-3">Sin instrucciones aún</h5>
+                <p class="text-muted small">Esta página todavía no tiene contenido de ayuda asignado.</p>
+                @if(auth()->user()->role === 'owner')
+                    <button class="btn btn-primary btn-sm mt-3" onclick="enterEditMode()">
+                        <i class="bi bi-pencil-square me-1"></i> Crear Ayuda para esta Página
+                    </button>
+                @endif
+            </div>
+
+            <div id="help-display" style="display:none;">
+                <h3 id="help-title" class="fw-bold mb-3"></h3>
+                <div id="help-body" class="help-content mb-4"></div>
+                
+                @if(auth()->user()->role === 'owner')
+                    <hr>
+                    <button class="btn btn-outline-primary w-100 fw-bold" onclick="enterEditMode()">
+                        <i class="bi bi-pencil-square me-1"></i> Editar este Manual
+                    </button>
+                @endif
+            </div>
+        </div>
+
+        @if(auth()->user()->role === 'owner')
+        <div id="help-edit-mode" style="display:none;">
+            <div class="alert alert-info py-2 small">
+                <i class="bi bi-incognito me-1"></i> <strong>Modo Editor:</strong> Este contenido se mostrará a todos los usuarios que entren a esta página (<code>{{ Route::currentRouteName() }}</code>).
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Título del Manual</label>
+                <input type="text" id="edit-help-title" class="form-control" placeholder="Ej: ¿Cómo cargar ventas?">
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Contenido Educativo</label>
+                <textarea id="edit-help-content" class="form-control"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Video Tutorial (Opcional)</label>
+                <input type="text" id="edit-help-video" class="form-control" placeholder="URL de Bunny.net o YouTube">
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success w-100 fw-bold" onclick="saveHelp()">
+                    <i class="bi bi-check-circle me-1"></i> GUARDAR MANUAL
+                </button>
+                <button class="btn btn-light" onclick="exitEditMode()">Cancelar</button>
+            </div>
+        </div>
+        @endif
+    </div>
+</div>
+
+@if(auth()->user()->role === 'owner')
+    <!-- Summernote para el Owner -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/lang/summernote-es-ES.min.js"></script>
+@endif
+
+<script>
+    const helpModal = new bootstrap.Offcanvas(document.getElementById('offcanvasHelp'));
+    const currentRoute = "{{ Route::currentRouteName() }}";
+
+    // Detectar si hay ayuda al cargar la página para animar el botón
+    $(document).ready(function() {
+        $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
+            if(res.success && res.data) {
+                $('#help-trigger').addClass('help-pulse');
+            }
+        });
+    });
+
+    function openHelp() {
+        helpModal.show();
+        $("#help-loading").show();
+        $("#help-view-mode, #help-edit-mode").hide();
+
+        $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
+            $("#help-loading").hide();
+            $("#help-view-mode").show();
+            
+            if(res.success && res.data) {
+                $("#help-empty").hide();
+                $("#help-display").show();
+                $("#help-title").text(res.data.title);
+                $("#help-body").html(res.data.content);
+                
+                // Si hay video, podemos prepararlo
+                if(res.data.video_url) {
+                    // Lógica para embeber
+                }
+            } else {
+                $("#help-display").hide();
+                $("#help-empty").show();
+            }
+        });
+    }
+
+    function closeHelp() { helpModal.hide(); }
+
+    @if(auth()->user()->role === 'owner')
+    function enterEditMode() {
+        $("#help-view-mode").hide();
+        $("#help-edit-mode").show();
+        
+        // Cargar datos actuales si existen
+        const currentTitle = $("#help-title").text();
+        const currentContent = $("#help-body").html();
+        
+        $("#edit-help-title").val(currentTitle);
+        $("#edit-help-content").summernote({
+            placeholder: 'Escribe las instrucciones aquí...',
+            tabsize: 2,
+            height: 300,
+            lang: 'es-ES',
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview']]
+            ]
+        });
+        $("#edit-help-content").summernote('code', currentContent);
+    }
+
+    function exitEditMode() {
+        $("#help-edit-mode").hide();
+        $("#help-view-mode").show();
+    }
+
+    function saveHelp() {
+        const data = {
+            _token: "{{ csrf_token() }}",
+            route_name: currentRoute,
+            title: $("#edit-help-title").val(),
+            content: $("#edit-help-content").summernote('code'),
+            video_url: $("#edit-help-video").val()
+        };
+
+        if(!data.title || !data.content) {
+            alert("Por favor completa el título y el contenido.");
+            return;
+        }
+
+        $.post("{{ route('help.save') }}", data, function(res){
+            if(res.success) {
+                alert("¡Manual guardado con éxito!");
+                exitEditMode();
+                openHelp(); // Recargar vista
+                $('#help-trigger').addClass('help-pulse');
+            }
+        });
+    }
+    @endif
+</script>
+
 </body>
 </html>
