@@ -125,6 +125,7 @@ Route::middleware(['auth', 'owner'])
         Route::post('crm/scan-channel', [App\Http\Controllers\Owner\CRMController::class, 'scanChannel'])->name('crm.scan-channel');
         Route::post('crm/scan-all', [App\Http\Controllers\Owner\CRMController::class, 'scanAll'])->name('crm.scan-all');
         Route::post('crm/promote', [App\Http\Controllers\Owner\CRMController::class, 'promote'])->name('crm.promote');
+        Route::post('settings', [OwnerDashboardController::class, 'updateSettings'])->name('settings.update');
 
     });
 

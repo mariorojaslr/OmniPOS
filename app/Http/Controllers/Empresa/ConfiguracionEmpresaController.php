@@ -20,7 +20,10 @@ class ConfiguracionEmpresaController extends Controller
         $empresa = $user->empresa;
         $config = $empresa->config;
 
-        return view('empresa.configuracion.index', compact('config', 'empresa'));
+        $globalSettings = \App\Models\SystemSetting::where('key', 'afip_tutorial_video')->first();
+        $afipVideoId = $globalSettings->value ?? 'v6r4D3Ljuy8';
+
+        return view('empresa.configuracion.index', compact('config', 'empresa', 'afipVideoId'));
     }
 
     /*

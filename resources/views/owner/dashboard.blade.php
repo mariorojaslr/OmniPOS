@@ -467,6 +467,15 @@
                     <small class="text-muted" style="font-size: 0.7rem;">Logs de actualización</small>
                 </div>
             </a>
+
+            {{-- AJUSTES GLOBALES (NUEVO) --}}
+            <button type="button" class="command-btn border-warning border-opacity-50" data-bs-toggle="modal" data-bs-target="#modalSettings" style="background: linear-gradient(90deg, rgba(234, 179, 8, 0.1), transparent); cursor: pointer;">
+                <i class="bi bi-sliders text-warning"></i>
+                <div>
+                    <div class="text-white fw-bold">AJUSTES GLOBALES</div>
+                    <small class="text-warning opacity-75" style="font-size: 0.7rem;">Configuración maestra del SaaS</small>
+                </div>
+            </button>
         </div>
 
     </div>
@@ -536,6 +545,34 @@
         </div>
     </div>
 
+</div>
+
+{{-- ==========================================
+     MODAL: AJUSTES GLOBALES
+=========================================== --}}
+<div class="modal fade" id="modalSettings" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content oled-card border-warning border-opacity-50" style="background: #000;">
+            <div class="modal-header border-bottom border-white border-opacity-10 py-3">
+                <h5 class="modal-title text-white fw-bold"><i class="bi bi-sliders me-2 text-warning"></i>Ajustes del Sistema</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('owner.settings.update') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="stat-label d-block mb-2">Video Tutorial AFIP (YouTube ID)</label>
+                        <input type="text" name="afip_tutorial_video" value="{{ $settings['afip_tutorial_video'] ?? 'v6r4D3Ljuy8' }}" class="form-control bg-dark border-secondary text-white py-2" placeholder="Ej: v6r4D3Ljuy8" style="background: rgba(255,255,255,0.05) !important;">
+                        <small class="text-muted d-block mt-2">Este video se mostrará a todas las empresas en el asistente de migración fiscal.</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-white border-opacity-10 py-3">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">CANCELAR</button>
+                    <button type="submit" class="btn btn-warning btn-sm fw-bold px-4">GUARDAR CAMBIOS</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection
 

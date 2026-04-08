@@ -32,12 +32,12 @@ class DashboardController extends Controller
         $costoStorage = $consumoGB * 0.01; // $0.01 por GB
         $costoTrafico = ($consumoGB * 2.5) * 0.01; // $0.01 por GB
 
-        // 📉 SALUD DEL SISTEMA (Basado en KPI vs Target mensual sugerido)
+        // 📉 SALUD DEL SISTEMA
         $saludVentas = min(round(($facturacionMesNum / 1000000) * 100), 100);
         $gastosGlobal = \App\Models\Expense::whereMonth('created_at', now()->month)->sum('amount');
         $saludGastos = $facturacionMesNum > 0 ? round(($gastosGlobal / $facturacionMesNum) * 100) : 0;
 
-        // 🛰️ TRÁFICO Y ADQUISICIÓN (Métricas en Tiempo Real de la BD)
+        // 🛰️ TRÁFICO Y ADQUISICIÓN
         $today = now()->toDateString();
         $traffic = \App\Models\OwnerSystemTraffic::firstOrCreate(['date' => $today]);
 
@@ -46,6 +46,9 @@ class DashboardController extends Controller
         $botReferrals = $traffic->bot_referrals;
         
         $conversionRate = $landingVisits > 0 ? round(($demoEntries / $landingVisits) * 100, 1) : 0;
+
+        // ⚙️ CONFIGURACIONES DEL SISTEMA
+        $settings = \App\Models\SystemSetting::pluck('value', 'key')->toArray();
 
         return view('owner.dashboard', [
             'empresasCount'    => $empresasCount,
@@ -67,6 +70,28 @@ class DashboardController extends Controller
             'saludGastos'       => $saludGastos ?: 0,
             'saludGlobal'       => 95, 
             'ultimasEmpresas'   => Empresa::with('plan')->orderByDesc('created_at')->limit(5)->get(),
+            'settings'          => $settings
         ]);
+    }
+
+    /**
+     * Actualizar configuraciones globales del SaaS
+     */
+    public function updateSettings(\Illuminate\Http\Request $request)
+    {
+        try {
+            foreach ($request->all() as $key => $value) {
+                if (in_array($key, ['afip_tutorial_video'])) {
+                    \App\Models\SystemSetting::updateOrCreate(
+                        ['key' => $key],
+                        ['value' => $value]
+                    );
+                }
+            }
+
+            return redirect()->back()->with('success', 'Ajustes globales actualizados con éxito.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al actualizar ajustes: ' . $e->getMessage());
+        }
     }
 }

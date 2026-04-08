@@ -428,7 +428,7 @@
                         <p class="small text-muted">Mira este video tutorial que explica cómo subir el archivo (.csr) a la página de AFIP para obtener tu Certificado (.crt) final.</p>
                         
                         <div class="ratio ratio-16x9 shadow-sm rounded overflow-hidden">
-                            <iframe src="https://www.youtube.com/embed/v6r4D3Ljuy8" title="Tutorial AFIP" allowfullscreen></iframe>
+                            <iframe src="https://www.youtube.com/embed/{{ $afipVideoId }}" title="Tutorial AFIP" allowfullscreen></iframe>
                         </div>
                         <div class="mt-3">
                             <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.location.reload()">
