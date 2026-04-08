@@ -148,13 +148,13 @@ class DashboardController extends Controller
             ->sum('total_con_iva');
 
         $gastosMes = \App\Models\Expense::where('empresa_id', $empresaId)
-            ->whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
             ->sum('amount');
 
         $comprasMes = \App\Models\Purchase::where('empresa_id', $empresaId)
-            ->whereMonth('purchase_date', now()->month)
-            ->whereYear('purchase_date', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
             ->sum('total');
 
         /*
