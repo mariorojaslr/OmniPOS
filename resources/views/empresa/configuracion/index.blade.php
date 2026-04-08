@@ -89,6 +89,28 @@
                             <h5 class="mb-0 text-primary"><i class="bi bi-file-earmark-text me-2"></i>Facturación Electrónica (ARCA / AFIP)</h5>
                             <span class="badge bg-info ms-3">Ex-AFIP</span>
                         </div>
+
+                        {{-- MODO ADMINISTRATIVO / FISCAL SWITCH --}}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm overflow-hidden bg-primary bg-opacity-10">
+                                    <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-white p-3 me-3 shadow-sm">
+                                                <i class="bi bi-shield-check text-primary h3 mb-0"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Conexión con AFIP Activa</h6>
+                                                <p class="small text-muted mb-0">Si está desactivado, el sistema emitirá comprobantes de gestión interna (No Válidos como Factura).</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch form-switch-lg">
+                                            <input class="form-check-input" type="checkbox" name="arca_activo" value="1" {{ ($empresa->arca_activo ?? false) ? 'checked' : '' }} style="width: 3.5rem; height: 1.8rem;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="row g-3">
                             <div class="col-md-4">

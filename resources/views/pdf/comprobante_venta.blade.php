@@ -59,18 +59,34 @@
 
     @php
         $tipo = strtoupper($venta->tipo_comprobante ?? 'B');
+        $hasCae = !empty($venta->cae);
+        
         if($tipo == 'TICKET') $tipo = 'T';
         $esA = ($tipo === 'A');
         $isTicket = ($tipo === 'T' || $tipo === 'TICKET');
-        $letra = $isTicket ? 'T' : ($esA ? 'A' : 'B');
-        $cod_id = $isTicket ? '000' : ($esA ? '001' : '006');
-        $titulo_comprobante = $isTicket ? "TICKET" : "FACTURA " . $letra;
+        
+        // LÓGICA DE MODO ADMINISTRATIVO
+        if (!$hasCae) {
+            $letra = 'X';
+            $cod_id = '000';
+            $titulo_comprobante = "COMPROBANTE DE GESTIÓN";
+        } else {
+            $letra = $isTicket ? 'T' : ($esA ? 'A' : 'B');
+            $cod_id = $isTicket ? '000' : ($esA ? '001' : '006');
+            $titulo_comprobante = $isTicket ? "TICKET" : "FACTURA " . $letra;
+        }
         
         $fullNumero = $venta->numero_comprobante ?: (str_pad($empresa->arca_punto_venta ?? '12', 4, '0', STR_PAD_LEFT) . '-' . str_pad($venta->id, 8, '0', STR_PAD_LEFT));
     @endphp
 
     <div class="invoice-box">
         
+        @if(!$hasCae)
+            <div style="background: #ff0000; color: #fff; text-align: center; padding: 5px; font-weight: bold; position: absolute; width: 100%; top: -35px; left: 0;">
+                DOCUMENTO NO VÁLIDO COMO FACTURA
+            </div>
+        @endif
+
         <div class="header-center">
             <span class="letter">{{ $letra }}</span>
             <span class="cod">Cod. {{ $cod_id }}</span>
@@ -147,21 +163,28 @@
         <div class="footer-container">
             
             <div class="arca-box">
-                @if(isset($arcaLogoBase64) && $arcaLogoBase64)
-                    <img src="{{ $arcaLogoBase64 }}" class="arca-logo">
-                @endif
-                <br>
-                @if($venta->qr_data)
-                    <div class="qr-placeholder">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data) }}" class="qr-img">
+                @if($hasCae)
+                    @if(isset($arcaLogoBase64) && $arcaLogoBase64)
+                        <img src="{{ $arcaLogoBase64 }}" class="arca-logo">
+                    @endif
+                    <br>
+                    @if($venta->qr_data)
+                        <div class="qr-placeholder">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data) }}" class="qr-img">
+                        </div>
+                    @endif
+                    <div style="display: inline-block; vertical-align: top; margin-left: 15px; width: 180px;">
+                        <div style="font-size: 10pt; font-weight: 900;">Comprobante Autorizado</div>
+                        <div style="font-size: 7pt; color: #444; line-height: 1.2; margin-top: 5px;">
+                            Esta administración federal no se responsabiliza por los datos declarados.
+                        </div>
+                    </div>
+                @else
+                    <div style="border: 2px solid #000; padding: 15px; text-align: center; font-weight: bold; font-size: 12pt;">
+                        DOCUMENTO NO VÁLIDO COMO FACTURA <br>
+                        <span style="font-size: 9pt; font-weight: normal;">Uso Administrativo Interno</span>
                     </div>
                 @endif
-                <div style="display: inline-block; vertical-align: top; margin-left: 15px; width: 180px;">
-                    <div style="font-size: 10pt; font-weight: 900;">Comprobante Autorizado</div>
-                    <div style="font-size: 7pt; color: #444; line-height: 1.2; margin-top: 5px;">
-                        Esta administración federal no se responsabiliza por los datos declarados.
-                    </div>
-                </div>
             </div>
 
             <div class="totals-section">

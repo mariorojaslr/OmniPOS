@@ -85,6 +85,7 @@ class ConfiguracionEmpresaController extends Controller
                 'direccion_fiscal'   => $request->direccion_fiscal,
                 'dia_cierre_periodo' => $request->dia_cierre_periodo ?? 0,
                 'arca_ambiente'      => $request->arca_ambiente ?? 'homologacion',
+                'arca_activo'        => $request->has('arca_activo'),
                 'config_pasarelas'   => $request->pasarelas ?? [],
             ];
 
