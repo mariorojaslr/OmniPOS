@@ -153,8 +153,8 @@ class DashboardController extends Controller
             ->sum('amount');
 
         $comprasMes = \App\Models\Purchase::where('empresa_id', $empresaId)
-            ->whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
+            ->whereMonth('purchase_date', now()->month)
+            ->whereYear('purchase_date', now()->year)
             ->sum('total');
 
         /*
