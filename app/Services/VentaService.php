@@ -87,8 +87,8 @@ class VentaService
             $afipError = null;
 
             // FACTURACIÓN ELECTRÓNICA AFIP (AUTO-DETECCIÓN)
-            // Si la empresa tiene CUIT configurado y el comprobante es genérico, lo convertimos a fiscal.
-            if ($empresaActual->arca_cuit && in_array($tipoComprobante, ['ticket', 'factura', 'F', 'B', 'C', 'X', 'NC', 'nota_credito'])) {
+            // Si la empresa tiene CUIT configurado, AFIP ACTIVO y el comprobante es genérico, lo convertimos a fiscal.
+            if ($empresaActual->arca_cuit && $empresaActual->arca_activo && in_array($tipoComprobante, ['ticket', 'factura', 'F', 'B', 'C', 'X', 'NC', 'nota_credito'])) {
                 
                 // Mapeo automático de Ticket -> Factura Fiscal según condición IVA
                 if ($tipoComprobante === 'ticket' || $tipoComprobante === 'X' || $tipoComprobante === 'factura') {
