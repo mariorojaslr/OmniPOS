@@ -224,11 +224,9 @@
             @php
                 $mainImg = $product->images->where('is_main', 1)->first() ?? $product->images->first();
                 $isNew = $product->created_at->diffInDays(now()) <= ($empresa->config->dias_nuevo ?? 7);
-                $isTop = ($product->sales ?? 0) > 5;
-                $isPromo = $product->price < ($empresa->config->precio_oferta ?? 5000);
             @endphp
 
-            <div class="product-item" data-name="{{ strtolower($product->name) }}" data-new="{{ $isNew ? '1' : '0' }}" data-top="{{ $isTop ? '1' : '0' }}" data-promo="{{ $isPromo ? '1' : '0' }}">
+            <div class="product-item">
                 <div class="premium-card-ultra">
                     <div class="image-box">
                         @if($isNew) <span class="badge bg-success position-absolute m-3 px-3 py-2 fw-bold rounded-pill">NUEVO</span> @endif
@@ -244,58 +242,46 @@
             </div>
         @empty
             <div class="text-center py-5" style="grid-column: 1 / -1;">
-                <p class="text-secondary fw-bold fs-4">AÚN NO HAY PRODUCTOS DISPONIBLES.</p>
+                <p class="text-secondary fw-bold fs-4">AÚN NO HAY PRODUCTOS DISPONIBLES EN ESTA SECCIÓN.</p>
             </div>
         @endforelse
     </div>
 
+    {{-- PAGINACIÓN PREMIUM --}}
+    <div class="mt-5 d-flex justify-content-center">
+        {{ $products->links() }}
+    </div>
+
     <div id="emptyState" class="text-center py-5" style="display: none;">
         <h2 class="fw-bold text-slate-800">SIN RESULTADOS</h2>
-        <button class="btn btn-outline-primary rounded-pill px-5 mt-4 fw-bold" onclick="resetFilters()">MOSTRAR TODO</button>
+        <button class="btn btn-outline-primary rounded-pill px-5 mt-4 fw-bold" onclick="location.href='{{ route('catalog.index', $empresa) }}'">MOSTRAR TODO</button>
     </div>
 
 </div>
 
 <script>
-    // Lógica de filtrado idéntica pero para la nueva UI
-    const searchInput = document.getElementById('searchInput');
+    // Los filtros ahora se manejan por URL (Servidor), así que el JS solo se encarga de cambiar la URL
     const filterPills = document.querySelectorAll('.filter-pill');
-    const items = document.querySelectorAll('.product-item');
-    const emptyState = document.getElementById('emptyState');
-
-    function applyFilters() {
-        const query = searchInput.value.toLowerCase();
-        const activeFilter = document.querySelector('.filter-pill.active').dataset.filter;
-        let visibleCount = 0;
-
-        items.forEach(item => {
-            const matchesSearch = item.dataset.name.includes(query);
-            const matchesFilter = activeFilter === 'all' || item.dataset[activeFilter] === '1';
-
-            if (matchesSearch && matchesFilter) {
-                item.style.display = 'block';
-                visibleCount++;
-            } else {
-                item.style.display = 'none';
-            }
-        });
-
-        emptyState.style.display = (visibleCount === 0 && items.length > 0) ? 'block' : 'none';
-    }
-
-    searchInput.addEventListener('input', applyFilters);
+    
     filterPills.forEach(pill => {
         pill.addEventListener('click', () => {
-            filterPills.forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
-            applyFilters();
+            const filter = pill.dataset.filter;
+            const url = new URL(window.location.href);
+            if (filter === 'all') {
+                url.searchParams.delete('filtro');
+            } else {
+                url.searchParams.set('filtro', filter);
+            }
+            window.location.href = url.toString();
         });
     });
 
-    function resetFilters() {
-        searchInput.value = '';
-        document.querySelector('[data-filter="all"]').click();
-    }
+    // Mantener estado activo del filtro actual
+    const currentFilter = "{{ $filtro ?? 'all' }}";
+    document.querySelectorAll('.filter-pill').forEach(p => {
+        if (p.dataset.filter === currentFilter) p.classList.add('active');
+        else p.classList.remove('active');
+    });
 </script>
 
 @endsection

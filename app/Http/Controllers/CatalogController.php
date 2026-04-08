@@ -59,7 +59,7 @@ class CatalogController extends Controller
                 break;
         }
 
-        $products = $query->get();
+        $products = $query->paginate(24)->withQueryString();
 
         return view('catalog.index', compact('empresa', 'products', 'filtro'));
     }
