@@ -96,4 +96,48 @@ class PresupuestoController extends Controller
             return back()->with('error', 'Error al generar el presupuesto: ' . $e->getMessage());
         }
     }
+
+    public function pdf($id)
+    {
+        $user = Auth::user();
+        $empresa = $user->empresa;
+
+        $presupuesto = $empresa->presupuestos()
+            ->with(['client', 'items.product.images'])
+            ->findOrFail($id);
+
+        // Procesar Logo Empresa
+        $logoBase64 = null;
+        if ($empresa->config && $empresa->config->logo) {
+            $logoPath = $empresa->config->logo;
+            $fullLogoPath = storage_path('app/public/' . $logoPath);
+            if (file_exists($fullLogoPath)) {
+                $type = pathinfo($fullLogoPath, PATHINFO_EXTENSION);
+                $data = file_get_contents($fullLogoPath);
+                $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            }
+        }
+
+        // Procesar Imágenes de Productos en base64
+        foreach ($presupuesto->items as $item) {
+            $item->image_base64 = null;
+            if ($item->product && $item->product->images->count() > 0) {
+                $imgPath = $item->product->images->first()->path;
+                $fullImgPath = storage_path('app/public/' . $imgPath);
+                if (file_exists($fullImgPath)) {
+                    $type = pathinfo($fullImgPath, PATHINFO_EXTENSION);
+                    $data = file_get_contents($fullImgPath);
+                    $item->image_base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                }
+            }
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.presupuesto', [
+            'empresa'     => $empresa,
+            'presupuesto' => $presupuesto,
+            'logoBase64'  => $logoBase64
+        ]);
+
+        return $pdf->stream("Presupuesto-{$presupuesto->numero}.pdf");
+    }
 }

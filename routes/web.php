@@ -387,6 +387,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         // PRESUPUESTOS (NUEVO)
         Route::resource('presupuestos', App\Http\Controllers\Empresa\PresupuestoController::class);
+        Route::get('/presupuestos/{presupuesto}/pdf', [App\Http\Controllers\Empresa\PresupuestoController::class, 'pdf'])->name('presupuestos.pdf');
 
         /*
      |--------------------------------------------------------------------------

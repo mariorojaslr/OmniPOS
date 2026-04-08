@@ -117,12 +117,19 @@
                         </td>
                         <td class="text-end pe-4">
                             <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-dark rounded-pill px-3 ms-1">
+                                <a href="{{ route('empresa.presupuestos.pdf', $presu->id) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Ver / Imprimir PDF">
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 ms-1" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-three-dots"></i>
                                 </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                                    <li><a class="dropdown-item" href="{{ route('empresa.presupuestos.pdf', $presu->id) }}" target="_blank"><i class="bi bi-printer me-2"></i> Imprimir</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i> Editar</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-success" href="#"><i class="bi bi-check-circle me-2"></i> Aceptar</a></li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-circle me-2"></i> Rechazar</a></li>
+                                </ul>
                             </div>
                         </td>
                     </tr>
