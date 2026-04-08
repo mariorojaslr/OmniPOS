@@ -155,9 +155,17 @@
                                 <i class="bi bi-three-dots-vertical" style="font-size: 0.75rem;"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg" style="font-size: 0.8rem;">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-eye me-2 text-primary"></i> Detalle</a></li>
+                                <li><a class="dropdown-item" href="{{ route('empresa.gastos.edit', $gasto->id) }}"><i class="bi bi-pencil me-2 text-primary"></i> Editar</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i> Eliminar</a></li>
+                                <li>
+                                    <form action="{{ route('empresa.gastos.destroy', $gasto->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este gasto? No se puede deshacer.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="bi bi-trash me-2"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     </td>

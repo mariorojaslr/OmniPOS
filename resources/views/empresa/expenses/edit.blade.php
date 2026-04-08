@@ -3,8 +3,8 @@
 @section('content')
 <div class="row align-items-center mb-4">
     <div class="col">
-        <h4 class="fw-bold mb-0">Editar Gasto</h4>
-        <p class="text-muted mb-0">Modifica los detalles del registro seleccionado.</p>
+        <h4 class="fw-bold mb-0">Editar Registro de Gasto</h4>
+        <p class="text-muted mb-0">Corregí montos, categorías o actualizá el comprobante.</p>
     </div>
     <div class="col-auto">
         <a href="{{ route('empresa.gastos.index') }}" class="btn btn-light border rounded-pill px-4 shadow-sm">
@@ -18,7 +18,8 @@
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-body p-4">
                 <form action="{{ route('empresa.gastos.update', $gasto->id) }}" method="POST">
-                    @csrf @method('PUT')
+                    @csrf
+                    @method('PUT')
                     
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
@@ -48,19 +49,37 @@
                         <label class="form-label fw-bold">Descripción / Notas / Foto *</label>
                         <textarea name="description" id="expenseArea" 
                                   data-upload-url="{{ route('empresa.gastos.uploadMedia') }}"
-                                  class="form-control rounded-4 p-3 bg-light border-0" rows="8" required>{{ old('description', $gasto->description) }}</textarea>
-                        <div id="livePreview" class="mt-3 p-3 border rounded-4 bg-white shadow-sm" style="display:block; max-height: 400px; overflow-y: auto;">
+                                  class="form-control rounded-4 p-3 bg-light border-0" rows="8" 
+                                  placeholder="Explica en qué se gastó... TIP: ¡Pega aquí la foto del ticket (Ctrl+V)!" required>{{ $gasto->description }}</textarea>
+                        
+                        <div id="livePreview" class="mt-3 p-3 border rounded-4 bg-white shadow-sm" style="{{ $gasto->description ? '' : 'display:none;' }} max-height: 400px; overflow-y: auto;">
                             <label class="small fw-bold text-primary mb-2 d-block text-uppercase">Vista Previa:</label>
                             <div id="previewContent" class="text-secondary small overflow-hidden"></div>
+                        </div>
+                        
+                        <div class="form-text mt-2 text-muted small">
+                            <i class="bi bi-info-circle me-1"></i> Describí el gasto. Si pegás una imagen, se guardará como comprobante visual.
                         </div>
                     </div>
 
                     <div class="pt-2">
-                        <button type="submit" class="btn btn-dark w-100 rounded-pill py-3 fw-bold shadow-sm">
-                            Guardar Cambios en el Gasto
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm">
+                            Actualizar Registro de Gasto
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 rounded-4 bg-primary text-white p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-lightbulb me-2"></i>Edición Segura</h5>
+            <div class="small lh-lg">
+                <p class="mb-3">Los cambios que realices aquí impactarán inmediatamente en tus reportes financieros y cierres de caja.</p>
+                <p class="mb-3">Si cambias la categoría, el gasto se reagrupará automáticamente en el gráfico de torta de la próxima auditoría.</p>
+                <hr class="bg-white opacity-25">
+                <p class="fst-italic opacity-75">MultiPOS mantiene la integridad de tus datos contables en tiempo real.</p>
             </div>
         </div>
     </div>
@@ -86,7 +105,11 @@ function updatePreview() {
     content.innerHTML = rendered;
 }
 
+// Inicializar vista previa
+document.addEventListener('DOMContentLoaded', updatePreview);
+
 document.getElementById('expenseArea').addEventListener('input', updatePreview);
+
 document.getElementById('expenseArea').addEventListener('paste', function (e) {
     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
     for (let index in items) {
@@ -125,9 +148,6 @@ document.getElementById('expenseArea').addEventListener('paste', function (e) {
         }
     }
 });
-
-// Init
-updatePreview();
 </script>
 @endpush
 @endsection
