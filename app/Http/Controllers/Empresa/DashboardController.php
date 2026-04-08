@@ -138,20 +138,23 @@ class DashboardController extends Controller
 
         /*
         |----------------------------------------------------------------------
-        | MÉTRICAS CANAL LOCAL (POS)
+        | MÉTRICAS CANAL LOCAL (POS) - ACUMULADO MES PARA GRÁFICOS
         |----------------------------------------------------------------------
+        | Se usa el mes actual para que el gráfico tenga contexto histórico inmediato.
         */
         $ventasLocalHoy = DB::table('ventas')
             ->where('empresa_id', $empresaId)
             ->whereDate('created_at', today())
             ->sum('total_con_iva');
 
-        $gastosHoy = \App\Models\Expense::where('empresa_id', $empresaId)
-            ->whereDate('created_at', today())
+        $gastosMes = \App\Models\Expense::where('empresa_id', $empresaId)
+            ->whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
             ->sum('amount');
 
-        $comprasHoy = \App\Models\Purchase::where('empresa_id', $empresaId)
-            ->whereDate('created_at', today())
+        $comprasMes = \App\Models\Purchase::where('empresa_id', $empresaId)
+            ->whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
             ->sum('total');
 
         /*
@@ -174,7 +177,7 @@ class DashboardController extends Controller
         $saludVentasInternet = round(($ventasInternetHoy / $maxCanal) * 100);
 
         // Evaluación Neta (Ventas - Gastos - Compras)
-        $totalEgresos = $gastosHoy + $comprasHoy;
+        $totalEgresos = $gastosMes + $comprasMes;
         $balanceLocal = $ventasLocalHoy - $totalEgresos;
 
         // Cálculos proporcionales directos (Gasto vs Inversión)
@@ -182,8 +185,8 @@ class DashboardController extends Controller
         $gastosPerc = 0;
         $comprasPerc = 0;
         if ($totalEgresos > 0) {
-            $gastosPerc = round(($gastosHoy / $totalEgresos) * 100);
-            $comprasPerc = round(($comprasHoy / $totalEgresos) * 100);
+            $gastosPerc = round(($gastosMes / $totalEgresos) * 100);
+            $comprasPerc = round(($comprasMes / $totalEgresos) * 100);
         }
 
         // Evaluación Neta: Salud del negocio basada en ingresos vs egresos totales
@@ -199,8 +202,8 @@ class DashboardController extends Controller
             'empresa' => $empresa,
             'ventasLocalHoy' => $ventasLocalHoy,
             'ventasInternetHoy' => $ventasInternetHoy,
-            'gastosHoy' => $gastosHoy,
-            'comprasHoy' => $comprasHoy,
+            'gastosHoy' => $gastosMes,
+            'comprasHoy' => $comprasMes,
             'ventasHoy' => $ventasLocalHoy + $ventasInternetHoy,
             'ventasMes' => $ventasMes,
             'cantidadVentasHoy' => $cantidadVentasHoy,
