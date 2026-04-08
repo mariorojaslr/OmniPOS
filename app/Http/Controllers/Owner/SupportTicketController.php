@@ -24,14 +24,20 @@ class SupportTicketController extends Controller
     {
         $request->validate([
             'status' => 'required|in:abierto,en_proceso,cerrado',
+            'priority' => 'nullable|in:baja,media,alta',
             'respuesta_owner' => 'nullable|string',
         ]);
 
         $ticket = SupportTicket::findOrFail($id);
         $ticket->update([
             'status' => $request->status,
+            'priority' => $request->priority ?? $ticket->priority,
             'respuesta_owner' => $request->respuesta_owner,
         ]);
+
+        if ($request->has('redirect_back')) {
+            return back()->with('success', 'Ticket actualizado con éxito.');
+        }
 
         return redirect()->route('owner.soporte.index')->with('success', 'Ticket actualizado.');
     }

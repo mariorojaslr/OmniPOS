@@ -356,5 +356,137 @@ document.addEventListener('DOMContentLoaded', function () {
 @yield('scripts')
 @stack('scripts')
 
+<!-- CENTER OF KNOWLEDGE (AYUDA CONTEXTUAL) -->
+<style>
+    #help-trigger {
+        position: fixed;
+        bottom: 25px;
+        left: 25px;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        cursor: pointer;
+        z-index: 9999;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid rgba(255,255,255,0.2);
+    }
+    #help-trigger:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 15px 35px rgba(59, 130, 246, 0.6); }
+
+    .offcanvas-help { 
+        width: 480px !important; 
+        background: rgba(15, 23, 42, 0.95) !important; 
+        backdrop-filter: blur(20px); 
+        color: #f8fafc;
+        border-left: 1px solid rgba(255,255,255,0.1);
+    }
+    .help-content img { max-width: 100%; border-radius: 12px; margin: 15px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+</style>
+
+<div id="help-trigger" onclick="openHelp()" title="Ayuda sobre esta página">
+    <i class="bi bi-question-lg"></i>
+</div>
+
+<div class="offcanvas offcanvas-end offcanvas-help" tabindex="-1" id="offcanvasHelp">
+    <div class="offcanvas-header border-bottom border-secondary">
+        <h5 class="offcanvas-title fw-bold">Manual de Operaciones</h5>
+        <button type="button" class="btn-close btn-close-white" onclick="closeHelp()"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="help-loading" class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2 text-muted">Buscando instrucciones...</p>
+        </div>
+
+        <div id="help-view-mode">
+            <div id="help-empty" style="display:none;" class="text-center py-5">
+                <i class="bi bi-journal-x fs-1 text-muted"></i>
+                <h5 class="mt-3">Sin instrucciones</h5>
+                <button class="btn btn-primary btn-sm mt-3" onclick="enterEditMode()">Crear Ayuda</button>
+            </div>
+
+            <div id="help-display" style="display:none;">
+                <h3 id="help-title" class="fw-bold mb-3"></h3>
+                <div id="help-body" class="help-content mb-4"></div>
+                <button class="btn btn-outline-primary w-100 fw-bold" onclick="enterEditMode()">Editar Manual</button>
+            </div>
+        </div>
+
+        <div id="help-edit-mode" style="display:none;">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Título</label>
+                <input type="text" id="edit-help-title" class="form-control bg-dark text-white border-secondary">
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Contenido</label>
+                <textarea id="edit-help-content" class="form-control"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success w-100 fw-bold" onclick="saveHelp()">GUARDAR</button>
+                <button class="btn btn-light" onclick="exitEditMode()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
+<script>
+    const helpModal = new bootstrap.Offcanvas(document.getElementById('offcanvasHelp'));
+    const currentRoute = "{{ Route::currentRouteName() }}";
+
+    function openHelp() {
+        helpModal.show();
+        $("#help-loading").show();
+        $("#help-view-mode, #help-edit-mode").hide();
+
+        $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
+            $("#help-loading").hide();
+            $("#help-view-mode").show();
+            if(res.success && res.data) {
+                $("#help-empty").hide(); $("#help-display").show();
+                $("#help-title").text(res.data.title);
+                $("#help-body").html(res.data.content);
+            } else {
+                $("#help-display").hide(); $("#help-empty").show();
+            }
+        });
+    }
+
+    function closeHelp() { helpModal.hide(); }
+
+    function enterEditMode() {
+        $("#help-view-mode").hide(); $("#help-edit-mode").show();
+        $("#edit-help-title").val($("#help-title").text());
+        $("#edit-help-content").summernote({ height: 300 });
+        $("#edit-help-content").summernote('code', $("#help-body").html());
+    }
+
+    function exitEditMode() { 
+        $("#help-edit-mode").hide(); 
+        $("#help-view-mode").show(); 
+    }
+
+    function saveHelp() {
+        const data = {
+            _token: "{{ csrf_token() }}",
+            route_name: currentRoute,
+            title: $("#edit-help-title").val(),
+            content: $("#edit-help-content").summernote('code')
+        };
+        $.post("{{ route('help.save') }}", data, function(res){
+            if(res.success) { exitEditMode(); openHelp(); }
+        });
+    }
+</script>
+
 </body>
 </html>
