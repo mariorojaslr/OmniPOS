@@ -97,6 +97,73 @@ class PresupuestoController extends Controller
         }
     }
 
+    public function edit($id)
+    {
+        $user = Auth::user();
+        $empresa = $user->empresa;
+
+        $presupuesto = $empresa->presupuestos()->with('items')->findOrFail($id);
+
+        return view('empresa.presupuestos.edit', [
+            'empresa'     => $empresa,
+            'presupuesto' => $presupuesto,
+            'clientes'    => $empresa->clients()->orderBy('name')->get(),
+            'productos'   => $empresa->products()->orderBy('name')->get(),
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'client_id'   => 'nullable|exists:clients,id',
+            'fecha'       => 'required|date',
+            'validez'     => 'required|integer|min:1',
+            'items'       => 'required|array|min:1',
+            'total_final' => 'required|numeric'
+        ]);
+
+        $user = Auth::user();
+        $empresa = $user->empresa;
+        $presupuesto = $empresa->presupuestos()->findOrFail($id);
+
+        try {
+            \DB::beginTransaction();
+
+            $presupuesto->update([
+                'client_id'   => $request->client_id,
+                'fecha'       => $request->fecha,
+                'vencimiento' => \Carbon\Carbon::parse($request->fecha)->addDays((int)$request->validez),
+                'subtotal'    => $request->total_final,
+                'total'       => $request->total_final,
+                'notas'       => $request->notas,
+                'estado'      => $request->status ?? $presupuesto->estado
+            ]);
+
+            // Eliminar items anteriores y cargar los nuevos
+            $presupuesto->items()->delete();
+
+            foreach ($request->items as $item) {
+                if (!empty($item['product_id'])) {
+                    $presupuesto->items()->create([
+                        'product_id'      => $item['product_id'],
+                        'descripcion'     => $item['descripcion'],
+                        'cantidad'        => $item['qty'],
+                        'precio_unitario' => $item['price'],
+                        'subtotal'        => $item['qty'] * $item['price'],
+                        'total'           => $item['qty'] * $item['price'],
+                    ]);
+                }
+            }
+
+            \DB::commit();
+            return redirect()->route('empresa.presupuestos.index')->with('success', "Presupuesto {$presupuesto->numero} actualizado con éxito.");
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->with('error', 'Error al actualizar el presupuesto: ' . $e->getMessage());
+        }
+    }
+
     public function pdf($id)
     {
         $user = Auth::user();

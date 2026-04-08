@@ -125,7 +125,7 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
                                     <li><a class="dropdown-item" href="{{ route('empresa.presupuestos.pdf', $presu->id) }}" target="_blank"><i class="bi bi-printer me-2"></i> Imprimir</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i> Editar</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('empresa.presupuestos.edit', $presu->id) }}"><i class="bi bi-pencil me-2"></i> Editar</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item text-success" href="#"><i class="bi bi-check-circle me-2"></i> Aceptar</a></li>
                                     <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-circle me-2"></i> Rechazar</a></li>
