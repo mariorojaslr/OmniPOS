@@ -190,6 +190,32 @@
             font-size: 0.85rem;
         }
     }
+
+    /* PAGINACIÓN PREMIUM */
+    .pagination {
+        gap: 8px;
+    }
+    .page-link {
+        border-radius: 10px !important;
+        border: 1px solid #e2e8f0;
+        color: #1e293b;
+        font-weight: 700;
+        padding: 10px 18px;
+        transition: 0.3s;
+    }
+    .page-link:hover {
+        background-color: var(--catalog-primary);
+        color: white;
+        border-color: var(--catalog-primary);
+    }
+    .page-item.active .page-link {
+        background-color: var(--catalog-primary);
+        border-color: var(--catalog-primary);
+    }
+    .pagination svg {
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+    }
 </style>
 
 <div class="glass-nav">
