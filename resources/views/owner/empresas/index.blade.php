@@ -40,10 +40,12 @@
                 {{-- Cabecera --}}
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-4">ID</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
+                        <th class="ps-4">Empresa</th>
                         <th>Plan</th>
+                        <th class="text-center">Artículos</th>
+                        <th class="text-center">Clientes</th>
+                        <th class="text-center">Ventas</th>
+                        <th class="text-center">Multimedia</th>
                         <th>Vencimiento</th>
                         <th>Estado</th>
                         <th class="text-end pe-4">Acciones</th>
@@ -55,31 +57,47 @@
                 @forelse ($empresas as $empresa)
 
                     @php
-                        // Estado centralizado desde el modelo Empresa
-                        // Activa | Vencida | Inactiva
                         $estado = $empresa->estadoLabel();
+                        $limiteProductos = $empresa->plan->max_products ?? 0;
+                        $sobrepasado = $limiteProductos > 0 && $empresa->products_count > $limiteProductos;
                     @endphp
 
                     <tr>
-                        {{-- ID --}}
+                        {{-- Empresa --}}
                         <td class="ps-4">
-                            <span class="badge bg-light text-dark">#{{ $empresa->id }}</span>
-                        </td>
-
-                        {{-- Nombre comercial --}}
-                        <td class="fw-semibold">
-                            {{ $empresa->nombre_comercial }}
-                        </td>
-
-                        {{-- Email --}}
-                        <td>
-                            {{ $empresa->email ?? '—' }}
+                            <div class="fw-bold">{{ $empresa->nombre_comercial }}</div>
+                            <small class="text-muted">{{ $empresa->email }}</small>
                         </td>
 
                         {{-- Plan --}}
                         <td>
                             <span class="badge bg-info text-dark">
                                 {{ $empresa->plan->name ?? '-' }}
+                            </span>
+                        </td>
+
+                        {{-- Artículos --}}
+                        <td class="text-center">
+                            <span class="fw-bold {{ $sobrepasado ? 'text-danger' : 'text-primary' }}">
+                                {{ $empresa->products_count }}
+                            </span>
+                            <span class="text-muted small">/ {{ $limiteProductos ?: '∞' }}</span>
+                        </td>
+
+                        {{-- Clientes --}}
+                        <td class="text-center">
+                            <span class="fw-bold">{{ $empresa->clients_count }}</span>
+                        </td>
+
+                        {{-- Ventas --}}
+                        <td class="text-center">
+                            <span class="fw-bold text-success">{{ $empresa->ventas_count }}</span>
+                        </td>
+
+                        {{-- Multimedia --}}
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-images me-1"></i> {{ $empresa->product_images_count }}
                             </span>
                         </td>
 

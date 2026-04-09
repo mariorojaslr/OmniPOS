@@ -249,50 +249,51 @@
 
     {{-- METRICAS CORE (LEVEL 1) --}}
     <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <a href="{{ route('owner.empresas.index') }}" class="oled-card clickable-card">
-                <div class="stat-label">Empresas Activas</div>
-                <div class="stat-value text-glow-primary">{{ $empresasCount }}</div>
-                <div class="mt-3">
-                    <span class="stat-mini-label">{{ $empresasActivas }} OPERATIVAS</span>
-                    <div class="progress mt-1" style="height: 3px; background: rgba(255,255,255,0.05);">
-                        <div class="progress-bar bg-primary" style="width: 85%"></div>
-                    </div>
-                </div>
+                <div class="stat-label">Empresas</div>
+                <div class="stat-value text-glow-primary" style="font-size: 2rem;">{{ $empresasCount }}</div>
+                <div class="stat-mini-label">{{ $empresasActivas }} OK</div>
             </a>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
             <a href="{{ route('owner.empresas.index') }}" class="oled-card clickable-card">
-                <div class="stat-label">Usuarios Globales</div>
-                <div class="stat-value text-glow-purple">{{ $usuariosCount }}</div>
-                <div class="mt-3">
-                    <span class="stat-mini-label">TRÁFICO CONCURRENTE</span>
-                    <div class="progress mt-1" style="height: 3px; background: rgba(255,255,255,0.05);">
-                        <div class="progress-bar bg-purple" style="width: 40%"></div>
-                    </div>
-                </div>
+                <div class="stat-label">Usuarios</div>
+                <div class="stat-value text-glow-purple" style="font-size: 2rem;">{{ $usuariosCount }}</div>
+                <div class="stat-mini-label">ACTIVOS</div>
             </a>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <div class="oled-card">
+                <div class="stat-label">Artículos</div>
+                <div class="stat-value text-glow-primary" style="font-size: 2rem;">{{ $articulosCount }}</div>
+                <div class="stat-mini-label">SKU TOTAL</div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="oled-card">
+                <div class="stat-label text-success">Clientes</div>
+                <div class="stat-value text-glow-success" style="font-size: 2rem;">{{ $clientesCount }}</div>
+                <div class="stat-mini-label">REGISTRADOS</div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
             <a href="{{ route('owner.facturacion.index') }}" class="oled-card clickable-card" style="border-color: rgba(34, 197, 94, 0.3);">
-                <div class="radar-sweep radar-sweep-green"></div>
-                <div class="stat-label text-success">MRR Proyectado</div>
-                <div class="stat-value text-glow-success" style="font-size: 2.2rem;">{{ $mrr }}</div>
-                <div class="mt-3">
-                    <span class="stat-mini-label">CRECIMIENTO +12%</span>
-                </div>
+                <div class="stat-label text-success">MRR</div>
+                <div class="stat-value text-glow-success" style="font-size: 1.8rem;">{{ $mrr }}</div>
+                <div class="stat-mini-label">MENSUAL</div>
             </a>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
             <a href="{{ route('owner.facturacion.index') }}" class="oled-card clickable-card">
-                <div class="stat-label text-warning">Ventas del Mes</div>
-                <div class="stat-value text-glow-warning" style="font-size: 2.2rem;">{{ $facturacionMes }}</div>
-                <div class="mt-3">
-                    <span class="stat-mini-label">RENOVACIONES OK</span>
-                </div>
+                <div class="stat-label text-warning">Ventas Mes</div>
+                <div class="stat-value text-glow-warning" style="font-size: 1.8rem;">{{ $facturacionMes }}</div>
+                <div class="stat-mini-label">RENOVACIONES</div>
             </a>
         </div>
     </div>

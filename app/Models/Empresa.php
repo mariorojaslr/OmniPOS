@@ -85,6 +85,23 @@ class Empresa extends Model
         return $this->hasMany(\App\Models\Client::class);
     }
 
+    public function ventas()
+    {
+        return $this->hasMany(\App\Models\Venta::class);
+    }
+
+    public function productImages()
+    {
+        return $this->hasManyThrough(
+            \App\Models\ProductImage::class,
+            \App\Models\Product::class,
+            'empresa_id', // Foreign key on products table...
+            'product_id', // Foreign key on product_images table...
+            'id', // Local key on empresas table...
+            'id' // Local key on products table...
+        );
+    }
+
     // =========================================================
 
     public function plan()

@@ -50,10 +50,15 @@ class DashboardController extends Controller
         // ⚙️ CONFIGURACIONES DEL SISTEMA
         $settings = \App\Models\SystemSetting::pluck('value', 'key')->toArray();
 
+        $articulosCountValue = \App\Models\Product::count();
+        $clientesCountValue  = \App\Models\Client::count();
+
         return view('owner.dashboard', [
             'empresasCount'    => $empresasCount,
             'empresasActivas'  => $empresasActivas,
             'usuariosCount'    => $usuariosCount,
+            'articulosCount'   => number_format($articulosCountValue, 0, ',', '.'),
+            'clientesCount'    => number_format($clientesCountValue, 0, ',', '.'),
             'consumoStorage'    => ($consumoGB ?: '0.0') . ' GB',
             'costoStorage'      => '$' . number_format($costoStorage, 2),
             'consumoTrafico'    => ($consumoGB * 2.5 ?: '0.0') . ' GB',

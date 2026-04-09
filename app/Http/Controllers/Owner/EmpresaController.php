@@ -18,6 +18,7 @@ class EmpresaController extends Controller
         
         return view('owner.empresas.index', [
             'empresas' => Empresa::with('plan')
+                ->withCount(['products', 'clients', 'ventas', 'productImages'])
                 ->orderBy('nombre_comercial')
                 ->paginate($perPage)
                 ->appends(['per_page' => $perPage]), // Mantener el filtro al navegar
