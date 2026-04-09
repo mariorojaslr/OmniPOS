@@ -79,12 +79,15 @@ return Application::configure(basePath: dirname(__DIR__))
                     'severity' => 'medio'
                 ]);
 
+                // DETERMINAMOS EL PREFIJO SEGÚN EL ENTORNO
+                $envLabel = config('app.env') === 'production' ? '🔥 [CRÍTICO]' : '🧪 [STAGING]';
+
                 // 2. CREAMOS EL TICKET DE SOPORTE VIVO PARA EL OWNER (VIP)
                 \App\Models\SupportTicket::create([
                     'empresa_id' => $user->empresa_id ?? null,
                     'user_id' => $user->id ?? null,
-                    'subject' => '🔥 [CRÍTICO] ERROR DE SISTEMA: ' . substr($e->getMessage(), 0, 40) . '...',
-                    'message' => "ERROR AUTOMÁTICO DETECTADO POR EL SISTEMA:\n\n" . 
+                    'subject' => $envLabel . ' ERROR DE SISTEMA: ' . substr($e->getMessage(), 0, 40) . '...',
+                    'message' => "ERROR AUTOMÁTICO DETECTADO EN [" . strtoupper(config('app.env')) . "]:\n\n" . 
                                  "MENSAJE: " . $e->getMessage() . "\n" .
                                  "ARCHIVO: " . $e->getFile() . " (Línea: " . $e->getLine() . ")\n" .
                                  "URL: " . request()->fullUrl() . "\n" .
