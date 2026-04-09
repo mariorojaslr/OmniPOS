@@ -480,21 +480,37 @@ body{
     .help-pulse { animation: pulse-help 2s infinite; }
     @keyframes pulse-help {
         0% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0.7); }
-        70% { box-shadow: 0 0 0 15px rgba(var(--color-primario-rgb), 0); }
-        100% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0); }
+        70% { box-shadow: 0 0 0 15px rgba(0, 0, 0, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
     }
 
     .offcanvas-help { 
-        width: 480px !important; 
+        position: fixed !important;
+        top: 20px;
+        right: 20px;
+        width: 480px; 
+        min-width: 350px;
+        max-width: 90vw;
+        height: calc(100vh - 40px);
         background: rgba(255, 255, 255, 0.7) !important; 
         backdrop-filter: blur(25px) saturate(180%); 
         -webkit-backdrop-filter: blur(25px) saturate(180%);
         border: 1px solid rgba(255,255,255,0.4) !important;
         border-radius: 24px !important;
-        margin: 15px;
-        height: calc(100vh - 30px) !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        z-index: 1070;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    .offcanvas-help.show {
+        display: flex;
+        opacity: 1;
+        transform: translateX(0);
     }
 
     @if($modoOscuro)
@@ -505,64 +521,88 @@ body{
     }
     @endif
 
+    .help-drag-handle {
+        cursor: move;
+        padding: 20px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        user-select: none;
+    }
+
     .help-header-gradient {
         background: linear-gradient(135deg, var(--color-primario) 0%, #6366f1 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
         letter-spacing: -0.5px;
+        margin: 0;
     }
 
-    .help-card-edit {
-        background: rgba(var(--color-primario-rgb), 0.05);
-        border: 1px dashed var(--color-primario);
-        border-radius: 16px;
-        padding: 20px;
+    /* Resize Handle */
+    .help-resize-handle {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 10px;
+        cursor: ew-resize;
+        background: transparent;
+    }
+    .help-resize-handle:hover {
+        background: rgba(var(--color-primario-rgb), 0.1);
     }
 
-    .help-content img { max-width: 100%; border-radius: 12px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid white; }
+    .help-content img { max-width: 100%; border-radius: 12px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5); }
     .help-content iframe { width: 100%; border-radius: 16px; aspect-ratio: 16/9; margin: 20px 0; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
     
-    /* Scrollbar elegante */
-    .offcanvas-body::-webkit-scrollbar { width: 6px; }
-    .offcanvas-body::-webkit-scrollbar-track { background: transparent; }
-    .offcanvas-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+    .help-body-scroll {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 0 25px 25px 25px;
+    }
+
+    .help-body-scroll::-webkit-scrollbar { width: 6px; }
+    .help-body-scroll::-webkit-scrollbar-track { background: transparent; }
+    .help-body-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
 </style>
 
-<div id="help-trigger" onclick="openHelp()" title="Ayuda sobre esta página">
+<div id="help-trigger" onclick="openHelp()" title="Manual dinámico">
     <i class="bi bi-magic"></i>
 </div>
 
-<div class="offcanvas offcanvas-end offcanvas-help" tabindex="-1" id="offcanvasHelp">
-    <div class="offcanvas-header border-0 pb-0">
+<div class="offcanvas-help" id="offcanvasHelp">
+    <div class="help-resize-handle" id="helpResize"></div>
+    <div class="help-drag-handle d-flex justify-content-between align-items-center" id="helpDrag">
         <div class="d-flex flex-column">
-            <span class="badge bg-primary bg-opacity-10 text-primary mb-1 fw-bold" style="width: fit-content; font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase;">Knowledge Center</span>
-            <h4 class="offcanvas-title help-header-gradient">Centro de Aprendizaje</h4>
+            <span class="badge bg-primary bg-opacity-10 text-primary mb-1 fw-bold" style="width: fit-content; font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase;">Knowledge Center</span>
+            <h5 class="help-header-gradient">Panel de Ayuda</h5>
         </div>
-        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" onclick="closeHelp()"></button>
+        <button type="button" class="btn-close shadow-none" onclick="closeHelp()"></button>
     </div>
-    <div class="offcanvas-body pt-4">
+    
+    <div class="help-body-scroll">
         <div id="help-loading" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2 text-muted">Buscando instrucciones...</p>
+            <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
+            <p class="mt-2 text-muted x-small">Sincronizando manual...</p>
         </div>
 
         <div id="help-view-mode">
-            <div id="help-empty" style="display:none;" class="text-center py-5">
-                <i class="bi bi-journal-x fs-1 text-muted"></i>
-                <h5 class="mt-3">Sin instrucciones aún</h5>
-                <p class="text-muted small">Esta página todavía no tiene contenido de ayuda asignado.</p>
-                <button class="btn btn-primary btn-sm mt-3" onclick="enterEditMode()">
-                    <i class="bi bi-pencil-square me-1"></i> Crear Ayuda para esta Página
+            <div id="help-empty" style="display:none;" class="text-center py-5 mt-4">
+                <div class="mb-4">
+                    <i class="bi bi-journal-x fs-1 opacity-25"></i>
+                </div>
+                <h5 class="fw-bold">Sin instrucciones</h5>
+                <p class="text-muted small">Esta sección aún no cuenta con un manual descriptivo asociado.</p>
+                <button class="btn btn-primary btn-sm mt-3 px-4 rounded-pill fw-bold" onclick="enterEditMode()">
+                    <i class="bi bi-pencil-square me-1"></i> Crear Ayuda
                 </button>
             </div>
 
-            <div id="help-display" style="display:none;">
-                <h3 id="help-title" class="fw-bold mb-3"></h3>
-                <div id="help-body" class="help-content mb-4"></div>
+            <div id="help-display" style="display:none;" class="mt-2">
+                <h3 id="help-title" class="fw-bold mb-3 text-dark"></h3>
+                <div id="help-body" class="help-content mb-4 text-muted" style="font-size: 0.95rem; line-height: 1.6;"></div>
                 
-                <hr>
-                <button class="btn btn-outline-primary w-100 fw-bold" onclick="enterEditMode()">
+                <hr class="opacity-10 mb-4">
+                <button class="btn btn-outline-primary w-100 fw-bold py-2 rounded-3" onclick="enterEditMode()">
                     <i class="bi bi-pencil-square me-1"></i> Editar este Manual
                 </button>
             </div>
@@ -600,20 +640,54 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/lang/summernote-es-ES.min.js"></script>
 
 <script>
-    const helpModal = new bootstrap.Offcanvas(document.getElementById('offcanvasHelp'));
+    const helpPanel = document.getElementById('offcanvasHelp');
+    const helpDrag = document.getElementById('helpDrag');
+    const helpResize = document.getElementById('helpResize');
     const currentRoute = "{{ Route::currentRouteName() }}";
 
-    // Detectar si hay ayuda al cargar la página para animar el botón
-    $(document).ready(function() {
-        $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
-            if(res.success && res.data) {
-                $('#help-trigger').addClass('help-pulse');
+    let isDragging = false;
+    let isResizing = false;
+    let startX, startY, startWidth, startRight, startTop;
+
+    // --- LÓGICA DE ARRASTRE (DRAG) ---
+    helpDrag.addEventListener('mousedown', (e) => {
+        if(e.target.closest('button')) return; // No arrastrar si toca el botón de cerrar
+        isDragging = true;
+        startX = e.clientX - helpPanel.offsetLeft;
+        startY = e.clientY - helpPanel.offsetTop;
+        helpPanel.style.transition = 'none'; // Quitar transición para suavidad total
+    });
+
+    // --- LÓGICA DE REDIMENSIÓN (RESIZE) ---
+    helpResize.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        startX = e.clientX;
+        startWidth = parseInt(document.defaultView.getComputedStyle(helpPanel).width, 10);
+        helpPanel.style.transition = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            helpPanel.style.left = (e.clientX - startX) + 'px';
+            helpPanel.style.top = (e.clientY - startY) + 'px';
+            helpPanel.style.right = 'auto'; // Desactivar anclaje derecho
+        }
+        if (isResizing) {
+            const width = startWidth + (startX - e.clientX);
+            if (width > 350 && width < window.innerWidth * 0.9) {
+                helpPanel.style.width = width + 'px';
             }
-        });
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        isResizing = false;
+        helpPanel.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease';
     });
 
     function openHelp() {
-        helpModal.show();
+        $(helpPanel).addClass('show');
         $("#help-loading").show();
         $("#help-view-mode, #help-edit-mode").hide();
 
@@ -626,11 +700,6 @@ body{
                 $("#help-display").show();
                 $("#help-title").text(res.data.title);
                 $("#help-body").html(res.data.content);
-                
-                // Si hay video, podemos prepararlo
-                if(res.data.video_url) {
-                    // Lógica para embeber
-                }
             } else {
                 $("#help-display").hide();
                 $("#help-empty").show();
@@ -638,30 +707,27 @@ body{
         });
     }
 
-    function closeHelp() { helpModal.hide(); }
+    function closeHelp() { $(helpPanel).removeClass('show'); }
 
     function enterEditMode() {
         $("#help-view-mode").hide();
         $("#help-edit-mode").show();
         
-        // Cargar datos actuales si existen
         const currentTitle = $("#help-title").text();
         const currentContent = $("#help-body").html();
         
         $("#edit-help-title").val(currentTitle);
         $("#edit-help-content").summernote({
-            placeholder: 'Escribe las instrucciones aquí...',
+            placeholder: 'Instrucciones maestras...',
             tabsize: 2,
-            height: 300,
+            height: 350,
             lang: 'es-ES',
             toolbar: [
                 ['style', ['style']],
                 ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
                 ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
                 ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview']]
+                ['view', ['codeview']]
             ]
         });
         $("#edit-help-content").summernote('code', currentContent);
@@ -682,15 +748,14 @@ body{
         };
 
         if(!data.title || !data.content) {
-            alert("Por favor completa el título y el contenido.");
+            alert("Título y contenido requeridos.");
             return;
         }
 
         $.post("{{ route('help.save') }}", data, function(res){
             if(res.success) {
-                alert("¡Manual guardado con éxito!");
                 exitEditMode();
-                openHelp(); // Recargar vista
+                openHelp();
                 $('#help-trigger').addClass('help-pulse');
             }
         });
