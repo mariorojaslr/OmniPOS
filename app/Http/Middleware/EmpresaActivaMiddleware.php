@@ -34,9 +34,10 @@ class EmpresaActivaMiddleware
         /*
         |--------------------------------------------------------------------------
         | VERIFICACIÓN DE ONBOARDING (PAY-BEFORE-CREATE)
+        | Solo aplica a dueños que están en proceso de alta inicial y no tienen empresa.
         |--------------------------------------------------------------------------
         */
-        if ($user->esProspecto() || $user->pendientePago()) {
+        if (($user->esProspecto() || $user->pendientePago()) && !$user->empresa_id) {
             if (!$request->routeIs('register.pay') && !$request->routeIs('register.payment.store') && !$request->routeIs('logout.get') && !$request->routeIs('demo.mode')) {
                 return redirect()->route('register.pay');
             }

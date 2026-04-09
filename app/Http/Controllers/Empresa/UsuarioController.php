@@ -69,8 +69,9 @@ class UsuarioController extends Controller
             'empresa_id' => auth()->user()->empresa_id,
             'role' => $request->role ?? 'usuario', // Ahora acepta 'empresa' o 'usuario'
             'sub_role' => $request->sub_role ?? 'cajero',
-            'can_register_expenses' => $request->has('can_register_expenses'), // Booleano: si existe el checkbox es true
+            'can_register_expenses' => $request->has('can_register_expenses'), 
             'activo' => 1,
+            'status' => 'activo', // 👈 Crucial para que no lo mande a pagar
         ]);
 
         return redirect()
