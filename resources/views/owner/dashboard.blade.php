@@ -6,7 +6,7 @@
     :root {
         --oled-black: #000000;
         --oled-card: rgba(12, 15, 22, 0.85);
-        --oled-border: rgba(255, 255, 255, 0.12);
+        --oled-border: rgba(255, 255, 255, 0.50);
         --accent-blue: #3b82f6;
         --accent-cyan: #22d3ee;
         --accent-purple: #a855f7;
@@ -14,8 +14,8 @@
         --accent-yellow: #eab308;
         --accent-red: #ef4444;
         --glass-white: rgba(255, 255, 255, 0.04);
-        --glass-border: rgba(255, 255, 255, 0.12);
-        --glass-border-strong: rgba(255, 255, 255, 0.18);
+        --glass-border: rgba(255, 255, 255, 0.50);
+        --glass-border-strong: rgba(255, 255, 255, 0.70);
     }
 
     body {
@@ -82,16 +82,16 @@
         background: rgba(15, 18, 28, 0.75);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid var(--glass-border-strong);
+        border: 1px solid rgba(255, 255, 255, 0.70);
         border-radius: 16px;
         padding: 1.5rem;
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         position: relative;
         overflow: hidden;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
     .oled-card:hover {
-        border-color: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.90);
         box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
 
@@ -100,7 +100,7 @@
         background: rgba(15, 18, 28, 0.7);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid var(--glass-border-strong);
+        border: 1px solid rgba(255, 255, 255, 0.70);
         border-radius: 14px;
         padding: 1.2rem 1rem;
         position: relative;
@@ -108,11 +108,11 @@
         transition: all 0.3s ease;
         text-decoration: none !important;
         display: block;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
     .kpi-card:hover {
         transform: translateY(-4px);
-        border-color: rgba(255, 255, 255, 0.28);
+        border-color: rgba(255, 255, 255, 0.95);
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
     .kpi-card .kpi-icon {
@@ -153,7 +153,7 @@
     .gauge-card {
         background: rgba(15, 18, 28, 0.7);
         backdrop-filter: blur(16px);
-        border: 1px solid var(--glass-border-strong);
+        border: 1px solid rgba(255, 255, 255, 0.70);
         border-radius: 16px;
         padding: 1rem;
         text-align: center;
@@ -209,7 +209,7 @@
     /* ===== COMMAND BUTTONS (Cristales interactivos) ===== */
     .cmd-btn {
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.50);
         color: #94a3b8;
         border-radius: 12px;
         padding: 10px 14px;
@@ -226,7 +226,7 @@
     }
     .cmd-btn:hover {
         background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.22);
+        border-color: rgba(255, 255, 255, 0.90);
         color: #fff;
         transform: translateX(4px);
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -238,7 +238,7 @@
     /* ===== COMPANY ROWS (Cristal con borde visible) ===== */
     .company-row {
         background: rgba(255, 255, 255, 0.025);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.55);
         border-radius: 12px;
         padding: 0.8rem 1rem;
         margin-bottom: 0.5rem;
