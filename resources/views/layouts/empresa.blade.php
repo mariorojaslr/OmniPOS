@@ -754,10 +754,16 @@ body{
 
         $.post("{{ route('help.save') }}", data, function(res){
             if(res.success) {
+                alert("✅ ¡Manual guardado con éxito!");
                 exitEditMode();
-                openHelp();
+                openHelp(); // Recargar vista
                 $('#help-trigger').addClass('help-pulse');
+            } else {
+                alert("❌ Error al guardar: " + (res.message || "Desconocido"));
             }
+        }).fail(function(err) {
+            console.error(err);
+            alert("❌ Error crítico del servidor. Verifique su conexión o contacte a soporte.");
         });
     }
 </script>
