@@ -5,325 +5,631 @@
 <style>
     :root {
         --oled-black: #000000;
-        --oled-card: #0a0a0a;
-        --oled-border: rgba(255, 255, 255, 0.1);
+        --oled-card: #080808;
+        --oled-card-hover: #0d0d0d;
+        --oled-border: rgba(255, 255, 255, 0.06);
         --accent-blue: #3b82f6;
+        --accent-cyan: #22d3ee;
         --accent-purple: #a855f7;
         --accent-green: #22c55e;
         --accent-yellow: #eab308;
+        --accent-red: #ef4444;
+        --accent-orange: #f97316;
+        --glass: rgba(255, 255, 255, 0.02);
+        --glass-border: rgba(255, 255, 255, 0.08);
     }
 
     body {
         background-color: var(--oled-black) !important;
         font-family: 'Outfit', sans-serif;
+        overflow-x: hidden;
     }
 
-    .premium-bg {
-        background: radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.05), transparent 30%),
-                    radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.05), transparent 30%);
+    /* ===== AMBIENT BACKGROUND ===== */
+    .command-center-bg {
+        position: relative;
+        min-height: 100vh;
+    }
+    .command-center-bg::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background:
+            radial-gradient(ellipse at 15% 5%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+            radial-gradient(ellipse at 85% 15%, rgba(168, 85, 247, 0.04) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 80%, rgba(34, 197, 94, 0.03) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
     }
 
+    /* ===== HEADER ===== */
     .header-title {
         font-weight: 800;
-        font-size: 2.2rem;
-        background: linear-gradient(to right, #fff, #94a3b8);
+        font-size: 2rem;
+        background: linear-gradient(135deg, #fff 0%, #60a5fa 50%, #a78bfa 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         letter-spacing: -1px;
     }
+    .header-subtitle {
+        font-size: 0.65rem;
+        letter-spacing: 3px;
+        color: #475569;
+        font-weight: 600;
+    }
+    .header-version {
+        font-size: 0.6rem;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: rgba(34, 211, 238, 0.08);
+        color: #22d3ee;
+        border: 1px solid rgba(34, 211, 238, 0.15);
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
 
+    /* ===== OLED CARDS ===== */
     .oled-card {
         background: var(--oled-card);
         border: 1px solid var(--oled-border);
-        border-radius: 20px;
-        padding: 1.8rem;
+        border-radius: 16px;
+        padding: 1.5rem;
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         position: relative;
         overflow: hidden;
     }
-
     .oled-card:hover {
-        transform: translateY(-8px);
-        border-color: rgba(255, 255, 255, 0.2);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        border-color: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     }
 
-    .oled-card::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0; height: 2px;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-        opacity: 0;
-        transition: opacity 0.4s;
+    /* ===== KPI METRIC CARDS ===== */
+    .kpi-card {
+        background: var(--oled-card);
+        border: 1px solid var(--oled-border);
+        border-radius: 14px;
+        padding: 1.2rem 1rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        text-decoration: none !important;
+        display: block;
     }
-
-    .oled-card:hover::after { opacity: 1; }
-
-    .stat-label {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        color: #60a5fa; /* Celeste atenuado */
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        padding-left: 2px;
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(255,255,255,0.15);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.5);
     }
-
-    .stat-value {
-        font-size: 2.8rem;
+    .kpi-card .kpi-icon {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        margin-bottom: 0.8rem;
+    }
+    .kpi-card .kpi-value {
+        font-size: 1.6rem;
         font-weight: 800;
         color: #fff;
         line-height: 1;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
+    }
+    .kpi-card .kpi-label {
+        font-size: 0.6rem;
+        letter-spacing: 1.5px;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .kpi-card .kpi-glow {
+        position: absolute;
+        top: -20px; right: -20px;
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        filter: blur(30px);
+        opacity: 0.15;
+        pointer-events: none;
     }
 
-    .stat-diff {
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-    .text-glow-primary { text-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
-    .text-glow-success { text-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
-    .text-glow-purple { text-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
-    .text-glow-warning { text-shadow: 0 0 20px rgba(234, 179, 8, 0.4); }
-
-    .infra-tag {
-        font-size: 0.7rem;
-        padding: 4px 10px;
-        border-radius: 6px;
-        background: rgba(255,255,255,0.05);
-        color: #94a3b8;
-        border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .command-btn {
+    /* ===== GAUGE CARDS ===== */
+    .gauge-card {
         background: var(--oled-card);
         border: 1px solid var(--oled-border);
-        color: #cbd5e1;
-        border-radius: 14px;
-        padding: 12px 20px;
+        border-radius: 16px;
+        padding: 1rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .gauge-card::before {
+        content: "";
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 2px;
+        border-radius: 0 0 16px 16px;
+    }
+    .gauge-label {
+        font-size: 0.6rem;
+        letter-spacing: 2px;
+        font-weight: 700;
+        margin-top: -5px;
+    }
+
+    /* ===== WIDGET HEADERS ===== */
+    .widget-header {
+        font-size: 0.65rem;
+        letter-spacing: 2px;
+        color: #fff;
+        font-weight: 700;
+        text-transform: uppercase;
+        opacity: 0.9;
+    }
+    .widget-header i {
+        font-size: 0.8rem;
+        opacity: 0.6;
+    }
+    .widget-link {
+        font-size: 0.6rem;
+        color: #64748b;
+        text-decoration: none;
+        letter-spacing: 1px;
         font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.3s;
+        transition: color 0.3s;
+    }
+    .widget-link:hover { color: #3b82f6; }
+
+    /* ===== ACTIVITY LOG ROWS ===== */
+    .activity-row {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+    .activity-row:hover {
+        background: rgba(59, 130, 246, 0.04);
+        border-left-color: #3b82f6;
+    }
+
+    /* ===== COMMAND BUTTONS ===== */
+    .cmd-btn {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        color: #94a3b8;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        transition: all 0.25s ease;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         width: 100%;
         text-align: left;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
         text-decoration: none;
     }
-
-    .command-btn:hover {
-        background: rgba(255,255,255,0.05);
-        border-color: rgba(255,255,255,0.2);
+    .cmd-btn:hover {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.15);
         color: #fff;
-        transform: translateX(5px);
+        transform: translateX(4px);
+    }
+    .cmd-btn i { font-size: 1.1rem; opacity: 0.7; }
+    .cmd-btn .cmd-label { font-size: 0.75rem; font-weight: 700; color: #e2e8f0; }
+    .cmd-btn .cmd-sub { font-size: 0.6rem; color: #64748b; font-weight: 500; }
+
+    /* ===== COMPANY ROWS ===== */
+    .company-row {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.25s ease;
+    }
+    .company-row:hover {
+        background: rgba(59, 130, 246, 0.03);
+        border-color: rgba(59, 130, 246, 0.15);
+    }
+    .company-avatar {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.7rem;
+        color: #fff;
     }
 
-    .command-btn i {
-        font-size: 1.2rem;
-        opacity: 0.7;
+    /* ===== TICKET ROWS ===== */
+    .ticket-row {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 0.7rem 1rem;
+        margin-bottom: 0.4rem;
+        transition: all 0.2s ease;
+    }
+    .ticket-row:hover {
+        background: rgba(239, 68, 68, 0.03);
+        border-color: rgba(239, 68, 68, 0.15);
     }
 
-    .scanline {
-        width: 100%;
-        height: 1px;
-        background: rgba(59, 130, 246, 0.1);
-        margin: 2rem 0;
+    /* ===== AGENT GRID ===== */
+    .agent-cell {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 0.6rem 0.4rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .agent-cell:hover {
+        border-color: rgba(34, 211, 238, 0.3);
+        background: rgba(34, 211, 238, 0.03);
+    }
+    .agent-cell .agent-count {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+    }
+    .agent-cell .agent-name {
+        font-size: 0.45rem;
+        letter-spacing: 1.5px;
+        color: #64748b;
+        font-weight: 700;
+        margin-top: 2px;
+    }
+    .agent-cell .agent-leads {
+        font-size: 0.45rem;
+        color: #22c55e;
+        font-weight: 800;
     }
 
-    .stat-mini-label { font-size: 0.7rem; color: #ffffff; letter-spacing: 1px; opacity: 0.8; }
+    /* ===== RESOURCE MONITOR ===== */
+    .resource-item {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 0.6rem;
+        text-align: center;
+    }
+    .resource-item .res-value {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: #fff;
+    }
+    .resource-item .res-label {
+        font-size: 0.45rem;
+        letter-spacing: 1px;
+        color: #64748b;
+        font-weight: 600;
+    }
 
-    /* Animaciones & Interactividad Premium */
-    .clickable-card {
-        display: block;
-        text-decoration: none !important;
-        color: inherit;
-        cursor: pointer;
-        outline: none;
+    /* ===== LIVE INDICATORS ===== */
+    .live-dot {
+        width: 6px; height: 6px;
+        background: #22c55e;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+        box-shadow: 0 0 8px #22c55e;
+        animation: pulse-dot 2s infinite;
     }
-    .clickable-card:active {
-        transform: scale(0.97) !important;
-        border-color: #fff;
+    .live-dot-red {
+        background: #ef4444;
+        box-shadow: 0 0 8px #ef4444;
+        animation: pulse-dot 1s infinite;
     }
+    .live-dot-cyan {
+        background: #22d3ee;
+        box-shadow: 0 0 8px #22d3ee;
+        animation: pulse-dot 1.5s infinite;
+    }
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* ===== RADAR SWEEP ===== */
     .radar-sweep {
         position: absolute;
         top: 0; left: 0;
-        width: 150%; height: 100%;
-        background: linear-gradient(110deg, transparent, rgba(168, 85, 247, 0.15), transparent);
-        animation: radar 3s linear infinite;
-        opacity: 0.8;
+        width: 200%; height: 100%;
+        background: linear-gradient(110deg, transparent 40%, rgba(34, 211, 238, 0.07) 50%, transparent 60%);
+        animation: sweep 4s linear infinite;
         pointer-events: none;
     }
-    .radar-sweep-green {
-        background: linear-gradient(110deg, transparent, rgba(34, 197, 94, 0.15), transparent);
-    }
-    .radar-sweep-blue {
-        background: linear-gradient(110deg, transparent, rgba(59, 130, 246, 0.15), transparent);
-    }
-    @keyframes radar {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
+    @keyframes sweep {
+        0% { transform: translateX(-50%); }
+        100% { transform: translateX(50%); }
     }
 
-    @keyframes pulse-border {
-        0% { border-color: rgba(59, 130, 246, 0.1); }
-        50% { border-color: rgba(59, 130, 246, 0.6); }
-        100% { border-color: rgba(59, 130, 246, 0.1); }
+    /* ===== SCROLLBAR ===== */
+    .custom-scroll::-webkit-scrollbar { width: 3px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-line {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.15), rgba(168, 85, 247, 0.1), transparent);
+        margin: 1.5rem 0;
     }
 
-    .live-indicator {
-        width: 8px; height: 8px;
-        background: #22c55e;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-        box-shadow: 0 0 10px #22c55e;
-        animation: blink 2s infinite;
+    /* ===== DEPLOY BUTTON ===== */
+    .deploy-btn {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.8rem;
+        padding: 10px 24px;
+        border-radius: 12px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
+        text-decoration: none;
     }
-    .live-indicator-fast {
-        width: 8px; height: 8px;
-        background: #ef4444;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-        box-shadow: 0 0 15px #ef4444;
-        animation: blink 1s infinite;
-    }
-        width: 8px; height: 8px;
-        background: #22c55e;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-        box-shadow: 0 0 10px #22c55e;
-        animation: blink 2s infinite;
+    .deploy-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+        color: #fff;
     }
 
-    @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
+    /* ===== STATUS BADGE ===== */
+    .status-badge {
+        font-size: 0.5rem;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
     }
 </style>
 @endsection
 
 @section('content')
-<div class="px-2 pb-5">
+<div class="command-center-bg px-2 pb-5" style="position: relative; z-index: 1;">
 
-    {{-- HUD HEADER --}}
-    <div class="d-flex justify-content-between align-items-end mb-5">
+    {{-- ═══════════════════════════════════════════
+         HEADER: CENTRO DE MANDO
+    ═══════════════════════════════════════════ --}}
+    <div class="d-flex justify-content-between align-items-center mb-4 pt-2">
         <div>
-            <div class="stat-mini-label mb-1">
-                <span class="live-indicator"></span> SISTEMA OPERATIVO MASTER · v1.02.0
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="live-dot"></span>
+                <span class="header-subtitle">SISTEMA OPERATIVO MASTER</span>
+                <span class="header-version">v1.02.0</span>
             </div>
-            <h1 class="header-title mb-0">CENTRO DE MANDO MultiPOS</h1>
+            <h1 class="header-title mb-0">Centro de Mando</h1>
         </div>
-        <div class="text-end">
-            <a href="{{ route('owner.empresas.create') }}" class="btn btn-primary px-4 py-2 fw-bold" style="border-radius: 12px; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);">
-                + DESPLEGAR EMPRESA
+        <a href="{{ route('owner.empresas.create') }}" class="deploy-btn">
+            <i class="bi bi-plus-lg me-2"></i> DESPLEGAR EMPRESA
+        </a>
+    </div>
+
+    {{-- ═══════════════════════════════════════════
+         ROW 1: KPIs PRINCIPALES (6 métricas clave)
+    ═══════════════════════════════════════════ --}}
+    <div class="row g-3 mb-4">
+        <div class="col-md-2">
+            <a href="{{ route('owner.empresas.index') }}" class="kpi-card">
+                <div class="kpi-glow" style="background: #3b82f6;"></div>
+                <div class="kpi-icon" style="background: rgba(59, 130, 246, 0.1);"><i class="bi bi-building text-primary"></i></div>
+                <div class="kpi-value text-glow-primary">{{ $empresasCount }}</div>
+                <div class="kpi-label">EMPRESAS <span class="text-success">· {{ $empresasActivas }} ON</span></div>
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="{{ route('owner.empresas.index') }}" class="kpi-card">
+                <div class="kpi-glow" style="background: #a855f7;"></div>
+                <div class="kpi-icon" style="background: rgba(168, 85, 247, 0.1);"><i class="bi bi-people-fill" style="color: #a855f7;"></i></div>
+                <div class="kpi-value" style="text-shadow: 0 0 20px rgba(168, 85, 247, 0.4);">{{ $usuariosCount }}</div>
+                <div class="kpi-label">USUARIOS</div>
+            </a>
+        </div>
+        <div class="col-md-2">
+            <div class="kpi-card">
+                <div class="kpi-glow" style="background: #22d3ee;"></div>
+                <div class="kpi-icon" style="background: rgba(34, 211, 238, 0.1);"><i class="bi bi-box-seam" style="color: #22d3ee;"></i></div>
+                <div class="kpi-value" style="text-shadow: 0 0 20px rgba(34, 211, 238, 0.4);">{{ $articulosCount }}</div>
+                <div class="kpi-label">SKU TOTAL</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="kpi-card">
+                <div class="kpi-glow" style="background: #22c55e;"></div>
+                <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.1);"><i class="bi bi-person-check text-success"></i></div>
+                <div class="kpi-value text-glow-success">{{ $clientesCount }}</div>
+                <div class="kpi-label">CLIENTES</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <a href="{{ route('owner.facturacion.index') }}" class="kpi-card" style="border-color: rgba(34, 197, 94, 0.15);">
+                <div class="kpi-glow" style="background: #22c55e;"></div>
+                <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.1);"><i class="bi bi-graph-up-arrow text-success"></i></div>
+                <div class="kpi-value text-glow-success" style="font-size: 1.4rem;">{{ $mrr }}</div>
+                <div class="kpi-label">MRR MENSUAL</div>
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="{{ route('owner.facturacion.index') }}" class="kpi-card" style="border-color: rgba(234, 179, 8, 0.15);">
+                <div class="kpi-glow" style="background: #eab308;"></div>
+                <div class="kpi-icon" style="background: rgba(234, 179, 8, 0.1);"><i class="bi bi-cash-stack text-warning"></i></div>
+                <div class="kpi-value text-glow-warning" style="font-size: 1.4rem;">{{ $facturacionMes }}</div>
+                <div class="kpi-label">VENTAS MES</div>
             </a>
         </div>
     </div>
 
-    {{-- NIVEL 1: CORE METRICS --}}
-    <div class="row g-4 mb-5">
+    {{-- ═══════════════════════════════════════════
+         ROW 2: VELOCÍMETROS DE SALUD (3 gauges)
+    ═══════════════════════════════════════════ --}}
+    <div class="row g-3 mb-4">
         <div class="col-md-4">
-            <div class="oled-card text-center p-3 h-100">
-                <div id="chartSales" style="min-height: 180px;"></div>
-                <div class="stat-label">VELOCIDAD DE VENTAS</div>
+            <div class="gauge-card" style="--gauge-color: #3b82f6;">
+                <div id="chartSales" style="min-height: 170px;"></div>
+                <div class="gauge-label text-primary">VELOCIDAD DE VENTAS</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="oled-card text-center p-3 h-100">
-                <div id="chartExpenses" style="min-height: 180px;"></div>
-                <div class="stat-label">TASA DE GASTOS</div>
+            <div class="gauge-card" style="--gauge-color: #ef4444;">
+                <div id="chartExpenses" style="min-height: 170px;"></div>
+                <div class="gauge-label text-danger">CONTROL DE GASTOS</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="oled-card text-center p-3 h-100">
-                <div id="chartGlobal" style="min-height: 180px;"></div>
-                <div class="stat-label">SALUD DE LA MISIÓN</div>
+            <div class="gauge-card" style="--gauge-color: #22c55e;">
+                <div id="chartGlobal" style="min-height: 170px;"></div>
+                <div class="gauge-label text-success">SALUD GLOBAL</div>
             </div>
         </div>
     </div>
 
-    {{-- NIVEL 2: DASHBOARD 360 (WIDGETS) --}}
-    <div class="row g-4">
-        
-        {{-- COLUMNA PRINCIPAL (ACTIVIDAD Y OPERACIONES) --}}
-        <div class="col-md-8">
-            
-            {{-- WIDGET: BITÁCORA CRM --}}
-            <div class="oled-card mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="stat-mini-label mb-0"><i class="bi bi-robot me-2"></i> BITÁCORA DE INTELIGENCIA COMERCIAL</h5>
-                    <span class="live-indicator"></span>
+    {{-- ═══════════════════════════════════════════
+         ROW 3: RADAR DE ADQUISICIÓN (3 cards)
+    ═══════════════════════════════════════════ --}}
+    <div class="row g-3 mb-4">
+        <div class="col-12 mb-1">
+            <span class="widget-header"><span class="live-dot live-dot-red"></span> RADAR DE ADQUISICIÓN EXTERNA</span>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('owner.crm.index') }}" class="kpi-card" style="border-color: rgba(168, 85, 247, 0.2); padding: 1.4rem;">
+                <div class="radar-sweep"></div>
+                <div class="kpi-label" style="color: #c084fc; font-size: 0.55rem;">VISITANTES LANDING</div>
+                <div class="d-flex align-items-end gap-2 mt-2">
+                    <span class="kpi-value" style="font-size: 2.2rem; text-shadow: 0 0 30px rgba(168, 85, 247, 0.5);">{{ $landingVisits }}</span>
+                    <span class="text-success fw-bold mb-1" style="font-size: 0.7rem;"><i class="bi bi-arrow-up-right"></i> +14%</span>
                 </div>
-                <div class="custom-scrollbar" style="max-height: 350px; overflow-y: auto; padding-right: 10px;">
+                <div class="kpi-label mt-1">PERSONAS HOY</div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('owner.crm.index') }}" class="kpi-card" style="border-color: rgba(59, 130, 246, 0.2); padding: 1.4rem;">
+                <div class="radar-sweep" style="background: linear-gradient(110deg, transparent 40%, rgba(59, 130, 246, 0.07) 50%, transparent 60%);"></div>
+                <div class="kpi-label" style="color: #93c5fd; font-size: 0.55rem;">ENTRADAS AL DEMO</div>
+                <div class="d-flex align-items-end gap-2 mt-2">
+                    <span class="kpi-value" style="font-size: 2.2rem; text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);">{{ $demoEntries }}</span>
+                    <span class="text-success fw-bold mb-1" style="font-size: 0.7rem;"><i class="bi bi-arrow-up-right"></i> Activos</span>
+                </div>
+                <div class="kpi-label mt-1">PRUEBAS EN CURSO</div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('owner.crm.index') }}" class="kpi-card" style="border-color: rgba(34, 197, 94, 0.2); padding: 1.4rem;">
+                <div class="radar-sweep" style="background: linear-gradient(110deg, transparent 40%, rgba(34, 197, 94, 0.07) 50%, transparent 60%);"></div>
+                <div class="kpi-label" style="color: #86efac; font-size: 0.55rem;">CONVERSIÓN DE BOT</div>
+                <div class="d-flex align-items-end gap-2 mt-2">
+                    <span class="kpi-value" style="font-size: 2.2rem; text-shadow: 0 0 30px rgba(34, 197, 94, 0.5);">{{ $conversionRate }}%</span>
+                    <span class="text-white-50 fw-bold mb-1" style="font-size: 0.7rem;">Efectividad</span>
+                </div>
+                <div class="kpi-label mt-1">LEADS CALIENTES</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="section-line"></div>
+
+    {{-- ═══════════════════════════════════════════
+         ROW 4: DASHBOARD 360° (Layout principal)
+    ═══════════════════════════════════════════ --}}
+    <div class="row g-3">
+
+        {{-- ══ COLUMNA PRINCIPAL (8/12) ══ --}}
+        <div class="col-lg-8">
+
+            {{-- WIDGET: BITÁCORA CRM --}}
+            <div class="oled-card mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="widget-header"><span class="live-dot"></span> <i class="bi bi-robot me-1"></i> BITÁCORA DE INTELIGENCIA COMERCIAL</span>
+                    <a href="{{ route('owner.crm.index') }}" class="widget-link">VER CRM <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="custom-scroll" style="max-height: 320px; overflow-y: auto;">
                     @forelse($crmActivities as $act)
-                    <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded" style="background: rgba(255,255,255,0.02); border-left: 3px solid #3b82f6;">
-                        <div class="text-white-50 small font-mono opacity-50">{{ $act->created_at->format('H:i') }}</div>
+                    <div class="activity-row d-flex align-items-center gap-3">
+                        <div class="text-white-50 font-monospace" style="font-size: 0.65rem; min-width: 35px;">{{ $act->created_at->format('H:i') }}</div>
                         <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between">
-                                <span class="text-info fw-bold" style="font-size: 0.7rem;">{{ strtoupper($act->channel) }}</span>
-                                <span class="badge rounded-pill bg-dark border border-primary border-opacity-25 text-primary" style="font-size: 0.55rem;">{{ strtoupper($act->status) }}</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold" style="font-size: 0.65rem; color: #22d3ee;">{{ strtoupper($act->channel) }}</span>
+                                <span class="status-badge" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2);">{{ strtoupper($act->status) }}</span>
                             </div>
-                            <div class="text-white small fw-bold mt-1 text-truncate" style="max-width: 400px;">{{ $act->target_name }}</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">{{ Str::limit($act->details, 80) }}</div>
+                            <div class="text-white fw-bold mt-1" style="font-size: 0.8rem;">{{ $act->target_name }}</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">{{ Str::limit($act->details, 90) }}</div>
                         </div>
                     </div>
                     @empty
-                    <div class="text-center py-5 opacity-50">SIN ACTIVIDAD</div>
+                    <div class="text-center py-5">
+                        <i class="bi bi-robot text-muted" style="font-size: 2rem;"></i>
+                        <div class="text-muted mt-2" style="font-size: 0.7rem; letter-spacing: 1px;">ESPERANDO SEÑALES DE INTELIGENCIA</div>
+                    </div>
                     @endforelse
                 </div>
             </div>
 
-            {{-- WIDGET: SOPORTE TÉCNICO --}}
-            <div class="oled-card mb-4" style="border-color: rgba(239, 68, 68, 0.2);">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="stat-mini-label mb-0 text-danger"><i class="bi bi-headset me-2"></i> TICKETS DE SOPORTE ACTIVOS</h5>
-                    <a href="{{ route('owner.soporte.index') }}" class="text-muted text-decoration-none small">Ver todos</a>
+            {{-- WIDGET: TICKETS DE SOPORTE --}}
+            <div class="oled-card mb-3" style="border-color: rgba(239, 68, 68, 0.1);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="widget-header"><i class="bi bi-headset me-1 text-danger"></i> TICKETS DE SOPORTE</span>
+                    <a href="{{ route('owner.soporte.index') }}" class="widget-link">VER TODOS <i class="bi bi-arrow-right"></i></a>
                 </div>
-                <div class="space-y-2">
-                    @forelse($ultimosTickets as $ticket)
-                    <div class="d-flex justify-content-between align-items-center p-3 rounded mb-2" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
-                        <div>
-                            <div class="text-white fw-bold small">{{ $ticket->empresa->nombre_comercial ?? 'General' }}</div>
-                            <div class="text-muted small">{{ Str::limit($ticket->subject, 50) }}</div>
-                        </div>
-                        <span class="badge bg-{{ $ticket->status == 'open' ? 'danger' : 'info' }} bg-opacity-10 text-{{ $ticket->status == 'open' ? 'danger' : 'info' }} border border-{{ $ticket->status == 'open' ? 'danger' : 'info' }} border-opacity-25">
-                            {{ strtoupper($ticket->status) }}
-                        </span>
+                @forelse($ultimosTickets as $ticket)
+                <div class="ticket-row d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white fw-bold" style="font-size: 0.8rem;">{{ $ticket->empresa->nombre_comercial ?? 'General' }}</div>
+                        <div class="text-muted" style="font-size: 0.7rem;">{{ Str::limit($ticket->subject, 55) }}</div>
                     </div>
-                    @empty
-                    <div class="text-center py-4 opacity-50">LIMPIO</div>
-                    @endforelse
+                    <span class="status-badge" style="background: rgba({{ $ticket->status == 'open' ? '239, 68, 68' : '34, 211, 238' }}, 0.1); color: {{ $ticket->status == 'open' ? '#ef4444' : '#22d3ee' }}; border: 1px solid rgba({{ $ticket->status == 'open' ? '239, 68, 68' : '34, 211, 238' }}, 0.2);">
+                        {{ strtoupper($ticket->status) }}
+                    </span>
                 </div>
+                @empty
+                <div class="text-center py-3">
+                    <span class="text-success fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;"><i class="bi bi-check-circle me-1"></i> SIN TICKETS PENDIENTES</span>
+                </div>
+                @endforelse
             </div>
 
             {{-- WIDGET: ÚLTIMAS EMPRESAS --}}
             <div class="oled-card">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="stat-mini-label mb-0"><i class="bi bi-building me-2"></i> ÚLTIMOS DESPLEGUES</h5>
-                    <a href="{{ route('owner.empresas.index') }}" class="text-muted text-decoration-none small">Gestionar</a>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="widget-header"><i class="bi bi-building me-1"></i> ÚLTIMAS EMPRESAS DESPLEGADAS</span>
+                    <a href="{{ route('owner.empresas.index') }}" class="widget-link">GESTIONAR <i class="bi bi-arrow-right"></i></a>
                 </div>
-                @foreach($ultimasEmpresas as $emp)
-                <div class="d-flex justify-content-between align-items-center p-3 rounded mb-2" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                @php $colors = ['#3b82f6','#a855f7','#22c55e','#eab308','#ef4444']; @endphp
+                @foreach($ultimasEmpresas as $idx => $emp)
+                <div class="company-row d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle bg-primary bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-building text-primary"></i>
+                        <div class="company-avatar" style="background: {{ $colors[$idx % 5] }}20; border: 1px solid {{ $colors[$idx % 5] }}30;">
+                            {{ strtoupper(substr($emp->nombre_comercial, 0, 2)) }}
                         </div>
                         <div>
-                            <div class="text-white fw-bold small">{{ $emp->nombre_comercial }}</div>
-                            <div class="text-muted" style="font-size: 0.7rem;">{{ $emp->plan->nombre ?? 'SaaS' }} · {{ $emp->created_at->format('d/m/Y') }}</div>
+                            <div class="text-white fw-bold" style="font-size: 0.85rem;">{{ $emp->nombre_comercial }}</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="status-badge" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.15);">{{ $emp->plan->nombre ?? 'BÁSICO' }}</span>
+                                <span class="text-muted" style="font-size: 0.6rem;">{{ $emp->created_at->format('d/m/Y') }}</span>
+                                @if($emp->activo)
+                                <span class="live-dot" style="width: 5px; height: 5px; margin: 0;"></span>
+                                @else
+                                <span class="live-dot live-dot-red" style="width: 5px; height: 5px; margin: 0;"></span>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex gap-2">
                         @php $admin = $emp->users()->where('role', 'empresa')->first() ?? $emp->users->first(); @endphp
                         @if($admin)
-                        <a href="{{ url('owner/mimetizar/empresa/' . $emp->id . '/usuario/' . $admin->id) }}" class="btn btn-sm btn-outline-primary px-3 fw-bold" style="font-size: 0.65rem;">ENTRAR</a>
+                        <a href="{{ url('owner/mimetizar/empresa/' . $emp->id . '/usuario/' . $admin->id) }}" class="btn btn-sm btn-primary px-3 fw-bold" style="font-size: 0.6rem; border-radius: 8px;">ENTRAR</a>
                         @endif
-                        <a href="{{ url('owner/empresas/' . $emp->id . '/edit') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                        <a href="{{ url('owner/empresas/' . $emp->id . '/edit') }}" class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;"><i class="bi bi-pencil"></i></a>
                     </div>
                 </div>
                 @endforeach
@@ -331,58 +637,55 @@
 
         </div>
 
-        {{-- COLUMNA LATERAL (HERRAMIENTAS E INFRAESTRUCTURA) --}}
-        <div class="col-md-4">
-            
+        {{-- ══ COLUMNA LATERAL (4/12) ══ --}}
+        <div class="col-lg-4">
+
             {{-- WIDGET: PANEL DE OPERACIONES --}}
-            <div class="oled-card mb-4" style="background: linear-gradient(180deg, rgba(59, 130, 246, 0.05), transparent);">
-                <h5 class="stat-mini-label mb-4">PANEL DE CONTROL Maestro</h5>
-                
-                <a href="{{ route('owner.crm.index') }}" class="command-btn border-primary border-opacity-50">
+            <div class="oled-card mb-3">
+                <span class="widget-header d-block mb-3"><i class="bi bi-grid-3x3-gap me-1"></i> PANEL DE CONTROL</span>
+
+                <a href="{{ route('owner.crm.index') }}" class="cmd-btn" style="border-color: rgba(59, 130, 246, 0.2); background: rgba(59, 130, 246, 0.03);">
                     <i class="bi bi-people-fill text-primary"></i>
-                    <div>
-                        <div class="text-white fw-bold">CRM ESTRATÉGICO</div>
-                        <small class="text-primary opacity-75">Prospectos y Ventas</small>
-                    </div>
+                    <div><div class="cmd-label">CRM ESTRATÉGICO</div><div class="cmd-sub">Prospectos · Kanban · Leads</div></div>
                 </a>
-
-                <a href="{{ route('owner.facturacion.index') }}" class="command-btn">
-                    <i class="bi bi-wallet2"></i>
-                    <div>
-                        <div class="text-white fw-bold">CENTRO FINANCIERO</div>
-                        <small class="text-muted">Cobros y MRR</small>
-                    </div>
+                <a href="{{ route('owner.empresas.index') }}" class="cmd-btn">
+                    <i class="bi bi-building"></i>
+                    <div><div class="cmd-label">GESTIÓN DE EMPRESAS</div><div class="cmd-sub">Suscripciones y despliegues</div></div>
                 </a>
-
-                <a href="{{ route('owner.updates.index') }}" class="command-btn">
-                    <i class="bi bi-broadcast-pin text-info"></i>
-                    <div>
-                        <div class="text-white fw-bold">COMUNICADOS</div>
-                        <small class="text-muted">Logs de Sistema</small>
-                    </div>
+                <a href="{{ route('owner.facturacion.index') }}" class="cmd-btn">
+                    <i class="bi bi-wallet2 text-success"></i>
+                    <div><div class="cmd-label">CENTRO FINANCIERO</div><div class="cmd-sub">Cobranzas y MRR</div></div>
                 </a>
-
-                <button type="button" class="command-btn border-warning border-opacity-50" data-bs-toggle="modal" data-bs-target="#modalSettings">
+                <a href="{{ route('owner.soporte.index') }}" class="cmd-btn">
+                    <i class="bi bi-headset text-danger"></i>
+                    <div><div class="cmd-label">CENTRAL DE SOPORTE</div><div class="cmd-sub">Tickets y resolución</div></div>
+                </a>
+                <a href="{{ route('owner.planes.index') }}" class="cmd-btn">
+                    <i class="bi bi-gear-wide-connected text-info"></i>
+                    <div><div class="cmd-label">PLANES SaaS</div><div class="cmd-sub">Precios y servicios</div></div>
+                </a>
+                <a href="{{ route('owner.updates.index') }}" class="cmd-btn">
+                    <i class="bi bi-broadcast-pin" style="color: #a855f7;"></i>
+                    <div><div class="cmd-label">COMUNICADOS</div><div class="cmd-sub">Logs de actualización</div></div>
+                </a>
+                <button type="button" class="cmd-btn" style="border-color: rgba(234, 179, 8, 0.2); background: rgba(234, 179, 8, 0.02); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalSettings">
                     <i class="bi bi-sliders text-warning"></i>
-                    <div>
-                        <div class="text-white fw-bold">AJUSTES GLOBALES</div>
-                        <small class="text-warning opacity-75">Configuración Maestro</small>
-                    </div>
+                    <div><div class="cmd-label text-warning">AJUSTES GLOBALES</div><div class="cmd-sub">Configuración maestra</div></div>
                 </button>
             </div>
 
             {{-- WIDGET: AGENTE SOCIAL LIVE --}}
-            <div class="oled-card mb-4" style="border-color: rgba(56, 189, 248, 0.2);">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="stat-mini-label mb-0"><span class="live-indicator-fast"></span> AGENTE SOCIAL LIVE</h5>
+            <div class="oled-card mb-3" style="border-color: rgba(34, 211, 238, 0.12);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="widget-header"><span class="live-dot live-dot-cyan"></span> AGENTE SOCIAL</span>
                 </div>
                 <div class="row g-2">
                     @foreach($agent_data as $n => $d)
-                    <div class="col-6">
-                        <div class="p-2 rounded-3 text-center" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                            <div class="text-white fw-bold fs-5">{{ $d['scanned'] }}</div>
-                            <div class="text-muted" style="font-size: 0.5rem; letter-spacing: 1px;">{{ strtoupper($n) }}</div>
-                            <div class="text-success fw-bold" style="font-size: 0.5rem;">+{{ $d['hunted'] }} LEADS</div>
+                    <div class="col-4">
+                        <div class="agent-cell">
+                            <div class="agent-count">{{ $d['scanned'] }}</div>
+                            <div class="agent-name">{{ strtoupper($n) }}</div>
+                            <div class="agent-leads">+{{ $d['hunted'] }}</div>
                         </div>
                     </div>
                     @endforeach
@@ -390,39 +693,47 @@
             </div>
 
             {{-- WIDGET: MONITOR DE RECURSOS --}}
-            <div class="oled-card" style="border-color: rgba(255,255,255,0.1);">
-                <h5 class="stat-mini-label mb-4"><i class="bi bi-hdd-network me-2"></i> ESTADO DE RECURSOS</h5>
-                
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted small">Costo Proyectado (Mes)</span>
-                        <span class="text-warning fw-bold small">{{ $costoProyectado }}</span>
+            <div class="oled-card" style="border-color: rgba(234, 179, 8, 0.1);">
+                <span class="widget-header d-block mb-3"><i class="bi bi-cpu me-1"></i> INFRAESTRUCTURA</span>
+
+                {{-- Costo Proyectado --}}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted" style="font-size: 0.7rem;">Costo Proyectado</span>
+                    <span class="text-warning fw-bold" style="font-size: 0.85rem;">{{ $costoProyectado }}</span>
+                </div>
+                <div class="progress mb-3" style="height: 3px; background: rgba(255,255,255,0.04); border-radius: 10px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 45%; background: linear-gradient(90deg, #eab308, #f97316);"></div>
+                </div>
+
+                {{-- Recursos Grid --}}
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <div class="resource-item">
+                            <div class="res-value">{{ $dbSize }}</div>
+                            <div class="res-label">DATABASE</div>
+                        </div>
                     </div>
-                    <div class="progress" style="height: 4px; background: rgba(255,255,255,0.05);">
-                        <div class="progress-bar bg-warning" style="width: 45%"></div>
+                    <div class="col-4">
+                        <div class="resource-item">
+                            <div class="res-value">{{ $consumoStorage }}</div>
+                            <div class="res-label">BUNNY CDN</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="resource-item">
+                            <div class="res-value">{{ $archivosSubidos }}</div>
+                            <div class="res-label">ARCHIVOS</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="row g-2 mb-3 text-center">
-                    <div class="col-6">
-                        <div class="p-2 rounded bg-dark border border-white border-opacity-5">
-                            <div class="text-muted" style="font-size: 0.6rem;">BASE DE DATOS</div>
-                            <div class="text-white small fw-bold">{{ $dbSize }}</div>
-                        </div>
+                {{-- Uptime --}}
+                <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(34, 197, 94, 0.04); border: 1px solid rgba(34, 197, 94, 0.1);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="live-dot" style="width: 5px; height: 5px; margin: 0;"></span>
+                        <span class="text-muted" style="font-size: 0.6rem; letter-spacing: 1px;">UPTIME</span>
                     </div>
-                    <div class="col-6">
-                        <div class="p-2 rounded bg-dark border border-white border-opacity-5">
-                            <div class="text-muted" style="font-size: 0.6rem;">NUBE (BUNNY)</div>
-                            <div class="text-white small fw-bold">{{ $consumoStorage }}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-2 rounded bg-primary bg-opacity-5 border border-primary border-opacity-10">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-mini-label text-primary mb-0" style="font-size: 0.6rem;">UPTIME DEL SISTEMA</div>
-                        <span class="text-white fw-bold" style="font-size: 0.6rem;">99.9%</span>
-                    </div>
+                    <span class="text-success fw-bold" style="font-size: 0.75rem;">99.9%</span>
                 </div>
             </div>
 
@@ -430,28 +741,28 @@
     </div>
 </div>
 
-{{-- ==========================================
+{{-- ═══════════════════════════════════════════
      MODAL: AJUSTES GLOBALES
-=========================================== --}}
+═══════════════════════════════════════════ --}}
 <div class="modal fade" id="modalSettings" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content oled-card border-warning border-opacity-50" style="background: #000;">
-            <div class="modal-header border-bottom border-white border-opacity-10 py-3">
-                <h5 class="modal-title text-white fw-bold"><i class="bi bi-sliders me-2 text-warning"></i>Ajustes del Sistema</h5>
+        <div class="modal-content" style="background: #080808; border: 1px solid rgba(234, 179, 8, 0.2); border-radius: 16px;">
+            <div class="modal-header border-bottom border-white border-opacity-5 py-3 px-4">
+                <h5 class="modal-title text-white fw-bold" style="font-size: 0.9rem;"><i class="bi bi-sliders me-2 text-warning"></i>Ajustes del Sistema</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ route('owner.settings.update') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
-                    <div class="mb-4">
-                        <label class="stat-label d-block mb-2">Video Tutorial AFIP (YouTube ID)</label>
-                        <input type="text" name="afip_tutorial_video" value="{{ $settings['afip_tutorial_video'] ?? 'v6r4D3Ljuy8' }}" class="form-control bg-dark border-secondary text-white py-2" placeholder="Ej: v6r4D3Ljuy8" style="background: rgba(255,255,255,0.05) !important;">
-                        <small class="text-muted d-block mt-2">Este video se mostrará a todas las empresas en el asistente de migración fiscal.</small>
+                    <div class="mb-3">
+                        <label class="d-block mb-2 text-muted" style="font-size: 0.7rem; letter-spacing: 1px; font-weight: 600;">VIDEO TUTORIAL AFIP (YOUTUBE ID)</label>
+                        <input type="text" name="afip_tutorial_video" value="{{ $settings['afip_tutorial_video'] ?? 'v6r4D3Ljuy8' }}" class="form-control py-2" placeholder="Ej: v6r4D3Ljuy8" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 10px;">
+                        <small class="text-muted d-block mt-2" style="font-size: 0.7rem;">Este video se mostrará a todas las empresas en el asistente de migración fiscal.</small>
                     </div>
                 </div>
-                <div class="modal-footer border-top border-white border-opacity-10 py-3">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">CANCELAR</button>
-                    <button type="submit" class="btn btn-warning btn-sm fw-bold px-4">GUARDAR CAMBIOS</button>
+                <div class="modal-footer border-top border-white border-opacity-5 py-3 px-4">
+                    <button type="button" class="btn btn-sm px-3" style="background: rgba(255,255,255,0.05); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;" data-bs-dismiss="modal">CANCELAR</button>
+                    <button type="submit" class="btn btn-warning btn-sm fw-bold px-4" style="border-radius: 8px;">GUARDAR</button>
                 </div>
             </form>
         </div>
@@ -462,16 +773,15 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-    // Configuración Base para Velocímetros OLED
-    const commonOptions = {
-        chart: { type: 'radialBar', height: 230, sparkline: { enabled: true } },
+    const gaugeOpts = {
+        chart: { type: 'radialBar', height: 200, sparkline: { enabled: true } },
         plotOptions: {
             radialBar: {
                 startAngle: -90, endAngle: 90,
                 track: { background: "#111", strokeWidth: '97%', margin: 5 },
                 dataLabels: {
                     name: { show: false },
-                    value: { offsetY: -2, fontSize: '24px', fontWeight: '800', color: '#fff', formatter: (val) => val + '%' }
+                    value: { offsetY: -2, fontSize: '28px', fontWeight: '800', color: '#fff', formatter: v => v + '%' }
                 }
             }
         },
@@ -479,27 +789,18 @@
         stroke: { lineCap: "round" }
     };
 
-    // 1. SALES VELOCITY
     new ApexCharts(document.querySelector("#chartSales"), {
-        ...commonOptions,
-        series: [{{ $saludVentas }}],
-        colors: ["#3b82f6"],
+        ...gaugeOpts, series: [{{ $saludVentas }}], colors: ["#3b82f6"],
         fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#60a5fa'], stops: [0, 100] } }
     }).render();
 
-    // 2. BURN RATE
     new ApexCharts(document.querySelector("#chartExpenses"), {
-        ...commonOptions,
-        series: [{{ $saludGastos }}],
-        colors: ["#ef4444"],
+        ...gaugeOpts, series: [{{ $saludGastos }}], colors: ["#ef4444"],
         fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#f59e0b'], stops: [0, 100] } }
     }).render();
 
-    // 3. GLOBAL STATUS
     new ApexCharts(document.querySelector("#chartGlobal"), {
-        ...commonOptions,
-        series: [{{ $saludGlobal }}],
-        colors: ["#22c55e"],
+        ...gaugeOpts, series: [{{ $saludGlobal }}], colors: ["#22c55e"],
         fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#4ade80'], stops: [0, 100] } }
     }).render();
 </script>
