@@ -83,12 +83,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 \App\Models\SupportTicket::create([
                     'empresa_id' => $user->empresa_id ?? null,
                     'user_id' => $user->id ?? null,
-                    'subject' => '🚨 TICKET DE SISTEMA (ERROR DETECTADO)',
+                    'subject' => '🔥 [CRÍTICO] ERROR DE SISTEMA: ' . substr($e->getMessage(), 0, 40) . '...',
                     'message' => "ERROR AUTOMÁTICO DETECTADO POR EL SISTEMA:\n\n" . 
                                  "MENSAJE: " . $e->getMessage() . "\n" .
                                  "ARCHIVO: " . $e->getFile() . " (Línea: " . $e->getLine() . ")\n" .
-                                 "URL: " . request()->fullUrl() . "\n\n" .
-                                 "-- EL SISTEMA YA LOGUEO EL ORIGEN. PROCEDER A REPARAR.",
+                                 "URL: " . request()->fullUrl() . "\n" .
+                                 "USER: " . ($user->email ?? 'Visitante') . "\n\n" .
+                                 "-- EL SISTEMA YA LOGUEO EL ORIGEN. PROCEDER A REPARAR URGENTE.",
                     'status' => 'abierto',
                     'priority' => 'critica'
                 ]);

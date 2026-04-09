@@ -1,52 +1,16 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Acceso restringido</title>
+@extends('errors.multipos_error')
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@section('title', 'Acceso Restringido')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+@section('icon')
+    <i class="bi bi-lock-fill"></i>
+@endsection
 
-<body class="bg-light d-flex align-items-center justify-content-center" style="height:100vh;">
+@section('head', 'Área Restringida')
 
-<div class="text-center">
+@section('message')
+    No tenés los permisos necesarios para acceder a esta funcionalidad. 
+    Si creés que esto es un error, por favor contactá al administrador de tu empresa.
+@endsection
 
-    {{-- ICONO --}}
-    <div class="mb-3">
-        <div style="font-size:70px;">🔒</div>
-    </div>
-
-    {{-- TITULO --}}
-    <h1 class="fw-bold text-secondary">Acceso restringido</h1>
-
-    {{-- MENSAJE AMIGABLE / TÉCNICO --}}
-    <p class="text-muted mt-3" style="max-width:420px; font-size:1.1rem;">
-        @if(isset($exception) && $exception->getMessage() && $exception->getMessage() !== 'This action is unauthorized.')
-            <b class="text-danger">{{ $exception->getMessage() }}</b>
-        @else
-            Intentaste ingresar a un área para la cual tu usuario no tiene permisos.
-            <br><br>
-            Todo está funcionando correctamente 👍
-            Simplemente esta sección no está disponible para tu perfil.
-        @endif
-    </p>
-
-    {{-- CODIGO TECNICO DISCRETO --}}
-    <small class="text-muted">Código: 403</small>
-
-    <div class="mt-4">
-        <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
-            Volver
-        </a>
-
-        <a href="{{ route('dashboard') }}" class="btn btn-primary ms-2">
-            Ir al panel
-        </a>
-    </div>
-
-</div>
-
-</body>
-</html>
+@section('status', 'Acceso Denegado por Seguridad')

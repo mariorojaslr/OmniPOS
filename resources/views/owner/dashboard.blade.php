@@ -545,12 +545,21 @@
                     <a href="{{ route('owner.soporte.index') }}" class="widget-link">VER TODOS <i class="bi bi-arrow-right"></i></a>
                 </div>
                 @forelse($ultimosTickets as $ticket)
-                <div class="ticket-row d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-white fw-bold" style="font-size: 0.8rem;">{{ $ticket->empresa->nombre_comercial ?? 'General' }}</div>
-                        <div class="text-muted" style="font-size: 0.7rem;">{{ Str::limit($ticket->subject, 55) }}</div>
+                <div class="ticket-row d-flex justify-content-between align-items-center rounded p-2 mb-1" style="background: {{ str_contains($ticket->subject, '[CRÍTICO]') ? 'rgba(239, 68, 68, 0.08)' : 'transparent' }};">
+                    <div class="d-flex align-items-center gap-2">
+                        @if(str_contains($ticket->subject, '[CRÍTICO]'))
+                            <span class="live-dot live-dot-red" title="Error de Sistema Detectado"></span>
+                        @endif
+                        <div>
+                            <div class="text-white fw-bold" style="font-size: 0.8rem;">
+                                {{ $ticket->empresa->nombre_comercial ?? 'GENERAL' }}
+                            </div>
+                            <div class="text-muted" style="font-size: 0.7rem;">
+                                {{ Str::limit($ticket->subject, 48) }}
+                            </div>
+                        </div>
                     </div>
-                    <span class="status-badge" style="background: rgba({{ $ticket->status == 'open' ? '239, 68, 68' : '34, 211, 238' }}, 0.1); color: {{ $ticket->status == 'open' ? '#ef4444' : '#22d3ee' }}; border: 1px solid rgba({{ $ticket->status == 'open' ? '239, 68, 68' : '34, 211, 238' }}, 0.2);">
+                    <span class="status-badge" style="background: rgba({{ $ticket->status == 'abierto' ? '239, 68, 68' : '34, 211, 238' }}, 0.1); color: {{ $ticket->status == 'abierto' ? '#ef4444' : '#22d3ee' }}; border: 1px solid rgba({{ $ticket->status == 'abierto' ? '239, 68, 68' : '34, 211, 238' }}, 0.2);">
                         {{ strtoupper($ticket->status) }}
                     </span>
                 </div>
