@@ -41,8 +41,6 @@
         </div>
     </div>
 
-    @endif
-
     {{-- ALERTA: DATOS PRE-CARGADOS DESDE PRESUPUESTO --}}
     @if(session('info'))
         <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-3" id="alertaPrefill">
