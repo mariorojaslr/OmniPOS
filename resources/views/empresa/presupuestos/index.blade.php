@@ -144,7 +144,7 @@
 
                                         {{-- CLONAR --}}
                                         <li>
-                                            <form action="{{ route('empresa.presupuestos.clone', $presu->id) }}" method="POST">
+                                            <form action="{{ route('empresa.presupuestos.clonar', $presu->id) }}" method="POST">
                                                 @csrf
                                                 <button type="submit" class="dropdown-item"
                                                     onclick="return confirm('¿Clonar el presupuesto {{ $presu->numero }}? Se creará uno nuevo con los mismos ítems para que pueda editarlo.')">
