@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\Empresa;
 use App\Models\User;
+use App\Models\CrmActivity;
+use App\Models\SupportTicket;
+use App\Models\SuscripcionPago;
 
 class DashboardController extends Controller
 {
