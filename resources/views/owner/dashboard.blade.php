@@ -392,8 +392,126 @@
         </div>
     </div>    </div>
 
+    <div class="row g-4 mb-5">
+        {{-- BITÁCORA Y PROSPECTOS CRM (RESTORED) --}}
+        <div class="col-md-8">
+            <h5 class="stat-mini-label mb-4">BITÁCORA DE INTELIGENCIA COMERCIAL (LIVE)</h5>
+            <div class="oled-card p-0 mb-4 overflow-hidden" style="max-height: 380px; overflow-y: auto;">
+                <div class="p-3">
+                    @forelse($crmActivities as $act)
+                    <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded" style="background: rgba(255,255,255,0.02); border-left: 3px solid #3b82f6; transition: 0.3s; cursor: default;" onmouseover="this.style.background='rgba(59, 130, 246, 0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                        <div class="text-white-50 small font-mono opacity-50">{{ $act->created_at->format('H:i') }}</div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <span class="text-info fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">{{ strtoupper($act->channel) }}</span>
+                                <span class="badge rounded-pill bg-dark border border-{{ $act->status == 'activo' ? 'success' : 'primary' }} border-opacity-25 text-{{ $act->status == 'activo' ? 'success' : 'primary' }}" style="font-size: 0.6rem;">{{ strtoupper($act->status) }}</span>
+                            </div>
+                            <div class="text-white mt-1 fw-600">{{ $act->target_name }} <span class="text-muted small">({{ $act->target_origin }})</span></div>
+                            <div class="small text-muted mt-1 opacity-75">{{ $act->details }}</div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-5 opacity-50">
+                        <i class="bi bi-robot fs-1 mb-3 d-block"></i>
+                        <div class="stat-mini-label">SIN ACTIVIDAD RECIENTE</div>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <h5 class="stat-mini-label mb-4">ÚLTIMOS PROSPECTOS DETECTADOS (Fase 0)</h5>
+            <div class="row g-3 mb-5">
+                @foreach($nuevosLeads as $lead)
+                <div class="col-md-6">
+                    <div class="oled-card p-3" style="border-style: dashed;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-white fw-bold">{{ $lead->name }}</div>
+                                <div class="text-primary small fw-bold">{{ $lead->lead_source ?? 'LinkedIn' }}</div>
+                            </div>
+                            <a href="{{ route('owner.crm.index') }}" class="btn btn-sm btn-outline-primary border-0"><i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+            {{-- Componente Restablecido: Tickets de Soporte --}}
+            <h5 class="stat-mini-label mb-4">TICKETS DE SOPORTE ACTIVOS</h5>
+            <div class="oled-card p-0 mb-5 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-dark mb-0 align-middle" style="--bs-table-bg: transparent; --bs-table-border-color: rgba(255,255,255,0.05);">
+                        <thead class="stat-mini-label border-bottom">
+                            <tr>
+                                <th class="ps-4">CLIENTE</th>
+                                <th>ASUNTO</th>
+                                <th class="text-center">ESTADO</th>
+                                <th class="text-end pe-4">COMANDO</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small" style="color: #94a3b8;">
+                            @forelse($ultimosTickets as $ticket)
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td class="ps-4">
+                                    <div class="text-white fw-bold">{{ $ticket->empresa->nombre_comercial ?? 'General' }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">#{{ $ticket->id }}</div>
+                                </td>
+                                <td>{{ Str::limit($ticket->subject, 30) }}</td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill bg-{{ $ticket->status == 'open' ? 'danger' : 'info' }} bg-opacity-25 text-{{ $ticket->status == 'open' ? 'danger' : 'info' }}">
+                                        {{ strtoupper($ticket->status) }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="{{ route('owner.soporte.index') }}" class="btn btn-sm btn-outline-secondary border-0"><i class="bi bi-eye"></i></a>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="4" class="text-center py-4 opacity-50 italic">No hay tickets pendientes</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Componente Restablecido: Pagos Recientes --}}
+            <h5 class="stat-mini-label mb-4">RENOVACIONES Y PAGOS RECIENTES</h5>
+            <div class="oled-card p-0 mb-4 overflow-hidden" style="border-color: rgba(34, 197, 94, 0.2);">
+                <div class="table-responsive">
+                    <table class="table table-dark mb-0 align-middle" style="--bs-table-bg: transparent; --bs-table-border-color: rgba(255,255,255,0.05);">
+                        <thead class="stat-mini-label border-bottom text-success">
+                            <tr>
+                                <th class="ps-4">EMPRESA</th>
+                                <th>MONTO</th>
+                                <th class="text-center">FECHA</th>
+                                <th class="text-end pe-4">ESTADO</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small" style="color: #94a3b8;">
+                            @forelse($ultimosPagos as $pago)
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td class="ps-4">
+                                    <div class="text-white fw-bold">{{ $pago->empresa->nombre_comercial }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">{{ $pago->metodo }}</div>
+                                </td>
+                                <td class="text-success">$ {{ number_format($pago->monto, 0, ',', '.') }}</td>
+                                <td class="text-center">{{ $pago->fecha_pago->format('d/m/Y') }}</td>
+                                <td class="text-end pe-4">
+                                    <span class="text-success"><i class="bi bi-check-circle-fill"></i></span>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="4" class="text-center py-4 opacity-50 italic">No se registran pagos hoy</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {{-- PANEL DE OPERACIONES --}}
         <div class="col-md-4">
-            <h5 class="stat-mini-label mb-4">PANEL DE OPERACIONES</h5>
+            <h5 class="stat-mini-label mb-4">PANEL DE OPERACIONES SaaS</h5>
             
             <a href="{{ route('owner.crm.index') }}" class="command-btn border-primary border-opacity-50" style="background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent);">
                 <i class="bi bi-people-fill text-primary"></i>
@@ -410,6 +528,27 @@
                     <small class="text-muted" style="font-size: 0.7rem;">Control de suscripciones</small>
                 </div>
             </a>
+
+            {{-- AGENTE SOCIAL LIVE (RESTAURADO) --}}
+            <h5 class="stat-mini-label mt-5 mb-4"><span class="live-indicator"></span> AGENTE SOCIAL LIVE</h5>
+            <div class="oled-card p-4 mb-4" style="border-color: rgba(56, 189, 248, 0.2); background: linear-gradient(180deg, rgba(56, 189, 248, 0.05), transparent);">
+                <div class="row g-3">
+                    @foreach($agent_data as $n => $d)
+                    <div class="col-6">
+                        <div class="p-2 rounded-3 text-center" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                            <div class="text-white fw-bold fs-4">{{ str_pad($d['scanned'], 2, '0', STR_PAD_LEFT) }}</div>
+                            <div class="text-muted" style="font-size: 0.55rem; letter-spacing: 1px; font-weight: 800;">{{ strtoupper($n) }}</div>
+                            <div class="text-success" style="font-size: 0.5rem; font-weight: 700;">+{{ $d['hunted'] }} LEADS</div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="mt-4 pt-2">
+                    <a href="{{ route('owner.crm.index') }}" class="btn btn-sm btn-outline-info w-100 fw-bold py-2" style="font-size: 0.65rem; letter-spacing: 1px;">
+                        <i class="bi bi-radar me-2"></i> IR AL SCANNER MAESTRO
+                    </a>
+                </div>
+            </div>
 
             <a href="{{ route('owner.facturacion.index') }}" class="command-btn">
                 <i class="bi bi-wallet2"></i>
@@ -443,7 +582,6 @@
                 </div>
             </a>
 
-            {{-- AJUSTES GLOBALES (NUEVO) --}}
             <button type="button" class="command-btn border-warning border-opacity-50" data-bs-toggle="modal" data-bs-target="#modalSettings" style="background: linear-gradient(90deg, rgba(234, 179, 8, 0.1), transparent); cursor: pointer;">
                 <i class="bi bi-sliders text-warning"></i>
                 <div>
@@ -452,7 +590,6 @@
                 </div>
             </button>
         </div>
-
     </div>
 
     <div class="scanline"></div>

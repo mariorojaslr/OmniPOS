@@ -62,6 +62,28 @@ class DashboardController extends Controller
         $articulosCountValue = \App\Models\Product::count();
         $clientesCountValue  = \App\Models\Client::count();
 
+        // 📝 ACTIVIDAD CRM E HISTORIAL (Restore)
+        $crmActivities = CrmActivity::latest()->limit(10)->get();
+        $nuevosLeads   = User::where('status', 'prospecto')->where('role', 'empresa')->latest()->limit(5)->get();
+
+        // 🛰️ AGENTE SOCIAL LIVE (Scanner data restore)
+        $channels = ['LinkedIn', 'Instagram', 'Facebook', 'WhatsApp', 'Telegram', 'System Mail'];
+        $scanned_counts = CrmActivity::selectRaw('channel, count(*) as total')->groupBy('channel')->pluck('total', 'channel')->toArray();
+        $hunted_counts  = User::where('status', 'prospecto')->selectRaw('lead_source, count(*) as total')->groupBy('lead_source')->pluck('total', 'lead_source')->toArray();
+        
+        $agent_data = [];
+        foreach($channels as $ch) {
+            $agent_data[$ch] = [
+                'name'    => $ch,
+                'scanned' => $scanned_counts[$ch] ?? 0,
+                'hunted'  => $hunted_counts[$ch] ?? 0
+            ];
+        }
+
+        // 🎫 SOPORTE Y PAGOS (Old components restored)
+        $ultimosTickets = \App\Models\SupportTicket::with('empresa')->orderByDesc('created_at')->limit(5)->get();
+        $ultimosPagos   = \App\Models\SuscripcionPago::with('empresa')->orderByDesc('created_at')->limit(5)->get();
+
         return view('owner.dashboard', [
             'empresasCount'    => $empresasCount,
             'empresasActivas'  => $empresasActivas,
@@ -86,7 +108,12 @@ class DashboardController extends Controller
             'saludGastos'       => $saludGastos ?: 0,
             'saludGlobal'       => 95, 
             'ultimasEmpresas'   => Empresa::with('plan')->orderByDesc('created_at')->limit(5)->get(),
-            'settings'          => $settings
+            'settings'          => $settings,
+            'crmActivities'     => $crmActivities,
+            'nuevosLeads'       => $nuevosLeads,
+            'ultimosTickets'    => $ultimosTickets,
+            'ultimosPagos'      => $ultimosPagos,
+            'agent_data'        => $agent_data
         ]);
     }
 
