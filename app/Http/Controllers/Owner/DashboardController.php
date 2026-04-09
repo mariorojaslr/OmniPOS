@@ -87,7 +87,15 @@ class DashboardController extends Controller
         $ultimosTickets = \App\Models\SupportTicket::with('empresa')->orderByDesc('created_at')->limit(5)->get();
         $ultimosPagos   = \App\Models\SuscripcionPago::with('empresa')->orderByDesc('created_at')->limit(5)->get();
 
+        // 🔍 BITÁCORA GLOBAL DE ACTIVIDAD (Omnisciencia del Owner)
+        $globalActivities = \App\Models\ActivityLog::with(['user', 'empresa'])
+            ->latest()
+            ->limit(10)
+            ->get();
+
         return view('owner.dashboard', [
+            'total_mrr'         => $mrrNum,
+            'globalActivities'  => $globalActivities,
             'empresasCount'    => $empresasCount,
             'empresasActivas'  => $empresasActivas,
             'usuariosCount'    => $usuariosCount,

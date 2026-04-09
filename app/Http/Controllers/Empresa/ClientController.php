@@ -87,7 +87,7 @@ class ClientController extends Controller
             }
         }
 
-        Client::create([
+        $cliente = Client::create([
             'empresa_id' => $empresaId,
             'name' => $request->name,
             'phone' => $request->phone,
@@ -99,6 +99,8 @@ class ClientController extends Controller
             'discount_percentage' => $request->discount_percentage ?? 0,
             'active' => 1
         ]);
+
+        \App\Models\ActivityLog::log("Creó el cliente: {$cliente->name}");
 
         return redirect()
             ->route('empresa.clientes.index')
@@ -293,6 +295,8 @@ class ClientController extends Controller
             'active' => $request->active ?? 1,
         ]);
 
+        \App\Models\ActivityLog::log("Actualizó el cliente: {$cliente->name}");
+
         return redirect()
             ->route('empresa.clientes.index')
             ->with('success', 'Cliente actualizado correctamente.');
@@ -316,7 +320,10 @@ class ClientController extends Controller
                 ->with('error', 'El cliente CONSUMIDOR FINAL no puede eliminarse.');
         }
 
+        $nombreCliente = $cliente->name;
         $cliente->delete();
+
+        \App\Models\ActivityLog::log("Eliminó el cliente: {$nombreCliente}");
 
         return redirect()
             ->route('empresa.clientes.index')

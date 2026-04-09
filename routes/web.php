@@ -137,22 +137,28 @@ Route::middleware(['auth', 'owner'])
 /* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÓN (LEAD MAGNET) |-------------------------------------------------------------------------- */
 Route::get('/demo-experience', function() {
     
-    // 1. Aseguramos la existencia de una Empresa Demo
-    $demoEmpresa = \App\Models\Empresa::firstOrCreate(
-        ['nombre_comercial' => 'MultiPOS DEMO (Corporativo)'],
-        [
-            'cuit' => '30-DEMO-01',
-            'activo' => true,
-            'slug' => 'demostracion-multipos'
-        ]
-    );
+    // 1. Buscamos la Empresa de prueba (ID 1 por defecto en el sistema de desarrollo)
+    $demoEmpresa = \App\Models\Empresa::find(1);
+    
+    if (!$demoEmpresa) {
+        // Si no existe, creamos una para no romper el flujo
+        $demoEmpresa = \App\Models\Empresa::updateOrCreate(
+            ['id' => 1],
+            [
+                'nombre_comercial' => 'MultiPOS Empresa de Prueba',
+                'cuit' => '30-11111111-9',
+                'activo' => true,
+                'slug' => 'empresa-prueba'
+            ]
+        );
+    }
 
-    // 2. Aseguramos que el Usuario Demo exista y tenga acceso Total
-    $demoUser = \App\Models\User::firstOrCreate(
-        ['email' => 'demo@multipos.system'],
+    // 2. Buscamos o creamos el Usuario Demo solicitado por el USER
+    $demoUser = \App\Models\User::updateOrCreate(
+        ['email' => 'demo@gmail.com'],
         [
-            'name' => 'Demo User Expert',
-            'password' => \Illuminate\Support\Facades\Hash::make('demo123'),
+            'name' => 'Demo User',
+            'password' => \Illuminate\Support\Facades\Hash::make('demo'),
             'role' => 'empresa',
             'empresa_id' => $demoEmpresa->id,
             'activo' => true,

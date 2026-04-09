@@ -469,13 +469,54 @@
         {{-- ══ COLUMNA PRINCIPAL (8/12) ══ --}}
         <div class="col-lg-8">
 
+            {{-- WIDGET: BITÁCORA GLOBAL DE OPERACIONES (NUEVO) --}}
+            <div class="oled-card mb-3" style="border-color: rgba(34, 197, 94, 0.45);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="widget-header"><span class="live-dot"></span> <i class="bi bi-clock-history me-1 text-success"></i> MONITOR DE OPERACIONES GLOBAL (SaaS)</span>
+                    <span class="header-version" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; border-color: rgba(34, 197, 94, 0.3);">TIEMPO REAL</span>
+                </div>
+                <div class="custom-scroll" style="max-height: 400px; overflow-y: auto;">
+                    @forelse($globalActivities as $log)
+                    <div class="activity-row d-flex align-items-center gap-3" style="background: rgba(34, 197, 94, 0.04); border-color: rgba(34, 197, 94, 0.2); border-left-color: #22c55e;">
+                        <div class="text-white-50 font-monospace text-center" style="font-size: 0.65rem; min-width: 45px;">
+                            <div class="fw-bold text-success">{{ $log->created_at->format('H:i') }}</div>
+                            <div style="font-size: 0.5rem;">{{ $log->created_at->format('d/m') }}</div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold" style="font-size: 0.75rem; color: #fff;">{{ $log->empresa->nombre_comercial ?? 'Sistema' }}</span>
+                                <span class="status-badge" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1);">{{ $log->user->name ?? 'Admin' }}</span>
+                            </div>
+                            <div class="text-white-50 mt-1" style="font-size: 0.75rem;">
+                                @if(str_contains($log->description, 'venta'))
+                                    <i class="bi bi-cart-check text-success me-1"></i>
+                                @elseif(str_contains($log->description, 'usuario'))
+                                    <i class="bi bi-person-badge text-info me-1"></i>
+                                @elseif(str_contains($log->description, 'presupuesto'))
+                                    <i class="bi bi-file-earmark-text text-warning me-1"></i>
+                                @else
+                                    <i class="bi bi-lightning-charge text-muted me-1"></i>
+                                @endif
+                                {{ $log->description }}
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-5">
+                        <i class="bi bi-clipboard-x text-muted" style="font-size: 2rem;"></i>
+                        <div class="text-muted mt-2" style="font-size: 0.72rem; letter-spacing: 1px;">SIN ACTIVIDAD REGISTRADA</div>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
             {{-- WIDGET: BITÁCORA CRM --}}
             <div class="oled-card mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="widget-header"><span class="live-dot"></span> <i class="bi bi-robot me-1"></i> BITÁCORA DE INTELIGENCIA COMERCIAL</span>
+                    <span class="widget-header"><span class="live-dot live-dot-cyan"></span> <i class="bi bi-robot me-1 text-info"></i> SEÑALES DE INTELIGENCIA (CRM)</span>
                     <a href="{{ route('owner.crm.index') }}" class="widget-link">VER CRM <i class="bi bi-arrow-right"></i></a>
                 </div>
-                <div class="custom-scroll" style="max-height: 320px; overflow-y: auto;">
+                <div class="custom-scroll" style="max-height: 250px; overflow-y: auto;">
                     @forelse($crmActivities as $act)
                     <div class="activity-row d-flex align-items-center gap-3">
                         <div class="text-white-50 font-monospace" style="font-size: 0.65rem; min-width: 35px;">{{ $act->created_at->format('H:i') }}</div>

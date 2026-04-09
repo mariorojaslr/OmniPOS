@@ -72,44 +72,65 @@ body{
     background:#f4f6f9;
 }
 
-@if($modoOscuro)
-body{
-    background:#0f1115 !important;
-    color:#e6edf3 !important;
-}
-
-.navbar{
-    background: rgba(255, 255, 255, 0.9) !important;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+/* =========================================================
+   BARRA DE NAVEGACIÓN (NAVBAR) - RESTAURADA Y FIJA
+   ========================================================= */
+.navbar {
+    position: sticky !important;
+    top: 0;
+    z-index: 1060 !important; /* Por encima de todo */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    position: relative;
-    z-index: 1050;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
 }
 
-.navbar .nav-link,
-.navbar .navbar-brand,
-.navbar .nav-link i,
-.navbar .dropdown-toggle {
-    color: #313131 !important;
-    font-weight: 600 !important;
-}
-
-.card{
-    background: rgba(22, 27, 34, 0.75) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border:1px solid rgba(44, 54, 66, 0.5);
-    color:#e6edf3 !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-
-.table{
-    background:#0f1115;
-    color:#e6edf3;
-}
+@if($modoOscuro)
+    body {
+        background: #080a0c !important;
+        color: #f0f3f6 !important;
+    }
+    .navbar {
+        background: rgba(13, 17, 23, 0.9) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .navbar .nav-link, 
+    .navbar .navbar-brand, 
+    .navbar .dropdown-toggle {
+        color: #ffffff !important;
+    }
+    .card {
+        background: rgba(22, 27, 34, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #ffffff !important;
+    }
+    .dropdown-menu {
+        background: #161b22 !important;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .dropdown-item {
+        color: #e6edf3 !important;
+    }
+    .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+@else
+    .navbar {
+        background: rgba(255, 255, 255, 0.95) !important;
+    }
+    .navbar .nav-link, 
+    .navbar .navbar-brand {
+        color: #1e293b !important;
+        font-weight: 600;
+    }
 @endif
+
+/* Espaciado para compensar la navbar fija si fuera necesario, 
+   aunque al ser sticky el flujo se mantiene natural. */
+main {
+    min-height: 80vh;
+}
 
 /* =========================================================
    BOTONES
@@ -124,16 +145,13 @@ body{
     padding:20px;
 }
 
-@if(!$modoOscuro)
-.navbar {
-    background: rgba(255, 255, 255, 0.95) !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+/* Estilos de botones generales */
+.btn-primary {
+    transition: all 0.3s ease !important;
+    background: var(--color-primario) !important;
+    border-color: var(--color-primario) !important;
+    font-weight: 600;
 }
-.navbar .nav-link, .navbar .navbar-brand { color: #313131 !important; }
-.card {
-    background: #ffffff;
-}
-@endif
 
 .btn-primary {
     transition: all 0.3s ease !important;

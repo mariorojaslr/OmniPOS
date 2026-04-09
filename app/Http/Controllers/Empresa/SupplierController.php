@@ -69,7 +69,7 @@ class SupplierController extends Controller
             'document' => 'nullable|string|max:20',
         ]);
 
-        Supplier::create([
+        $supplier = Supplier::create([
             'empresa_id' => $empresaId,
             'name' => $request->name,
             'phone' => $request->phone,
@@ -77,6 +77,8 @@ class SupplierController extends Controller
             'document' => $request->document,
             'active' => 1
         ]);
+
+        \App\Models\ActivityLog::log("Creó el proveedor: {$supplier->name}");
 
         return redirect()
             ->route('empresa.proveedores.index')
@@ -238,6 +240,8 @@ class SupplierController extends Controller
             'active' => $request->active ?? 1,
         ]);
 
+        \App\Models\ActivityLog::log("Actualizó el proveedor: {$supplier->name}");
+
         return redirect()
             ->route('empresa.proveedores.index')
             ->with('success', 'Proveedor actualizado correctamente.');
@@ -254,7 +258,10 @@ class SupplierController extends Controller
         $supplier = Supplier::where('empresa_id', auth()->user()->empresa_id)
             ->findOrFail($id);
 
+        $nombreProv = $supplier->name;
         $supplier->delete();
+
+        \App\Models\ActivityLog::log("Eliminó el proveedor: {$nombreProv}");
 
         return redirect()
             ->route('empresa.proveedores.index')
