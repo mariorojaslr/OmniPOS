@@ -28,6 +28,11 @@ class Empresa extends Model
         'fecha_vencimiento',
         'fecha_cierre_ejercicio',
         'plan_id',
+        'custom_price',
+        'custom_max_products',
+        'custom_max_users',
+        'custom_max_storage_mb',
+        'is_bonificated',
         'status',
         'ultima_fecha_pago',
         // Datos fiscales
@@ -205,6 +210,22 @@ class Empresa extends Model
     {
         return $this->fecha_cierre_ejercicio instanceof Carbon
             && $this->fecha_cierre_ejercicio->isPast();
+    }
+
+    /**
+     * Devuelve el límite de productos real (Custom o del Plan)
+     */
+    public function getLimiteProductos(): int
+    {
+        return $this->custom_max_products ?? ($this->plan->max_products ?? 0);
+    }
+
+    /**
+     * Devuelve el precio mensual real (Custom o del Plan)
+     */
+    public function getPrecioMensual(): float
+    {
+        return (float) ($this->custom_price ?? ($this->plan->price ?? 0));
     }
 
     /**

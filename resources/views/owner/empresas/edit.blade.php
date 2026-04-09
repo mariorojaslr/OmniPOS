@@ -78,6 +78,32 @@
                         </div>
                     </div>
 
+                    {{-- ACUERDOS ESPECIALES --}}
+                    <hr class="my-4">
+                    <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-gift me-2"></i>Acuerdos Especiales / Trato de Amigo</h6>
+                    <div class="row bg-light p-3 rounded-3 mb-4 mx-0 border">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Precio Personalizado (Mensual)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" name="custom_price" class="form-control" value="{{ $empresa->custom_price }}" placeholder="Ej: 40000">
+                            </div>
+                            <small class="text-muted">Vacío = Usa precio de plan (${{ number_format($empresa->plan->price ?? 0, 0, ',', '.') }})</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Límite de Artículos</label>
+                            <input type="number" name="custom_max_products" class="form-control" value="{{ $empresa->custom_max_products }}" placeholder="Ej: 1000">
+                            <small class="text-muted">Vacío = Usa límite de plan ({{ $empresa->plan->max_products ?? '∞' }})</small>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" name="is_bonificated" id="is_bonificated" value="1" {{ $empresa->is_bonificated ? 'checked' : '' }}>
+                                <label class="form-check-label fw-bold text-success" for="is_bonificated">Empresa BONIFICADA (Cortesía)</label>
+                            </div>
+                            <small class="text-muted">Si se activa, el sistema NUNCA la bloqueará por falta de pago.</small>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('owner.empresas.index') }}"
                            class="btn btn-outline-secondary">

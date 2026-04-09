@@ -58,7 +58,7 @@
 
                     @php
                         $estado = $empresa->estadoLabel();
-                        $limiteProductos = $empresa->plan->max_products ?? 0;
+                        $limiteProductos = $empresa->getLimiteProductos();
                         $sobrepasado = $limiteProductos > 0 && $empresa->products_count > $limiteProductos;
                     @endphp
 

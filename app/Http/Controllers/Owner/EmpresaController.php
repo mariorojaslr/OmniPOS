@@ -118,7 +118,12 @@ class EmpresaController extends Controller
             'fecha_vencimiento' => 'nullable|date',
             'plan_id'           => 'nullable|exists:plans,id',
             'status'            => 'required|string|in:activa,suspendida,mora',
+            'custom_price'        => 'nullable|numeric',
+            'custom_max_products' => 'nullable|integer',
+            'is_bonificated'      => 'nullable',
         ]);
+
+        $data['is_bonificated'] = $request->has('is_bonificated');
 
         $empresa->update($data);
 
