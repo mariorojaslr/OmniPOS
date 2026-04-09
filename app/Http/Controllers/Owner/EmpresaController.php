@@ -120,6 +120,7 @@ class EmpresaController extends Controller
             'status'            => 'required|string|in:activa,suspendida,mora',
             'custom_price'        => 'nullable|numeric',
             'custom_max_products' => 'nullable|integer',
+            'grace_period_until'  => 'nullable|date',
             'is_bonificated'      => 'nullable',
         ]);
 

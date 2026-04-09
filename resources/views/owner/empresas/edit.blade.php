@@ -95,6 +95,11 @@
                             <input type="number" name="custom_max_products" class="form-control" value="{{ $empresa->custom_max_products }}" placeholder="Ej: 1000">
                             <small class="text-muted">Vacío = Usa límite de plan ({{ $empresa->plan->max_products ?? '∞' }})</small>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fin de Período de Gracia</label>
+                            <input type="date" name="grace_period_until" class="form-control" value="{{ optional($empresa->grace_period_until)->format('Y-m-d') }}">
+                            <small class="text-muted d-block mt-1">Fecha hasta la cual la empresa usa el sistema gratis en modo prueba.</small>
+                        </div>
                         <div class="col-md-12">
                             <div class="form-check form-switch mt-2">
                                 <input class="form-check-input" type="checkbox" name="is_bonificated" id="is_bonificated" value="1" {{ $empresa->is_bonificated ? 'checked' : '' }}>

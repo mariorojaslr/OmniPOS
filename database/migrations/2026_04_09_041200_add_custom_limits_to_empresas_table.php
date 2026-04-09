@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('custom_max_users')->nullable()->after('custom_max_products');
             $table->decimal('custom_max_storage_mb', 10, 2)->nullable()->after('custom_max_users');
             $table->boolean('is_bonificated')->default(false)->after('custom_max_storage_mb');
+            $table->date('grace_period_until')->nullable()->after('is_bonificated');
         });
     }
 
@@ -31,7 +32,8 @@ return new class extends Migration
                 'custom_max_products',
                 'custom_max_users',
                 'custom_max_storage_mb',
-                'is_bonificated'
+                'is_bonificated',
+                'grace_period_until'
             ]);
         });
     }

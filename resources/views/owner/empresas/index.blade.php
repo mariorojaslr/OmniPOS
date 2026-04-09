@@ -110,14 +110,20 @@
 
                         {{-- Estado visual --}}
                         <td>
+                            @if($empresa->is_bonificated)
+                                <span class="badge bg-purple text-white mb-1"><i class="bi bi-gift me-1"></i> BONIFICADO</span>
+                            @endif
                             <span class="badge
                                 {{ $estado === 'Activa'
                                     ? 'bg-success'
                                     : ($estado === 'Vencida'
                                         ? 'bg-warning text-dark'
-                                        : 'bg-secondary') }}">
+                                        : 'bg-secondary') }} d-block">
                                 {{ $estado }}
                             </span>
+                            <div class="mt-1 small fw-bold text-muted">
+                                Pactado: ${{ number_format($empresa->getPrecioMensual(), 0, ',', '.') }}
+                            </div>
                         </td>
 
                         {{-- Acciones --}}

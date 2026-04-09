@@ -28,9 +28,18 @@ class DashboardController extends Controller
         $imagenesCountValue = \App\Models\ProductImage::count();
         $videosCountValue   = \App\Models\ProductVideo::count();
         
-        $consumoGB = round(($imagenesCountValue * 0.5) / 1024, 2);
-        $costoStorage = $consumoGB * 0.01; // $0.01 por GB
-        $costoTrafico = ($consumoGB * 2.5) * 0.01; // $0.01 por GB
+        // Peso de la DB (en MB)
+        $dbSizeQueryResult = \DB::select('SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?', [env('DB_DATABASE')]);
+        $dbSizeMB = round($dbSizeQueryResult[0]->size ?? 0, 2);
+
+        $consumoGB = round(($imagenesCountValue * 0.5) / 1024, 2); // Estimado 0.5MB por foto
+        $costoStorage = $consumoGB * 0.01; // $0.01 USD por GB (Bunny.net aprox)
+        $costoTrafico = ($consumoGB * 2.5) * 0.01; // Estimación de tráfico
+        
+        // Proyección a fin de mes
+        $diaActual = max(now()->day, 1);
+        $diasMes = now()->daysInMonth;
+        $costoProyectadoTotal = (($costoStorage + $costoTrafico) / $diaActual) * $diasMes;
 
         // 📉 SALUD DEL SISTEMA
         $saludVentas = min(round(($facturacionMesNum / 1000000) * 100), 100);
@@ -71,6 +80,8 @@ class DashboardController extends Controller
             'streamingMensual'  => ($videosCountValue * 1.5) . ' hs', 
             'facturacionMes'    => '$' . number_format($facturacionMesNum, 0, ',', '.'),
             'mrr'               => '$' . number_format($mrrNum, 0, ',', '.'),
+            'dbSize'            => $dbSizeMB . ' MB',
+            'costoProyectado'   => '$' . number_format($costoProyectadoTotal, 2),
             'saludVentas'       => $saludVentas ?: 1, 
             'saludGastos'       => $saludGastos ?: 0,
             'saludGlobal'       => 95, 

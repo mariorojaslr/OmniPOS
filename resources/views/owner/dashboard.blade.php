@@ -338,85 +338,59 @@
         </div>
     </div>
 
-    <div class="scanline"></div>
-
-    {{-- INFRAESTRUCTURA & BUNNY.NET (LEVEL 2) --}}
-    <div class="row g-5 mb-5">
-        
-        <div class="col-md-8">
-            <h5 class="stat-mini-label mb-4">RECURSOS DE INFRAESTRUCTURA (BUNNY.NET)</h5>
-            <div class="row g-4">
-                
-                <div class="col-md-6 text-center">
-                    <div class="oled-card border-0 bg-transparent text-start p-0">
-                        <div class="stat-label mb-2"><i class="bi bi-hdd-network text-info me-1"></i> Almacenamiento Consumido</div>
-                        <div class="d-flex align-items-baseline gap-2">
-                            <span class="fs-1 fw-bold text-white">{{ explode(' ', $consumoStorage)[0] }}</span>
-                            <span class="text-muted fw-bold">GB</span>
+    <div class="scanline">    {{-- SECTOR DE RECURSOS (NUEVO) --}}
+    <div class="row g-4 mb-5">
+        <div class="col-md-12">
+            <h5 class="stat-mini-label mb-3"><span class="live-indicator"></span> MONITOR DE RECURSOS GLOBALES</h5>
+            <div class="oled-card p-4" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%); border-color: rgba(59, 130, 246, 0.2);">
+                <div class="row g-4 text-center">
+                    {{-- Tarjeta 1: Base de Datos --}}
+                    <div class="col-md">
+                        <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                            <div class="stat-label text-info"><i class="bi bi-database me-2"></i>Base de Datos</div>
+                            <div class="fs-2 fw-bold text-white">{{ $dbSize }}</div>
+                            <div class="stat-mini-label mt-1">PESO EN DISCO</div>
                         </div>
-                        <div class="progress mt-2" style="height: 4px; background: rgba(255,255,255,0.05);">
-                            <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="width: 25%"></div>
+                    </div>
+                    {{-- Tarjeta 2: Multimedia --}}
+                    <div class="col-md">
+                        <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                            <div class="stat-label text-purple"><i class="bi bi-images me-2"></i>Contenido</div>
+                            <div class="fs-2 fw-bold text-white">{{ $archivosSubidos }}</div>
+                            <div class="stat-mini-label mt-1">FOTOS / VIDEOS</div>
                         </div>
-                        <div class="mt-3 d-flex justify-content-between align-items-center">
-                            <div class="d-flex gap-2">
-                                <span class="infra-tag">99.9% Uptime</span>
-                                <span class="infra-tag">Tier 1 SSD</span>
-                            </div>
-                            <div class="text-end">
-                                <small class="text-muted" style="font-size: 0.65rem;">Costo Proyectado</small>
-                                <div class="text-info fw-bold">{{ $costoStorage }}</div>
-                            </div>
+                    </div>
+                    {{-- Tarjeta 3: Almacenamiento Bunny --}}
+                    <div class="col-md">
+                        <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                            <div class="stat-label text-warning"><i class="bi bi-hdd-network me-2"></i>Nube (Bunny)</div>
+                            <div class="fs-2 fw-bold text-white">{{ $consumoStorage }}</div>
+                            <div class="stat-mini-label mt-1">CAPACIDAD USADA</div>
+                        </div>
+                    </div>
+                    {{-- Tarjeta 4: Proyección de Costo --}}
+                    <div class="col-md">
+                        <div class="p-3 rounded-4" style="background: rgba(234, 179, 8, 0.05); border: 1px solid rgba(234, 179, 8, 0.2);">
+                            <div class="stat-label text-warning fw-bold"><i class="bi bi-calculator me-2"></i>Costo Proyectado</div>
+                            <div class="fs-2 fw-bold text-warning text-glow-warning">{{ $costoProyectado }}</div>
+                            <div class="stat-mini-label mt-1">ESTIMADO FIN DE MES</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6 text-center">
-                    <div class="oled-card border-0 bg-transparent text-start p-0">
-                        <div class="stat-label mb-2"><i class="bi bi-activity text-warning me-1"></i> Tráfico de Red</div>
-                        <div class="d-flex align-items-baseline gap-2">
-                            <span class="fs-1 fw-bold text-white">{{ explode(' ', $consumoTrafico)[0] }}</span>
-                            <span class="text-muted fw-bold">GB</span>
-                        </div>
-                        <div class="progress mt-2" style="height: 4px; background: rgba(255,255,255,0.05);">
-                            <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: 60%"></div>
-                        </div>
-                        <div class="mt-3 d-flex justify-content-between align-items-center">
-                            <div class="d-flex gap-2">
-                                <span class="infra-tag">Global Edge</span>
-                                <span class="infra-tag">SSL Active</span>
-                            </div>
-                            <div class="text-end">
-                                <small class="text-muted" style="font-size: 0.65rem;">Costo Proyectado</small>
-                                <div class="text-warning fw-bold">{{ $costoTrafico }}</div>
-                            </div>
-                        </div>
+                {{-- Barra de progreso global de recursos --}}
+                <div class="mt-4 pt-2">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="stat-mini-label">ESTADO DE CAPACIDAD DEL SERVIDOR</span>
+                        <span class="stat-mini-label text-info">99.9% UPTIME ACTUANDO</span>
+                    </div>
+                    <div class="progress" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                        <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="width: 15%"></div>
                     </div>
                 </div>
-
-                <div class="col-md-12 mt-5">
-                    <div class="oled-card">
-                        <div class="row align-items-center text-center">
-                            <div class="col-md-4">
-                                <div class="stat-label">Streaming Activo</div>
-                                <div class="fs-4 fw-bold text-white">{{ $streamingMensual }}</div>
-                                <div class="stat-mini-label mt-1">BUNNY STREAM</div>
-                            </div>
-                            <div class="col-md-4 border-start border-end border-white border-opacity-10">
-                                <div class="stat-label">Contenido Multimedia</div>
-                                <div class="fs-4 fw-bold text-white">{{ $archivosSubidos }}</div>
-                                <div class="stat-mini-label mt-1">TOTAL ARCHIVOS</div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="stat-label">Contenido Visual</div>
-                                <div class="fs-4 fw-bold text-white">{{ $imagenesSubidas }}</div>
-                                <div class="stat-mini-label mt-1">IMÁGENES</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
+    </div>    </div>
 
         <div class="col-md-4">
             <h5 class="stat-mini-label mb-4">PANEL DE OPERACIONES</h5>

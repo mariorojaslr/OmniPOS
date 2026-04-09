@@ -33,6 +33,7 @@ class Empresa extends Model
         'custom_max_users',
         'custom_max_storage_mb',
         'is_bonificated',
+        'grace_period_until',
         'status',
         'ultima_fecha_pago',
         // Datos fiscales
@@ -50,6 +51,7 @@ class Empresa extends Model
         'arca_certificado',
         'arca_llave',
         'arca_ambiente',
+        'arca_activo',
     ];
 
     /**
@@ -60,7 +62,9 @@ class Empresa extends Model
         'fecha_vencimiento'      => 'date',
         'fecha_cierre_ejercicio' => 'date',
         'ultima_fecha_pago'      => 'date',
+        'grace_period_until'     => 'date',
         'config_pasarelas'       => 'array',
+        'arca_activo'            => 'boolean',
     ];
 
     // =========================================================
