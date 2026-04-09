@@ -20,6 +20,10 @@ class VentaController extends Controller
      */
     public function createManual()
     {
+        if (auth()->user()->role === 'usuario') {
+            abort(403, 'No tienes permisos para realizar ventas manuales. Use el POS.');
+        }
+
         $empresaId = Auth::user()->empresa_id;
         $clients   = Client::where('empresa_id', $empresaId)->get();
         $products  = Product::paraVenta()
@@ -41,6 +45,10 @@ class VentaController extends Controller
      */
     public function storeManual(Request $request, VentaService $ventaService)
     {
+        if (auth()->user()->role === 'usuario') {
+            abort(403, 'Acción no permitida para su nivel de acceso.');
+        }
+
         $request->validate([
             'client_id' => 'required|exists:clients,id',
             'items'     => 'required|array|min:1',

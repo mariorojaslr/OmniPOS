@@ -31,6 +31,10 @@ class PresupuestoController extends Controller
 
     public function create()
     {
+        if (auth()->user()->role === 'usuario') {
+            abort(403, 'No tienes permisos para crear presupuestos. Consulta con tu administrador.');
+        }
+
         $user = Auth::user();
         $empresa = $user->empresa;
 
@@ -101,6 +105,10 @@ class PresupuestoController extends Controller
 
     public function edit($id)
     {
+        if (auth()->user()->role === 'usuario') {
+            abort(403, 'No tienes permisos para editar presupuestos.');
+        }
+
         $user = Auth::user();
         $empresa = $user->empresa;
 
@@ -184,6 +192,10 @@ class PresupuestoController extends Controller
      */
     public function clone($id)
     {
+        if (auth()->user()->role === 'usuario') {
+            abort(403, 'No tienes permisos para clonar documentos.');
+        }
+
         $user = Auth::user();
         $empresa = $user->empresa;
 
@@ -240,6 +252,10 @@ class PresupuestoController extends Controller
      */
     public function convertirAFactura($id)
     {
+        if (auth()->user()->role === 'usuario') {
+            abort(403, 'No tienes permisos para facturar presupuestos manualmente.');
+        }
+
         $user = Auth::user();
         $empresa = $user->empresa;
 

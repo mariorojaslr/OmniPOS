@@ -39,9 +39,11 @@
             <p class="text-muted small mb-0">Seguimiento comercial y cotizaciones en tiempo real</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
-                <i class="bi bi-plus-lg me-2"></i> Nueva Cotización
-            </a>
+            @if(auth()->user()->role === 'empresa')
+                <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-plus-lg me-2"></i> Nueva Cotización
+                </a>
+            @endif
             <button class="btn btn-outline-secondary fw-bold rounded-pill px-4 shadow-sm">
                 <i class="bi bi-file-earmark-pdf me-2"></i> Reportes
             </button>
@@ -130,37 +132,40 @@
                                             <i class="bi bi-printer me-2 text-primary"></i> Imprimir PDF
                                         </a>
                                     </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('empresa.presupuestos.edit', $presu->id) }}">
-                                            <i class="bi bi-pencil me-2 text-warning"></i> Editar
-                                        </a>
-                                    </li>
+                                    
+                                    @if(auth()->user()->role === 'empresa')
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('empresa.presupuestos.edit', $presu->id) }}">
+                                                <i class="bi bi-pencil me-2 text-warning"></i> Editar
+                                            </a>
+                                        </li>
 
-                                    <li><hr class="dropdown-divider"></li>
+                                        <li><hr class="dropdown-divider"></li>
 
-                                    {{-- CLONAR --}}
-                                    <li>
-                                        <form action="{{ route('empresa.presupuestos.clone', $presu->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item"
-                                                onclick="return confirm('¿Clonar el presupuesto {{ $presu->numero }}? Se creará uno nuevo con los mismos ítems para que pueda editarlo.')">
-                                                <i class="bi bi-copy me-2 text-info"></i> Clonar como nuevo
-                                            </button>
-                                        </form>
-                                    </li>
+                                        {{-- CLONAR --}}
+                                        <li>
+                                            <form action="{{ route('empresa.presupuestos.clone', $presu->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item"
+                                                    onclick="return confirm('¿Clonar el presupuesto {{ $presu->numero }}? Se creará uno nuevo con los mismos ítems para que pueda editarlo.')">
+                                                    <i class="bi bi-copy me-2 text-info"></i> Clonar como nuevo
+                                                </button>
+                                            </form>
+                                        </li>
 
-                                    <li><hr class="dropdown-divider"></li>
+                                        <li><hr class="dropdown-divider"></li>
 
-                                    {{-- CONVERTIR EN FACTURA --}}
-                                    <li>
-                                        <form action="{{ route('empresa.presupuestos.convertir_factura', $presu->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item text-success fw-bold"
-                                                onclick="return confirm('¿Convertir {{ $presu->numero }} en Factura?\n\nSe abrirá el facturador manual con los ítems pre-cargados. El presupuesto quedará marcado como ACEPTADO.')">
-                                                <i class="bi bi-receipt-cutoff me-2"></i> Convertir en Factura
-                                            </button>
-                                        </form>
-                                    </li>
+                                        {{-- CONVERTIR EN FACTURA --}}
+                                        <li>
+                                            <form action="{{ route('empresa.presupuestos.convertir_factura', $presu->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item text-success fw-bold"
+                                                    onclick="return confirm('¿Convertir {{ $presu->numero }} en Factura?\n\nSe abrirá el facturador manual con los ítems pre-cargados. El presupuesto quedará marcado como ACEPTADO.')">
+                                                    <i class="bi bi-receipt-cutoff me-2"></i> Convertir en Factura
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endif
                                 </ul>
                             </div>
                         </td>

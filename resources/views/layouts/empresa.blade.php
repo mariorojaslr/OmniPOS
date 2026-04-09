@@ -227,8 +227,10 @@ main {
                         <li><a class="dropdown-item" href="{{ route('empresa.presupuestos.index') }}">📜 Presupuestos</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.orders.index') }}">🛒 Pedidos Online</a></li>
                         <li><a class="dropdown-item fw-bold text-dark" href="{{ route('empresa.logistica.reporte') }}">📦 Reporte de Guarda</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.ventas.manual') }}">✍️ Venta Manual</a></li>
+                        @if(auth()->user()->role === 'empresa')
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('empresa.ventas.manual') }}">✍️ Venta Manual</a></li>
+                        @endif
                     </ul>
                 </li>
 
