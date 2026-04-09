@@ -76,14 +76,22 @@ body{
    BARRA DE NAVEGACIÓN (NAVBAR) - RESTAURADA Y FIJA
    ========================================================= */
 .navbar {
-    position: sticky !important;
+    position: fixed !important;
     top: 0;
-    z-index: 1060 !important; /* Por encima de todo */
+    left: 0;
+    right: 0;
+    z-index: 2000 !important; /* Prioridad máxima absoluta */
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     transition: all 0.3s ease;
+    min-height: 65px;
+}
+
+/* Compensación para que la navbar fija no tape el contenido */
+body {
+    padding-top: 70px !important;
 }
 
 @if($modoOscuro)
@@ -165,7 +173,7 @@ main {
 
 <body>
 
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg fixed-top shadow-sm">
     <div class="container-fluid">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ route('empresa.dashboard') }}">
             <img src="{{ $logo }}" style="height:34px;margin-right:8px;">
