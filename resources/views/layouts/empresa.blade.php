@@ -184,26 +184,26 @@ main {
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-box-seam me-1"></i> Productos
+                        📦 Productos
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ route('empresa.products.index') }}">Listado / Alta</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.rubros.index') }}">Gestionar Rubros</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.products.bulk-price-update') }}">Act. de Precios</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.inventory_scan') }}"><i class="bi bi-qr-code-scan me-2"></i> ESCÁNER MÓVIL</a></li>
-                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.labels.index') }}"><i class="bi bi-printer me-2"></i> IMPRIMIR ETIQUETAS</a></li>
-                        <li><a class="dropdown-item fw-bold text-dark border-top mt-2 pt-2" href="{{ route('empresa.recipes.index') }}"><i class="bi bi-mortarboard me-2"></i> RECETAS (FÓRMULAS)</a></li>
-                        <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.production_orders.index') }}"><i class="bi bi-gear-wide-connected me-2 text-success"></i> ÓRDENES DE PRODUCCIÓN</a></li>
-                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.units.index') }}"><i class="bi bi-rulers me-2"></i> UNIDADES DE MEDIDA</a></li>
-                        <li><a class="dropdown-item text-warning" href="{{ route('empresa.stock.faltantes') }}"><i class="bi bi-exclamation-triangle me-2"></i> CENTRO DE REPOSICIÓN</a></li>
-                        <li><a class="dropdown-item fw-bold text-success border-top mt-2 pt-2" href="{{ route('empresa.stock.valuation') }}"><i class="bi bi-currency-dollar me-2"></i> VALORIZACIÓN (CAPITAL)</a></li>
+                        <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.inventory_scan') }}">📲 ESCÁNER MÓVIL</a></li>
+                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.labels.index') }}">🖨️ IMPRIMIR ETIQUETAS</a></li>
+                        <li><a class="dropdown-item fw-bold text-dark border-top mt-2 pt-2" href="{{ route('empresa.recipes.index') }}">🎓 RECETAS (FÓRMULAS)</a></li>
+                        <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.production_orders.index') }}">⚙️ ÓRDENES DE PRODUCCIÓN</a></li>
+                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.units.index') }}">📏 UNIDADES DE MEDIDA</a></li>
+                        <li><a class="dropdown-item fw-bold text-warning" href="{{ route('empresa.stock.faltantes') }}">⚠️ CENTRO DE REPOSICIÓN</a></li>
+                        <li><a class="dropdown-item fw-bold text-success border-top mt-2 pt-2" href="{{ route('empresa.stock.valuation') }}">💲 VALORIZACIÓN (CAPITAL)</a></li>
                     </ul>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('empresa.stock.index') }}">
-                        <i class="bi bi-database-fill-gear"></i> Inventario
+                        📦 Inventario
                     </a>
                 </li>
 
@@ -227,16 +227,16 @@ main {
                 {{-- COMPRAS (ABASTECIMIENTO) --}}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-cart-check"></i> Compras
+                        🛒 Compras
                     </a>
                     <ul class="dropdown-menu border-0 shadow-sm">
-                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.compras.create') }}"><i class="bi bi-plus-circle me-2 text-success"></i> Nueva Compra</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.compras.index') }}"><i class="bi bi-list-ul me-2"></i> Historial de Compras</a></li>
+                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.compras.create') }}">🟢 Nueva Compra</a></li>
+                        <li><a class="dropdown-item" href="{{ route('empresa.compras.index') }}">📋 Historial de Compras</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.proveedores.index') }}"><i class="bi bi-truck me-2"></i> Proveedores</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.stock.faltantes') }}"><i class="bi bi-exclamation-triangle me-2 text-warning"></i> Reposición / Faltantes</a></li>
+                        <li><a class="dropdown-item" href="{{ route('empresa.proveedores.index') }}">🚛 Proveedores</a></li>
+                        <li><a class="dropdown-item" href="{{ route('empresa.stock.faltantes') }}">⚠️ Reposición / Faltantes</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.labels.index') }}"><i class="bi bi-qr-code me-2"></i> Etiquetas & Barcodes</a></li>
+                        <li><a class="dropdown-item" href="{{ route('empresa.labels.index') }}">🖨️ Etiquetas & Barcodes</a></li>
                     </ul>
                 </li>
 
@@ -255,14 +255,14 @@ main {
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle font-weight-bold text-danger" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-wallet2 me-1"></i> Gastos
+                        👛 Gastos
                     </a>
                     <ul class="dropdown-menu shadow-sm border-0">
                         <li><a class="dropdown-item fw-bold" href="{{ route('empresa.gastos.index') }}">📋 Listado / Auditoría</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.gastos_categorias.index') }}">🏷️ Gestionar Categorías</a></li>
                         <li><hr class="dropdown-divider opacity-50"></li>
                         @if(auth()->user()->can_register_expenses || auth()->user()->role === 'empresa')
-                            <li><a class="dropdown-item text-warning fw-bold" href="{{ route('empresa.gastos.quick') }}"><i class="bi bi-phone me-1"></i> Registro de Gasto Rápido</a></li>
+                            <li><a class="dropdown-item text-warning fw-bold" href="{{ route('empresa.gastos.quick') }}">📱 Registro de Gasto Rápido</a></li>
                         @endif
                     </ul>
                 </li>
