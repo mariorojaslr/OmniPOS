@@ -5,17 +5,7 @@
 <style>
     :root {
         --oled-black: #000000;
-        --oled-card: rgba(12, 15, 22, 0.85);
-        --oled-border: rgba(255, 255, 255, 0.50);
-        --accent-blue: #3b82f6;
-        --accent-cyan: #22d3ee;
-        --accent-purple: #a855f7;
-        --accent-green: #22c55e;
-        --accent-yellow: #eab308;
-        --accent-red: #ef4444;
-        --glass-white: rgba(255, 255, 255, 0.04);
-        --glass-border: rgba(255, 255, 255, 0.50);
-        --glass-border-strong: rgba(255, 255, 255, 0.70);
+        --glass-border-strong: rgba(255, 255, 255, 0.65);
     }
 
     body {
@@ -25,248 +15,151 @@
     }
 
     /* ===== AMBIENT BACKGROUND ===== */
-    .command-center-bg {
-        position: relative;
-        min-height: 100vh;
-    }
+    .command-center-bg { position: relative; min-height: 100vh; }
     .command-center-bg::before {
         content: "";
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
         background:
-            radial-gradient(ellipse at 10% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 45%),
-            radial-gradient(ellipse at 90% 10%, rgba(168, 85, 247, 0.06) 0%, transparent 45%),
-            radial-gradient(ellipse at 50% 90%, rgba(34, 197, 94, 0.04) 0%, transparent 45%),
-            radial-gradient(ellipse at 30% 50%, rgba(34, 211, 238, 0.03) 0%, transparent 40%);
+            radial-gradient(ellipse at 10% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
+            radial-gradient(ellipse at 90% 10%, rgba(168, 85, 247, 0.09) 0%, transparent 45%),
+            radial-gradient(ellipse at 50% 90%, rgba(34, 197, 94, 0.07) 0%, transparent 45%),
+            radial-gradient(ellipse at 30% 50%, rgba(34, 211, 238, 0.05) 0%, transparent 40%);
         pointer-events: none;
         z-index: 0;
     }
 
     /* ===== HEADER ===== */
     .header-title {
-        font-weight: 800;
-        font-size: 2rem;
+        font-weight: 800; font-size: 2rem;
         background: linear-gradient(135deg, #fff 0%, #60a5fa 50%, #a78bfa 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         letter-spacing: -1px;
     }
-    .header-subtitle {
-        font-size: 0.65rem;
-        letter-spacing: 3px;
-        color: #64748b;
-        font-weight: 600;
-    }
+    .header-subtitle { font-size: 0.65rem; letter-spacing: 3px; color: #64748b; font-weight: 600; }
     .header-version {
-        font-size: 0.6rem;
-        padding: 3px 10px;
-        border-radius: 20px;
-        background: rgba(34, 211, 238, 0.1);
-        color: #22d3ee;
-        border: 1px solid rgba(34, 211, 238, 0.25);
-        font-weight: 700;
-        letter-spacing: 1px;
-        backdrop-filter: blur(10px);
+        font-size: 0.6rem; padding: 3px 10px; border-radius: 20px;
+        background: rgba(34, 211, 238, 0.15); color: #22d3ee;
+        border: 1px solid rgba(34, 211, 238, 0.45); font-weight: 700; letter-spacing: 1px;
     }
 
-    /* ===== GLASSMORPHISM BASE ===== */
-    .glass {
-        background: var(--glass-white);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid var(--glass-border);
-    }
-
-    /* ===== OLED CARDS (Cristales sobre fondo oscuro) ===== */
+    /* ===== OLED CARDS — Cristal con borde blanco fuerte ===== */
     .oled-card {
-        background: rgba(15, 18, 28, 0.75);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.70);
-        border-radius: 16px;
-        padding: 1.5rem;
+        background: rgba(15, 20, 35, 0.80);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        border-radius: 16px; padding: 1.5rem;
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        position: relative; overflow: hidden;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
     }
     .oled-card:hover {
-        border-color: rgba(255, 255, 255, 0.90);
-        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        border-color: rgba(255,255,255,0.95);
+        box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
     }
 
-    /* ===== KPI METRIC CARDS (Cristales con color de acento) ===== */
+    /* ===== KPI CARDS — Cristal traslúcido con color propio ===== */
     .kpi-card {
-        background: rgba(15, 18, 28, 0.7);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.70);
-        border-radius: 14px;
-        padding: 1.2rem 1rem;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        text-decoration: none !important;
-        display: block;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        background: rgba(15, 20, 35, 0.75);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.60);
+        border-radius: 14px; padding: 1.2rem 1rem;
+        position: relative; overflow: hidden;
+        transition: all 0.3s ease; text-decoration: none !important; display: block;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
     }
     .kpi-card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transform: translateY(-4px); border-color: rgba(255,255,255,0.95);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
     }
     .kpi-card .kpi-icon {
-        width: 36px; height: 36px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        margin-bottom: 0.8rem;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        width: 36px; height: 36px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; margin-bottom: 0.8rem;
+        border: 1px solid rgba(255,255,255,0.15);
     }
-    .kpi-card .kpi-value {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #fff;
-        line-height: 1;
-        margin-bottom: 0.3rem;
-    }
-    .kpi-card .kpi-label {
-        font-size: 0.6rem;
-        letter-spacing: 1.5px;
-        color: #94a3b8;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
+    .kpi-card .kpi-value { font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 0.3rem; }
+    .kpi-card .kpi-label { font-size: 0.6rem; letter-spacing: 1.5px; color: #94a3b8; font-weight: 700; text-transform: uppercase; }
     .kpi-card .kpi-glow {
-        position: absolute;
-        top: -20px; right: -20px;
-        width: 100px; height: 100px;
-        border-radius: 50%;
-        filter: blur(40px);
-        opacity: 0.2;
-        pointer-events: none;
+        position: absolute; top: -20px; right: -20px;
+        width: 110px; height: 110px; border-radius: 50%;
+        filter: blur(35px); opacity: 0.40; pointer-events: none;
     }
 
     /* ===== GAUGE CARDS ===== */
     .gauge-card {
-        background: rgba(15, 18, 28, 0.7);
-        backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.70);
-        border-radius: 16px;
-        padding: 1rem;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        background: rgba(15, 20, 35, 0.75);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.65);
+        border-radius: 16px; padding: 1rem; text-align: center;
+        position: relative; overflow: hidden;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07);
     }
-    .gauge-label {
-        font-size: 0.6rem;
-        letter-spacing: 2px;
-        font-weight: 700;
-        margin-top: -5px;
-    }
+    .gauge-label { font-size: 0.6rem; letter-spacing: 2px; font-weight: 700; margin-top: -5px; }
 
     /* ===== WIDGET HEADERS ===== */
-    .widget-header {
-        font-size: 0.65rem;
-        letter-spacing: 2px;
-        color: #e2e8f0;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
+    .widget-header { font-size: 0.65rem; letter-spacing: 2px; color: #e2e8f0; font-weight: 700; text-transform: uppercase; }
     .widget-header i { font-size: 0.8rem; opacity: 0.7; }
     .widget-link {
-        font-size: 0.6rem;
-        color: #64748b;
-        text-decoration: none;
-        letter-spacing: 1px;
-        font-weight: 600;
-        transition: color 0.3s;
-        border: 1px solid rgba(255,255,255,0.08);
-        padding: 3px 10px;
-        border-radius: 6px;
+        font-size: 0.6rem; color: #94a3b8; text-decoration: none;
+        letter-spacing: 1px; font-weight: 600; transition: all 0.2s;
+        border: 1px solid rgba(255,255,255,0.25); padding: 3px 10px; border-radius: 6px;
     }
-    .widget-link:hover { color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); }
+    .widget-link:hover { color: #3b82f6; border-color: rgba(59,130,246,0.55); }
 
-    /* ===== ACTIVITY LOG ROWS (Cristal azul tenue) ===== */
+    /* ===== ACTIVITY ROWS — Cristal AZUL ===== */
     .activity-row {
-        background: rgba(59, 130, 246, 0.03);
-        border: 1px solid rgba(59, 130, 246, 0.1);
-        border-radius: 10px;
-        padding: 0.75rem 1rem;
-        margin-bottom: 0.5rem;
+        background: rgba(59, 130, 246, 0.10);
+        border: 1px solid rgba(59, 130, 246, 0.40);
+        border-left: 3px solid rgba(59, 130, 246, 0.80);
+        border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 0.5rem;
         transition: all 0.2s ease;
-        border-left: 3px solid rgba(59, 130, 246, 0.3);
     }
     .activity-row:hover {
-        background: rgba(59, 130, 246, 0.07);
-        border-color: rgba(59, 130, 246, 0.2);
+        background: rgba(59, 130, 246, 0.18);
+        border-color: rgba(59, 130, 246, 0.70);
         border-left-color: #3b82f6;
+        box-shadow: 0 4px 16px rgba(59,130,246,0.15);
     }
 
-    /* ===== COMMAND BUTTONS (Cristales interactivos) ===== */
+    /* ===== COMMAND BUTTONS ===== */
     .cmd-btn {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.50);
-        color: #94a3b8;
-        border-radius: 12px;
-        padding: 10px 14px;
-        font-weight: 600;
-        font-size: 0.8rem;
-        transition: all 0.25s ease;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        text-align: left;
-        margin-bottom: 8px;
-        text-decoration: none;
+        color: #94a3b8; border-radius: 12px; padding: 10px 14px;
+        font-weight: 600; font-size: 0.8rem; transition: all 0.25s ease;
+        display: flex; align-items: center; gap: 10px;
+        width: 100%; text-align: left; margin-bottom: 8px; text-decoration: none;
     }
     .cmd-btn:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.90);
-        color: #fff;
-        transform: translateX(4px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.90);
+        color: #fff; transform: translateX(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
-    .cmd-btn i { font-size: 1.1rem; opacity: 0.8; }
+    .cmd-btn i { font-size: 1.1rem; opacity: 0.85; }
     .cmd-btn .cmd-label { font-size: 0.75rem; font-weight: 700; color: #e2e8f0; }
     .cmd-btn .cmd-sub { font-size: 0.6rem; color: #94a3b8; font-weight: 500; }
 
-    /* ===== COMPANY ROWS (Cristal con borde visible) ===== */
+    /* ===== COMPANY ROWS — Cristal blanco ===== */
     .company-row {
-        background: rgba(255, 255, 255, 0.025);
+        background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.55);
-        border-radius: 12px;
-        padding: 0.8rem 1rem;
-        margin-bottom: 0.5rem;
+        border-radius: 12px; padding: 0.8rem 1rem; margin-bottom: 0.5rem;
         transition: all 0.25s ease;
     }
     .company-row:hover {
-        background: rgba(59, 130, 246, 0.05);
-        border-color: rgba(59, 130, 246, 0.25);
-        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.08);
+        background: rgba(59, 130, 246, 0.12);
+        border-color: rgba(59, 130, 246, 0.65);
+        box-shadow: 0 4px 20px rgba(59,130,246,0.15);
     }
     .company-avatar {
-        width: 38px; height: 38px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 0.7rem;
-        color: #fff;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.7rem; color: #fff;
+        border: 1px solid rgba(255,255,255,0.20);
     }
 
-    /* ===== TICKET ROWS (Cristal rojo tenue) ===== */
+    /* ===== TICKET ROWS — Cristal ROJO ===== */
     .ticket-row {
-        background: rgba(239, 68, 68, 0.03);
-        border: 1px solid rgba(239, 68, 68, 0.1);
-        border-radius: 10px;
-        padding: 0.7rem 1rem;
         margin-bottom: 0.4rem;
         transition: all 0.2s ease;
     }
