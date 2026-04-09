@@ -84,7 +84,7 @@ Route::middleware('auth')->group(function() {
 
     // AYUDA CONTEXTUAL (MANUAL INTERACTIVO)
     Route::get('/help/fetch', [App\Http\Controllers\HelpArticleController::class, 'fetch'])->name('help.fetch');
-    Route::post('/help/save', [App\Http\Controllers\HelpArticleController::class, 'save'])->name('help.save')->middleware('owner');
+    Route::post('/help/save', [App\Http\Controllers\HelpArticleController::class, 'save'])->name('help.save');
 });
 
 /* |-------------------------------------------------------------------------- | OWNER (ADMINISTRACIÓN MASTER) |-------------------------------------------------------------------------- */

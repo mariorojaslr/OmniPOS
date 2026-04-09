@@ -29,6 +29,11 @@ class HelpArticleController extends Controller
      */
     public function save(Request $request)
     {
+        // Solo el Owner (real o mimetizado) puede guardar ayuda
+        if (auth()->user()->role !== 'owner' && !session('impersonator_id')) {
+            return response()->json(['success' => false, 'message' => 'No autorizado'], 403);
+        }
+
         $request->validate([
             'route_name' => 'required|string',
             'title'      => 'required|string|max:255',
