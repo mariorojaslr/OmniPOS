@@ -609,7 +609,6 @@ body{
 
     function closeHelp() { helpModal.hide(); }
 
-    @if(auth()->user()->role === 'owner')
     function enterEditMode() {
         $("#help-view-mode").hide();
         $("#help-edit-mode").show();
@@ -665,7 +664,6 @@ body{
             }
         });
     }
-    @endif
 </script>
 
 </body>
