@@ -225,438 +225,209 @@
         </div>
     </div>
 
-    {{-- RACE CONTROL: VELOCÍMETROS DE SALUD --}}
+    {{-- NIVEL 1: CORE METRICS --}}
     <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="oled-card text-center p-3">
-                <div id="chartSales" style="min-height: 200px;"></div>
+            <div class="oled-card text-center p-3 h-100">
+                <div id="chartSales" style="min-height: 180px;"></div>
                 <div class="stat-label">VELOCIDAD DE VENTAS</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="oled-card text-center p-3">
-                <div id="chartExpenses" style="min-height: 200px;"></div>
+            <div class="oled-card text-center p-3 h-100">
+                <div id="chartExpenses" style="min-height: 180px;"></div>
                 <div class="stat-label">TASA DE GASTOS</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="oled-card text-center p-3">
-                <div id="chartGlobal" style="min-height: 200px;"></div>
-                <div class="stat-label">ESTADO GLOBAL DE LA MISIÓN</div>
+            <div class="oled-card text-center p-3 h-100">
+                <div id="chartGlobal" style="min-height: 180px;"></div>
+                <div class="stat-label">SALUD DE LA MISIÓN</div>
             </div>
         </div>
     </div>
 
-    {{-- METRICAS CORE (LEVEL 1) --}}
-    <div class="row g-4 mb-4">
-        <div class="col-md-2">
-            <a href="{{ route('owner.empresas.index') }}" class="oled-card clickable-card">
-                <div class="stat-label">Empresas</div>
-                <div class="stat-value text-glow-primary" style="font-size: 2rem;">{{ $empresasCount }}</div>
-                <div class="stat-mini-label">{{ $empresasActivas }} OK</div>
-            </a>
-        </div>
-
-        <div class="col-md-2">
-            <a href="{{ route('owner.empresas.index') }}" class="oled-card clickable-card">
-                <div class="stat-label">Usuarios</div>
-                <div class="stat-value text-glow-purple" style="font-size: 2rem;">{{ $usuariosCount }}</div>
-                <div class="stat-mini-label">ACTIVOS</div>
-            </a>
-        </div>
-
-        <div class="col-md-2">
-            <div class="oled-card">
-                <div class="stat-label">Artículos</div>
-                <div class="stat-value text-glow-primary" style="font-size: 2rem;">{{ $articulosCount }}</div>
-                <div class="stat-mini-label">SKU TOTAL</div>
-            </div>
-        </div>
-
-        <div class="col-md-2">
-            <div class="oled-card">
-                <div class="stat-label text-success">Clientes</div>
-                <div class="stat-value text-glow-success" style="font-size: 2rem;">{{ $clientesCount }}</div>
-                <div class="stat-mini-label">REGISTRADOS</div>
-            </div>
-        </div>
-
-        <div class="col-md-2">
-            <a href="{{ route('owner.facturacion.index') }}" class="oled-card clickable-card" style="border-color: rgba(34, 197, 94, 0.3);">
-                <div class="stat-label text-success">MRR</div>
-                <div class="stat-value text-glow-success" style="font-size: 1.8rem;">{{ $mrr }}</div>
-                <div class="stat-mini-label">MENSUAL</div>
-            </a>
-        </div>
-
-        <div class="col-md-2">
-            <a href="{{ route('owner.facturacion.index') }}" class="oled-card clickable-card">
-                <div class="stat-label text-warning">Ventas Mes</div>
-                <div class="stat-value text-glow-warning" style="font-size: 1.8rem;">{{ $facturacionMes }}</div>
-                <div class="stat-mini-label">RENOVACIONES</div>
-            </a>
-        </div>
-    </div>
-
-    {{-- RADAR DE ADQUISICIÓN Y TRÁFICO (LEVEL 1.5) --}}
-    <div class="row g-4 mb-5">
-        <div class="col-md-12 mb-1">
-            <h5 class="stat-mini-label mb-0"><span class="live-indicator-fast"></span> RADAR DE ADQUISICIÓN EXTERNA (EN VIVO)</h5>
-        </div>
-        <div class="col-md-4">
-            <a href="{{ route('owner.crm.index') }}" class="oled-card clickable-card" style="border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 0 20px rgba(168, 85, 247, 0.1) inset;">
-                <div class="radar-sweep"></div>
-                <div class="stat-label" style="color: #c084fc;"><i class="bi bi-globe2 me-1"></i> Visitantes Landing Page</div>
-                <div class="d-flex align-items-end gap-3 mb-1 mt-2">
-                    <span class="fs-1 fw-bold text-white text-glow-purple lh-1">{{ $landingVisits }}</span>
-                    <span class="text-success small fw-bold mb-1"><i class="bi bi-arrow-up-right"></i> +14%</span>
-                </div>
-                <div class="stat-mini-label">PERSONAS HOY</div>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a href="{{ route('owner.crm.index') }}" class="oled-card clickable-card" style="border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 0 20px rgba(59, 130, 246, 0.1) inset;">
-                <div class="radar-sweep radar-sweep-blue"></div>
-                <div class="stat-label" style="color: #93c5fd;"><i class="bi bi-play-circle me-1"></i> Entradas al DEMO</div>
-                <div class="d-flex align-items-end gap-3 mb-1 mt-2">
-                    <span class="fs-1 fw-bold text-white text-glow-primary lh-1">{{ $demoEntries }}</span>
-                    <span class="text-success small fw-bold mb-1"><i class="bi bi-arrow-up-right"></i> Activos</span>
-                </div>
-                <div class="stat-mini-label">PRUEBAS EN CURSO</div>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a href="{{ route('owner.crm.index') }}" class="oled-card clickable-card" style="border-color: rgba(34, 197, 94, 0.4); box-shadow: 0 0 20px rgba(34, 197, 94, 0.1) inset;">
-                <div class="radar-sweep radar-sweep-green"></div>
-                <div class="stat-label" style="color: #86efac;"><i class="bi bi-funnel me-1"></i> Conversión de Bot</div>
-                <div class="d-flex align-items-end gap-3 mb-1 mt-2">
-                    <span class="fs-1 fw-bold text-white text-glow-success lh-1">{{ $conversionRate }}%</span>
-                    <span class="text-white-50 small fw-bold mb-1">Efectividad</span>
-                </div>
-                <div class="stat-mini-label">LEADS CALIENTES GENERADOS</div>
-            </a>
-        </div>
-    </div>
-
-    <div class="scanline">    {{-- SECTOR DE RECURSOS (NUEVO) --}}
-    <div class="row g-4 mb-5">
-        <div class="col-md-12">
-            <h5 class="stat-mini-label mb-3"><span class="live-indicator"></span> MONITOR DE RECURSOS GLOBALES</h5>
-            <div class="oled-card p-4" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%); border-color: rgba(59, 130, 246, 0.2);">
-                <div class="row g-4 text-center">
-                    {{-- Tarjeta 1: Base de Datos --}}
-                    <div class="col-md">
-                        <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                            <div class="stat-label text-info"><i class="bi bi-database me-2"></i>Base de Datos</div>
-                            <div class="fs-2 fw-bold text-white">{{ $dbSize }}</div>
-                            <div class="stat-mini-label mt-1">PESO EN DISCO</div>
-                        </div>
-                    </div>
-                    {{-- Tarjeta 2: Multimedia --}}
-                    <div class="col-md">
-                        <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                            <div class="stat-label text-purple"><i class="bi bi-images me-2"></i>Contenido</div>
-                            <div class="fs-2 fw-bold text-white">{{ $archivosSubidos }}</div>
-                            <div class="stat-mini-label mt-1">FOTOS / VIDEOS</div>
-                        </div>
-                    </div>
-                    {{-- Tarjeta 3: Almacenamiento Bunny --}}
-                    <div class="col-md">
-                        <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                            <div class="stat-label text-warning"><i class="bi bi-hdd-network me-2"></i>Nube (Bunny)</div>
-                            <div class="fs-2 fw-bold text-white">{{ $consumoStorage }}</div>
-                            <div class="stat-mini-label mt-1">CAPACIDAD USADA</div>
-                        </div>
-                    </div>
-                    {{-- Tarjeta 4: Proyección de Costo --}}
-                    <div class="col-md">
-                        <div class="p-3 rounded-4" style="background: rgba(234, 179, 8, 0.05); border: 1px solid rgba(234, 179, 8, 0.2);">
-                            <div class="stat-label text-warning fw-bold"><i class="bi bi-calculator me-2"></i>Costo Proyectado</div>
-                            <div class="fs-2 fw-bold text-warning text-glow-warning">{{ $costoProyectado }}</div>
-                            <div class="stat-mini-label mt-1">ESTIMADO FIN DE MES</div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Barra de progreso global de recursos --}}
-                <div class="mt-4 pt-2">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="stat-mini-label">ESTADO DE CAPACIDAD DEL SERVIDOR</span>
-                        <span class="stat-mini-label text-info">99.9% UPTIME ACTUANDO</span>
-                    </div>
-                    <div class="progress" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px;">
-                        <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="width: 15%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>    </div>
-
-    <div class="row g-4 mb-5">
-        {{-- BITÁCORA Y PROSPECTOS CRM (RESTORED) --}}
+    {{-- NIVEL 2: DASHBOARD 360 (WIDGETS) --}}
+    <div class="row g-4">
+        
+        {{-- COLUMNA PRINCIPAL (ACTIVIDAD Y OPERACIONES) --}}
         <div class="col-md-8">
-            <h5 class="stat-mini-label mb-4">BITÁCORA DE INTELIGENCIA COMERCIAL (LIVE)</h5>
-            <div class="oled-card p-0 mb-4 overflow-hidden" style="max-height: 380px; overflow-y: auto;">
-                <div class="p-3">
+            
+            {{-- WIDGET: BITÁCORA CRM --}}
+            <div class="oled-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="stat-mini-label mb-0"><i class="bi bi-robot me-2"></i> BITÁCORA DE INTELIGENCIA COMERCIAL</h5>
+                    <span class="live-indicator"></span>
+                </div>
+                <div class="custom-scrollbar" style="max-height: 350px; overflow-y: auto; padding-right: 10px;">
                     @forelse($crmActivities as $act)
-                    <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded" style="background: rgba(255,255,255,0.02); border-left: 3px solid #3b82f6; transition: 0.3s; cursor: default;" onmouseover="this.style.background='rgba(59, 130, 246, 0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                    <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded" style="background: rgba(255,255,255,0.02); border-left: 3px solid #3b82f6;">
                         <div class="text-white-50 small font-mono opacity-50">{{ $act->created_at->format('H:i') }}</div>
                         <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <span class="text-info fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">{{ strtoupper($act->channel) }}</span>
-                                <span class="badge rounded-pill bg-dark border border-{{ $act->status == 'activo' ? 'success' : 'primary' }} border-opacity-25 text-{{ $act->status == 'activo' ? 'success' : 'primary' }}" style="font-size: 0.6rem;">{{ strtoupper($act->status) }}</span>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-info fw-bold" style="font-size: 0.7rem;">{{ strtoupper($act->channel) }}</span>
+                                <span class="badge rounded-pill bg-dark border border-primary border-opacity-25 text-primary" style="font-size: 0.55rem;">{{ strtoupper($act->status) }}</span>
                             </div>
-                            <div class="text-white mt-1 fw-600">{{ $act->target_name }} <span class="text-muted small">({{ $act->target_origin }})</span></div>
-                            <div class="small text-muted mt-1 opacity-75">{{ $act->details }}</div>
+                            <div class="text-white small fw-bold mt-1 text-truncate" style="max-width: 400px;">{{ $act->target_name }}</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">{{ Str::limit($act->details, 80) }}</div>
                         </div>
                     </div>
                     @empty
-                    <div class="text-center py-5 opacity-50">
-                        <i class="bi bi-robot fs-1 mb-3 d-block"></i>
-                        <div class="stat-mini-label">SIN ACTIVIDAD RECIENTE</div>
-                    </div>
+                    <div class="text-center py-5 opacity-50">SIN ACTIVIDAD</div>
                     @endforelse
                 </div>
             </div>
 
-            <h5 class="stat-mini-label mb-4">ÚLTIMOS PROSPECTOS DETECTADOS (Fase 0)</h5>
-            <div class="row g-3 mb-5">
-                @foreach($nuevosLeads as $lead)
-                <div class="col-md-6">
-                    <div class="oled-card p-3" style="border-style: dashed;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="text-white fw-bold">{{ $lead->name }}</div>
-                                <div class="text-primary small fw-bold">{{ $lead->lead_source ?? 'LinkedIn' }}</div>
-                            </div>
-                            <a href="{{ route('owner.crm.index') }}" class="btn btn-sm btn-outline-primary border-0"><i class="bi bi-arrow-right"></i></a>
+            {{-- WIDGET: SOPORTE TÉCNICO --}}
+            <div class="oled-card mb-4" style="border-color: rgba(239, 68, 68, 0.2);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="stat-mini-label mb-0 text-danger"><i class="bi bi-headset me-2"></i> TICKETS DE SOPORTE ACTIVOS</h5>
+                    <a href="{{ route('owner.soporte.index') }}" class="text-muted text-decoration-none small">Ver todos</a>
+                </div>
+                <div class="space-y-2">
+                    @forelse($ultimosTickets as $ticket)
+                    <div class="d-flex justify-content-between align-items-center p-3 rounded mb-2" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                        <div>
+                            <div class="text-white fw-bold small">{{ $ticket->empresa->nombre_comercial ?? 'General' }}</div>
+                            <div class="text-muted small">{{ Str::limit($ticket->subject, 50) }}</div>
                         </div>
+                        <span class="badge bg-{{ $ticket->status == 'open' ? 'danger' : 'info' }} bg-opacity-10 text-{{ $ticket->status == 'open' ? 'danger' : 'info' }} border border-{{ $ticket->status == 'open' ? 'danger' : 'info' }} border-opacity-25">
+                            {{ strtoupper($ticket->status) }}
+                        </span>
+                    </div>
+                    @empty
+                    <div class="text-center py-4 opacity-50">LIMPIO</div>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- WIDGET: ÚLTIMAS EMPRESAS --}}
+            <div class="oled-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="stat-mini-label mb-0"><i class="bi bi-building me-2"></i> ÚLTIMOS DESPLEGUES</h5>
+                    <a href="{{ route('owner.empresas.index') }}" class="text-muted text-decoration-none small">Gestionar</a>
+                </div>
+                @foreach($ultimasEmpresas as $emp)
+                <div class="d-flex justify-content-between align-items-center p-3 rounded mb-2" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-primary bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="bi bi-building text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="text-white fw-bold small">{{ $emp->nombre_comercial }}</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">{{ $emp->plan->nombre ?? 'SaaS' }} · {{ $emp->created_at->format('d/m/Y') }}</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        @php $admin = $emp->users()->where('role', 'empresa')->first() ?? $emp->users->first(); @endphp
+                        @if($admin)
+                        <a href="{{ url('owner/mimetizar/empresa/' . $emp->id . '/usuario/' . $admin->id) }}" class="btn btn-sm btn-outline-primary px-3 fw-bold" style="font-size: 0.65rem;">ENTRAR</a>
+                        @endif
+                        <a href="{{ url('owner/empresas/' . $emp->id . '/edit') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
                     </div>
                 </div>
                 @endforeach
             </div>
 
-            {{-- Componente Restablecido: Tickets de Soporte --}}
-            <h5 class="stat-mini-label mb-4">TICKETS DE SOPORTE ACTIVOS</h5>
-            <div class="oled-card p-0 mb-5 overflow-hidden">
-                <div class="table-responsive">
-                    <table class="table table-dark mb-0 align-middle" style="--bs-table-bg: transparent; --bs-table-border-color: rgba(255,255,255,0.05);">
-                        <thead class="stat-mini-label border-bottom">
-                            <tr>
-                                <th class="ps-4">CLIENTE</th>
-                                <th>ASUNTO</th>
-                                <th class="text-center">ESTADO</th>
-                                <th class="text-end pe-4">COMANDO</th>
-                            </tr>
-                        </thead>
-                        <tbody class="small" style="color: #94a3b8;">
-                            @forelse($ultimosTickets as $ticket)
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                                <td class="ps-4">
-                                    <div class="text-white fw-bold">{{ $ticket->empresa->nombre_comercial ?? 'General' }}</div>
-                                    <div class="text-muted" style="font-size: 0.7rem;">#{{ $ticket->id }}</div>
-                                </td>
-                                <td>{{ Str::limit($ticket->subject, 30) }}</td>
-                                <td class="text-center">
-                                    <span class="badge rounded-pill bg-{{ $ticket->status == 'open' ? 'danger' : 'info' }} bg-opacity-25 text-{{ $ticket->status == 'open' ? 'danger' : 'info' }}">
-                                        {{ strtoupper($ticket->status) }}
-                                    </span>
-                                </td>
-                                <td class="text-end pe-4">
-                                    <a href="{{ route('owner.soporte.index') }}" class="btn btn-sm btn-outline-secondary border-0"><i class="bi bi-eye"></i></a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr><td colspan="4" class="text-center py-4 opacity-50 italic">No hay tickets pendientes</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {{-- Componente Restablecido: Pagos Recientes --}}
-            <h5 class="stat-mini-label mb-4">RENOVACIONES Y PAGOS RECIENTES</h5>
-            <div class="oled-card p-0 mb-4 overflow-hidden" style="border-color: rgba(34, 197, 94, 0.2);">
-                <div class="table-responsive">
-                    <table class="table table-dark mb-0 align-middle" style="--bs-table-bg: transparent; --bs-table-border-color: rgba(255,255,255,0.05);">
-                        <thead class="stat-mini-label border-bottom text-success">
-                            <tr>
-                                <th class="ps-4">EMPRESA</th>
-                                <th>MONTO</th>
-                                <th class="text-center">FECHA</th>
-                                <th class="text-end pe-4">ESTADO</th>
-                            </tr>
-                        </thead>
-                        <tbody class="small" style="color: #94a3b8;">
-                            @forelse($ultimosPagos as $pago)
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                                <td class="ps-4">
-                                    <div class="text-white fw-bold">{{ $pago->empresa->nombre_comercial }}</div>
-                                    <div class="text-muted" style="font-size: 0.7rem;">{{ $pago->metodo }}</div>
-                                </td>
-                                <td class="text-success">$ {{ number_format($pago->monto, 0, ',', '.') }}</td>
-                                <td class="text-center">{{ $pago->fecha_pago->format('d/m/Y') }}</td>
-                                <td class="text-end pe-4">
-                                    <span class="text-success"><i class="bi bi-check-circle-fill"></i></span>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr><td colspan="4" class="text-center py-4 opacity-50 italic">No se registran pagos hoy</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
 
-        {{-- PANEL DE OPERACIONES --}}
+        {{-- COLUMNA LATERAL (HERRAMIENTAS E INFRAESTRUCTURA) --}}
         <div class="col-md-4">
-            <h5 class="stat-mini-label mb-4">PANEL DE OPERACIONES SaaS</h5>
             
-            <a href="{{ route('owner.crm.index') }}" class="command-btn border-primary border-opacity-50" style="background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent);">
-                <i class="bi bi-people-fill text-primary"></i>
-                <div>
-                    <div class="text-white fw-bold">CRM DE PROSPECTOS</div>
-                    <small class="text-primary opacity-75" style="font-size: 0.7rem;">Nuevos Leads & Pagos pendientes</small>
-                </div>
-            </a>
+            {{-- WIDGET: PANEL DE OPERACIONES --}}
+            <div class="oled-card mb-4" style="background: linear-gradient(180deg, rgba(59, 130, 246, 0.05), transparent);">
+                <h5 class="stat-mini-label mb-4">PANEL DE CONTROL Maestro</h5>
+                
+                <a href="{{ route('owner.crm.index') }}" class="command-btn border-primary border-opacity-50">
+                    <i class="bi bi-people-fill text-primary"></i>
+                    <div>
+                        <div class="text-white fw-bold">CRM ESTRATÉGICO</div>
+                        <small class="text-primary opacity-75">Prospectos y Ventas</small>
+                    </div>
+                </a>
 
-            <a href="{{ route('owner.empresas.index') }}" class="command-btn">
-                <i class="bi bi-building"></i>
-                <div>
-                    <div>GESTIÓN DE EMPRESAS</div>
-                    <small class="text-muted" style="font-size: 0.7rem;">Control de suscripciones</small>
-                </div>
-            </a>
+                <a href="{{ route('owner.facturacion.index') }}" class="command-btn">
+                    <i class="bi bi-wallet2"></i>
+                    <div>
+                        <div class="text-white fw-bold">CENTRO FINANCIERO</div>
+                        <small class="text-muted">Cobros y MRR</small>
+                    </div>
+                </a>
 
-            {{-- AGENTE SOCIAL LIVE (RESTAURADO) --}}
-            <h5 class="stat-mini-label mt-5 mb-4"><span class="live-indicator"></span> AGENTE SOCIAL LIVE</h5>
-            <div class="oled-card p-4 mb-4" style="border-color: rgba(56, 189, 248, 0.2); background: linear-gradient(180deg, rgba(56, 189, 248, 0.05), transparent);">
-                <div class="row g-3">
+                <a href="{{ route('owner.updates.index') }}" class="command-btn">
+                    <i class="bi bi-broadcast-pin text-info"></i>
+                    <div>
+                        <div class="text-white fw-bold">COMUNICADOS</div>
+                        <small class="text-muted">Logs de Sistema</small>
+                    </div>
+                </a>
+
+                <button type="button" class="command-btn border-warning border-opacity-50" data-bs-toggle="modal" data-bs-target="#modalSettings">
+                    <i class="bi bi-sliders text-warning"></i>
+                    <div>
+                        <div class="text-white fw-bold">AJUSTES GLOBALES</div>
+                        <small class="text-warning opacity-75">Configuración Maestro</small>
+                    </div>
+                </button>
+            </div>
+
+            {{-- WIDGET: AGENTE SOCIAL LIVE --}}
+            <div class="oled-card mb-4" style="border-color: rgba(56, 189, 248, 0.2);">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="stat-mini-label mb-0"><span class="live-indicator-fast"></span> AGENTE SOCIAL LIVE</h5>
+                </div>
+                <div class="row g-2">
                     @foreach($agent_data as $n => $d)
                     <div class="col-6">
                         <div class="p-2 rounded-3 text-center" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                            <div class="text-white fw-bold fs-4">{{ str_pad($d['scanned'], 2, '0', STR_PAD_LEFT) }}</div>
-                            <div class="text-muted" style="font-size: 0.55rem; letter-spacing: 1px; font-weight: 800;">{{ strtoupper($n) }}</div>
-                            <div class="text-success" style="font-size: 0.5rem; font-weight: 700;">+{{ $d['hunted'] }} LEADS</div>
+                            <div class="text-white fw-bold fs-5">{{ $d['scanned'] }}</div>
+                            <div class="text-muted" style="font-size: 0.5rem; letter-spacing: 1px;">{{ strtoupper($n) }}</div>
+                            <div class="text-success fw-bold" style="font-size: 0.5rem;">+{{ $d['hunted'] }} LEADS</div>
                         </div>
                     </div>
                     @endforeach
                 </div>
-                <div class="mt-4 pt-2">
-                    <a href="{{ route('owner.crm.index') }}" class="btn btn-sm btn-outline-info w-100 fw-bold py-2" style="font-size: 0.65rem; letter-spacing: 1px;">
-                        <i class="bi bi-radar me-2"></i> IR AL SCANNER MAESTRO
-                    </a>
+            </div>
+
+            {{-- WIDGET: MONITOR DE RECURSOS --}}
+            <div class="oled-card" style="border-color: rgba(255,255,255,0.1);">
+                <h5 class="stat-mini-label mb-4"><i class="bi bi-hdd-network me-2"></i> ESTADO DE RECURSOS</h5>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Costo Proyectado (Mes)</span>
+                        <span class="text-warning fw-bold small">{{ $costoProyectado }}</span>
+                    </div>
+                    <div class="progress" style="height: 4px; background: rgba(255,255,255,0.05);">
+                        <div class="progress-bar bg-warning" style="width: 45%"></div>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3 text-center">
+                    <div class="col-6">
+                        <div class="p-2 rounded bg-dark border border-white border-opacity-5">
+                            <div class="text-muted" style="font-size: 0.6rem;">BASE DE DATOS</div>
+                            <div class="text-white small fw-bold">{{ $dbSize }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 rounded bg-dark border border-white border-opacity-5">
+                            <div class="text-muted" style="font-size: 0.6rem;">NUBE (BUNNY)</div>
+                            <div class="text-white small fw-bold">{{ $consumoStorage }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-2 rounded bg-primary bg-opacity-5 border border-primary border-opacity-10">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-mini-label text-primary mb-0" style="font-size: 0.6rem;">UPTIME DEL SISTEMA</div>
+                        <span class="text-white fw-bold" style="font-size: 0.6rem;">99.9%</span>
+                    </div>
                 </div>
             </div>
 
-            <a href="{{ route('owner.facturacion.index') }}" class="command-btn">
-                <i class="bi bi-wallet2"></i>
-                <div>
-                    <div>CENTRO FINANCIERO</div>
-                    <small class="text-muted" style="font-size: 0.7rem;">Cobranzas globales</small>
-                </div>
-            </a>
-
-            <a href="{{ route('owner.soporte.index') }}" class="command-btn">
-                <i class="bi bi-headset"></i>
-                <div>
-                    <div>CENTRAL DE SOPORTE</div>
-                    <small class="text-muted" style="font-size: 0.7rem;">Gestión de tickets</small>
-                </div>
-            </a>
-
-            <a href="{{ route('owner.planes.index') }}" class="command-btn border-primary border-opacity-25" style="background: rgba(59, 130, 246, 0.05);">
-                <i class="bi bi-gear-wide-connected text-primary"></i>
-                <div>
-                    <div>PLANES Saas</div>
-                    <small class="text-muted" style="font-size: 0.7rem;">Precios y servicios</small>
-                </div>
-            </a>
-
-            <a href="{{ route('owner.updates.index') }}" class="command-btn">
-                <i class="bi bi-broadcast-pin"></i>
-                <div>
-                    <div>COMUNICADOS</div>
-                    <small class="text-muted" style="font-size: 0.7rem;">Logs de actualización</small>
-                </div>
-            </a>
-
-            <button type="button" class="command-btn border-warning border-opacity-50" data-bs-toggle="modal" data-bs-target="#modalSettings" style="background: linear-gradient(90deg, rgba(234, 179, 8, 0.1), transparent); cursor: pointer;">
-                <i class="bi bi-sliders text-warning"></i>
-                <div>
-                    <div class="text-white fw-bold">AJUSTES GLOBALES</div>
-                    <small class="text-warning opacity-75" style="font-size: 0.7rem;">Configuración maestra del SaaS</small>
-                </div>
-            </button>
         </div>
     </div>
-
-    <div class="scanline"></div>
-
-    {{-- RECENT COMPANIES (LEVEL 3) --}}
-    <div class="row g-4 mb-5">
-        <div class="col-md-12">
-            <h5 class="stat-mini-label mb-4">ÚLTIMAS EMPRESAS DESPLEGADAS</h5>
-            <div class="oled-card p-0 overflow-hidden">
-                <div class="table-responsive">
-                    <table class="table table-dark mb-0 align-middle" style="--bs-table-bg: transparent; --bs-table-border-color: rgba(255,255,255,0.05);">
-                        <thead class="stat-mini-label border-bottom">
-                            <tr>
-                                <th class="ps-4 py-3">EMPRESA / RAZÓN SOCIAL</th>
-                                <th>PLAN</th>
-                                <th class="text-center">FECHA ALTA</th>
-                                <th class="text-center">ESTADO</th>
-                                <th class="text-end pe-4">COMANDOS</th>
-                            </tr>
-                        </thead>
-                        <tbody class="small fw-normal" style="color: #94a3b8;">
-                            @foreach($ultimasEmpresas as $emp)
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                                <td class="ps-4">
-                                    <div class="fw-bold text-white fs-6">{{ $emp->nombre_comercial }}</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">{{ $emp->cuit }}</div>
-                                </td>
-                                <td>
-                                    <span class="badge rounded-pill bg-dark text-primary border border-primary border-opacity-25 px-3">
-                                        {{ $emp->plan->nombre ?? 'BÁSICO' }}
-                                    </span>
-                                </td>
-                                <td class="text-center">{{ $emp->created_at->format('d/m/Y') }}</td>
-                                <td class="text-center">
-                                    @if($emp->activo)
-                                        <span class="text-success small fw-bold"><i class="bi bi-circle-fill me-1" style="font-size: 7px;"></i> ONLINE</span>
-                                    @else
-                                        <span class="text-danger small fw-bold"><i class="bi bi-circle-fill me-1" style="font-size: 7px;"></i> OFFLINE</span>
-                                    @endif
-                                </td>
-                                <td class="text-end pe-4">
-                                    <div class="btn-group">
-                                        <a href="{{ url('owner/empresas/' . $emp->id . '/edit') }}" class="btn btn-sm btn-outline-secondary border-0 opacity-75">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
-                                        @php $admin = $emp->users()->where('role', 'empresa')->first() ?? $emp->users->first(); @endphp
-                                        @if($admin)
-                                            <a href="{{ url('owner/mimetizar/empresa/' . $emp->id . '/usuario/' . $admin->id) }}" class="btn btn-sm btn-outline-primary border-0" title="Entrar como Admin">
-                                                <i class="bi bi-person-fill-gear"></i> ENTRAR
-                                            </a>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="mt-3 text-end">
-                <a href="{{ route('owner.empresas.index') }}" class="text-primary text-decoration-none small fw-bold" style="letter-spacing: 1px;">
-                    VER TODAS LAS EMPRESAS <i class="bi bi-arrow-right ms-1"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-
 </div>
 
 {{-- ==========================================
@@ -693,14 +464,14 @@
 <script>
     // Configuración Base para Velocímetros OLED
     const commonOptions = {
-        chart: { type: 'radialBar', height: 250, sparkline: { enabled: true } },
+        chart: { type: 'radialBar', height: 230, sparkline: { enabled: true } },
         plotOptions: {
             radialBar: {
                 startAngle: -90, endAngle: 90,
                 track: { background: "#111", strokeWidth: '97%', margin: 5 },
                 dataLabels: {
                     name: { show: false },
-                    value: { offsetY: -2, fontSize: '30px', fontWeight: '800', color: '#fff', formatter: (val) => val + '%' }
+                    value: { offsetY: -2, fontSize: '24px', fontWeight: '800', color: '#fff', formatter: (val) => val + '%' }
                 }
             }
         },
@@ -708,7 +479,7 @@
         stroke: { lineCap: "round" }
     };
 
-    // 1. SALES VELOCITY (AZUL NEON)
+    // 1. SALES VELOCITY
     new ApexCharts(document.querySelector("#chartSales"), {
         ...commonOptions,
         series: [{{ $saludVentas }}],
@@ -716,7 +487,7 @@
         fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#60a5fa'], stops: [0, 100] } }
     }).render();
 
-    // 2. BURN RATE (ROJO/AMARILLO)
+    // 2. BURN RATE
     new ApexCharts(document.querySelector("#chartExpenses"), {
         ...commonOptions,
         series: [{{ $saludGastos }}],
@@ -724,7 +495,7 @@
         fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', gradientToColors: ['#f59e0b'], stops: [0, 100] } }
     }).render();
 
-    // 3. GLOBAL STATUS (VERDE NEON)
+    // 3. GLOBAL STATUS
     new ApexCharts(document.querySelector("#chartGlobal"), {
         ...commonOptions,
         series: [{{ $saludGlobal }}],
