@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <i class="bi bi-journal-x fs-1 text-muted"></i>
                 <h5 class="mt-3">Sin instrucciones aún</h5>
                 <p class="text-muted small">Esta página todavía no tiene contenido de ayuda asignado.</p>
-                @if(auth()->user()->role === 'owner')
+                @if(auth()->user()->role === 'owner' || session('impersonator_id'))
                     <button class="btn btn-primary btn-sm mt-3" onclick="enterEditMode()">Crear Ayuda</button>
                 @endif
             </div>
@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div id="help-display" style="display:none;">
                 <h3 id="help-title" class="fw-bold mb-3"></h3>
                 <div id="help-body" class="help-content mb-4"></div>
-                @if(auth()->user()->role === 'owner')
+                @if(auth()->user()->role === 'owner' || session('impersonator_id'))
                     <button class="btn btn-outline-primary w-100 fw-bold" onclick="enterEditMode()">Editar Manual</button>
                 @endif
             </div>
