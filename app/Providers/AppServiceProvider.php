@@ -22,5 +22,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        // 🛡️ BLINDAJE DE PRODUCCIÓN: 
+        // Si no estamos en local, forzamos el apagado de errores técnicos
+        if (config('app.env') !== 'local') {
+            config(['app.debug' => false]);
+        }
     }
 }
