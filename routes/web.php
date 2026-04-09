@@ -115,8 +115,11 @@ Route::middleware(['auth', 'owner'])
         Route::resource('soporte', OwnerSupportTicketController::class)->names('soporte');
         Route::post('soporte/upload-media', [OwnerSupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');
 
-        Route::patch('empresas/{empresaId}/toggle', [EmpresaController::class , 'toggleStatus'])->name('empresas.toggle');
-        Route::patch('empresas/{empresaId}/renovar', [EmpresaController::class , 'renovar'])->name('empresas.renovar');
+        Route::patch('/empresas/{id}/toggle', [App\Http\Controllers\Owner\EmpresaController::class, 'toggleStatus'])->name('empresas.toggle');
+        Route::post('/empresas/{id}/renovar', [App\Http\Controllers\Owner\EmpresaController::class, 'renovar'])->name('empresas.renovar');
+        
+        // RUTA DE EMERGENCIA PARA SANAR COLUMNAS FALTANTES
+        Route::get('/heal-database', [App\Http\Controllers\Owner\EmpresaController::class, 'healDatabase'])->name('heal.database');
 
         // CRM DE PROSPECTOS (NUEVO)
         Route::get('crm', [App\Http\Controllers\Owner\CRMController::class, 'index'])->name('crm.index');

@@ -176,5 +176,39 @@ class EmpresaController extends Controller
         auth()->login($user);
         
         return redirect()->route('empresa.dashboard')->with('info', 'Modo Mimetización: Estás viendo la plataforma como ' . $user->name);
+    /**
+     * SANADOR DE BASE DE DATOS (EMERGENCIA)
+     */
+    public function healDatabase()
+    {
+        try {
+            \Illuminate\Support\Facades\Schema::table('empresas', function (\Illuminate\Database\Schema\Blueprint $table) {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('empresas', 'custom_price')) {
+                    $table->decimal('custom_price', 10, 2)->nullable()->after('plan_id');
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('empresas', 'custom_max_products')) {
+                    $table->integer('custom_max_products')->nullable()->after('custom_price');
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('empresas', 'custom_max_users')) {
+                    $table->integer('custom_max_users')->nullable()->after('custom_max_products');
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('empresas', 'custom_max_storage_mb')) {
+                    $table->decimal('custom_max_storage_mb', 10, 2)->nullable()->after('custom_max_users');
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('empresas', 'is_bonificated')) {
+                    $table->boolean('is_bonificated')->default(false)->after('custom_max_storage_mb');
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('empresas', 'grace_period_until')) {
+                    $table->date('grace_period_until')->nullable()->after('is_bonificated');
+                }
+            });
+
+            // LOG DE ACTIVIDAD
+            \App\Models\ActivityLog::log("Healer: Base de Datos de Empresas sanada manualmente vía navegador.");
+
+            return "✅ Base de Datos de Empresas sanada con éxito. Ya podés editar la empresa.";
+        } catch (\Exception $e) {
+            return "❌ Error al sanar: " . $e->getMessage();
+        }
     }
 }
