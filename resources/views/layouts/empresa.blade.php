@@ -485,32 +485,63 @@ body{
     }
 
     .offcanvas-help { 
-        width: 450px !important; 
-        background: rgba(255, 255, 255, 0.9) !important; 
-        backdrop-filter: blur(15px); 
-        -webkit-backdrop-filter: blur(15px);
-        border-left: 1px solid rgba(255,255,255,0.3);
+        width: 480px !important; 
+        background: rgba(255, 255, 255, 0.7) !important; 
+        backdrop-filter: blur(25px) saturate(180%); 
+        -webkit-backdrop-filter: blur(25px) saturate(180%);
+        border: 1px solid rgba(255,255,255,0.4) !important;
+        border-radius: 24px !important;
+        margin: 15px;
+        height: calc(100vh - 30px) !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+
     @if($modoOscuro)
-    .offcanvas-help { background: rgba(15, 17, 21, 0.85) !important; color: #e6edf3; }
+    .offcanvas-help { 
+        background: rgba(15, 17, 21, 0.8) !important; 
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #e6edf3; 
+    }
     @endif
 
-    .help-content img { max-width: 100%; border-radius: 12px; margin: 15px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-    .help-content iframe { width: 100%; border-radius: 12px; aspect-ratio: 16/9; margin: 15px 0; }
+    .help-header-gradient {
+        background: linear-gradient(135deg, var(--color-primario) 0%, #6366f1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .help-card-edit {
+        background: rgba(var(--color-primario-rgb), 0.05);
+        border: 1px dashed var(--color-primario);
+        border-radius: 16px;
+        padding: 20px;
+    }
+
+    .help-content img { max-width: 100%; border-radius: 12px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid white; }
+    .help-content iframe { width: 100%; border-radius: 16px; aspect-ratio: 16/9; margin: 20px 0; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+    
+    /* Scrollbar elegante */
+    .offcanvas-body::-webkit-scrollbar { width: 6px; }
+    .offcanvas-body::-webkit-scrollbar-track { background: transparent; }
+    .offcanvas-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
 </style>
 
 <div id="help-trigger" onclick="openHelp()" title="Ayuda sobre esta página">
-    <i class="bi bi-question-lg"></i>
+    <i class="bi bi-magic"></i>
 </div>
 
 <div class="offcanvas offcanvas-end offcanvas-help" tabindex="-1" id="offcanvasHelp">
-    <div class="offcanvas-header border-bottom">
-        <h5 class="offcanvas-title fw-bold d-flex align-items-center">
-            <i class="bi bi-info-circle-fill me-2 text-primary"></i> Centro de Aprendizaje
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="closeHelp()"></button>
+    <div class="offcanvas-header border-0 pb-0">
+        <div class="d-flex flex-column">
+            <span class="badge bg-primary bg-opacity-10 text-primary mb-1 fw-bold" style="width: fit-content; font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase;">Knowledge Center</span>
+            <h4 class="offcanvas-title help-header-gradient">Centro de Aprendizaje</h4>
+        </div>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" onclick="closeHelp()"></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="offcanvas-body pt-4">
         <div id="help-loading" class="text-center py-5">
             <div class="spinner-border text-primary" role="status"></div>
             <p class="mt-2 text-muted">Buscando instrucciones...</p>
