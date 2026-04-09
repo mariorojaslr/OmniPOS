@@ -56,10 +56,33 @@
             </h1>
             <p class="text-muted small mb-0">Modifica los ítems o condiciones de la cotización</p>
         </div>
-        <a href="{{ route('empresa.presupuestos.index') }}" class="btn btn-light btn-sm border px-3 text-dark shadow-sm">
-            <i class="bi bi-arrow-left me-1"></i> VOLVER AL LISTADO
-        </a>
+        <div class="d-flex gap-2">
+            {{-- CLONAR DESDE EDICIÓN --}}
+            <form action="{{ route('empresa.presupuestos.clone', $presupuesto->id) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-outline-info btn-sm px-3"
+                    onclick="return confirm('¿Clonar este presupuesto como nuevo?')">
+                    <i class="bi bi-copy me-1"></i> Clonar
+                </button>
+            </form>
+            <a href="{{ route('empresa.presupuestos.index') }}" class="btn btn-light btn-sm border px-3 text-dark shadow-sm">
+                <i class="bi bi-arrow-left me-1"></i> VOLVER AL LISTADO
+            </a>
+        </div>
     </div>
+
+    {{-- ALERTAS --}}
+    @if(session('info'))
+        <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-3">
+            <i class="bi bi-copy fs-5 me-2"></i> {{ session('info') }}
+        </div>
+    @endif
+    @if(session('success'))
+        <div class="alert alert-success border-0 shadow-sm mb-3">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger border-0 shadow-sm mb-3">{{ session('error') }}</div>
+    @endif
 
     <form action="{{ route('empresa.presupuestos.update', $presupuesto->id) }}" method="POST" class="bg-white border rounded-3 shadow-sm p-3">
         @csrf
@@ -174,10 +197,20 @@
                     
                     <input type="hidden" name="total_final" :value="total">
 
-                    <div class="d-flex justify-content-end gap-2 mt-2">
-                        <button type="submit" name="status" value="pendiente" class="btn btn-primary btn-sm px-5 fw-bold shadow-sm">
-                            <i class="bi bi-save-fill me-2"></i> ACTUALIZAR PRESUPUESTO
+                    <div class="d-flex justify-content-end gap-2 mt-2 flex-wrap">
+                        <button type="submit" name="status" value="pendiente" class="btn btn-primary btn-sm px-4 fw-bold shadow-sm">
+                            <i class="bi bi-save-fill me-2"></i> ACTUALIZAR
                         </button>
+                    </div>
+                    {{-- CONVERTIR EN FACTURA --}}
+                    <div class="mt-2">
+                        <form action="{{ route('empresa.presupuestos.convertir_factura', $presupuesto->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-success w-100 fw-bold py-2 shadow-sm"
+                                onclick="return confirm('¿Convertir en Factura?\n\nEl presupuesto quedará como ACEPTADO y se abrirá el facturador manual con los ítems pre-cargados.')">
+                                <i class="bi bi-receipt-cutoff me-2"></i> CONVERTIR EN FACTURA
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

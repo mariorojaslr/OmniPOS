@@ -66,9 +66,30 @@
                                 @endif
                             </td>
                             <td class="text-end pe-4">
-                                <button class="btn btn-sm btn-light border opacity-75" title="Ver Detalles" disabled>
-                                    <i class="bi bi-eye"></i>
-                                </button>
+                                <div class="d-flex justify-content-end gap-1">
+                                    {{-- VER --}}
+                                    <a href="{{ route('empresa.production_orders.show', $o) }}"
+                                       class="btn btn-sm btn-light border"
+                                       title="Ver Detalle">
+                                        <i class="bi bi-eye text-primary"></i>
+                                    </a>
+                                    {{-- EDITAR (solo si pendiente) --}}
+                                    <a href="{{ route('empresa.production_orders.edit', $o) }}"
+                                       class="btn btn-sm btn-light border"
+                                       title="Editar Estado / Notas">
+                                        <i class="bi bi-pencil-square text-warning"></i>
+                                    </a>
+                                    {{-- CLONAR --}}
+                                    <form action="{{ route('empresa.production_orders.clone', $o) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit"
+                                                class="btn btn-sm btn-light border"
+                                                title="Clonar Orden"
+                                                onclick="return confirm('¿Desea clonar esta orden de producción?')">
+                                            <i class="bi bi-copy text-success"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

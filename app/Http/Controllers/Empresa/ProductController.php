@@ -178,6 +178,9 @@ class ProductController extends Controller
             'descripcion_larga' => $request->descripcion_larga,
         ]);
 
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Creó el producto: {$product->name}", $product);
+
         /*
         |--------------------------------------------------------------------------
         | REDIRECCIÓN INTELIGENTE
@@ -403,6 +406,9 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Actualizó los datos del producto: {$product->name}", $product);
+
         return redirect()
             ->route('empresa.products.edit', $product)
             ->with('success','Producto actualizado correctamente');
@@ -466,6 +472,9 @@ class ProductController extends Controller
             }
             fclose($file);
         };
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Exportó el listado de productos a CSV.");
 
         return response()->stream($callback, 200, $headers);
     }
@@ -587,6 +596,9 @@ class ProductController extends Controller
         }
 
         fclose($handle);
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Importó stock/productos masivamente desde archivo CSV ({$countCreated} nuevos, {$countUpdated} actualizados).");
 
         return back()->with('success', "Proceso terminado: {$countCreated} creados, {$countUpdated} actualizados.");
     }

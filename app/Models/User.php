@@ -24,9 +24,11 @@ class User extends Authenticatable
         'activo',
         'email_verified_at',
         'must_change_password', 
-        'sub_role', // cajero, empleado
+        'sub_role',
         'can_register_expenses',
-        'status', // prospecto, pendiente_pago, activo, suspendido
+        'can_manage_purchases',
+        'can_sell',
+        'status',
         'lead_source',
         'country',
         'crm_notes',
@@ -49,9 +51,12 @@ class User extends Authenticatable
     |--------------------------------------------------------------------------
     */
     protected $casts = [
-        'email_verified_at'    => 'datetime',
-        'activo'               => 'boolean',
-        'must_change_password' => 'boolean', // 👈 NUEVO
+        'email_verified_at'     => 'datetime',
+        'activo'                => 'boolean',
+        'must_change_password'  => 'boolean',
+        'can_register_expenses' => 'boolean',
+        'can_manage_purchases'  => 'boolean',
+        'can_sell'              => 'boolean',
     ];
 
     /*

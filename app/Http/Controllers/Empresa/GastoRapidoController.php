@@ -60,7 +60,7 @@ class GastoRapidoController extends Controller
         }
 
         // 4. Crear el Gasto
-        Expense::create([
+        $gasto = Expense::create([
             'empresa_id' => $empresaId,
             'user_id' => $user->id,
             'asistencia_id' => $asistencia ? $asistencia->id : null,
@@ -72,6 +72,9 @@ class GastoRapidoController extends Controller
             'receipt_url' => $photoPath ? route('local.media', ['path' => $photoPath]) : null,
             'payment_method' => $request->input('payment_method', 'efectivo')
         ]);
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Registró un gasto rápido de campo por $" . number_format($request->amount, 2, ',', '.') . " ({$catName})");
 
         return view('empresa.personal.quick_expense_success');
     }

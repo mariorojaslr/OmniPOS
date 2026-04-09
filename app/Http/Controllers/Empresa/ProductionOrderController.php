@@ -17,7 +17,7 @@ class ProductionOrderController extends Controller
     public function index()
     {
         $orders = ProductionOrder::where('empresa_id', auth()->user()->empresa_id)
-            ->with(['recipe.product', 'user'])
+            ->with(['recipe.product.unit', 'user'])
             ->latest()
             ->paginate(15);
             
@@ -44,7 +44,6 @@ class ProductionOrderController extends Controller
                 ->first();
                 
             if ($selectedRecipe) {
-                // ANALIZAR FACTIBILIDAD (EXPLOSIÓN DE MATERIALES)
                 $simulation = $this->analyzeFeasibility($selectedRecipe, $quantity);
             }
         }
@@ -58,7 +57,7 @@ class ProductionOrderController extends Controller
     private function analyzeFeasibility($recipe, $quantity)
     {
         $items = [];
-        $maxPossible = 999999; // Empezamos con un número alto e iremos bajando al mínimo limitante
+        $maxPossible = 999999;
 
         foreach ($recipe->items as $item) {
             if (!$item->component) continue;
@@ -67,7 +66,6 @@ class ProductionOrderController extends Controller
             $available = $item->component->stock;
             $shortage = max(0, $needed - $available);
             
-            // Calcular cuánto se puede fabricar con el stock de ESTE ingrediente específicamente
             $possibleWithThis = $item->quantity > 0 ? floor($available / $item->quantity) : 999999;
             $maxPossible = min($maxPossible, $possibleWithThis);
             
@@ -109,7 +107,6 @@ class ProductionOrderController extends Controller
         }
 
         DB::transaction(function() use ($recipe, $request) {
-            // 1. Crear el registro de la orden
             ProductionOrder::create([
                 'empresa_id'   => auth()->user()->empresa_id,
                 'user_id'      => auth()->id(),
@@ -120,7 +117,6 @@ class ProductionOrderController extends Controller
                 'notes'        => $request->notes
             ]);
 
-            // 2. Ejecutar la Transformación de Stock
             foreach ($recipe->items as $item) {
                 if ($item->component) {
                     $item->component->decrement('stock', $item->quantity * $request->quantity);
@@ -132,7 +128,85 @@ class ProductionOrderController extends Controller
             }
         });
 
+        DB::commit(); // No estaba explícito pero el final del closure lo hace, lo pongo para claridad si fuera necesario.
+        
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Fabricó un lote de producción: {$request->quantity} unidades de '{$recipe->product->name}'", $recipe);
+
         return redirect()->route('empresa.production_orders.index')
             ->with('success', "¡Lote de producción completado! Se han fabricado {$request->quantity} unidades y restado sus insumos.");
+    }
+
+    /**
+     * Vista de detalle de la orden
+     */
+    public function show(ProductionOrder $production_order)
+    {
+        if ($production_order->empresa_id !== auth()->user()->empresa_id) {
+            abort(403);
+        }
+
+        $production_order->load(['recipe.product.unit', 'recipe.items.component.unit', 'user']);
+
+        return view('empresa.production_orders.show', compact('production_order'));
+    }
+
+    /**
+     * Formulario de edición (estado + notas)
+     */
+    public function edit(ProductionOrder $production_order)
+    {
+        if ($production_order->empresa_id !== auth()->user()->empresa_id) {
+            abort(403);
+        }
+
+        $production_order->load(['recipe.product.unit', 'user']);
+
+        return view('empresa.production_orders.edit', compact('production_order'));
+    }
+
+    /**
+     * Guardar cambios de estado y notas
+     */
+    public function update(Request $request, ProductionOrder $production_order)
+    {
+        if ($production_order->empresa_id !== auth()->user()->empresa_id) {
+            abort(403);
+        }
+
+        $request->validate([
+            'status' => 'required|in:pendiente,completada,cancelada',
+            'notes'  => 'nullable|string|max:1000',
+        ]);
+
+        $production_order->update([
+            'status' => $request->status,
+            'notes'  => $request->notes,
+            'completed_at' => ($request->status === 'completada' && !$production_order->completed_at) ? now() : $production_order->completed_at,
+        ]);
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Actualizó el estado de la orden de producción #{$production_order->id} a '{$request->status}'", $production_order->recipe);
+
+        return redirect()->route('empresa.production_orders.show', $production_order)
+            ->with('success', 'Orden de producción actualizada correctamente.');
+    }
+
+    /**
+     * Clonar una orden (pre-rellenar el formulario de creación con sus datos)
+     */
+    public function clone(ProductionOrder $production_order)
+    {
+        if ($production_order->empresa_id !== auth()->user()->empresa_id) {
+            abort(403);
+        }
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Inició la clonación de la orden de producción #{$production_order->id}", $production_order->recipe);
+
+        return redirect()->route('empresa.production_orders.create', [
+            'recipe_id' => $production_order->recipe_id,
+            'quantity'  => $production_order->quantity,
+        ])->with('info', "Orden clonada. Revise los insumos disponibles y confirme el nuevo lote.");
     }
 }

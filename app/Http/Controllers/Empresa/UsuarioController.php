@@ -74,6 +74,9 @@ class UsuarioController extends Controller
             'status' => 'activo', // 👈 Crucial para que no lo mande a pagar
         ]);
 
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Creó al usuario: {$user->name} ({$user->email})", $user);
+
         return redirect()
             ->route('empresa.usuarios.index')
             ->with('ok', 'Usuario creado. Contraseña inicial: ' . $passwordPlano);
@@ -93,6 +96,10 @@ class UsuarioController extends Controller
         $usuario->activo = !$usuario->activo;
         $usuario->save();
 
+        // REGISTRAR ACTIVIDAD
+        $accion = $usuario->activo ? "Activó" : "Desactivó";
+        \App\Models\ActivityLog::log("{$accion} el acceso del usuario: {$usuario->name}", $usuario);
+
         return back()->with('ok', 'Estado actualizado');
     }
 
@@ -111,6 +118,9 @@ class UsuarioController extends Controller
 
         $usuario->password = Hash::make($nueva);
         $usuario->save();
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Reseteó la contraseña del usuario: {$usuario->name}", $usuario);
 
         return back()->with('ok', 'Nueva contraseña: ' . $nueva);
     }
@@ -141,16 +151,16 @@ class UsuarioController extends Controller
         }
 
         $request->validate([
-            'name'  => 'required|string|max:120',
-            'email' => 'required|email|unique:users,email,' . $usuario->id,
-            'role'  => 'required|in:admin,usuario',
-            'sub_role' => 'required|in:cajero,operativo',
+            'name'     => 'required|string|max:120',
+            'email'    => 'required|email|unique:users,email,' . $usuario->id,
+            'role'     => 'required|in:empresa,usuario',
+            'sub_role' => 'nullable|in:cajero,operativo,empleado',
         ]);
 
-        $usuario->name  = $request->name;
-        $usuario->email = $request->email;
-        $usuario->role  = $request->role;
-        $usuario->sub_role = $request->sub_role;
+        $usuario->name     = $request->name;
+        $usuario->email    = $request->email;
+        $usuario->role     = $request->role;
+        $usuario->sub_role = $request->sub_role ?? 'cajero';
 
         // Facultades (Switches)
         $usuario->can_register_expenses = $request->has('can_register_expenses');
@@ -158,6 +168,9 @@ class UsuarioController extends Controller
         $usuario->can_sell              = $request->has('can_sell');
         
         $usuario->save();
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Actualizó el perfil y facultades del usuario: {$usuario->name}", $usuario);
 
         return back()->with('ok', 'Usuario actualizado correctamente.');
     }

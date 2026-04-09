@@ -293,6 +293,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('/recipes/{recipe}/produce', [RecipeController::class, 'produce'])->name('recipes.produce');
         Route::delete('/recipe-items/{item}', [RecipeController::class, 'removeItem'])->name('recipes.removeItem');
         Route::resource('production_orders', ProductionOrderController::class)->names('production_orders');
+        Route::post('/production_orders/{production_order}/clone', [ProductionOrderController::class, 'clone'])->name('production_orders.clone');
         Route::get('/faltantes/export', [ReplenishmentController::class , 'export'])->name('stock.faltantes.export');
         Route::get('/faltantes/actividad/{product}', [ReplenishmentController::class , 'actividad'])->name('stock.faltantes.actividad');
         Route::patch('/stock/{product}', [StockController::class , 'update'])->name('stock.update');
@@ -395,6 +396,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         // PRESUPUESTOS (NUEVO)
         Route::resource('presupuestos', App\Http\Controllers\Empresa\PresupuestoController::class);
         Route::get('/presupuestos/{presupuesto}/pdf', [App\Http\Controllers\Empresa\PresupuestoController::class, 'pdf'])->name('presupuestos.pdf');
+        Route::post('/presupuestos/{id}/clone', [App\Http\Controllers\Empresa\PresupuestoController::class, 'clone'])->name('presupuestos.clone');
+        Route::post('/presupuestos/{id}/convertir-factura', [App\Http\Controllers\Empresa\PresupuestoController::class, 'convertirAFactura'])->name('presupuestos.convertir_factura');
 
         /*
      |--------------------------------------------------------------------------

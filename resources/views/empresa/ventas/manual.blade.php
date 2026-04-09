@@ -41,6 +41,29 @@
         </div>
     </div>
 
+    @endif
+
+    {{-- ALERTA: DATOS PRE-CARGADOS DESDE PRESUPUESTO --}}
+    @if(session('info'))
+        <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-3" id="alertaPrefill">
+            <i class="bi bi-receipt-cutoff fs-4 me-3 text-info"></i>
+            <div>
+                <strong>Presupuesto pre-cargado.</strong> {{ session('info') }}
+                <br><small class="text-muted">Seleccione el tipo de comprobante y haga clic en "REGISTRAR VENTA" para facturarlo.</small>
+            </div>
+        </div>
+    @endif
+
+    @if(isset($prefill) && $prefill)
+        <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-3">
+            <i class="bi bi-info-circle-fill fs-4 me-3 text-warning"></i>
+            <div>
+                <strong>{​{ $prefill['presupuesto_ref'] }}</strong> pre-cargado.
+                Revise los ítems, seleccione el tipo de comprobante y confirme.
+            </div>
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('empresa.ventas.manual.store') }}" id="formVentaManual">
     @csrf
 
@@ -208,6 +231,7 @@
 
 <script>
 const products = {!! $products->toJson() !!};
+const prefillData = @json($prefill ?? null);
 let idx = 0;
 
 $(document).ready(function() {
@@ -273,8 +297,32 @@ $(document).ready(function() {
         }
     });
 
-    // Agregar primera fila por defecto
-    agregarFila();
+    // Inicialización: prefill desde presupuesto O fila vacía por defecto
+    if (prefillData && prefillData.items && prefillData.items.length > 0) {
+        // Pre-seleccionar cliente
+        if (prefillData.client_id) {
+            $('#clientSelect').val(prefillData.client_id).trigger('change');
+        }
+        // Cargar cada ítem del presupuesto
+        prefillData.items.forEach(function(item) {
+            agregarFila();
+            // La última fila agregada
+            const $lastRow = $('#tablaVentaManual tbody tr:last-child');
+            const rowIdx = $lastRow.attr('id').replace('row_', '');
+            const $sel = $(`#row_${rowIdx} .prod-sel`);
+            // Seleccionar producto
+            $sel.val(item.product_id).trigger('select2:select').trigger('change');
+            // Asignar cantidad y precio personalizados (sobrescribir el precio del catálogo)
+            setTimeout(function() {
+                $lastRow.find('.qty-in').val(item.qty).trigger('input');
+                $lastRow.find('.prc-in').val(item.price).trigger('input');
+            }, 100);
+        });
+    } else {
+        // Agregar primera fila vacía por defecto
+        agregarFila();
+    }
+
 
     // 🍎 Lector de barras global (Restaurado)
     let barcodeBuffer = "";

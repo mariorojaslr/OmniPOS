@@ -55,6 +55,9 @@ class RecipeController extends Controller
             'is_active'  => true,
         ]);
 
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Creó la receta base para el producto: {$recipe->product->name}", $recipe);
+
         return redirect()->route('empresa.recipes.edit', $recipe)
             ->with('success', 'Receta base creada. Ahora agrega los ingredientes.');
     }
@@ -104,12 +107,17 @@ class RecipeController extends Controller
             return back()->with('error', 'Este ingrediente ya está en la receta.');
         }
 
+        $component = Product::find($request->component_product_id);
+
         RecipeItem::create([
             'recipe_id'            => $recipe->id,
             'component_product_id' => $request->component_product_id,
             'quantity'             => $request->quantity,
             'unit_id'              => $request->unit_id,
         ]);
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Añadió ingrediente '{$component->name}' a la receta de '{$recipe->product->name}'", $recipe);
 
         return back()->with('success', 'Ingrediente añadido.');
     }
@@ -154,6 +162,9 @@ class RecipeController extends Controller
             }
         });
 
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Producción local: Fabricó {$quantity} unidades de '{$recipe->product->name}' usando receta.", $recipe);
+
         return back()->with('success', "Proceso de producción exitoso: Se han fabricado {$quantity} unidades de '{$recipe->product->name}'. Los insumos han sido descontados correctamente.");
     }
 
@@ -166,7 +177,15 @@ class RecipeController extends Controller
             abort(403);
         }
 
+        $targetName = $item->product->name ?? 'Ingrediente';
+        $recipeName = $item->recipe->product->name ?? 'Producto';
+        $recipe = $item->recipe;
+
         $item->delete();
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Removió ingrediente '{$targetName}' de la receta de '{$recipeName}'", $recipe);
+
         return back()->with('success', 'Ingrediente removido.');
     }
 
@@ -179,7 +198,12 @@ class RecipeController extends Controller
             abort(403);
         }
 
+        $productName = $recipe->product->name ?? 'Desconocido';
         $recipe->delete();
+
+        // REGISTRAR ACTIVIDAD
+        \App\Models\ActivityLog::log("Eliminó la receta completa del producto: {$productName}");
+
         return redirect()->route('empresa.recipes.index')->with('success', 'Receta eliminada.');
     }
 }

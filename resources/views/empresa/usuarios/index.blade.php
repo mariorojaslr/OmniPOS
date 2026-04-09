@@ -82,12 +82,24 @@ FILTRO USUARIOS
                     TIPO DE USUARIO (NUEVO)
                     ========================================== --}}
                     <td>
-                        @if($usuario->role === 'usuario')
-                            <span class="badge bg-primary-subtle text-primary border-primary">
-                                {{ ucfirst($usuario->sub_role ?? 'cajero') }}
+                        @if($usuario->role === 'empresa')
+                            <span class="badge bg-dark text-white fw-bold">
+                                <i class="bi bi-shield-fill me-1"></i> Administrador
+                            </span>
+                        @elseif($usuario->role === 'usuario')
+                            @php
+                                $subRoleLabel = match($usuario->sub_role ?? 'cajero') {
+                                    'cajero'    => '🖥️ Cajero',
+                                    'operativo' => '🏭 Operativo',
+                                    'empleado'  => '🏗️ Campo',
+                                    default     => ucfirst($usuario->sub_role ?? 'cajero'),
+                                };
+                            @endphp
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary fw-bold">
+                                {{ $subRoleLabel }}
                             </span>
                         @else
-                            <span class="badge bg-dark">{{ ucfirst($usuario->role) }}</span>
+                            <span class="badge bg-secondary">{{ ucfirst($usuario->role) }}</span>
                         @endif
                     </td>
 
@@ -154,18 +166,19 @@ FILTRO USUARIOS
 
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold small text-dark">Nivel de Acceso</label>
-                                                <select name="role" class="form-select border-2" required>
-                                                    <option value="usuario" {{ $usuario->role === 'usuario' ? 'selected' : '' }}>Personal Operativo (Control de jornada y POS)</option>
-                                                    <option value="admin" {{ $usuario->role === 'admin' ? 'selected' : '' }}>Administrador (Reportes y gestión total)</option>
+                                                <select name="role" class="form-select border-2" required id="roleSelectEdit{{ $usuario->id }}" onchange="toggleSubRoleEdit({{ $usuario->id }})">
+                                                    <option value="usuario" {{ $usuario->role === 'usuario' ? 'selected' : '' }}>👤 Personal Operativo (POS, Caja, Fichaje)</option>
+                                                    <option value="empresa" {{ $usuario->role === 'empresa' ? 'selected' : '' }}>🛡️ Administrador (Acceso total + Reportes)</option>
                                                 </select>
-                                                <small class="text-muted small d-block mt-1">Los administradores pueden ver reportes financieros y gestionar a otros usuarios.</small>
+                                                <small class="text-muted small d-block mt-1">Los administradores pueden ver reportes financieros y gestionar usuarios.</small>
                                             </div>
 
-                                            <div class="mb-4">
+                                            <div class="mb-4" id="subRoleContainerEdit{{ $usuario->id }}">
                                                 <label class="form-label fw-bold small text-info">Especialidad del Personal</label>
-                                                <select name="sub_role" class="form-select border-2" required>
-                                                    <option value="cajero" {{ $usuario->sub_role === 'cajero' ? 'selected' : '' }}>Cajero (Usa POS y maneja Caja)</option>
-                                                    <option value="operativo" {{ $usuario->sub_role === 'operativo' ? 'selected' : '' }}>Operativo (Fichaje en campo/fábrica/taller)</option>
+                                                <select name="sub_role" class="form-select border-2">
+                                                    <option value="cajero" {{ $usuario->sub_role === 'cajero' ? 'selected' : '' }}>🖥️ Cajero (Usa POS y maneja Caja)</option>
+                                                    <option value="operativo" {{ $usuario->sub_role === 'operativo' ? 'selected' : '' }}>🏭 Operativo (Fábrica / Taller / Depósito)</option>
+                                                    <option value="empleado" {{ $usuario->sub_role === 'empleado' ? 'selected' : '' }}>🏗️ Empleado de Campo (Solo fichaje)</option>
                                                 </select>
                                                 <small class="text-muted small d-block mt-1">Define qué funciones verá el usuario en su panel diario.</small>
                                             </div>
@@ -219,4 +232,25 @@ FILTRO USUARIOS
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+function toggleSubRoleEdit(userId) {
+    const role = document.getElementById('roleSelectEdit' + userId).value;
+    const container = document.getElementById('subRoleContainerEdit' + userId);
+    if (container) {
+        container.style.opacity = (role === 'empresa') ? '0.4' : '1';
+        container.querySelector('select').disabled = (role === 'empresa');
+    }
+}
+
+// Inicializar todos los modales al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[id^="roleSelectEdit"]').forEach(function(sel) {
+        const userId = sel.id.replace('roleSelectEdit', '');
+        toggleSubRoleEdit(userId);
+    });
+});
+</script>
 @endsection

@@ -317,6 +317,12 @@ class VentaService
                 $venta->setRelation('remito_principal', $remito);
             }
 
+            // REGISTRAR ACTIVIDAD
+            \App\Models\ActivityLog::log(
+                "Registró venta #{$venta->numero_comprobante} por $" . number_format($venta->total_con_iva, 2, ',', '.'),
+                $venta
+            );
+
             return $venta;
 
         });

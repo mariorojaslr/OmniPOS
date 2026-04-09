@@ -13,6 +13,13 @@
         </a>
     </div>
 
+    @if(session('info'))
+        <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-4">
+            <i class="bi bi-copy fs-4 me-3"></i>
+            <div>{{ session('info') }}</div>
+        </div>
+    @endif
+
     @if(session('error'))
         <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4">
             <i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i>

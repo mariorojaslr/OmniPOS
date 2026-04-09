@@ -30,7 +30,10 @@ class VentaController extends Controller
             ->get()
             ->values(); // Asegura un array secuencial para JS
 
-        return view('empresa.ventas.manual', compact('clients', 'products'));
+        // Pre-llenado desde conversión de Presupuesto a Factura
+        $prefill = session()->pull('prefill_factura', null);
+
+        return view('empresa.ventas.manual', compact('clients', 'products', 'prefill'));
     }
 
     /**

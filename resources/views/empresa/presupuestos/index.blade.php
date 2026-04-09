@@ -123,12 +123,44 @@
                                 <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 ms-1" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-three-dots"></i>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                                    <li><a class="dropdown-item" href="{{ route('empresa.presupuestos.pdf', $presu->id) }}" target="_blank"><i class="bi bi-printer me-2"></i> Imprimir</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('empresa.presupuestos.edit', $presu->id) }}"><i class="bi bi-pencil me-2"></i> Editar</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3" style="min-width: 220px;">
+                                    {{-- VER / IMPRIMIR --}}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('empresa.presupuestos.pdf', $presu->id) }}" target="_blank">
+                                            <i class="bi bi-printer me-2 text-primary"></i> Imprimir PDF
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('empresa.presupuestos.edit', $presu->id) }}">
+                                            <i class="bi bi-pencil me-2 text-warning"></i> Editar
+                                        </a>
+                                    </li>
+
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-success" href="#"><i class="bi bi-check-circle me-2"></i> Aceptar</a></li>
-                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-circle me-2"></i> Rechazar</a></li>
+
+                                    {{-- CLONAR --}}
+                                    <li>
+                                        <form action="{{ route('empresa.presupuestos.clone', $presu->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item"
+                                                onclick="return confirm('¿Clonar el presupuesto {{ $presu->numero }}? Se creará uno nuevo con los mismos ítems para que pueda editarlo.')">
+                                                <i class="bi bi-copy me-2 text-info"></i> Clonar como nuevo
+                                            </button>
+                                        </form>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    {{-- CONVERTIR EN FACTURA --}}
+                                    <li>
+                                        <form action="{{ route('empresa.presupuestos.convertir_factura', $presu->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item text-success fw-bold"
+                                                onclick="return confirm('¿Convertir {{ $presu->numero }} en Factura?\n\nSe abrirá el facturador manual con los ítems pre-cargados. El presupuesto quedará marcado como ACEPTADO.')">
+                                                <i class="bi bi-receipt-cutoff me-2"></i> Convertir en Factura
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </div>
                         </td>

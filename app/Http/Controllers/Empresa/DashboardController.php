@@ -189,38 +189,45 @@ class DashboardController extends Controller
             $comprasPerc = round(($comprasMes / $totalEgresos) * 100);
         }
 
-        // Evaluación Neta: Salud del negocio basada en ingresos vs egresos totales
-        $evaluacionLocal = 0;
-        if ($ventasLocalHoy > 0) {
-            $evaluacionLocal = min(100, round(($ventasLocalHoy / ($totalEgresos + 1)) * 50)); 
-        } elseif ($totalEgresos > 0) {
-            // Si hay egresos pero no hay ventas, la evaluación es lógicamente baja
-            $evaluacionLocal = 5;
-        }
+            // Evalación Neta: Salud del negocio basada en ingresos vs egresos totales
+            $evaluacionLocal = 0;
+            if ($ventasLocalHoy > 0) {
+                $evaluacionLocal = min(100, round(($ventasLocalHoy / ($totalEgresos + 1)) * 50)); 
+            } elseif ($totalEgresos > 0) {
+                // Si hay egresos pero no hay ventas, la evaluación es lógicamente baja
+                $evaluacionLocal = 5;
+            }
 
-        return view('empresa.dashboard.index', [
-            'empresa' => $empresa,
-            'ventasLocalHoy' => $ventasLocalHoy,
-            'ventasInternetHoy' => $ventasInternetHoy,
-            'gastosHoy' => $gastosMes,
-            'comprasHoy' => $comprasMes,
-            'ventasHoy' => $ventasLocalHoy + $ventasInternetHoy,
-            'ventasMes' => $ventasMes,
-            'cantidadVentasHoy' => $cantidadVentasHoy,
-            'usuariosCount' => $usuariosCount,
-            'clientesCount' => $clientesCount,
-            'productosCount' => $productosCount,
-            'stockBajo' => $stockBajo,
-            'pedidosPendientes' => $pedidosPendientes,
-            'pedidosTotales' => $pedidosTotales,
-            'reminders' => $reminders,
-            'saludLocal' => $saludVentasLocal,
-            'saludInternet' => $saludVentasInternet,
-            'balanceLocal' => $balanceLocal,
-            'evaluacionLocal' => $evaluacionLocal,
-            'gastosPerc' => $gastosPerc,
-            'comprasPerc' => $comprasPerc,
-        ]);
+            $recentActivities = \App\Models\ActivityLog::where('empresa_id', $empresaId)
+                ->with('user')
+                ->latest()
+                ->limit(15)
+                ->get();
+
+            return view('empresa.dashboard.index', [
+                'empresa' => $empresa,
+                'ventasLocalHoy' => $ventasLocalHoy,
+                'ventasInternetHoy' => $ventasInternetHoy,
+                'gastosHoy' => $gastosMes,
+                'comprasHoy' => $comprasMes,
+                'ventasHoy' => $ventasLocalHoy + $ventasInternetHoy,
+                'ventasMes' => $ventasMes,
+                'cantidadVentasHoy' => $cantidadVentasHoy,
+                'usuariosCount' => $usuariosCount,
+                'clientesCount' => $clientesCount,
+                'productosCount' => $productosCount,
+                'stockBajo' => $stockBajo,
+                'pedidosPendientes' => $pedidosPendientes,
+                'pedidosTotales' => $pedidosTotales,
+                'reminders' => $reminders,
+                'saludLocal' => $saludVentasLocal,
+                'saludInternet' => $saludVentasInternet,
+                'balanceLocal' => $balanceLocal,
+                'evaluacionLocal' => $evaluacionLocal,
+                'gastosPerc' => $gastosPerc,
+                'comprasPerc' => $comprasPerc,
+                'recentActivities' => $recentActivities,
+            ]);
     }
 
     public function novedades()

@@ -415,9 +415,82 @@ $secondary = $config?->color_secondary ?? '#16a34a';
     </div>
 
 
+    <hr class="section-divider">
+
+    {{-- ======================================================
+        BLOQUE 4 · BITÁCORA DE ACTIVIDAD RECIENTE
+    ====================================================== --}}
+    <h5 class="fw-bold mb-3 text-secondary">
+        <i class="bi bi-clock-history me-2"></i> Bitácora de Actividad del Equipo
+    </h5>
+    <div class="glass-panel p-0 mb-5 overflow-hidden">
+        <div class="p-4 bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="fw-bold mb-0 text-primary">Historial de Auditoría</h6>
+                <p class="x-small text-muted mb-0">Seguimiento en tiempo real de operaciones críticas.</p>
+            </div>
+            <i class="bi bi-shield-check text-primary fs-3"></i>
+        </div>
+        <div class="activity-feed p-4" style="max-height: 450px; overflow-y: auto;">
+            @forelse($recentActivities as $activity)
+                <div class="d-flex mb-4 position-relative">
+                    {{-- Timeline Line --}}
+                    @if(!$loop->last)
+                    <div style="position: absolute; left: 17px; top: 35px; bottom: -20px; width: 2px; background: rgba(0,0,0,0.05);"></div>
+                    @endif
+
+                    <div class="flex-shrink-0">
+                        <div class="bg-white shadow-sm border rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; z-index: 2; position: relative;">
+                            @if(str_contains($activity->description, 'venta'))
+                                <i class="bi bi-cart-check text-success"></i>
+                            @elseif(str_contains($activity->description, 'usuario'))
+                                <i class="bi bi-person-badge text-info"></i>
+                            @elseif(str_contains($activity->description, 'producto'))
+                                <i class="bi bi-box-seam text-primary"></i>
+                            @elseif(str_contains($activity->description, 'presupuesto'))
+                                <i class="bi bi-file-earmark-text text-warning"></i>
+                            @else
+                                <i class="bi bi-lightning-charge text-muted"></i>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="mb-1 fw-bold small text-dark">
+                                {{ $activity->user->name ?? 'Sistema' }}
+                            </h6>
+                            <span class="text-muted x-small">
+                                {{ $activity->created_at->diffForHumans() }}
+                            </span>
+                        </div>
+                        <p class="mb-0 text-muted small" style="line-height: 1.4;">
+                            {{ $activity->description }}
+                        </p>
+                        @if($activity->ip_address)
+                        <div class="x-small text-muted opacity-50">{{ $activity->ip_address }}</div>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-5">
+                    <i class="bi bi-clipboard-x fs-1 text-muted opacity-25"></i>
+                    <p class="text-muted mt-2">No se han registrado actividades aún.</p>
+                </div>
+            @endforelse
+        </div>
+        <div class="p-3 bg-light text-center border-top">
+            <a href="#" class="text-decoration-none small fw-bold text-muted opacity-75">Ver Reporte de Auditoría Completo</a>
+        </div>
+    </div>
+
 </div>
 
-@endsection
+<style>
+/* Estilos adicionales para la bitácora */
+.activity-feed::-webkit-scrollbar { width: 5px; }
+.activity-feed::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+.x-small { font-size: 0.75rem; }
+</style>
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
