@@ -176,6 +176,8 @@ class EmpresaController extends Controller
         auth()->login($user);
         
         return redirect()->route('empresa.dashboard')->with('info', 'Modo Mimetización: Estás viendo la plataforma como ' . $user->name);
+    }
+
     /**
      * SANADOR DE BASE DE DATOS (EMERGENCIA)
      */
