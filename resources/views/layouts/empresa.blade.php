@@ -521,27 +521,22 @@ body{
                 <i class="bi bi-journal-x fs-1 text-muted"></i>
                 <h5 class="mt-3">Sin instrucciones aún</h5>
                 <p class="text-muted small">Esta página todavía no tiene contenido de ayuda asignado.</p>
-                @if(auth()->user()->role === 'owner')
-                    <button class="btn btn-primary btn-sm mt-3" onclick="enterEditMode()">
-                        <i class="bi bi-pencil-square me-1"></i> Crear Ayuda para esta Página
-                    </button>
-                @endif
+                <button class="btn btn-primary btn-sm mt-3" onclick="enterEditMode()">
+                    <i class="bi bi-pencil-square me-1"></i> Crear Ayuda para esta Página
+                </button>
             </div>
 
             <div id="help-display" style="display:none;">
                 <h3 id="help-title" class="fw-bold mb-3"></h3>
                 <div id="help-body" class="help-content mb-4"></div>
                 
-                @if(auth()->user()->role === 'owner')
-                    <hr>
-                    <button class="btn btn-outline-primary w-100 fw-bold" onclick="enterEditMode()">
-                        <i class="bi bi-pencil-square me-1"></i> Editar este Manual
-                    </button>
-                @endif
+                <hr>
+                <button class="btn btn-outline-primary w-100 fw-bold" onclick="enterEditMode()">
+                    <i class="bi bi-pencil-square me-1"></i> Editar este Manual
+                </button>
             </div>
         </div>
 
-        @if(auth()->user()->role === 'owner')
         <div id="help-edit-mode" style="display:none;">
             <div class="alert alert-info py-2 small">
                 <i class="bi bi-incognito me-1"></i> <strong>Modo Editor:</strong> Este contenido se mostrará a todos los usuarios que entren a esta página (<code>{{ Route::currentRouteName() }}</code>).
@@ -565,16 +560,13 @@ body{
                 <button class="btn btn-light" onclick="exitEditMode()">Cancelar</button>
             </div>
         </div>
-        @endif
     </div>
 </div>
 
-@if(auth()->user()->role === 'owner')
-    <!-- Summernote para el Owner -->
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/lang/summernote-es-ES.min.js"></script>
-@endif
+<!-- Summernote para el Editor de Manual -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/lang/summernote-es-ES.min.js"></script>
 
 <script>
     const helpModal = new bootstrap.Offcanvas(document.getElementById('offcanvasHelp'));
