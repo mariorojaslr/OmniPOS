@@ -116,7 +116,7 @@ Route::middleware(['auth', 'owner'])
         Route::post('soporte/upload-media', [OwnerSupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');
 
         Route::patch('/empresas/{id}/toggle', [App\Http\Controllers\Owner\EmpresaController::class, 'toggleStatus'])->name('empresas.toggle');
-        Route::post('/empresas/{id}/renovar', [App\Http\Controllers\Owner\EmpresaController::class, 'renovar'])->name('empresas.renovar');
+        Route::patch('/empresas/{id}/renovar', [App\Http\Controllers\Owner\EmpresaController::class, 'renovar'])->name('empresas.renovar');
         
         // RUTA DE EMERGENCIA PARA SANAR COLUMNAS FALTANTES
         Route::get('/heal-database', [App\Http\Controllers\Owner\EmpresaController::class, 'healDatabase'])->name('heal.database');
