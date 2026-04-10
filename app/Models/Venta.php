@@ -21,6 +21,10 @@ class Venta extends Model
         'metodo_pago',
         'monto_pagado',
         'vuelto',
+        'cae',
+        'cae_vencimiento',
+        'qr_data',
+        'afip_error',
     ];
 
     public function items()
