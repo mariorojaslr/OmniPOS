@@ -49,7 +49,7 @@ class ChequeraController extends Controller
             'tipo_cuenta'    => $request->tipo_cuenta ?? 'cuenta_corriente',
             'desde'          => $request->desde,
             'hasta'          => $request->hasta,
-            'proximo_numero' => $request->proximo_numero ?? $request->desde,
+            'proximo_numero' => $request->proximo_numero ?? ($request->desde ?? 1),
             'notas'          => $request->notas,
         ]);
 

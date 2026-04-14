@@ -12,6 +12,17 @@
         </button>
     </div>
 
+    @if($errors->any())
+        <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">
+            <h6 class="fw-bold"><i class="fas fa-exclamation-triangle me-2"></i> Errores encontrados:</h6>
+            <ul class="mb-0 small">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="row g-4">
         @forelse($chequeras as $c)
         <div class="col-md-6 col-xl-4">
