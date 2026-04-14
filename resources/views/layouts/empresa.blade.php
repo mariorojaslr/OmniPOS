@@ -13,592 +13,387 @@
 
 <link rel="manifest" href="{{ asset('manifest.json') }}">
 <link rel="apple-touch-icon" href="{{ asset('img/logo_v2.png') }}">
-
 <link rel="icon" href="{{ asset('favicon.png') }}">
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
-@yield('styles')
-@stack('styles')
-
-{{-- =========================================================
-   CONFIGURACIÓN DE EMPRESA
-   ========================================================= --}}
 @php
+    $user = auth()->user();
+    $empresa = $user->empresa ?? null;
+    $config  = $empresa?->config ?? null;
+    $colorPrimario = $config?->color_primary ?? '#0d6efd';
+    $colorSecundario = $config?->color_secondary ?? '#6c757d';
+    $modoOscuro = ($config?->theme ?? 'light') === 'dark';
+    $logo = ($config && $config->logo_url) ? $config->logo_url : asset('images/logo_premium.png');
+    
+    // Asistencia activa
+    $asistenciaActiva = \App\Models\Asistencia::where('user_id', $user?->id)
+        ->whereNull('salida')
+        ->latest()
+        ->first();
 
-$user = auth()->user();
-$empresa = $user->empresa ?? null;
-$config  = $empresa?->config ?? null;
-
-// Buscamos la asistencia activa para el usuario logueado (Cajeros o Empleados)
-$asistenciaActiva = \App\Models\Asistencia::where('user_id', $user?->id)
-    ->whereNull('salida')
-    ->latest()
-    ->first();
-
-$colorPrimario   = $config?->color_primary   ?? '#0d6efd';
-$colorSecundario = $config?->color_secondary ?? '#6c757d';
-
-$role = $user->role ?? 'usuario';
-
-$roleName = match($role) {
-    'owner' => 'Propietario',
-    default => ucfirst($role),
-};
-
-$modoOscuro = ($config?->theme ?? 'light') === 'dark';
-
-$logo = ($config && $config->logo_url) ? $config->logo_url : asset('images/logo_premium.png');
+    $rgb = [0,0,0];
+    if (preg_match('/#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/i', $colorPrimario, $matches)) {
+        $rgb = [hexdec($matches[1]), hexdec($matches[2]), hexdec($matches[3])];
+    }
 @endphp
 
 <style>
-
-:root{
+:root {
+    --sidebar-width: 270px;
+    --sidebar-collapsed-width: 80px;
+    --navbar-height: 70px;
     --color-primario: {{ $colorPrimario }};
     --color-secundario: {{ $colorSecundario }};
-    @php
-        // Extraer RGB para transparencias
-        $rgb = [0,0,0];
-        if (preg_match('/#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/i', $colorPrimario, $matches)) {
-            $rgb = [hexdec($matches[1]), hexdec($matches[2]), hexdec($matches[3])];
-        }
-    @endphp
     --color-primario-rgb: {{ implode(',', $rgb) }};
+    
+    @if($modoOscuro)
+    --bg-main: #000000;
+    --sidebar-bg: #0a0c0e;
+    --sidebar-border: rgba(255,255,255,0.08);
+    --text-main: #f8fafc;
+    --card-bg: #0f172a;
+    @else
+    --bg-main: #f4f7fa;
+    --sidebar-bg: #111827;
+    --sidebar-border: rgba(0,0,0,0.05);
+    --text-main: #1e293b;
+    --card-bg: #ffffff;
+    @endif
 }
 
-body{
-    background:#f4f6f9;
-}
+* { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; }
 
 /* =========================================================
-   BARRA DE NAVEGACIÓN (NAVBAR) - RESTAURADA Y FIJA
+   SIDEBAR
    ========================================================= */
-.navbar {
-    position: fixed !important;
+#sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    z-index: 2000 !important; /* Prioridad máxima absoluta */
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-    min-height: 65px;
+    background: var(--sidebar-bg);
+    z-index: 1100;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
 }
 
-/* Compensación para que la navbar fija no tape el contenido */
-body {
-    padding-top: 70px !important;
+#sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+
+.sidebar-header {
+    height: var(--navbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--sidebar-border);
 }
 
-@if($modoOscuro)
-    body {
-        background: #080a0c !important;
-        color: #f0f3f6 !important;
-    }
-    .navbar {
-        background: rgba(13, 17, 23, 0.9) !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .navbar .nav-link, 
-    .navbar .navbar-brand, 
-    .navbar .dropdown-toggle {
-        color: #ffffff !important;
-    }
-    .card {
-        background: rgba(22, 27, 34, 0.8) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #ffffff !important;
-    }
-    .dropdown-menu {
-        background: #161b22 !important;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-    .dropdown-item {
-        color: #e6edf3 !important;
-    }
-    .dropdown-item:hover {
-        background: rgba(255, 255, 255, 0.1) !important;
-    }
-@else
-    .navbar {
-        background: rgba(255, 255, 255, 0.95) !important;
-    }
-    .navbar .nav-link, 
-    .navbar .navbar-brand {
-        color: #1e293b !important;
-        font-weight: 600;
-    }
-@endif
-
-/* Espaciado para compensar la navbar fija si fuera necesario, 
-   aunque al ser sticky el flujo se mantiene natural. */
-main {
-    min-height: 80vh;
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
 }
+
+.sidebar-logo img { height: 32px; flex-shrink: 0; }
+.sidebar-logo span { font-weight: 800; font-size: 1.15rem; white-space: nowrap; transition: 0.3s; opacity: 1; }
+#sidebar.collapsed .sidebar-logo span { opacity: 0; width: 0; overflow: hidden; }
+
+.sidebar-nav { flex-grow: 1; padding: 20px 0; overflow-y: auto; scrollbar-width: none; }
+.sidebar-nav::-webkit-scrollbar { display: none; }
+
+.nav-label {
+    padding: 15px 25px 8px 25px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    transition: 0.3s;
+}
+#sidebar.collapsed .nav-label { opacity: 0; }
+
+.nav-link-item {
+    display: flex;
+    align-items: center;
+    padding: 11px 20px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin: 2px 12px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.nav-link-item:hover, .nav-link-item.active {
+    background: rgba(var(--color-primario-rgb), 0.15);
+    color: white;
+}
+.nav-link-item.active {
+    background: var(--color-primario);
+    box-shadow: 0 4px 12px rgba(var(--color-primario-rgb), 0.3);
+}
+
+.nav-link-item i { width: 24px; font-size: 1.25rem; margin-right: 12px; transition: 0.3s; }
+#sidebar.collapsed .nav-link-item i { margin-right: 0; }
+#sidebar.collapsed .nav-link-item span { display: none; }
+
+/* Submenús */
+.submenu-toggle[aria-expanded="true"] { background: rgba(255,255,255,0.05); color: white; }
+.submenu-collapse { background: rgba(0,0,0,0.2); margin: 0 12px; border-radius: 10px; }
+.submenu-item {
+    display: block;
+    padding: 8px 20px 8px 48px;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: 0.2s;
+}
+.submenu-item:hover { color: white; }
+#sidebar.collapsed .submenu-collapse { display: none !important; }
 
 /* =========================================================
-   BOTONES
+   CONTENT
    ========================================================= */
-.btn-primary{
-    background:var(--color-primario)!important;
-    border-color:var(--color-primario)!important;
+#main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    transition: margin 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+
+.top-bar {
+    height: var(--navbar-height);
+    background: rgba(var(--modoOscuro ? '0,0,0' : '255,255,255'), 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--sidebar-border);
 }
 
-.main-fluid{
-    width:100%;
-    padding:20px;
-}
-
-/* Estilos de botones generales */
-.btn-primary {
-    transition: all 0.3s ease !important;
-    background: var(--color-primario) !important;
-    border-color: var(--color-primario) !important;
-    font-weight: 600;
-}
-
-.btn-primary {
-    transition: all 0.3s ease !important;
-    background: var(--color-primario) !important;
-    border-color: var(--color-primario) !important;
+.btn-sidebar-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: 1.5rem;
+    cursor: pointer;
 }
 
 </style>
 
+@yield('styles')
+@stack('styles')
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-lg fixed-top shadow-sm">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ route('empresa.dashboard') }}">
-            <img src="{{ $logo }}" style="height:34px;margin-right:8px;">
-            {{ $empresa->nombre_comercial ?? 'MultiPOS' }}
+<!-- SIDEBAR MODERNO -->
+<div id="sidebar">
+    <div class="sidebar-header">
+        <a href="{{ route('empresa.dashboard') }}" class="sidebar-logo">
+            <img src="{{ $logo }}" alt="Logo">
+            <span>{{ $empresa->nombre_comercial ?? 'MultiPOS' }}</span>
+        </a>
+    </div>
+
+    <div class="sidebar-nav">
+        <a href="{{ route('empresa.dashboard') }}" class="nav-link-item {{ Route::is('empresa.dashboard') ? 'active' : '' }}">
+            <i class="bi bi-house-door"></i> <span>Dashboard</span>
         </a>
 
-        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('empresa.dashboard') }}">Panel</a>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        📦 Productos
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('empresa.products.index') }}">Listado / Alta</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.rubros.index') }}">Gestionar Rubros</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.products.bulk-price-update') }}">Act. de Precios</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.inventory_scan') }}">📲 ESCÁNER MÓVIL</a></li>
-                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.labels.index') }}">🖨️ IMPRIMIR ETIQUETAS</a></li>
-                        <li><a class="dropdown-item fw-bold text-dark border-top mt-2 pt-2" href="{{ route('empresa.recipes.index') }}">🎓 RECETAS (FÓRMULAS)</a></li>
-                        <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.production_orders.index') }}">⚙️ ÓRDENES DE PRODUCCIÓN</a></li>
-                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.units.index') }}">📏 UNIDADES DE MEDIDA</a></li>
-                        <li><a class="dropdown-item fw-bold text-warning" href="{{ route('empresa.stock.faltantes') }}">⚠️ CENTRO DE REPOSICIÓN</a></li>
-                        <li><a class="dropdown-item fw-bold text-success border-top mt-2 pt-2" href="{{ route('empresa.stock.valuation') }}">💲 VALORIZACIÓN (CAPITAL)</a></li>
-                    </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('empresa.stock.index') }}">
-                        📦 Inventario
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link fw-bold text-primary" href="{{ route('empresa.pos.index') }}">🛒 VENTAS (POS)</a>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Ventas</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('empresa.ventas.index') }}">📋 Historial / Listado</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.clientes.index') }}">👥 Clientes</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.presupuestos.index') }}">📜 Presupuestos</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.orders.index') }}">🛒 Pedidos Online</a></li>
-                        <li><a class="dropdown-item fw-bold text-dark" href="{{ route('empresa.logistica.reporte') }}">📦 Reporte de Guarda</a></li>
-                        @if(auth()->user()->role === 'empresa')
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('empresa.ventas.manual') }}">✍️ Venta Manual</a></li>
-                            <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.pagos.index') }}">💰 Pagos (Cobranzas)</a></li>
-                        @endif
-                    </ul>
-                </li>
-
-                {{-- COMPRAS (ABASTECIMIENTO) --}}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown">
-                        🛒 Compras
-                    </a>
-                    <ul class="dropdown-menu border-0 shadow-sm">
-                        <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.compras.create') }}">🟢 Nueva Compra</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.compras.index') }}">📋 Historial de Compras</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item fw-bold text-dark" href="{{ route('empresa.tesoreria.index') }}">🏦 Bancos y Billeteras</a></li>
-                        <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.tesoreria.cheques.index') }}">✍️ Cartera de Cheques</a></li>
-                        <li><a class="dropdown-item fw-bold text-info" href="{{ route('empresa.tesoreria.chequeras.index') }}">📖 Chequeras Propias</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.proveedores.index') }}">🚛 Proveedores</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.stock.faltantes') }}">⚠️ Reposición / Faltantes</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.labels.index') }}">🖨️ Etiquetas & Barcodes</a></li>
-                    </ul>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle fw-bold text-info" href="#" role="button" data-bs-toggle="dropdown">👤 Personal</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('empresa.usuarios.index') }}">👥 Gestión de Usuarios</a></li>
-                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.personal.rendimiento') }}">📊 Rendimiento Operativo</a></li>
-                        @if(auth()->user()->role === 'empresa')
-                            <li><a class="dropdown-item fw-bold text-danger" href="{{ route('empresa.personal.cajas.index') }}">🕵️ Auditoría de Cajas</a></li>
-                        @endif
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.personal.asistencia.qr') }}">📲 PUNTO DE FICHAJE (QR)</a></li>
-                    </ul>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle font-weight-bold text-danger" href="#" role="button" data-bs-toggle="dropdown">
-                        👛 Gastos
-                    </a>
-                    <ul class="dropdown-menu shadow-sm border-0">
-                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.gastos.index') }}">📋 Listado / Auditoría</a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.gastos_categorias.index') }}">🏷️ Gestionar Categorías</a></li>
-                        <li><hr class="dropdown-divider opacity-50"></li>
-                        @if(auth()->user()->can_register_expenses || auth()->user()->role === 'empresa')
-                            <li><a class="dropdown-item text-warning fw-bold" href="{{ route('empresa.gastos.quick') }}">📱 Registro de Gasto Rápido</a></li>
-                        @endif
-                    </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('empresa.reportes.panel') }}">Reportes</a>
-                </li>
-
-                <li class="nav-item">
-                    @php
-                        $targetEmpresa = auth()->user()->empresa;
-                        $catalogParam = $targetEmpresa?->slug ?: $targetEmpresa?->id;
-                    @endphp
-                    <a class="nav-link fw-bold text-success" href="{{ $targetEmpresa ? route('catalog.index', $catalogParam) : '#' }}" target="_blank">🌐 Catálogo</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-warning fw-bold" href="{{ route('empresa.novedades') }}">🔥 Novedades</a>
-                </li>
-            </ul>
-
-            <ul class="navbar-nav ms-auto align-items-center gap-2">
-                {{-- Solo CAJEROS ven el botón de turno --}}
-                @if(auth()->user()->role === 'usuario' && auth()->user()->sub_role === 'cajero')
-                    <li class="nav-item">
-                        @if(!$asistenciaActiva)
-                            <button class="btn btn-outline-success fw-bold px-3 py-1 border-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#modalCheckIn" style="font-size: 0.8rem;">
-                                🔔 INGRESO
-                            </button>
-                        @else
-                            <button class="btn btn-outline-danger fw-bold px-3 py-1 border-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#modalCheckOut" style="font-size: 0.8rem;">
-                                🛑 EGRESO
-                            </button>
-                        @endif
-                    </li>
-                @endif
-
-                {{-- BOTÓN TÁCTICO DE RETORNO A OWNER --}}
-                @if(session('impersonator_id'))
-                    <li class="nav-item">
-                        <a href="{{ route('owner.return-to-owner') }}" 
-                           class="btn btn-warning fw-bold d-flex align-items-center justify-content-center shadow-sm"
-                           style="width: 32px; height: 32px; border-radius: 8px; font-size: 1rem; border: 1px solid rgba(0,0,0,0.1);"
-                           title="Volver a mi sesión (OWNER)">
-                           O
-                        </a>
-                    </li>
-                @endif
-
-                {{-- PERFIL DE USUARIO --}}
-                <li class="nav-item dropdown">
-                    <button class="btn dropdown-toggle shadow-sm d-flex align-items-center gap-2 {{ $modoOscuro ? 'btn-dark border-secondary' : 'btn-light border text-dark' }}" 
-                            data-bs-toggle="dropdown" 
-                            style="border-radius:30px; padding: 4px 14px;">
-                        <i class="bi bi-person-circle fs-5"></i>
-                        <span class="d-none d-md-inline fw-bold small">
-                            {{ $user->name }}
-                        </span>
-                    </button>
-
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg mt-2 border-0" style="border-radius: 12px; min-width: 210px;">
-                        @if(session('impersonator_id'))
-                        <li>
-                            <a class="dropdown-item fw-bold text-warning" href="{{ route('owner.return-to-owner') }}" style="background: rgba(245, 158, 11, 0.1);">
-                                ⬅️ Volver a mi sesión (OWNER)
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider opacity-10"></li>
-                        @endif
-
-                        <li><div class="dropdown-header text-uppercase small fw-bold text-muted">Mi Cuenta</div></li>
-                        <li><a class="dropdown-item" href="{{ route('password.edit') }}">
-                            <i class="bi bi-shield-lock me-2"></i> Seguridad
-                        </a></li>
-                        
-                        @if($user->role === 'empresa')
-                        <li><a class="dropdown-item fw-bold text-primary bg-primary bg-opacity-10" href="{{ route('empresa.suscripcion.index') }}">
-                            <i class="bi bi-star-fill text-warning me-2"></i> Mi Suscripción
-                        </a></li>
-                        <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.backup.index') }}">
-                            <i class="bi bi-shield-shaded me-2"></i> Bóveda de Resguardo
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ route('empresa.configuracion.index') }}">
-                            <i class="bi bi-gear me-2"></i> Configuración
-                        </a></li>
-                        <li><a class="dropdown-item fw-bold text-info" href="{{ route('empresa.soporte.index') }}">
-                            <i class="bi bi-chat-dots-fill me-2"></i> Centro de Soporte
-                        </a></li>
-                        @endif
-
-                        <li><hr class="dropdown-divider opacity-10"></li>
-                        <li>
-                            <a class="dropdown-item text-danger fw-bold" href="{{ route('logout.get') }}">
-                                <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+        {{-- VENTAS Y CRM --}}
+        <div class="nav-label">Ventas & Clientes</div>
+        <a href="{{ route('empresa.pos.index') }}" class="nav-link-item {{ Route::is('empresa.pos.index') ? 'active' : '' }}">
+            <i class="bi bi-shop"></i> <span>🏪 VENTAS (POS)</span>
+        </a>
+        
+        <a href="#sm_ventas" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-receipt"></i> <span>Gestión Ventas</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/ventas*') || Request::is('empresa/presupuestos*') ? 'show' : '' }}" id="sm_ventas">
+            <a href="{{ route('empresa.ventas.index') }}" class="submenu-item">📋 Ver Historial</a>
+            <a href="{{ route('empresa.ventas.manual') }}" class="submenu-item text-primary fw-bold">✍️ Venta Manual</a>
+            <a href="{{ route('empresa.presupuestos.index') }}" class="submenu-item">📜 Presupuestos</a>
+            <a href="{{ route('empresa.orders.index') }}" class="submenu-item">📦 Pedidos Online</a>
+            <a href="{{ route('empresa.logistica.reporte') }}" class="submenu-item text-warning">🚚 Reporte Guarda</a>
         </div>
+
+        <a href="#sm_clientes" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-people"></i> <span>Cartera Clientes</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/clientes*') || Request::is('empresa/pagos*') ? 'show' : '' }}" id="sm_clientes">
+            <a href="{{ route('empresa.clientes.index') }}" class="submenu-item">👥 Listado Clientes</a>
+            <a href="{{ route('empresa.pagos.index') }}" class="submenu-item text-success fw-bold">💰 CTA. CTE. / COBROS</a>
+        </div>
+
+        {{-- COMPRAS Y FINANZAS --}}
+        <div class="nav-label">Compras & Bancos</div>
+        <a href="#sm_compras" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-bag-check"></i> <span>Abastecimiento</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/compras*') ? 'show' : '' }}" id="sm_compras">
+            <a href="{{ route('empresa.compras.create') }}" class="submenu-item text-success fw-bold">🟢 Nueva Compra</a>
+            <a href="{{ route('empresa.compras.index') }}" class="submenu-item">📋 Historial</a>
+            <a href="{{ route('empresa.proveedores.index') }}" class="submenu-item">🚛 Proveedores</a>
+        </div>
+
+        <a href="#sm_tesoreria" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-bank"></i> <span>Finanzas & Tesorería</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/tesoreria*') ? 'show' : '' }}" id="sm_tesoreria">
+            <a href="{{ route('empresa.tesoreria.index') }}" class="submenu-item text-warning fw-bold">📊 PANEL DE TESORERÍA</a>
+            <a href="{{ route('empresa.tesoreria.index', ['filter' => 'banco']) }}" class="submenu-item text-info"><i class="bi bi-university me-1"></i> Mis Bancos</a>
+            <a href="{{ route('empresa.tesoreria.index', ['filter' => 'billetera']) }}" class="submenu-item text-primary"><i class="bi bi-phone me-1"></i> Billeteras Virtuales</a>
+            <a href="{{ route('empresa.tesoreria.cheques.index') }}" class="submenu-item">✍️ Cartera de Cheques</a>
+            <a href="{{ route('empresa.tesoreria.chequeras.index') }}" class="submenu-item">📖 Chequeras Propias</a>
+            <a href="{{ route('empresa.tesoreria.proyeccion') }}" class="submenu-item">📈 Flujo / Cashflow</a>
+        </div>
+
+        {{-- INVENTARIO Y PRODUCCIÓN --}}
+        <div class="nav-label">Producción & Stock</div>
+        <a href="#sm_stock" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-box-seam"></i> <span>Control Stock</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/products*') || Request::is('empresa/stock*') ? 'show' : '' }}" id="sm_stock">
+            <a href="{{ route('empresa.products.index') }}" class="submenu-item">🔍 Listado Maestro</a>
+            <a href="{{ route('empresa.stock.index') }}" class="submenu-item">📦 Movimientos Stock</a>
+            <a href="{{ route('empresa.inventory_scan') }}" class="submenu-item text-primary fw-bold">📲 ESCÁNER MÓVIL</a>
+            <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-item text-danger">⚠️ Reposición</a>
+            <a href="{{ route('empresa.stock.valuation') }}" class="submenu-item text-success">💲 Valorización</a>
+            <a href="{{ route('empresa.labels.index') }}" class="submenu-item">🖨️ Etiquetas</a>
+        </div>
+
+        <a href="#sm_fabrica" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-gear"></i> <span>Fábrica/Producción</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/recipes*') || Request::is('empresa/production_orders*') ? 'show' : '' }}" id="sm_fabrica">
+            <a href="{{ route('empresa.recipes.index') }}" class="submenu-item">🧪 Recetas (Fórmulas)</a>
+            <a href="{{ route('empresa.production_orders.index') }}" class="submenu-item text-success">⚙️ Órdenes de Prod.</a>
+            <a href="{{ route('empresa.units.index') }}" class="submenu-item">📏 Unidades Medida</a>
+            <a href="{{ route('empresa.rubros.index') }}" class="submenu-item">🏷️ Rubros</a>
+        </div>
+
+        {{-- ADMINISTRACIÓN --}}
+        <div class="nav-label">Administración</div>
+        <a href="#sm_admin" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-person-badge"></i> <span>Recursos Humanos</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/usuarios*') || Request::is('empresa/personal*') ? 'show' : '' }}" id="sm_admin">
+            <a href="{{ route('empresa.usuarios.index') }}" class="submenu-item">👥 Gestión Usuarios</a>
+            <a href="{{ route('empresa.personal.rendimiento') }}" class="submenu-item">📊 Rendimiento</a>
+            <a href="{{ route('empresa.personal.cajas.index') }}" class="submenu-item text-danger">🕵️ Auditoría Cajas</a>
+            <a href="{{ route('empresa.personal.asistencia.qr') }}" class="submenu-item text-primary fw-bold">📲 PUNTO QR</a>
+        </div>
+
+        <a href="#sm_gastos" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-wallet2"></i> <span>Gastos & Auditoría</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/gastos*') ? 'show' : '' }}" id="sm_gastos">
+            <a href="{{ route('empresa.gastos.index') }}" class="submenu-item">📋 Ver Gastos</a>
+            <a href="{{ route('empresa.gastos_categorias.index') }}" class="submenu-item">🏷️ Categorías</a>
+            <a href="{{ route('empresa.gastos.quick') }}" class="submenu-item text-warning fw-bold">📱 Registro Rápido</a>
+        </div>
+
+        <a href="{{ route('empresa.reportes.panel') }}" class="nav-link-item {{ Route::is('empresa.reportes.*') ? 'active' : '' }}">
+            <i class="bi bi-bar-chart-line"></i> <span>Reportes Pro</span>
+        </a>
+
+        <div class="nav-label">Sistema</div>
+        <a href="{{ route('empresa.novedades') }}" class="nav-link-item text-warning">
+            <i class="bi bi-fire"></i> <span>🔥 Novedades</span>
+        </a>
+        <a href="{{ route('empresa.soporte.index') }}" class="nav-link-item text-info">
+            <i class="bi bi-headset"></i> <span>Soporte Técnico</span>
+        </a>
+        <a href="{{ route('empresa.configuracion.index') }}" class="nav-link-item">
+            <i class="bi bi-gear-fill"></i> <span>Configuración</span>
+        </a>
     </div>
-</nav>
 
-<main class="container-fluid px-4 px-md-5 my-4">
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @yield('content')
-</main>
-
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-@yield('scripts')
-@stack('scripts')
-
-{{-- MODALES DE ASISTENCIA --}}
-<div class="modal fade" id="modalCheckIn" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
-            <div class="modal-header bg-success text-white py-3">
-                <h5 class="modal-title fw-bold">🟢 INICIAR TURNO DE CAJA</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('empresa.personal.checkin') }}" method="POST">
-                @csrf
-                <div class="modal-body p-4">
-                    <p class="text-muted small mb-4">Ingrese con cuánto efectivo inicial recibe la caja para comenzar a operar.</p>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Fondo de Caja (Vuelto) 💵</label>
-                        <div class="input-group">
-                            <span class="input-group-text">$</span>
-                            <input type="number" name="vuelto_inicial" class="form-control form-control-lg fw-bold" step="0.01" value="0.00" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="submit" class="btn btn-success px-4 fw-bold">CONFIRMAR Y EMPEZAR 🚀</button>
-                </div>
-            </form>
-        </div>
+    <div class="p-4 mt-auto">
+        <a href="{{ route('logout.get') }}" class="nav-link-item text-danger p-0 m-0 border-0 bg-transparent">
+            <i class="bi bi-box-arrow-right"></i> <span>Salir del Sistema</span>
+        </a>
     </div>
 </div>
 
-<div class="modal fade" id="modalCheckOut" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
-            <div class="modal-header bg-danger text-white py-3">
-                <h5 class="modal-title fw-bold">🛑 CERRAR JORNADA Y CAJA</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('empresa.personal.checkout') }}" method="POST">
-                @csrf
-                <div class="modal-body p-4 text-center">
-                    <h2 class="fw-bold mb-4">¿Finalizar turno ahora?</h2>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Efectivo Físico en Caja 💰</label>
-                        <div class="input-group">
-                            <span class="input-group-text">$</span>
-                            <input type="number" name="vuelto_final" class="form-control form-control-lg fw-bold" step="0.01" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="submit" class="btn btn-danger px-4 fw-bold">FINALIZAR JORNADA 🛑</button>
-                </div>
-            </form>
+<!-- CONTENIDO PRINCIPAL -->
+<div id="main-content">
+    <header class="top-bar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn-sidebar-toggle" id="btnToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <h5 class="mb-0 fw-bold d-none d-md-block" id="page_title">@yield('page_title', 'MultiPOS v2')</h5>
         </div>
-    </div>
+
+        <div class="d-flex align-items-center gap-3">
+            {{-- BOTÓN TÁCTICO OWNER --}}
+            @if(session('impersonator_id'))
+                <a href="{{ route('owner.return-to-owner') }}" class="btn btn-warning btn-sm fw-bold border-2 rounded-pill px-3">
+                    <i class="bi bi-arrow-left-circle me-1"></i> VOLVER A OWNER
+                </a>
+            @endif
+
+            {{-- ASISTENCIA RÁPIDA (CAJEROS) --}}
+            @if(auth()->user()->role === 'usuario' && auth()->user()->sub_role === 'cajero')
+                @if(!$asistenciaActiva)
+                    <button class="btn btn-outline-success btn-sm fw-bold rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalCheckIn">🔔 INGRESO</button>
+                @else
+                    <button class="btn btn-outline-danger btn-sm fw-bold rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalCheckOut">🛑 EGRESO</button>
+                @endif
+            @endif
+
+            {{-- PERFIL --}}
+            <div class="dropdown">
+                <button class="btn d-flex align-items-center gap-2 p-1 rounded-pill" data-bs-toggle="dropdown">
+                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
+                        {{ substr($user->name, 0, 1) }}
+                    </div>
+                    <div class="text-start d-none d-md-block me-2">
+                        <div class="small fw-bold lh-1">{{ $user->name }}</div>
+                        <div class="x-small text-muted">@switch($user->role) @case('empresa') Admin @break @default Operador @endswitch</div>
+                    </div>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2" style="border-radius: 12px;">
+                    <li><a class="dropdown-item rounded-3" href="{{ route('password.edit') }}"><i class="bi bi-shield-lock me-2"></i> Seguridad</a></li>
+                    @if($user->role === 'empresa')
+                        <li><a class="dropdown-item rounded-3" href="{{ route('empresa.suscripcion.index') }}"><i class="bi bi-star me-2"></i> Mi Plan</a></li>
+                        <li><a class="dropdown-item rounded-3 text-success" href="{{ route('empresa.backup.index') }}"><i class="bi bi-safe me-2"></i> Backups</a></li>
+                    @endif
+                    <li><hr class="dropdown-divider opacity-10"></li>
+                    <li><a class="dropdown-item rounded-3 text-danger fw-bold" href="{{ route('logout.get') }}"><i class="bi bi-power me-2"></i> Cerrar Sesión</a></li>
+                </ul>
+            </div>
+        </div>header
+    </header>
+
+    <main class="p-4">
+        @if(session('error')) <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">{{ session('error') }}</div> @endif
+        @if(session('success')) <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">{{ session('success') }}</div> @endif
+
+        @yield('content')
+    </main>
 </div>
 
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('{{ asset('sw.js') }}')
-                .then(reg => console.log('Service Worker registrado', reg))
-                .catch(err => console.log('Error al registrar Service Worker', err));
-        });
-    }
-
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        // Mostrar botón de instalación si existe en la página
-        const installBtn = document.getElementById('installAppBtn');
-        if (installBtn) {
-            installBtn.style.display = 'block';
-        }
-    });
-
-    function installApp() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('Usuario aceptó la instalación');
-                }
-                deferredPrompt = null;
-            });
-        }
-    }
-</script>
-
-<!-- CENTER OF KNOWLEDGE (AYUDA CONTEXTUAL) -->
-<style>
-    #help-trigger {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        width: 54px;
-        height: 54px;
-        border-radius: 50%;
-        background: var(--color-primario);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        box-shadow: 0 8px 25px rgba(var(--color-primario-rgb), 0.4);
-        cursor: pointer;
-        z-index: 1060;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: 2px solid rgba(255,255,255,0.2);
-    }
-    #help-trigger:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 12px 30px rgba(var(--color-primario-rgb), 0.6); }
-    
-    .help-pulse { animation: pulse-help 2s infinite; }
-    @keyframes pulse-help {
-        0% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0.7); }
-        70% { box-shadow: 0 0 0 15px rgba(0, 0, 0, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
-    }
-
-    .offcanvas-help { 
-        position: fixed !important;
-        top: 20px;
-        right: 20px;
-        width: 480px; 
-        min-width: 350px;
-        max-width: 90vw;
-        height: calc(100vh - 40px);
-        background: rgba(255, 255, 255, 0.7) !important; 
-        backdrop-filter: blur(25px) saturate(180%); 
-        -webkit-backdrop-filter: blur(25px) saturate(180%);
-        border: 1px solid rgba(255,255,255,0.4) !important;
-        border-radius: 24px !important;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-        z-index: 1070;
-        display: none;
-        flex-direction: column;
-        overflow: hidden;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-        opacity: 0;
-        transform: translateX(50px);
-    }
-
-    .offcanvas-help.show {
-        display: flex;
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    @if($modoOscuro)
-    .offcanvas-help { 
-        background: rgba(15, 17, 21, 0.8) !important; 
-        border: 1px solid rgba(255,255,255,0.1) !important;
-        color: #e6edf3; 
-    }
-    @endif
-
-    .help-drag-handle {
-        cursor: move;
-        padding: 20px;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        user-select: none;
-    }
-
-    .help-header-gradient {
-        background: linear-gradient(135deg, var(--color-primario) 0%, #6366f1 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin: 0;
-    }
-
-    /* Resize Handle */
-    .help-resize-handle {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 10px;
-        cursor: ew-resize;
-        background: transparent;
-    }
-    .help-resize-handle:hover {
-        background: rgba(var(--color-primario-rgb), 0.1);
-    }
-
-    .help-content img { max-width: 100%; border-radius: 12px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5); }
-    .help-content iframe { width: 100%; border-radius: 16px; aspect-ratio: 16/9; margin: 20px 0; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
-    
-    .help-body-scroll {
-        flex-grow: 1;
-        overflow-y: auto;
-        padding: 0 25px 25px 25px;
-    }
-
-    .help-body-scroll::-webkit-scrollbar { width: 6px; }
-    .help-body-scroll::-webkit-scrollbar-track { background: transparent; }
-    .help-body-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-</style>
-
+{{-- BOTÓN MÁGICO DE AYUDA (WAND) --}}
 <div id="help-trigger" onclick="openHelp()" title="Manual dinámico">
     <i class="bi bi-magic"></i>
 </div>
@@ -612,195 +407,40 @@ main {
         </div>
         <button type="button" class="btn-close shadow-none" onclick="closeHelp()"></button>
     </div>
-    
-    <div class="help-body-scroll">
-        <div id="help-loading" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
-            <p class="mt-2 text-muted x-small">Sincronizando manual...</p>
-        </div>
-
-        <div id="help-view-mode">
-            <div id="help-empty" style="display:none;" class="text-center py-5 mt-4">
-                <div class="mb-4">
-                    <i class="bi bi-journal-x fs-1 opacity-25"></i>
-                </div>
-                <h5 class="fw-bold">Sin instrucciones</h5>
-                <p class="text-muted small">Esta sección aún no cuenta con un manual descriptivo asociado.</p>
-                <button class="btn btn-primary btn-sm mt-3 px-4 rounded-pill fw-bold" onclick="enterEditMode()">
-                    <i class="bi bi-pencil-square me-1"></i> Crear Ayuda
-                </button>
-            </div>
-
-            <div id="help-display" style="display:none;" class="mt-2">
-                <h3 id="help-title" class="fw-bold mb-3 text-dark"></h3>
-                <div id="help-body" class="help-content mb-4 text-muted" style="font-size: 0.95rem; line-height: 1.6;"></div>
-                
-                <hr class="opacity-10 mb-4">
-                <button class="btn btn-outline-primary w-100 fw-bold py-2 rounded-3" onclick="enterEditMode()">
-                    <i class="bi bi-pencil-square me-1"></i> Editar este Manual
-                </button>
-            </div>
-        </div>
-
-        <div id="help-edit-mode" style="display:none;">
-            <div class="alert alert-info py-2 small">
-                <i class="bi bi-incognito me-1"></i> <strong>Modo Editor:</strong> Este contenido se mostrará a todos los usuarios que entren a esta página (<code>{{ Route::currentRouteName() }}</code>).
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold">Título del Manual</label>
-                <input type="text" id="edit-help-title" class="form-control" placeholder="Ej: ¿Cómo cargar ventas?">
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold">Contenido Educativo</label>
-                <textarea id="edit-help-content" class="form-control"></textarea>
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold">Video Tutorial (Opcional)</label>
-                <input type="text" id="edit-help-video" class="form-control" placeholder="URL de Bunny.net o YouTube">
-            </div>
-            <div class="d-flex gap-2">
-                <button class="btn btn-success w-100 fw-bold" onclick="saveHelp()">
-                    <i class="bi bi-check-circle me-1"></i> GUARDAR MANUAL
-                </button>
-                <button class="btn btn-light" onclick="exitEditMode()">Cancelar</button>
-            </div>
-        </div>
-    </div>
+    <div class="help-body-scroll"><div id="help-loading" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div><div id="help-view-mode"><div id="help-display"></div></div></div>
 </div>
 
-<!-- Summernote para el Editor de Manual -->
-<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/lang/summernote-es-ES.min.js"></script>
+{{-- MODALES ASISTENCIA --}}
+@if(auth()->user()->role === 'usuario' && auth()->user()->sub_role === 'cajero')
+<div class="modal fade" id="modalCheckIn" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5>🟢 INICIAR TURNO</h5></div><form action="{{ route('empresa.personal.checkin') }}" method="POST">@csrf<div class="modal-body p-4"><label>Fondo de Caja inicial 💵</label><input type="number" name="vuelto_inicial" class="form-control" step="0.01" value="0.00" required></div><div class="modal-footer"><button type="submit" class="btn btn-success">EMPEZAR TURNO</button></div></form></div></div>
+</div>
+<div class="modal fade" id="modalCheckOut" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-danger text-white"><h5>🛑 CERRAR TURNO</h5></div><form action="{{ route('empresa.personal.checkout') }}" method="POST">@csrf<div class="modal-body p-4"><label>Efectivo final en caja 💰</label><input type="number" name="vuelto_final" class="form-control" step="0.01" required></div><div class="modal-footer"><button type="submit" class="btn btn-danger">CERRAR TURNO</button></div></form></div></div>
+</div>
+@endif
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    const helpPanel = document.getElementById('offcanvasHelp');
-    const helpDrag = document.getElementById('helpDrag');
-    const helpResize = document.getElementById('helpResize');
-    const currentRoute = "{{ Route::currentRouteName() }}";
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const btnToggle = document.getElementById('btnToggle');
 
-    let isDragging = false;
-    let isResizing = false;
-    let startX, startY, startWidth, startRight, startTop;
-
-    // --- LÓGICA DE ARRASTRE (DRAG) ---
-    helpDrag.addEventListener('mousedown', (e) => {
-        if(e.target.closest('button')) return; // No arrastrar si toca el botón de cerrar
-        isDragging = true;
-        startX = e.clientX - helpPanel.offsetLeft;
-        startY = e.clientY - helpPanel.offsetTop;
-        helpPanel.style.transition = 'none'; // Quitar transición para suavidad total
-    });
-
-    // --- LÓGICA DE REDIMENSIÓN (RESIZE) ---
-    helpResize.addEventListener('mousedown', (e) => {
-        isResizing = true;
-        startX = e.clientX;
-        startWidth = parseInt(document.defaultView.getComputedStyle(helpPanel).width, 10);
-        helpPanel.style.transition = 'none';
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            helpPanel.style.left = (e.clientX - startX) + 'px';
-            helpPanel.style.top = (e.clientY - startY) + 'px';
-            helpPanel.style.right = 'auto'; // Desactivar anclaje derecho
-        }
-        if (isResizing) {
-            const width = startWidth + (startX - e.clientX);
-            if (width > 350 && width < window.innerWidth * 0.9) {
-                helpPanel.style.width = width + 'px';
-            }
-        }
-    });
-
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        isResizing = false;
-        helpPanel.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease';
-    });
-
-    function openHelp() {
-        $(helpPanel).addClass('show');
-        $("#help-loading").show();
-        $("#help-view-mode, #help-edit-mode").hide();
-
-        $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
-            $("#help-loading").hide();
-            $("#help-view-mode").show();
-            
-            if(res.success && res.data) {
-                $("#help-empty").hide();
-                $("#help-display").show();
-                $("#help-title").text(res.data.title);
-                $("#help-body").html(res.data.content);
-            } else {
-                $("#help-display").hide();
-                $("#help-empty").show();
-            }
-        });
+    if(localStorage.getItem('sidebar-state') === 'collapsed') {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('expanded');
     }
 
-    function closeHelp() { $(helpPanel).removeClass('show'); }
-
-    function enterEditMode() {
-        $("#help-view-mode").hide();
-        $("#help-edit-mode").show();
-        
-        const currentTitle = $("#help-title").text();
-        const currentContent = $("#help-body").html();
-        
-        $("#edit-help-title").val(currentTitle);
-        $("#edit-help-content").summernote({
-            placeholder: 'Instrucciones maestras...',
-            tabsize: 2,
-            height: 350,
-            lang: 'es-ES',
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['codeview']]
-            ]
-        });
-        $("#edit-help-content").summernote('code', currentContent);
-    }
-
-    function exitEditMode() {
-        $("#help-edit-mode").hide();
-        $("#help-view-mode").show();
-    }
-
-    function saveHelp() {
-        const data = {
-            _token: "{{ csrf_token() }}",
-            route_name: currentRoute,
-            title: $("#edit-help-title").val(),
-            content: $("#edit-help-content").summernote('code'),
-            video_url: $("#edit-help-video").val()
-        };
-
-        if(!data.title || !data.content) {
-            alert("Título y contenido requeridos.");
-            return;
-        }
-
-        $.post("{{ route('help.save') }}", data, function(res){
-            if(res.success) {
-                alert("✅ ¡Manual guardado con éxito!");
-                exitEditMode();
-                openHelp(); // Recargar vista
-                $('#help-trigger').addClass('help-pulse');
-            } else {
-                alert("❌ Error al guardar: " + (res.message || "Desconocido"));
-            }
-        }).fail(function(err) {
-            console.error(err);
-            alert("❌ Error crítico del servidor. Verifique su conexión o contacte a soporte.");
-        });
-    }
+    btnToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('expanded');
+        localStorage.setItem('sidebar-state', sidebar.classList.contains('collapsed') ? 'collapsed' : 'full');
+    });
 </script>
 
+@yield('scripts')
+@stack('scripts')
 </body>
 </html>

@@ -21,14 +21,23 @@ class TesoreriaController extends Controller
     /**
      * Dashboard de Tesorería: Cuentas y Movimientos recientes
      */
-    public function index()
+    public function index(Request $request)
     {
         $empresaId = Auth::user()->empresa_id;
 
-        $cuentas = FinanzaCuenta::where('empresa_id', $empresaId)
-            ->withCount(['movimientos'])
-            ->get();
+        // Query base de cuentas activas
+        $cuentasQuery = FinanzaCuenta::where('empresa_id', $empresaId)->where('activo', true);
 
+        // Filtrado opcional desde el sidebar (Bancos o Billeteras)
+        if ($request->filter === 'banco') {
+            $cuentasQuery->where('tipo', 'banco');
+        } elseif ($request->filter === 'billetera') {
+            $cuentasQuery->where('tipo', 'billetera_digital');
+        }
+
+        $cuentas = $cuentasQuery->withCount(['movimientos'])->get();
+
+        // Movimientos globales para la "Sábana de Control"
         $movimientos = FinanzaMovimiento::where('empresa_id', $empresaId)
             ->with('cuenta')
             ->orderBy('fecha', 'desc')
@@ -36,9 +45,15 @@ class TesoreriaController extends Controller
             ->limit(15)
             ->get();
 
-        $totalEnCuentas = $cuentas->sum('saldo_actual');
+        // MÉTRICAS CONSOLIDADAS (Dashboard Superior)
+        $metricas = [
+            'total_general'    => FinanzaCuenta::where('empresa_id', $empresaId)->where('activo', true)->sum('saldo_actual'),
+            'total_bancos'     => FinanzaCuenta::where('empresa_id', $empresaId)->where('activo', true)->where('tipo', 'banco')->sum('saldo_actual'),
+            'total_billeteras' => FinanzaCuenta::where('empresa_id', $empresaId)->where('activo', true)->where('tipo', 'billetera_digital')->sum('saldo_actual'),
+            'total_efectivo'   => FinanzaCuenta::where('empresa_id', $empresaId)->where('activo', true)->where('tipo', 'caja')->sum('saldo_actual'),
+        ];
 
-        return view('empresa.tesoreria.index', compact('cuentas', 'movimientos', 'totalEnCuentas'));
+        return view('empresa.tesoreria.index', compact('cuentas', 'movimientos', 'metricas'));
     }
 
     /**
