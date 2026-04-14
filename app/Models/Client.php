@@ -56,6 +56,14 @@ class Client extends Model
     }
 
     /**
+     * RECIBOS (FORMALES) REGISTRADOS
+     */
+    public function recibos()
+    {
+        return $this->hasMany(Recibo::class);
+    }
+
+    /**
      * TOKEN DE ACCESO AL PORTAL CLIENTE
      */
     public function portalToken()

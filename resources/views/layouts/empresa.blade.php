@@ -18,6 +18,7 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
 @yield('styles')
@@ -230,6 +231,7 @@ main {
                         @if(auth()->user()->role === 'empresa')
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('empresa.ventas.manual') }}">✍️ Venta Manual</a></li>
+                            <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.pagos.index') }}">💰 Pagos (Cobranzas)</a></li>
                         @endif
                     </ul>
                 </li>
@@ -240,8 +242,11 @@ main {
                         🛒 Compras
                     </a>
                     <ul class="dropdown-menu border-0 shadow-sm">
-                        <li><a class="dropdown-item fw-bold" href="{{ route('empresa.compras.create') }}">🟢 Nueva Compra</a></li>
+                        <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.compras.create') }}">🟢 Nueva Compra</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.compras.index') }}">📋 Historial de Compras</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.tesoreria.cheques.index') }}">✍️ Cartera de Cheques</a></li>
+                        <li><a class="dropdown-item fw-bold text-info" href="{{ route('empresa.tesoreria.chequeras.index') }}">📖 Chequeras Propias</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.proveedores.index') }}">🚛 Proveedores</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.stock.faltantes') }}">⚠️ Reposición / Faltantes</a></li>

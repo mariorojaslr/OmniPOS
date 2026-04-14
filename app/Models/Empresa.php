@@ -79,6 +79,17 @@ class Empresa extends Model
     {
         return $this->hasMany(SuscripcionPago::class);
     }
+
+    public function ordenesPago()
+    {
+        return $this->hasMany(OrdenPago::class);
+    }
+
+    public function cheques()
+    {
+        return $this->hasMany(Cheque::class);
+    }
+
     public function presupuestos()
     {
         return $this->hasMany(\App\Models\Presupuesto::class);

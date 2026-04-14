@@ -95,17 +95,21 @@ class Supplier extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | REGISTRAR DEUDA (Compra)
+    | REGISTRAR DEUDA (Compra) - POLIMÓRFICO
     |--------------------------------------------------------------------------
     */
-    public function registrarCompra($monto, $descripcion = 'Compra registrada')
+    public function registrarCompra(Purchase $purchase, $descripcion = 'Compra registrada')
     {
         SupplierLedger::create([
-            'empresa_id'  => $this->empresa_id,
-            'supplier_id' => $this->id,
-            'type'        => 'debit',
-            'amount'      => $monto,
-            'description' => $descripcion
+            'empresa_id'     => $this->empresa_id,
+            'supplier_id'    => $this->id,
+            'type'           => 'debit',
+            'amount'         => $purchase->total,
+            'pending_amount' => $purchase->total,
+            'description'    => $descripcion,
+            'reference_type' => Purchase::class,
+            'reference_id'   => $purchase->id,
+            'paid'           => false
         ]);
 
         $this->recalcularSaldo();
@@ -114,17 +118,21 @@ class Supplier extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | REGISTRAR PAGO / CRÉDITO
+    | REGISTRAR PAGO (Orden de Pago) - POLIMÓRFICO
     |--------------------------------------------------------------------------
     */
-    public function registrarPago($monto, $descripcion = 'Pago aplicado')
+    public function registrarPago(OrdenPago $ordenPago, $descripcion = 'Pago registrado')
     {
         SupplierLedger::create([
-            'empresa_id'  => $this->empresa_id,
-            'supplier_id' => $this->id,
-            'type'        => 'credit',
-            'amount'      => $monto,
-            'description' => $descripcion
+            'empresa_id'     => $this->empresa_id,
+            'supplier_id'    => $this->id,
+            'type'           => 'credit',
+            'amount'         => $ordenPago->monto_total,
+            'pending_amount' => 0, // Los créditos no suelen tener "pendiente" de ser pagados
+            'description'    => $descripcion,
+            'reference_type' => OrdenPago::class,
+            'reference_id'   => $ordenPago->id,
+            'paid'           => true
         ]);
 
         $this->recalcularSaldo();

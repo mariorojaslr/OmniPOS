@@ -250,15 +250,36 @@ class PurchaseController extends Controller
             if ($supplier) {
                 if ($esNC) {
                     // NC de proveedor -> Menos deuda para nosotros (Haber/Credit)
-                    $supplier->registrarPago($total, "NC #{$purchase->invoice_number} - Devolución/Crédito");
+                    // En este caso, creamos un movimiento de crédito directamente o una OP especial.
+                    // Por ahora, un movimiento simple con referencia a la NC (se asume que la NC es el purchase)
+                    SupplierLedger::create([
+                        'empresa_id'     => $empresaId,
+                        'supplier_id'    => $supplier->id,
+                        'type'           => 'credit',
+                        'amount'         => $total,
+                        'pending_amount' => $total,
+                        'description'    => "Nota de Crédito #{$purchase->invoice_number}",
+                        'reference_type' => Purchase::class,
+                        'reference_id'   => $purchase->id,
+                        'paid'           => false
+                    ]);
                 } else {
                     if ($tipoPago === 'credito') {
                         // Aumentar deuda
-                        $supplier->registrarCompra($total, "Compra #{$purchase->id} - {$purchase->invoice_type} {$purchase->invoice_number}");
+                        $supplier->registrarCompra($purchase, "Compra #{$purchase->invoice_number}");
                     } else {
-                        // Si es contado, registramos la compra (deuda) y el pago inmediatamente (haber)
-                        $supplier->registrarCompra($total, "Compra #{$purchase->id} - Pago Contado");
-                        $supplier->registrarPago($total, "Pago de Compra #{$purchase->id}");
+                        // Si es contado, registramos la compra (deuda) y el pago inmediatamente vía Service
+                        $supplier->registrarCompra($purchase, "Compra #{$purchase->invoice_number} - Pago Contado");
+                        
+                        $supplierAccountService = app(\App\Services\SupplierAccountService::class);
+                        $supplierAccountService->registrarPagoProveedor(
+                            $supplier->id, 
+                            $total, 
+                            $purchase->purchase_date,
+                            [['metodo_pago' => 'efectivo', 'monto' => $total]],
+                            [], // Auto-imputar
+                            true
+                        );
                     }
                 }
             }

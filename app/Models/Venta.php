@@ -70,4 +70,12 @@ class Venta extends Model
     {
         return $this->items->contains(fn($item) => $item->cantidad_pendiente > 0);
     }
+
+    /**
+     * 💳 Ledger asociado (para ventas en cuenta corriente)
+     */
+    public function ledger()
+    {
+        return $this->morphOne(\App\Models\ClientLedger::class, 'reference');
+    }
 }

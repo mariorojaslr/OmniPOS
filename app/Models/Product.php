@@ -6,6 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Traits\BelongsToEmpresa;
 
+/**
+ * @property int $id
+ * @property int $empresa_id
+ * @property string $name
+ * @property string|null $sku
+ * @property float $price
+ * @property float $stock
+ * @property string $usage_type
+ * @property float|null $cost
+ * @property-read \App\Models\Recipe|null $recipe
+ */
 class Product extends Model
 {
     use BelongsToEmpresa;

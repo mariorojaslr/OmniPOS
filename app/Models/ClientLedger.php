@@ -17,8 +17,11 @@ class ClientLedger extends Model
     protected $fillable = [
         'empresa_id',
         'client_id',
+        'reference_type',
+        'reference_id',
         'type',
         'amount',
+        'pending_amount',
         'description',
         'paid',
         'created_at',
@@ -27,6 +30,8 @@ class ClientLedger extends Model
     protected $casts = [
         'paid' => 'boolean',
         'created_at' => 'datetime',
+        'amount' => 'decimal:2',
+        'pending_amount' => 'decimal:2',
     ];
 
     /**
@@ -39,9 +44,16 @@ class ClientLedger extends Model
     {
         parent::boot();
 
-        // BLOQUEAR EDICION
+        // Al crear cualquier movimiento, inicializamos el pending_amount al total
+        static::creating(function ($model) {
+            $model->pending_amount = $model->amount;
+        });
+
+        // BLOQUEAR EDICION (Excepto pending_amount y paid que son operativos)
         static::updating(function ($model) {
-            throw new \Exception("No se permite modificar movimientos contables. Debe generar un movimiento compensatorio.");
+            if ($model->isDirty(['amount', 'type', 'client_id', 'empresa_id'])) {
+                 throw new \Exception("No se permite modificar los valores base de movimientos contables. Debe generar un movimiento compensatorio.");
+            }
         });
 
         // BLOQUEAR ELIMINACION
@@ -57,5 +69,21 @@ class ClientLedger extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    /**
+     * Referencia al objeto original (Venta, Recibo, etc)
+     */
+    public function reference()
+    {
+        return $this->morphTo('reference', 'reference_type', 'reference_id');
+    }
+
+    /**
+     * Imputaciones recibidas (si es un DEBIT)
+     */
+    public function imputaciones()
+    {
+        return $this->hasMany(ReciboImputacion::class, 'ledger_id');
     }
 }

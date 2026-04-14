@@ -34,7 +34,7 @@ class VentaService
     |--------------------------------------------------------------------------
     */
 
-    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo'): Venta
+    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo', $montoEntrega = null, $pagosDiferenciados = []): Venta
     {
         $empresa = $user->empresa;
 
@@ -64,7 +64,7 @@ class VentaService
         |--------------------------------------------------------------------------
         */
 
-        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago) {
+        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago, $montoEntrega, $pagosDiferenciados) {
 
             // Re-obtener empresa con bloqueo para asegurar número correlativo único
             $empresaActual = \App\Models\Empresa::where('id', $user->empresa_id)->lockForUpdate()->first();
@@ -284,15 +284,31 @@ class VentaService
 
             if ($clienteId && $tipoVentaCliente === 'cuenta_corriente') {
 
-                ClientLedger::create([
-                    'empresa_id'  => $empresaActual->id,
-                    'client_id'   => $clienteId,
-                    'user_id'     => $user->id,
-                    'type'        => $esNC ? 'credit' : 'debit',
-                    'amount'      => $totalConIva,
-                    'paid'        => $esNC ? 1 : 0, // Las NC se consideran "cerradas"
-                    'description' => ($esNC ? 'Nota de Crédito #' : 'Venta POS #') . $venta->id,
+                $ledgerDeuda = ClientLedger::create([
+                    'empresa_id'     => $empresaActual->id,
+                    'client_id'      => $clienteId,
+                    'reference_type' => Venta::class,
+                    'reference_id'   => $venta->id,
+                    'type'           => $esNC ? 'credit' : 'debit',
+                    'amount'         => $totalConIva,
+                    'pending_amount' => $esNC ? 0 : $totalConIva,
+                    'paid'           => $esNC ? 1 : 0, // Las NC se consideran "cerradas"
+                    'description'    => ($esNC ? 'Nota de Crédito #' : 'Venta #') . $venta->numero_comprobante,
                 ]);
+
+                // Si el cliente hizo un pago parcial INICIAL (Ej: Deuda de 98k, pagó 20k, 78k van a saldo)
+                if (!$esNC && isset($montoEntrega) && $montoEntrega > 0) {
+                    app(\App\Services\ClientAccountService::class)->registrarCobro(
+                        $clienteId,
+                        $montoEntrega,
+                        $metodoPago,
+                        null,                           // referencia
+                        now()->format('Y-m-d'),         // fecha
+                        [$ledgerDeuda->id],             // facturasEspecificas (solo PAGA a esta misma factura recién nacida)
+                        $pagosDiferenciados,            // array de caja/bancos
+                        true                            // autoImputar (aplicará los fondos al ID específico enviado)
+                    );
+                }
             }
 
 

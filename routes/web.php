@@ -225,14 +225,45 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      */
         Route::get('clientes/export', [ClientController::class , 'export'])->name('clientes.export');
         Route::post('clientes/import', [ClientController::class , 'import'])->name('clientes.import');
-        Route::resource('clientes', ClientController::class)->except(['destroy']);
+        Route::get('clientes/{client}', [App\Http\Controllers\Empresa\ClientAccountController::class, 'show'])->name('clientes.show');
+        Route::post('clientes/{client}/recibos', [App\Http\Controllers\Empresa\ClientAccountController::class, 'storeReceipt'])->name('clientes.recibos.store');
+        Route::post('clientes/{client}/aplicar-saldo', [App\Http\Controllers\Empresa\ClientAccountController::class, 'aplicarSaldoAFavor'])->name('clientes.aplicar_saldo');
+        Route::get('clientes/{client}/deudas', [App\Http\Controllers\Empresa\ClientAccountController::class, 'apiGetDeudas'])->name('clientes.deudas.api');
+        Route::resource('clientes', ClientController::class)->except(['destroy', 'show']);
+
+        /*
+     |--------------------------------------------------------------------------
+     | PAGOS / RECIBOS INDEPENDIENTES
+     |--------------------------------------------------------------------------
+     */
+        Route::get('pagos', [App\Http\Controllers\Empresa\ReciboController::class, 'index'])->name('pagos.index');
+        Route::get('pagos/create', [App\Http\Controllers\Empresa\ReciboController::class, 'create'])->name('pagos.create');
+        Route::post('pagos', [App\Http\Controllers\Empresa\ReciboController::class, 'store'])->name('pagos.store');
+        Route::get('pagos/{id}', [App\Http\Controllers\Empresa\ReciboController::class, 'show'])->name('pagos.show');
+        Route::get('pagos/{id}/print', [App\Http\Controllers\Empresa\ReciboController::class, 'print'])->name('pagos.print');
+        Route::post('pagos/{id}/references', [App\Http\Controllers\Empresa\ReciboController::class, 'updateReferences'])->name('pagos.update_references');
 
         /*
      |--------------------------------------------------------------------------
      | PROVEEDORES
      |--------------------------------------------------------------------------
      */
-        Route::resource('proveedores', SupplierController::class)->except(['destroy']);
+        Route::get('proveedores/cheques', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'chequesIndex'])->name('proveedores.cheques');
+        Route::get('proveedores/{supplier}/cta_cte', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'show'])->name('proveedores.show');
+        Route::post('proveedores/{supplier}/pagos', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'storePayment'])->name('proveedores.pagos.store');
+        Route::resource('proveedores', SupplierController::class)->except(['destroy', 'show']);
+
+        /*
+      |--------------------------------------------------------------------------
+      | TESORERIA - CHEQUES Y CHEQUERAS
+      |--------------------------------------------------------------------------
+      */
+        Route::get('tesoreria/cheques', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'chequesIndex'])->name('tesoreria.cheques.index');
+        Route::post('tesoreria/cheques/{cheque}/status', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'updateChequeStatus'])->name('tesoreria.cheques.status');
+        
+        Route::resource('tesoreria/chequeras', App\Http\Controllers\Empresa\ChequeraController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->names('tesoreria.chequeras');
 
         /*
       |--------------------------------------------------------------------------
@@ -257,7 +288,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::delete('/compras/{purchase}', [PurchaseController::class , 'destroy'])->name('compras.destroy');
         Route::get('/compras/ultimo-precio/{product}/{variant?}', [PurchaseController::class, 'getLastPrice'])->name('compras.ultimo_precio');
 
-        Route::post('/proveedores/{supplier}/pago', [SupplierController::class, 'recordPayment'])->name('proveedores.pago');
+
 
         /*
      |--------------------------------------------------------------------------

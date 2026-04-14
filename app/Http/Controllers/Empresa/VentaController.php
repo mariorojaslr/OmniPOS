@@ -85,7 +85,9 @@ class VentaController extends Controller
                 $request->tipo_comprobante ?? 'X',
                 $request->boolean('hacer_remito', false),
                 $request->input('items_entregar'),
-                $request->metodo_pago ?: 'efectivo'
+                $request->metodo_pago ?: 'efectivo',
+                $request->input('montoEntrega'),
+                $request->input('pagosDiferenciados') ?: []
             );
 
             if ($request->wantsJson() || $request->ajax()) {
@@ -116,7 +118,7 @@ class VentaController extends Controller
         $empresa = auth()->user()->empresa;
 
         $q = Venta::where('empresa_id', $empresa->id)
-            ->with(['cliente', 'user', 'items.product', 'items.variant'])
+            ->with(['cliente', 'user', 'items.product', 'items.variant', 'ledger.imputaciones.recibo'])
             ->orderByDesc('created_at');
 
         // Filtros

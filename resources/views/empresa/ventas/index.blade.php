@@ -127,25 +127,47 @@
             <table class="table table-hover align-middle mb-0 text-center">
                 <thead class="table-light">
                     <tr>
+                        <th width="40"></th>
                         <th width="140" class="ps-3 text-start">Fecha</th>
                         <th width="180" class="text-start">N° Comprobante</th>
                         <th class="text-start">Cliente</th>
                         <th width="100">Tipo</th>
-                        <th width="120">Método</th>
+                        <th width="120">Estado Pago</th>
                         <th width="140" class="text-end">Total</th>
-                        <th width="180">Imprimir</th>
-                        <th width="100" class="pe-3">Detalle</th>
+                        <th width="120" class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($ventas as $venta)
+                    @php
+                        $estadoPago = 'PAGO TOTAL';
+                        $badgePago  = 'bg-success bg-opacity-10 text-success border border-success border-opacity-25';
+                        if ($venta->metodo_pago === 'cuenta_corriente' && $venta->ledger) {
+                            $ledger = $venta->ledger;
+                            if (round($ledger->pending_amount, 2) == round($ledger->amount, 2) && $ledger->amount > 0) {
+                                $estadoPago = 'SIN PAGO';
+                                $badgePago  = 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
+                            } elseif ($ledger->pending_amount > 0 && $ledger->pending_amount < $ledger->amount) {
+                                $estadoPago = 'PAGO PARCIAL';
+                                $badgePago  = 'bg-warning bg-opacity-10 text-warning border border-warning text-dark border-opacity-25';
+                            }
+                        }
+                        $tieneRecibos = $venta->ledger && $venta->ledger->imputaciones->count() > 0;
+                    @endphp
                     <tr>
-                        <td class="ps-3 text-start text-muted" style="font-size: 0.85rem;">
-                            {{ $venta->created_at->format('d/m/Y') }}<br>
+                        <td class="text-center align-middle">
+                            @if($tieneRecibos)
+                            <button class="btn btn-sm btn-light border p-1 rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePagos-{{ $venta->id }}" title="Ver Recibos Relacionados">
+                                <i class="fas fa-chevron-down text-muted" style="font-size: 10px;"></i>
+                            </button>
+                            @endif
+                        </td>
+                        <td class="ps-3 text-start text-muted align-middle" style="font-size: 0.85rem;">
+                            <span class="fw-bold text-dark">{{ $venta->created_at->format('d/m/Y') }}</span><br>
                             {{ $venta->created_at->format('H:i') }}
                         </td>
 
-                        <td class="text-start">
+                        <td class="text-start align-middle">
                             @php
                                 $tipoLetra = strtoupper(substr($venta->tipo_comprobante ?? 'B', -1));
                                 if($venta->tipo_comprobante == 'ticket') $tipoLetra = 'T';
@@ -155,58 +177,79 @@
                             <span class="fw-bold">{{ $fullNum }}</span>
                         </td>
 
-                        <td class="text-start">
+                        <td class="text-start align-middle">
                             {{ optional($venta->cliente)->name ?? 'CONSUMIDOR FINAL' }}
                         </td>
 
-                        <td>
+                        <td class="align-middle">
                             @if($venta->tipo_comprobante === 'factura' || str_contains($venta->tipo_comprobante, 'factura'))
-                                <span class="badge bg-primary-subtle text-primary border-primary">Factura</span>
+                                <span class="badge bg-primary-subtle text-primary py-1 border border-primary">Factura</span>
                             @else
-                                <span class="badge bg-secondary-subtle text-secondary border-secondary">Ticket</span>
+                                <span class="badge bg-secondary-subtle text-secondary py-1 border border-secondary">Ticket</span>
                             @endif
                         </td>
 
-                        <td>
-                            <span class="small text-muted">{{ ucfirst($venta->metodo_pago ?? 'Contado') }}</span>
+                        <td class="align-middle text-center">
+                            <span class="badge {{ $badgePago }} py-1 d-block w-100" style="font-size:0.75rem">{{ $estadoPago }}</span>
+                            @if($estadoPago == 'PAGO PARCIAL')
+                                <small class="text-muted d-block" style="font-size:0.7rem">Resta: ${{ number_format($venta->ledger->pending_amount, 2, ',', '.') }}</small>
+                            @endif
                         </td>
 
-                        <td class="text-end fw-bold">
+                        <td class="text-end fw-bold align-middle fs-6">
                             $ {{ number_format($venta->total_con_iva, 2, ',', '.') }}
                         </td>
 
-                        <td>
-                            <div class="btn-group btn-group-sm shadow-sm">
-                                <a href="{{ route('empresa.ventas.pdf', $venta->id) }}" 
-                                   target="_blank" 
-                                   class="btn btn-outline-danger" 
-                                   title="Ver Factura A4">
-                                   A4
-                                </a>
-                                <a href="{{ route('empresa.ventas.pdf', [$venta->id, 'format' => 'ticket']) }}" 
-                                   target="_blank" 
-                                   class="btn btn-outline-dark" 
-                                   title="Imprimir Ticket">
-                                   Ticket
-                                </a>
+                        <td class="pe-3 text-center align-middle">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light border px-2 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Opciones
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 fs-7">
+                                    <li><h6 class="dropdown-header">Exportar</h6></li>
+                                    <li><a class="dropdown-item py-2" target="_blank" href="{{ route('empresa.ventas.pdf', $venta->id) }}"><i class="fas fa-file-pdf text-danger me-2"></i> Factura A4</a></li>
+                                    <li><a class="dropdown-item py-2" target="_blank" href="{{ route('empresa.ventas.pdf', [$venta->id, 'format' => 'ticket']) }}"><i class="fas fa-receipt text-secondary me-2"></i> Formato Ticket</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Logística</h6></li>
+                                    @if($venta->es_guarda_pendiente)
+                                        <li><a class="dropdown-item py-2 fw-bold text-danger" href="{{ route('empresa.ventas.show', $venta->id) }}"><i class="fas fa-truck-loading me-2"></i> Remitir Guarda</a></li>
+                                    @else
+                                        <li><a class="dropdown-item py-2" href="{{ route('empresa.ventas.show', $venta->id) }}"><i class="fas fa-eye me-2"></i> Ver Remito</a></li>
+                                    @endif
+                                </ul>
                             </div>
                         </td>
-
-                        <td class="pe-3 text-center">
-                            @if($venta->es_guarda_pendiente)
-                                <a href="{{ route('empresa.ventas.show', $venta->id) }}" class="btn btn-sm btn-danger px-2 py-1 fw-bold shadow-sm" style="font-size: 0.7rem;">
-                                    🚚 GUARDA
-                                </a>
-                            @else
-                                <a href="{{ route('empresa.ventas.show', $venta->id) }}" class="btn btn-sm btn-outline-secondary px-2 py-1" style="font-size: 0.72rem; letter-spacing: -0.2px;">
-                                    REMITO
-                                </a>
-                            @endif
-                        </td>
-
-
-
                     </tr>
+                    
+                    <!-- FILA EXPANDIBLE DE RECIBOS IMPUTADOS -->
+                    @if($tieneRecibos)
+                    <tr class="collapse" id="collapsePagos-{{ $venta->id }}">
+                        <td colspan="8" class="p-0 border-0">
+                            <div class="p-3 bg-light border-bottom" style="box-shadow: inset 0px 4px 6px -4px rgba(0,0,0,0.1);">
+                                <h6 class="fw-bold text-muted small text-uppercase mb-3"><i class="fas fa-link me-1"></i> Cobros aplicados a esta factura</h6>
+                                <div class="row g-2">
+                                    @foreach($venta->ledger->imputaciones as $imp)
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="bg-white border rounded shadow-sm p-3 d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="fas fa-receipt text-success me-2"></i>
+                                                <a href="{{ route('empresa.pagos.show', $imp->recibo_id) }}" class="fw-bold text-decoration-none text-dark">
+                                                    Recibo #{{ str_pad(optional($imp->recibo)->numero_recibo ?? 0, 8, '0', STR_PAD_LEFT) }}
+                                                </a>
+                                                <small class="text-muted d-block"><i class="far fa-calendar-alt me-1"></i> {{ optional($imp->recibo)->fecha ?? $imp->created_at->format('d/m/Y') }}</small>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="d-block text-muted small text-uppercase">Monto Pagado</span>
+                                                <span class="fw-bold text-success fs-5">$ {{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    @endif
                     @empty
                     <tr>
                         <td colspan="8" class="text-center text-muted py-5">

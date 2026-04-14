@@ -130,12 +130,40 @@
                     </div>
 
                     <label class="form-label fw-bold small text-muted">Condición de Pago</label>
-                    <select name="metodo_pago" class="form-select mb-4">
+                    <select name="metodo_pago" id="metodoPago" class="form-select mb-3">
                         <option value="efectivo">Efectivo 💵</option>
                         <option value="transferencia">Transferencia 🏦</option>
                         <option value="cuenta_corriente">Cuenta Corriente 👤</option>
                         <option value="tarjeta">Tarjeta (Débito/Crédito) 💳</option>
                     </select>
+
+                    <div id="cajaEntregaParcial" class="mb-4 p-3 border rounded-3 bg-white shadow-sm d-none">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="chkEntregaParcial">
+                            <label class="form-check-label fw-bold text-dark small" for="chkEntregaParcial">
+                                💸 Recibir Pago Inicial / Anticipo
+                            </label>
+                        </div>
+                        <div id="camposEntrega" class="d-none mt-2 pt-2 border-top">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="small text-muted fw-bold text-uppercase">Monto Entregado</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" step="0.01" id="montoEntrega" class="form-control fw-bold text-success">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="small text-muted fw-bold text-uppercase mt-1">Medio de este pago</label>
+                                    <select id="metodoEntrega" class="form-select form-select-sm">
+                                        <option value="Efectivo">Efectivo</option>
+                                        <option value="Transferencia">Transferencia</option>
+                                        <option value="Tarjeta">Tarjeta</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="mb-4 p-3 bg-light rounded-3 border">
                         <div class="form-check form-switch">
@@ -209,6 +237,26 @@ $(document).ready(function() {
             icon.removeClass('d-none');
             alert("Error de conexión con el padrón AFIP.");
         });
+    });
+
+    // Lógica visual para la cuenta corriente
+    $('#metodoPago').on('change', function() {
+        if ($(this).val() === 'cuenta_corriente') {
+            $('#cajaEntregaParcial').removeClass('d-none');
+        } else {
+            $('#cajaEntregaParcial').addClass('d-none');
+            $('#chkEntregaParcial').prop('checked', false).trigger('change');
+        }
+    });
+
+    $('#chkEntregaParcial').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#camposEntrega').removeClass('d-none');
+            $('#montoEntrega').focus();
+        } else {
+            $('#camposEntrega').addClass('d-none');
+            $('#montoEntrega').val('');
+        }
     });
 });
 
@@ -305,6 +353,18 @@ document.getElementById('formVentaManual').onsubmit = async function(e) {
     const data = Object.fromEntries(formData);
     data.items = items;
     data.hacer_remito = document.getElementById('hacerRemito').checked;
+
+    // Agregar parcialidad si está activa
+    if ($('#metodoPago').val() === 'cuenta_corriente' && $('#chkEntregaParcial').is(':checked')) {
+        let montoP = parseFloat($('#montoEntrega').val());
+        if (montoP > 0) {
+            data.montoEntrega = montoP;
+            data.pagosDiferenciados = [{
+                metodo_pago: $('#metodoEntrega').val(),
+                monto: montoP
+            }];
+        }
+    }
 
     try {
         const response = await fetch(this.action, {
