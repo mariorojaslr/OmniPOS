@@ -33,8 +33,8 @@ class ChequeraController extends Controller
             'banco'          => 'required|string|max:255',
             'tipo'           => 'required|in:fisica,echeck',
             'numero_cuenta'  => 'required|string|max:255',
-            'desde'          => 'required_if:tipo,fisica|integer|min:0',
-            'hasta'          => 'required_if:tipo,fisica|integer|gt:desde',
+            'desde'          => 'sometimes|required_if:tipo,fisica|nullable|integer|min:0',
+            'hasta'          => 'sometimes|required_if:tipo,fisica|nullable|integer|gt:desde',
             'proximo_numero' => 'nullable|integer',
         ]);
 
