@@ -149,12 +149,13 @@ $secondary = $config?->color_secondary ?? '#16a34a';
     {{-- ======================================================
         CABECERA (ADMIN EMPRESA) - Visible en Desktop
     ====================================================== --}}
-    <div class="mb-5 d-none d-md-flex justify-content-between align-items-center">
-        <div>
-            <h2 class="header-title mb-1">
-                Panel de Administración: <span style="color: {{ $primary }};">{{ $empresa->nombre_comercial }}</span>
-            </h2>
-            <p class="text-muted mb-0">Control integral de sucursales, ventas y reportes operativos.</p>
+    <div class="mb-5 d-none d-md-flex justify-content-end align-items-center">
+        <div class="text-end border-end border-primary border-3 pe-4">
+            <h4 class="header-title mb-0 text-muted small text-uppercase letter-spacing-1">
+                Administración de Estación: <span style="color: #00d2ff; text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);">{{ $empresa->nombre_comercial }}</span>
+            </h4>
+            <div style="height: 1px; width: 120px; background: linear-gradient(to right, transparent, #00d2ff); margin-left: auto; margin-top: 5px; box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);"></div>
+            <p class="x-small text-muted mb-0 opacity-75 mt-1">Sincronización de sucursales y reportes financieros activa.</p>
         </div>
     </div>
 

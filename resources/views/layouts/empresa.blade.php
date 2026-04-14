@@ -71,7 +71,7 @@
 body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; }
 
 /* =========================================================
-   SIDEBAR
+   SIDEBAR "SPACE COMMAND"
    ========================================================= */
 #sidebar {
     width: var(--sidebar-width);
@@ -80,22 +80,22 @@ body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; 
     top: 0;
     left: 0;
     background: var(--sidebar-bg);
-    z-index: 1100;
+    z-index: 2000; /* Asegurar que esté sobre el contenido */
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+    box-shadow: 15px 0 35px rgba(0,0,0,0.3);
 }
 
 #sidebar.collapsed { width: var(--sidebar-collapsed-width); }
 
 .sidebar-header {
-    min-height: 110px;
+    min-height: 120px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 15px;
+    padding: 20px 15px;
     border-bottom: 1px solid var(--sidebar-border);
     transition: all 0.3s;
 }
@@ -110,106 +110,120 @@ body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; 
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 5px;
+    gap: 8px;
     text-decoration: none;
     color: white;
 }
 
 .sidebar-logo img { 
-    max-height: 42px; 
+    max-height: 48px; 
     max-width: 100%;
     object-fit: contain;
-    flex-shrink: 0; 
+    filter: drop-shadow(0 0 10px rgba(var(--color-primario-rgb), 0.3));
+    transition: 0.3s;
 }
+
+#sidebar.collapsed .sidebar-logo img { max-height: 35px; }
 
 .sidebar-logo span { 
     font-weight: 800; 
-    font-size: 0.85rem; 
-    line-height: 1.2;
-    transition: 0.3s; 
-    opacity: 1; 
+    font-size: 0.8rem; 
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #e2e8f0;
+    text-align: center;
+    max-width: 140px;
 }
 
-#sidebar.collapsed .sidebar-logo span { opacity: 0; display: none; }
+#sidebar.collapsed .sidebar-logo span { display: none; }
 
-.sidebar-nav { flex-grow: 1; padding: 20px 0; overflow-y: auto; scrollbar-width: none; }
-.sidebar-nav::-webkit-scrollbar { display: none; }
+.sidebar-nav { flex-grow: 1; padding: 25px 0; overflow-y: auto; scrollbar-width: none; }
 
 .nav-label {
-    padding: 15px 25px 8px 25px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.4);
+    padding: 22px 25px 8px 25px;
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: #00d2ff; /* Azul Espacial Vibrante */
     text-transform: uppercase;
-    letter-spacing: 1.2px;
-    transition: 0.3s;
+    letter-spacing: 2.5px;
+    display: block;
+    position: relative;
+    margin: 0 20px 12px 20px;
+    text-shadow: 0 0 12px rgba(0, 210, 255, 0.6);
 }
-#sidebar.collapsed .nav-label { opacity: 0; }
+
+.nav-label::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, #00d2ff, transparent);
+    box-shadow: 0 0 8px rgba(0, 210, 255, 0.8);
+}
+
+#sidebar.collapsed .nav-label { visibility: hidden; }
 
 .nav-link-item {
     display: flex;
     align-items: center;
-    padding: 11px 20px;
-    color: rgba(255, 255, 255, 0.7);
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.88rem;
+    font-weight: 600;
     transition: all 0.2s;
-    margin: 2px 12px;
-    border-radius: 10px;
-    white-space: nowrap;
+    margin: 4px 15px;
+    border-radius: 12px;
 }
 
-.nav-link-item:hover, .nav-link-item.active {
-    background: rgba(var(--color-primario-rgb), 0.15);
-    color: white;
+.nav-link-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #00f2ff;
+    transform: translateX(5px);
 }
+
 .nav-link-item.active {
-    background: var(--color-primario);
-    box-shadow: 0 4px 12px rgba(var(--color-primario-rgb), 0.3);
+    background: linear-gradient(90deg, var(--color-primario), #0fbcf9);
+    color: white;
+    box-shadow: 0 5px 15px rgba(var(--color-primario-rgb), 0.4);
 }
 
-.nav-link-item i { width: 24px; font-size: 1.25rem; margin-right: 12px; transition: 0.3s; }
-#sidebar.collapsed .nav-link-item i { margin-right: 0; }
-#sidebar.collapsed .nav-link-item span { display: none; }
-
-/* Submenús */
-.submenu-toggle[aria-expanded="true"] { background: rgba(255,255,255,0.05); color: white; }
-.submenu-collapse { background: rgba(0,0,0,0.2); margin: 0 12px; border-radius: 10px; }
-.submenu-item {
-    display: block;
-    padding: 8px 20px 8px 48px;
-    color: rgba(255,255,255,0.5);
-    text-decoration: none;
-    font-size: 0.85rem;
-    transition: 0.2s;
-}
-.submenu-item:hover { color: white; }
-#sidebar.collapsed .submenu-collapse { display: none !important; }
+.nav-link-item i { width: 28px; font-size: 1.25rem; margin-right: 12px; }
 
 /* =========================================================
-   CONTENT
+   FIX OVERLAP & MAIN CONTENT
    ========================================================= */
 #main-content {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
     transition: margin 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 10;
 }
 #main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
 
 .top-bar {
     height: var(--navbar-height);
-    background: rgba(var(--modoOscuro ? '0,0,0' : '255,255,255'), 0.85);
-    backdrop-filter: blur(10px);
+    background: rgba(255,255,255, 0.9);
+    backdrop-filter: blur(12px);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 30px;
+    padding: 0 40px;
     position: sticky;
     top: 0;
-    z-index: 1000;
-    border-bottom: 1px solid var(--sidebar-border);
+    z-index: 1001; /* Sobre el contenido pero bajo el sidebar moviéndose */
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
+
+@if($modoOscuro)
+.top-bar {
+    background: rgba(0,0,0, 0.9);
+    border-bottom-color: rgba(255,255,255,0.05);
+}
+@endif
 
 .btn-sidebar-toggle {
     background: transparent;
@@ -405,7 +419,7 @@ body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; 
                     <li><a class="dropdown-item rounded-3 text-danger fw-bold" href="{{ route('logout.get') }}"><i class="bi bi-power me-2"></i> Cerrar Sesión</a></li>
                 </ul>
             </div>
-        </div>header
+        </div>
     </header>
 
     <main class="p-4">
