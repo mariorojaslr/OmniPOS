@@ -138,9 +138,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-md-8">
                             <label class="small text-uppercase fw-bold text-muted mb-1">Banco / Entidad</label>
                             <input type="text" name="banco" class="form-control border-0 bg-light rounded-pill px-3" placeholder="Ej: Banco Galicia" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small text-uppercase fw-bold text-muted mb-1">Sucursal</label>
+                            <input type="text" name="sucursal" class="form-control border-0 bg-light rounded-pill px-3" placeholder="Opcional">
                         </div>
                         <div class="col-md-6">
                             <label class="small text-uppercase fw-bold text-muted mb-1">CBU / Nro. Cuenta</label>
