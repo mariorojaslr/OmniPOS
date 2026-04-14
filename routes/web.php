@@ -255,9 +255,14 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         /*
       |--------------------------------------------------------------------------
-      | TESORERIA - CHEQUES Y CHEQUERAS
+      | TESORERIA - BANCOS, CAJAS Y CHEQUES
       |--------------------------------------------------------------------------
       */
+        Route::get('tesoreria', [App\Http\Controllers\Empresa\TesoreriaController::class, 'index'])->name('tesoreria.index');
+        Route::get('tesoreria/proyeccion', [App\Http\Controllers\Empresa\TesoreriaController::class, 'proyeccion'])->name('tesoreria.proyeccion');
+        Route::post('tesoreria/cuentas', [App\Http\Controllers\Empresa\TesoreriaController::class, 'storeCuenta'])->name('tesoreria.cuentas.store');
+        Route::post('tesoreria/bank-accounts', [App\Http\Controllers\Empresa\TesoreriaController::class, 'storeBankAccount'])->name('tesoreria.bank-accounts.store');
+        
         Route::get('tesoreria/cheques', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'chequesIndex'])->name('tesoreria.cheques.index');
         Route::post('tesoreria/cheques/{cheque}/status', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'updateChequeStatus'])->name('tesoreria.cheques.status');
         

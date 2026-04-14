@@ -245,6 +245,7 @@ main {
                         <li><a class="dropdown-item fw-bold text-success" href="{{ route('empresa.compras.create') }}">🟢 Nueva Compra</a></li>
                         <li><a class="dropdown-item" href="{{ route('empresa.compras.index') }}">📋 Historial de Compras</a></li>
                         <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item fw-bold text-dark" href="{{ route('empresa.tesoreria.index') }}">🏦 Tesorería (Cuentas)</a></li>
                         <li><a class="dropdown-item fw-bold text-primary" href="{{ route('empresa.tesoreria.cheques.index') }}">✍️ Cartera de Cheques</a></li>
                         <li><a class="dropdown-item fw-bold text-info" href="{{ route('empresa.tesoreria.chequeras.index') }}">📖 Chequeras Propias</a></li>
                         <li><hr class="dropdown-divider"></li>

@@ -41,6 +41,11 @@ class Supplier extends Model
         return $this->hasMany(SupplierLedger::class, 'supplier_id');
     }
 
+    public function bankAccounts()
+    {
+        return $this->morphMany(BankAccount::class, 'holder');
+    }
+
 
     /*
     |--------------------------------------------------------------------------

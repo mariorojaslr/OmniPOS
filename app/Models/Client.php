@@ -87,6 +87,11 @@ class Client extends Model
         return $this->hasMany(Venta::class);
     }
 
+    public function bankAccounts()
+    {
+        return $this->morphMany(BankAccount::class, 'holder');
+    }
+
 
     // =========================================================
     // MÉTODOS FINANCIEROS

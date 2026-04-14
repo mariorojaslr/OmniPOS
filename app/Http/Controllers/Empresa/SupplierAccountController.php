@@ -15,10 +15,12 @@ use Illuminate\Support\Facades\DB;
 class SupplierAccountController extends Controller
 {
     protected $accountService;
+    protected $tesoreriaService;
 
-    public function __construct(SupplierAccountService $accountService)
+    public function __construct(SupplierAccountService $accountService, \App\Services\TesoreriaService $tesoreriaService)
     {
         $this->accountService = $accountService;
+        $this->tesoreriaService = $tesoreriaService;
     }
 
     /**
@@ -167,8 +169,11 @@ class SupplierAccountController extends Controller
             'propios_emitidos' => Cheque::where('empresa_id', $empresaId)->where('tipo', 'propio')->where('estado', 'entregado')->sum('monto'),
             'proximos_vencer'  => Cheque::where('empresa_id', $empresaId)->where('estado', 'en_cartera')->whereDate('fecha_pago', '<=', now()->addDays(7))->sum('monto'),
         ];
+
+        // Cuentas para conciliación
+        $cuentas = \App\Models\FinanzaCuenta::where('empresa_id', $empresaId)->where('activo', true)->get();
             
-        return view('empresa.tesoreria.cheques.index', compact('cheques', 'stats'));
+        return view('empresa.tesoreria.cheques.index', compact('cheques', 'stats', 'cuentas'));
     }
 
     /**
@@ -181,14 +186,60 @@ class SupplierAccountController extends Controller
         }
 
         $request->validate([
-            'estado' => 'required|in:en_cartera,depositado,entregado,rechazado,anulado,cobrado'
+            'estado' => 'required|in:en_cartera,depositado,entregado,rechazado,anulado,cobrado',
+            'cuenta_id' => 'nullable|exists:finanzas_cuentas,id',
         ]);
 
         $nuevoEstado = $request->estado;
-        
-        // Aquí podríamos disparar lógicas adicionales dependiendo del estado
-        // Ejemplo: Si se rechaza un cheque entregado a un proveedor, deberíamos reabrir la deuda del proveedor.
-        // Pero primero vamos con el cambio de estado básico.
+        $viejoEstado = $cheque->estado;
+
+        // Evitar duplicar movimientos si ya estaba cobrado
+        if ($nuevoEstado == 'cobrado' && $viejoEstado != 'cobrado' && $request->cuenta_id) {
+            if ($cheque->tipo == 'tercero') {
+                // Ingreso de dinero (Lo cobré o se acreditó)
+                $this->tesoreriaService->registrarMovimiento($request->cuenta_id, 'ingreso', $cheque->monto, "Cobro cheque tercero #{$cheque->numero}", [
+                    'reference_type' => get_class($cheque),
+                    'reference_id'   => $cheque->id,
+                    'categoria'      => 'Cheques de Terceros',
+                    'conciliado'     => true
+                ]);
+            } else {
+                // Egreso de dinero (El banco me lo descontó porque el proveedor lo cobró)
+                $this->tesoreriaService->registrarMovimiento($request->cuenta_id, 'egreso', $cheque->monto, "Débito cheque propio #{$cheque->numero}", [
+                    'reference_type' => get_class($cheque),
+                    'reference_id'   => $cheque->id,
+                    'categoria'      => 'Cheques Propios',
+                    'conciliado'     => true
+                ]);
+            }
+            $cheque->cuenta_id = $request->cuenta_id;
+        }
+
+        // ── Lógica de RECHAZADO ──
+        if ($nuevoEstado == 'rechazado' && $viejoEstado != 'rechazado') {
+            if ($cheque->tipo == 'tercero') {
+                // 1. Reabrir deuda del cliente (Generar Debito en Cta Cte)
+                \App\Models\ClientLedger::create([
+                    'empresa_id'     => $cheque->empresa_id,
+                    'client_id'      => $cheque->client_id,
+                    'type'           => 'debit',
+                    'amount'         => $cheque->monto,
+                    'description'    => "RECHAZO DE CHEQUE #{$cheque->numero} ({$cheque->banco})",
+                    'reference_type' => get_class($cheque),
+                    'reference_id'   => $cheque->id,
+                ]);
+
+                // 2. Si ya estaba en una cuenta (cobrado/depositado), sacar la plata de ahí
+                if ($cheque->cuenta_id) {
+                    $this->tesoreriaService->registrarMovimiento($cheque->cuenta_id, 'egreso', $cheque->monto, "Débito por cheque rechazado #{$cheque->numero}", [
+                        'reference_type' => get_class($cheque),
+                        'reference_id'   => $cheque->id,
+                        'categoria'      => 'Rechazos',
+                        'conciliado'     => true
+                    ]);
+                }
+            }
+        }
 
         $cheque->update(['estado' => $nuevoEstado]);
 

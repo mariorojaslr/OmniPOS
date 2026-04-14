@@ -179,18 +179,22 @@
                                     Gestionar
                                 </button>
                                 <ul class="dropdown-menu shadow border-0 dropdown-menu-end">
-                                    @if($c->estado == 'en_cartera')
+                                    @if($c->estado == 'en_cartera' || ($c->tipo == 'propio' && $c->estado == 'entregado'))
                                         <li>
-                                            <form action="{{ route('empresa.tesoreria.cheques.status', $c->id) }}" method="POST">
-                                                @csrf <input type="hidden" name="estado" value="depositado">
-                                                <button type="submit" class="dropdown-item"><i class="fas fa-university me-2 text-primary"></i> Marcar como Depositado</button>
-                                            </form>
+                                            <button type="button" class="dropdown-item fw-bold text-success" 
+                                                onclick="openStatusModal({{ $c->id }}, 'cobrado', '{{ $c->tipo == 'tercero' ? 'Cobrar / Efectivizar' : 'Marcar como Pagado (Débito)' }}')">
+                                                <i class="fas fa-money-bill-wave me-2"></i> 
+                                                {{ $c->tipo == 'tercero' ? 'Marcar como Cobrado' : 'Confirmar Débito Bancario' }}
+                                            </button>
                                         </li>
+                                    @endif
+
+                                    @if($c->estado == 'en_cartera' && $c->tipo == 'tercero')
                                         <li>
-                                            <form action="{{ route('empresa.tesoreria.cheques.status', $c->id) }}" method="POST">
-                                                @csrf <input type="hidden" name="estado" value="cobrado">
-                                                <button type="submit" class="dropdown-item"><i class="fas fa-money-bill-wave me-2 text-success"></i> Marcar como Cobrado (Efectivizado)</button>
-                                            </form>
+                                            <button type="button" class="dropdown-item" 
+                                                onclick="openStatusModal({{ $c->id }}, 'depositado', 'Depositar en Banco')">
+                                                <i class="fas fa-university me-2 text-primary"></i> Marcar como Depositado
+                                            </button>
                                         </li>
                                     @endif
 
@@ -198,7 +202,7 @@
                                         <li>
                                             <form action="{{ route('empresa.tesoreria.cheques.status', $c->id) }}" method="POST" onsubmit="return confirm('¿Marcar este cheque como RECHAZADO?')">
                                                 @csrf <input type="hidden" name="estado" value="rechazado">
-                                                <button type="submit" class="dropdown-item text-danger"><i class="fas fa-times-circle me-2"></i> Marcar como RECHAZADO</button>
+                                                <button type="submit" class="dropdown-item text-danger small"><i class="fas fa-times-circle me-2"></i> Marcar como RECHAZADO</button>
                                             </form>
                                         </li>
                                     @endif
@@ -208,7 +212,7 @@
                                         <li>
                                             <form action="{{ route('empresa.tesoreria.cheques.status', $c->id) }}" method="POST" onsubmit="return confirm('¿Anular este cheque?')">
                                                 @csrf <input type="hidden" name="estado" value="anulado">
-                                                <button type="submit" class="dropdown-item"><i class="fas fa-ban me-2"></i> Anular Cheque</button>
+                                                <button type="submit" class="dropdown-item small"><i class="fas fa-ban me-2"></i> Anular Cheque</button>
                                             </form>
                                         </li>
                                     @endif
@@ -234,6 +238,66 @@
         @endif
     </div>
 </div>
+
+{{-- MODAL PARA CAMBIO DE ESTADO (CON CONCILIACIÓN) --}}
+<div class="modal fade" id="modalStatusCheque" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white p-3 border-0">
+                <h6 class="modal-title fw-bold" id="statusModalTitle">Actualizar Estado</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formStatusCheque" method="POST">
+                @csrf
+                <input type="hidden" name="estado" id="inputNuevoEstado">
+                <div class="modal-body p-4">
+                    <div id="divCuentaSeleccion" style="display:none;">
+                        <label class="small fw-bold text-muted mb-2 d-block text-uppercase">Seleccionar Cuenta para el Movimiento</label>
+                        <select name="cuenta_id" class="form-select border-0 bg-light rounded-pill px-3 mb-3" required id="selectCuentaStatus">
+                            <option value="">-- Seleccionar Cuenta --</option>
+                            @foreach($cuentas as $cuenta)
+                                <option value="{{ $cuenta->id }}">{{ $cuenta->nombre }} (${{ number_format($cuenta->saldo_actual, 2, ',', '.') }})</option>
+                            @endforeach
+                        </select>
+                        <p class="x-small text-muted mb-0"><i class="fas fa-info-circle me-1"></i> Al confirmar, se generará un movimiento de caja automático.</p>
+                    </div>
+                    <div id="divConfirmacionSimple" style="display:none;">
+                        <p class="mb-0 text-center py-2">¿Estás seguro de cambiar el estado de este cheque?</p>
+                    </div>
+                </div>
+                <div class="modal-footer p-3 border-0">
+                    <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm">CONFIRMAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openStatusModal(chequeId, nuevoEstado, titulo) {
+    const form = document.getElementById('formStatusCheque');
+    form.action = `/empresa/tesoreria/cheques/${chequeId}/status`;
+    document.getElementById('inputNuevoEstado').value = nuevoEstado;
+    document.getElementById('statusModalTitle').innerText = titulo;
+
+    const divCuenta = document.getElementById('divCuentaSeleccion');
+    const divSimple = document.getElementById('divConfirmacionSimple');
+    const selectCuenta = document.getElementById('selectCuentaStatus');
+
+    if (nuevoEstado === 'cobrado' || nuevoEstado === 'depositado') {
+        divCuenta.style.display = 'block';
+        divSimple.style.display = 'none';
+        selectCuenta.required = true;
+    } else {
+        divCuenta.style.display = 'none';
+        divSimple.style.display = 'block';
+        selectCuenta.required = false;
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('modalStatusCheque'));
+    modal.show();
+}
+</script>
 
 <style>
     .x-small { font-size: 0.7rem; }

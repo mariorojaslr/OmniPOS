@@ -23,6 +23,9 @@
             <button class="btn btn-primary px-4 fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCobro">
                 <i class="fas fa-hand-holding-usd me-1"></i> Registrar Cobro
             </button>
+            <button class="btn btn-outline-primary px-3 fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCuentasBanco">
+                <i class="fas fa-university me-1"></i> Cuentas Banco
+            </button>
             <a href="{{ route('empresa.ventas.manual', ['client_id' => $client->id]) }}" class="btn btn-dark px-4 fw-bold rounded-pill shadow-sm">
                 <i class="fas fa-plus me-1"></i> Nueva Venta
             </a>
@@ -580,5 +583,76 @@
             badge.className = "d-none";
         }
     }
+{{-- MODAL GESTIÓN DE CUENTAS BANCARIAS DEL CLIENTE --}}
+<div class="modal fade" id="modalCuentasBanco" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white p-4 border-0">
+                <h5 class="modal-title fw-bold">Cuentas Bancarias: {{ $client->name }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <!-- Listado de Cuentas Existentes -->
+                    <div class="col-md-7">
+                        <h6 class="text-uppercase x-small fw-bold text-muted mb-3">Cuentas Registradas</h6>
+                        <div class="list-group list-group-flush rounded-3 border overflow-auto" style="max-height: 400px;">
+                            @forelse($client->bankAccounts as $acc)
+                                <div class="list-group-item p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">{{ $acc->bank_name }}</h6>
+                                            <span class="x-small text-muted">{{ $acc->account_type ?: 'Cuenta' }} · {{ $acc->account_number }}</span>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-light text-dark rounded-pill x-small px-3 border">CBU: {{ $acc->cbu_cvu }}</span>
+                                            <div class="x-small text-primary fw-bold mt-1">Alias: {{ $acc->alias }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-5 text-center text-muted small">
+                                    <i class="fas fa-university fa-3x mb-3 opacity-25"></i>
+                                    <p>No hay cuentas bancarias registradas para este cliente.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Formulario Nueva Cuenta -->
+                    <div class="col-md-5 bg-light p-4 rounded-4">
+                        <h6 class="text-uppercase x-small fw-bold text-muted mb-3">Registrar Nueva Cuenta</h6>
+                        <form action="{{ route('empresa.tesoreria.bank-accounts.store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="holder_type" value="{{ get_class($client) }}">
+                            <input type="hidden" name="holder_id" value="{{ $client->id }}">
+                            
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-1">Banco</label>
+                                <input type="text" name="bank_name" class="form-control form-control-sm border-0 bg-white rounded-pill px-3 shadow-sm" placeholder="Ej: Galicia, BBVA..." required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-1">CBU / CVU</label>
+                                <input type="text" name="cbu_cvu" class="form-control form-control-sm border-0 bg-white rounded-pill px-3 shadow-sm" placeholder="22 dígitos">
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-1">Alias</label>
+                                <input type="text" name="alias" class="form-control form-control-sm border-0 bg-white rounded-pill px-3 shadow-sm" placeholder="Ej: CASA.PERRO.GATO">
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-1">Tipo de Cuenta</label>
+                                <select name="account_type" class="form-select form-select-sm border-0 bg-white rounded-pill px-3 shadow-sm">
+                                    <option value="Cta. Corriente">Cta. Corriente</option>
+                                    <option value="Caja de Ahorro">Caja de Ahorro</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm">GUARDAR CUENTA</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </script>
 @endsection
