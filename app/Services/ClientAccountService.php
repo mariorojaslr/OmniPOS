@@ -192,17 +192,22 @@ class ClientAccountService
     /**
      * Busca saldos a favor (créditos con saldo pendiente) y los aplica 
      * manual y EXCLUSIVAMENTE a las facturas que el dueño selecciona.
+     * Ahora permite opcionalmente filtrar qué créditos específicos usar.
      */
-    public function aplicarSaldosAFavorEspecificos($clientId, $facturasEspecificas)
+    public function aplicarSaldosAFavorEspecificos($clientId, $facturasEspecificas, $creditosEspecificos = [])
     {
-        if (empty($facturasEspecificas)) return; // Si no hay facturas a las que aplicar, salir.
+        if (empty($facturasEspecificas)) return; 
 
-        $creditosFlotantes = ClientLedger::where('client_id', $clientId)
+        $query = ClientLedger::where('client_id', $clientId)
             ->where('type', 'credit')
             ->where('paid', false)
-            ->where('pending_amount', '>', 0)
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->where('pending_amount', '>', 0);
+
+        if (!empty($creditosEspecificos)) {
+            $query->whereIn('id', $creditosEspecificos);
+        }
+
+        $creditosFlotantes = $query->orderBy('created_at', 'asc')->get();
 
         foreach ($creditosFlotantes as $credito) {
             if ($credito->pending_amount <= 0.009) continue;
@@ -221,12 +226,8 @@ class ClientAccountService
             $credito->save();
 
             // Si imputarMontoDeuda devolvió EXACTAMENTE lo que mandamos, significa que las facturas elegidas 
-            // ya se pagaron al 100% (o no quedan más). Podemos detener el loop.
-            if (abs($restante - $credito->pending_amount) < 0.01) {
-                // Saliendo anticipadamente si ya no hay más deuda en esas facturas
-                // Nota: el save de arriba guardó, y continuamos, 
-                // pero si no consumió plata, ya podemos romper el ciclo exterior.
-            }
+            // ya se pagaron al 100% (o no quedan más). Podemos detener el loop si ya no hay más a qué aplicar.
+            // Para verificar si consumió algo, comparamos con el valor previo.
         }
     }
 

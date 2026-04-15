@@ -62,11 +62,14 @@ class ClientAccountController extends Controller
             ->get();
 
         // Saldo a favor (Créditos sin imputar)
-        $saldoAFavorDisponible = ClientLedger::where('client_id', $client->id)
+        $recibosHuerfanos = ClientLedger::where('client_id', $client->id)
             ->where('type', 'credit')
             ->where('paid', false)
             ->where('pending_amount', '>', 0)
-            ->sum('pending_amount');
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $saldoAFavorDisponible = $recibosHuerfanos->sum('pending_amount');
 
         // ── ANÁLISIS DE AGING (ANTIGÜEDAD) ──
         $aging = [
@@ -94,7 +97,7 @@ class ClientAccountController extends Controller
 
         return view('empresa.clientes.cta_cte', compact(
             'client', 'movimientos', 'saldo', 'deudas', 'saldoAFavorDisponible',
-            'aging', 'totalVentas', 'totalCobrado', 'ultimosRecibos'
+            'aging', 'totalVentas', 'totalCobrado', 'ultimosRecibos', 'recibosHuerfanos'
         ));
     }
 
@@ -135,14 +138,20 @@ class ClientAccountController extends Controller
     {
         $request->validate([
             'facturas_aplicar' => 'required|array|min:1',
-            'facturas_aplicar.*' => 'exists:client_ledgers,id'
+            'facturas_aplicar.*' => 'exists:client_ledgers,id',
+            'creditos_aplicar' => 'nullable|array',
+            'creditos_aplicar.*' => 'exists:client_ledgers,id'
         ]);
-
+ 
         try {
-            $this->accountService->aplicarSaldosAFavorEspecificos($client->id, $request->facturas_aplicar);
-            return back()->with('success', "Saldo a favor imputado a las facturas correctamente.");
+            $this->accountService->aplicarSaldosAFavorEspecificos(
+                $client->id, 
+                $request->facturas_aplicar, 
+                $request->input('creditos_aplicar', [])
+            );
+            return back()->with('success', "Compensación de documentos realizada con éxito.");
         } catch (\Exception $e) {
-            return back()->with('error', "No se pudo aplicar el saldo: " . $e->getMessage());
+            return back()->with('error', "No se pudo realizar la aplicación: " . $e->getMessage());
         }
     }
 

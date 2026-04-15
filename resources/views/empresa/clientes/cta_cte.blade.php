@@ -428,32 +428,108 @@
     </div>
 </div>
 
-{{-- MODAL CRUZAR SALDO --}}
+{{-- MODAL COMPENSACIÓN DE DOCUMENTOS (CRUCE DE SALDOS) --}}
 <div class="modal fade" id="modalAplicarSaldo" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header border-0 bg-warning text-dark p-4">
-                <h5 class="modal-title fw-bold"><i class="fas fa-magic me-2"></i> Imputar Saldo a Favor</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('empresa.clientes.aplicar_saldo', $client->id) }}" method="POST">
-                @csrf
-                <div class="modal-body p-4 text-center">
-                    <p class="text-muted small">Tienes <strong>${{ number_format($saldoAFavorDisponible, 2, ',', '.') }}</strong> sin imputar. Selecciona qué facturas deseas descontar con este dinero:</p>
-                    <div class="list-group list-group-flush rounded-3 border overflow-auto mb-3 text-start shadow-sm" style="max-height: 250px;">
-                        @foreach($deudas as $deuda)
-                            <label class="list-group-item d-flex justify-content-between align-items-center py-2">
-                                <div>
-                                    <input class="form-check-input me-3" type="checkbox" name="facturas_aplicar[]" value="{{ $deuda->id }}">
-                                    <span class="small fw-bold">{{ $deuda->description }}</span>
-                                </div>
-                                <span class="fw-bold text-danger small">${{ number_format($deuda->pending_amount, 2, ',', '.') }}</span>
-                            </label>
-                        @endforeach
+            <div class="modal-header border-0 bg-dark text-white p-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary p-2 rounded-3 me-3">
+                        <i class="fas fa-exchange-alt fa-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0">Compensación de Documentos</h5>
+                        <p class="x-small text-muted mb-0">Cruce manual de facturas impagas contra saldos a favor existentes.</p>
                     </div>
                 </div>
-                <div class="modal-footer p-4 pt-0 border-0">
-                    <button type="submit" class="btn btn-warning w-100 py-3 rounded-pill fw-bold text-dark shadow-sm">Confirmar Imputación</button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form action="{{ route('empresa.clientes.aplicar_saldo', $client->id) }}" method="POST" id="formCompensacion">
+                @csrf
+                <div class="modal-body p-0">
+                    <div class="row g-0">
+                        {{-- COLUMNA IZQUIERDA: FACTURAS IMPAGAS --}}
+                        <div class="col-md-5 p-4 bg-light border-end">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="x-small fw-bold text-uppercase text-muted mb-0"><i class="fas fa-file-invoice text-danger me-1"></i> 1. Facturas Impagas (Debe)</h6>
+                                <span class="badge bg-danger rounded-pill x-small" id="countDeudasSelected">0 seleccionadas</span>
+                            </div>
+                            
+                            <div class="list-group list-group-flush rounded-3 border shadow-sm overflow-auto" style="max-height: 400px;">
+                                @forelse($deudas as $d)
+                                <label class="list-group-item list-group-item-action border-bottom p-3 cursor-pointer">
+                                    <div class="d-flex align-items-center">
+                                        <input class="form-check-input me-3 checkbox-deuda" type="checkbox" name="facturas_aplicar[]" value="{{ $d->id }}" data-monto="{{ $d->pending_amount }}" onchange="recalculateCompensacion()">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="fw-bold text-dark small">{{ $d->description }}</span>
+                                                <span class="text-danger fw-bold small">${{ number_format($d->pending_amount, 2, ',', '.') }}</span>
+                                            </div>
+                                            <div class="x-small text-muted">{{ $d->created_at->format('d/m/Y') }} · Antigüedad: {{ $d->created_at->diffInDays(now()) }} días</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                @empty
+                                <div class="p-5 text-center text-muted x-small">No hay facturas pendientes de cobro.</div>
+                                @endforelse
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <span class="x-small text-muted fw-bold">TOTAL DEUDA SELECCIONADA: </span>
+                                <span class="fw-bold text-danger" id="totalDeudaCompensar">$0,00</span>
+                            </div>
+                        </div>
+
+                        {{-- COLUMNA CENTRAL: ACCIÓN --}}
+                        <div class="col-md-2 d-flex flex-column align-items-center justify-content-center bg-white p-3 border-start border-end">
+                            <div class="text-center mb-4">
+                                <div class="x-small fw-bold text-muted text-uppercase mb-2">Diferencia</div>
+                                <h4 class="fw-bold mb-0" id="balanceCompensacion">$0,00</h4>
+                                <div id="balanceStatus" class="x-small mt-1 fw-bold"></div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm scale-up mb-3" id="btnAplicarCompensacion" disabled>
+                                APLICAR <i class="fas fa-magic ms-1"></i>
+                            </button>
+                            
+                            <div class="alert alert-warning border-0 p-2 x-small text-center rounded-3 mb-0">
+                                <i class="fas fa-info-circle"></i> Los documentos se cancelarán totalmente o quedará saldo parcial.
+                            </div>
+                        </div>
+
+                        {{-- COLUMNA DERECHA: RECIBOS HUÉRFANOS --}}
+                        <div class="col-md-5 p-4 bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="x-small fw-bold text-uppercase text-muted mb-0"><i class="fas fa-receipt text-success me-1"></i> 2. Saldo a Favor (Haber)</h6>
+                                <span class="badge bg-success rounded-pill x-small" id="countCreditosSelected">0 seleccionados</span>
+                            </div>
+
+                            <div class="list-group list-group-flush rounded-3 border shadow-sm overflow-auto" style="max-height: 400px;">
+                                @forelse($recibosHuerfanos as $r)
+                                <label class="list-group-item list-group-item-action border-bottom p-3 cursor-pointer">
+                                    <div class="d-flex align-items-center">
+                                        <input class="form-check-input me-3 checkbox-credito" type="checkbox" name="creditos_aplicar[]" value="{{ $r->id }}" data-monto="{{ $r->pending_amount }}" onchange="recalculateCompensacion()">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="fw-bold text-dark small">{{ $r->description }}</span>
+                                                <span class="text-success fw-bold small">${{ number_format($r->pending_amount, 2, ',', '.') }}</span>
+                                            </div>
+                                            <div class="x-small text-muted">{{ $r->created_at->format('d/m/Y') }} · Disponible para imputar</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                @empty
+                                <div class="p-5 text-center text-muted x-small">No hay recibos o créditos a favor disponibles.</div>
+                                @endforelse
+                            </div>
+
+                            <div class="mt-3 text-center">
+                                <span class="x-small text-muted fw-bold">TOTAL SALDO SELECCIONADO: </span>
+                                <span class="fw-bold text-success" id="totalCreditoCompensar">$0,00</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -654,5 +730,56 @@
         </div>
     </div>
 </div>
+    function recalculateCompensacion() {
+        let totalDeuda = 0;
+        let countDeuda = 0;
+        document.querySelectorAll('.checkbox-deuda:checked').forEach(c => {
+            totalDeuda += parseFloat(c.getAttribute('data-monto'));
+            countDeuda++;
+        });
+
+        let totalCredito = 0;
+        let countCredito = 0;
+        document.querySelectorAll('.checkbox-credito:checked').forEach(c => {
+            totalCredito += parseFloat(c.getAttribute('data-monto'));
+            countCredito++;
+        });
+
+        // Actualizar Montos en Pantalla
+        document.getElementById('totalDeudaCompensar').innerText = `$${totalDeuda.toLocaleString('es-AR', {minimumFractionDigits:2})}`;
+        document.getElementById('totalCreditoCompensar').innerText = `$${totalCredito.toLocaleString('es-AR', {minimumFractionDigits:2})}`;
+        document.getElementById('countDeudasSelected').innerText = `${countDeuda} seleccionadas`;
+        document.getElementById('countCreditosSelected').innerText = `${countCredito} seleccionados`;
+
+        // Diferencia y Status
+        const diff = totalCredito - totalDeuda;
+        const balanceElement = document.getElementById('balanceCompensacion');
+        const statusElement = document.getElementById('balanceStatus');
+        const btnApply = document.getElementById('btnAplicarCompensacion');
+
+        balanceElement.innerText = `$${Math.abs(diff).toLocaleString('es-AR', {minimumFractionDigits:2})}`;
+        
+        if (totalDeuda > 0 && totalCredito > 0) {
+            btnApply.disabled = false;
+            if (Math.abs(diff) < 0.01) {
+                balanceElement.className = "fw-bold mb-0 text-success";
+                statusElement.innerText = "CALZADO PERFECTO";
+                statusElement.className = "x-small mt-1 fw-bold text-success";
+            } else if (diff > 0) {
+                balanceElement.className = "fw-bold mb-0 text-primary";
+                statusElement.innerText = "SOBRA SALDO A FAVOR";
+                statusElement.className = "x-small mt-1 fw-bold text-primary";
+            } else {
+                balanceElement.className = "fw-bold mb-0 text-warning";
+                statusElement.innerText = "QUEDA DEUDA PENDIENTE";
+                statusElement.className = "x-small mt-1 fw-bold text-warning";
+            }
+        } else {
+            btnApply.disabled = true;
+            balanceElement.className = "fw-bold mb-0 text-muted";
+            statusElement.innerText = "SELECCIONE DOCUMENTOS";
+            statusElement.className = "x-small mt-1 fw-bold text-muted";
+        }
+    }
 </script>
 @endsection
