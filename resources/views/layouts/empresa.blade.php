@@ -252,12 +252,11 @@ body {
 #main-content {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
-    transition: all var(--transition-speed) var(--transition-curve);
+    transition: margin-left var(--transition-speed) var(--transition-curve);
     background: var(--bg-main);
-    padding-top: 110px; /* Separación perfecta debajo de la top-bar */
-    padding-left: 40px; /* Separación perfecta del sidebar */
-    padding-right: 40px;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 #main-content.expanded {
@@ -269,7 +268,7 @@ body {
     top: 0;
     right: 0;
     left: var(--sidebar-width);
-    height: 70px;
+    height: var(--navbar-height);
     background: {{ $modoOscuro ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.85)' }};
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
@@ -277,13 +276,18 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
     z-index: 1000; 
     transition: left var(--transition-speed) var(--transition-curve);
 }
 
 #main-content.expanded .top-bar {
     left: var(--sidebar-collapsed-width);
+}
+
+main {
+    padding: calc(var(--navbar-height) + 20px) 1.5rem 2rem;
+    flex-grow: 1;
 }
 
 /* UI Elements */
@@ -524,7 +528,7 @@ body {
         </div>
     </header>
 
-    <main class="p-4">
+    <main>
         @if(session('error')) <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">{{ session('error') }}</div> @endif
         @if(session('success')) <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">{{ session('success') }}</div> @endif
 

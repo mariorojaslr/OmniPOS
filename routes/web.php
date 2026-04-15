@@ -225,11 +225,11 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      */
         Route::get('clientes/export', [ClientController::class , 'export'])->name('clientes.export');
         Route::post('clientes/import', [ClientController::class , 'import'])->name('clientes.import');
+        Route::resource('clientes', ClientController::class)->except(['destroy', 'show']);
         Route::get('clientes/{client}', [App\Http\Controllers\Empresa\ClientAccountController::class, 'show'])->name('clientes.show');
         Route::post('clientes/{client}/recibos', [App\Http\Controllers\Empresa\ClientAccountController::class, 'storeReceipt'])->name('clientes.recibos.store');
         Route::post('clientes/{client}/aplicar-saldo', [App\Http\Controllers\Empresa\ClientAccountController::class, 'aplicarSaldoAFavor'])->name('clientes.aplicar_saldo');
         Route::get('clientes/{client}/deudas', [App\Http\Controllers\Empresa\ClientAccountController::class, 'apiGetDeudas'])->name('clientes.deudas.api');
-        Route::resource('clientes', ClientController::class)->except(['destroy', 'show']);
 
         /*
      |--------------------------------------------------------------------------
