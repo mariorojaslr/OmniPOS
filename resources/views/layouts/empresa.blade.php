@@ -44,12 +44,14 @@
 
 <style>
 :root {
-    --sidebar-width: 270px;
-    --sidebar-collapsed-width: 80px;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 85px;
     --navbar-height: 70px;
     --color-primario: {{ $colorPrimario }};
     --color-secundario: {{ $colorSecundario }};
     --color-primario-rgb: {{ implode(',', $rgb) }};
+    --transition-speed: 0.4s;
+    --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
     
     @if($modoOscuro)
     --bg-main: #000000;
@@ -68,11 +70,17 @@
 
 * { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; }
+body { 
+    background: var(--bg-main); 
+    color: var(--text-main); 
+    overflow-x: hidden; 
+    margin: 0;
+}
 
 /* =========================================================
    SIDEBAR "SPACE COMMAND"
    ========================================================= */
+/* ===================== SIDEBAR SPACE COMMAND v3 ===================== */
 #sidebar {
     width: var(--sidebar-width);
     height: 100vh;
@@ -80,172 +88,256 @@ body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; 
     top: 0;
     left: 0;
     background: var(--sidebar-bg);
-    z-index: 2000; /* Asegurar que esté sobre el contenido */
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2005; /* Encima de todo */
+    transition: width var(--transition-speed) var(--transition-curve), transform var(--transition-speed) var(--transition-curve);
     display: flex;
     flex-direction: column;
-    box-shadow: 15px 0 35px rgba(0,0,0,0.3);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+    border-right: 1px solid var(--sidebar-border);
 }
 
-#sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+#sidebar.collapsed { 
+    width: var(--sidebar-collapsed-width); 
+}
 
 .sidebar-header {
-    min-height: 120px;
+    min-height: 100px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 20px 15px;
+    padding: 20px;
+    background: rgba(255,255,255,0.02);
     border-bottom: 1px solid var(--sidebar-border);
-    transition: all 0.3s;
-}
-
-#sidebar.collapsed .sidebar-header {
-    min-height: var(--navbar-height);
-    padding: 10px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .sidebar-logo {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    gap: 8px;
+    gap: 12px;
     text-decoration: none;
     color: white;
 }
 
 .sidebar-logo img { 
-    max-height: 48px; 
-    max-width: 100%;
+    height: 42px; 
+    width: 42px;
     object-fit: contain;
     filter: drop-shadow(0 0 10px rgba(var(--color-primario-rgb), 0.3));
-    transition: 0.3s;
+    transition: transform 0.3s;
 }
-
-#sidebar.collapsed .sidebar-logo img { max-height: 35px; }
 
 .sidebar-logo span { 
     font-weight: 800; 
-    font-size: 0.8rem; 
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #e2e8f0;
-    text-align: center;
-    max-width: 140px;
+    font-size: 0.95rem; 
+    color: #f8fafc;
+    letter-spacing: -0.5px;
+    transition: opacity 0.3s, transform 0.3s;
 }
 
-#sidebar.collapsed .sidebar-logo span { display: none; }
+#sidebar.collapsed .sidebar-logo span {
+    opacity: 0;
+    transform: translateX(-20px);
+}
 
-.sidebar-nav { flex-grow: 1; padding: 25px 0; overflow-y: auto; scrollbar-width: none; }
+.sidebar-nav { 
+    flex-grow: 1; 
+    padding: 15px 0;
+    overflow-y: auto; 
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
 
 .nav-label {
-    padding: 22px 25px 8px 25px;
-    font-size: 0.72rem;
-    font-weight: 900;
-    color: #00d2ff; /* Azul Espacial Vibrante */
+    padding: 20px 25px 8px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 2.5px;
-    display: block;
-    position: relative;
-    margin: 0 20px 12px 20px;
-    text-shadow: 0 0 12px rgba(0, 210, 255, 0.6);
+    letter-spacing: 1.5px;
+    white-space: nowrap;
 }
-
-.nav-label::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(90deg, #00d2ff, transparent);
-    box-shadow: 0 0 8px rgba(0, 210, 255, 0.8);
-}
-
-#sidebar.collapsed .nav-label { visibility: hidden; }
 
 .nav-link-item {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    color: rgba(255, 255, 255, 0.6);
+    padding: 10px 18px;
+    color: #94a3b8;
     text-decoration: none;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    transition: all 0.2s;
-    margin: 4px 15px;
-    border-radius: 12px;
+    margin: 2px 14px;
+    border-radius: 10px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
 }
 
 .nav-link-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #00f2ff;
-    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
 }
 
 .nav-link-item.active {
-    background: linear-gradient(90deg, var(--color-primario), #0fbcf9);
-    color: white;
-    box-shadow: 0 5px 15px rgba(var(--color-primario-rgb), 0.4);
+    background: rgba(var(--color-primario-rgb), 0.1);
+    color: var(--color-primario);
+    box-shadow: inset 0 0 0 1px rgba(var(--color-primario-rgb), 0.2);
 }
 
-.nav-link-item i { width: 28px; font-size: 1.25rem; margin-right: 12px; }
+.nav-link-item i { 
+    width: 24px; 
+    font-size: 1.1rem; 
+    margin-right: 12px; 
+    display: flex; 
+    justify-content: center;
+}
+
+/* --- Restauración de Submenús --- */
+.submenu-collapse {
+    background: rgba(255, 255, 255, 0.02);
+    margin: 2px 14px 8px 14px;
+    border-radius: 10px;
+    padding: 5px 0;
+}
+
+.submenu-item {
+    display: block;
+    padding: 8px 18px 8px 45px;
+    color: #94a3b8;
+    text-decoration: none !important;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.submenu-item:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(3px);
+}
+
+/* --- Limpieza en Modo Colapsado --- */
+#sidebar.collapsed .nav-label,
+#sidebar.collapsed .nav-link-item span,
+#sidebar.collapsed .submenu-collapse,
+#sidebar.collapsed .sidebar-logo span {
+    display: none !important;
+}
+
+#sidebar.collapsed .nav-link-item {
+    justify-content: center;
+    padding: 12px 0;
+    margin: 4px 10px;
+}
+
+#sidebar.collapsed .nav-link-item i {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
 
 /* =========================================================
-   FIX OVERLAP & MAIN CONTENT
+   INTEGRATED MAIN CONTENT & TOP BAR
    ========================================================= */
 #main-content {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
-    transition: margin 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--transition-speed) var(--transition-curve);
+    background: var(--bg-main);
+    padding-top: 110px; /* Separación perfecta debajo de la top-bar */
+    padding-left: 40px; /* Separación perfecta del sidebar */
+    padding-right: 40px;
     position: relative;
-    z-index: 10;
 }
-#main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+
+#main-content.expanded {
+    margin-left: var(--sidebar-collapsed-width);
+}
 
 .top-bar {
-    height: var(--navbar-height);
-    background: rgba(255,255,255, 0.9);
-    backdrop-filter: blur(12px);
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: var(--sidebar-width);
+    height: 70px;
+    background: {{ $modoOscuro ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.85)' }};
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--sidebar-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 40px;
-    position: sticky;
-    top: 0;
-    z-index: 1001; /* Sobre el contenido pero bajo el sidebar moviéndose */
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 0 2rem;
+    z-index: 1000; 
+    transition: left var(--transition-speed) var(--transition-curve);
 }
 
-@if($modoOscuro)
-.top-bar {
-    background: rgba(0,0,0, 0.9);
-    border-bottom-color: rgba(255,255,255,0.05);
+#main-content.expanded .top-bar {
+    left: var(--sidebar-collapsed-width);
 }
-@endif
 
+/* UI Elements */
 .btn-sidebar-toggle {
     background: transparent;
     border: none;
     color: var(--text-main);
-    font-size: 1.5rem;
-    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    transition: background 0.2s;
+}
+.btn-sidebar-toggle:hover { background: rgba(0,0,0,0.05); }
+
+/* Optimizaciones Mobile */
+@media (max-width: 991px) {
+    #sidebar {
+        transform: translateX(-100%);
+        width: 280px !important;
+    }
+    #sidebar.show {
+        transform: translateX(0);
+    }
+    #sidebar.show ~ .sidebar-overlay {
+        display: block;
+        opacity: 1;
+    }
+    #main-content {
+        margin-left: 0 !important;
+    }
+    .top-bar {
+        left: 0 !important;
+    }
 }
 
 </style>
 
-@yield('styles')
 @stack('styles')
 </head>
 
-<body>
+<body class="{{ isset($posMode) ? 'pos-focus-mode' : '' }}">
 
 <!-- SIDEBAR MODERNO -->
+@if(!isset($posMode))
 <div id="sidebar">
     <div class="sidebar-header">
         <a href="{{ route('empresa.dashboard') }}" class="sidebar-logo">
-            <img src="{{ $logo }}" alt="Logo">
+            <div class="bg-white p-2 rounded-3 shadow-sm d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                <img src="{{ $logo }}" alt="Logo" style="max-height: 100%;">
+            </div>
             <span>{{ $empresa->nombre_comercial ?? 'MultiPOS' }}</span>
         </a>
     </div>
@@ -353,9 +445,6 @@ body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; 
         </a>
 
         <div class="nav-label">Sistema</div>
-        <a href="{{ route('empresa.novedades') }}" class="nav-link-item text-warning">
-            <i class="bi bi-fire"></i> <span>🔥 Novedades</span>
-        </a>
         <a href="{{ route('empresa.soporte.index') }}" class="nav-link-item text-info">
             <i class="bi bi-headset"></i> <span>Soporte Técnico</span>
         </a>
@@ -364,24 +453,37 @@ body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; 
         </a>
     </div>
 
-    <div class="p-4 mt-auto">
+    <div class="p-4 mt-auto border-top border-opacity-10" style="border-top: 1px solid var(--sidebar-border) !important;">
         <a href="{{ route('logout.get') }}" class="nav-link-item text-danger p-0 m-0 border-0 bg-transparent">
-            <i class="bi bi-box-arrow-right"></i> <span>Salir del Sistema</span>
+            <i class="bi bi-power"></i> <span>Salir del Sistema</span>
         </a>
     </div>
 </div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+@endif
 
 <!-- CONTENIDO PRINCIPAL -->
-<div id="main-content">
+<div id="main-content" class="{{ isset($posMode) ? 'expanded' : '' }}">
     <header class="top-bar">
         <div class="d-flex align-items-center gap-3">
-            <button class="btn-sidebar-toggle" id="btnToggle">
-                <i class="bi bi-list"></i>
-            </button>
+            @if(!isset($posMode))
+                <button class="btn-sidebar-toggle" id="btnToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            @else
+                <a href="{{ route('empresa.dashboard') }}" class="btn btn-light btn-sm rounded-pill px-3 border fw-bold">
+                    <i class="bi bi-grid-fill me-1"></i> PANEL DE GESTIÓN
+                </a>
+            @endif
             <h5 class="mb-0 fw-bold d-none d-md-block" id="page_title">@yield('page_title', 'MultiPOS v2')</h5>
         </div>
 
         <div class="d-flex align-items-center gap-3">
+            {{-- BOTÓN NOVEDADES --}}
+            <a href="{{ route('empresa.novedades') }}" class="btn btn-light btn-sm rounded-pill px-3 border fw-bold text-warning d-none d-lg-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-fire"></i> NOVEDADES
+            </a>
+
             {{-- BOTÓN TÁCTICO OWNER --}}
             @if(session('impersonator_id'))
                 <a href="{{ route('owner.return-to-owner') }}" class="btn btn-warning btn-sm fw-bold border-2 rounded-pill px-3">
@@ -464,17 +566,26 @@ body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; 
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
     const btnToggle = document.getElementById('btnToggle');
+    const overlay = document.getElementById('sidebarOverlay');
 
-    if(localStorage.getItem('sidebar-state') === 'collapsed') {
+    // Estado inicial persistente
+    if(localStorage.getItem('sidebar-state') === 'collapsed' && window.innerWidth > 991) {
         sidebar.classList.add('collapsed');
         mainContent.classList.add('expanded');
     }
 
-    btnToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('expanded');
-        localStorage.setItem('sidebar-state', sidebar.classList.contains('collapsed') ? 'collapsed' : 'full');
-    });
+    function toggleSidebar() {
+        if (window.innerWidth <= 991) {
+            sidebar.classList.toggle('show');
+        } else {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            localStorage.setItem('sidebar-state', sidebar.classList.contains('collapsed') ? 'collapsed' : 'full');
+        }
+    }
+
+    btnToggle.addEventListener('click', toggleSidebar);
+    if(overlay) overlay.addEventListener('click', () => sidebar.classList.remove('show'));
 </script>
 
 @yield('scripts')

@@ -20,9 +20,8 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 ========================================================= */
 
 .dashboard-container {
-    width: 100%;
-    padding: 0 2rem;
-    padding-bottom: 2rem;
+    padding: 0; /* Ya lo maneja el padre #main-content */
+    padding-bottom: 2.5rem;
 }
 
 /* Background suave animado sutil basado en el color primario de la empresa */
@@ -146,18 +145,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
         </div>
     </div>
 
-    {{-- ======================================================
-        CABECERA (ADMIN EMPRESA) - Visible en Desktop
-    ====================================================== --}}
-    <div class="mb-5 d-none d-md-flex justify-content-end align-items-center">
-        <div class="text-end border-end border-primary border-3 pe-4">
-            <h4 class="header-title mb-0 text-muted small text-uppercase letter-spacing-1">
-                Administración de Estación: <span style="color: #00d2ff; text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);">{{ $empresa->nombre_comercial }}</span>
-            </h4>
-            <div style="height: 1px; width: 120px; background: linear-gradient(to right, transparent, #00d2ff); margin-left: auto; margin-top: 5px; box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);"></div>
-            <p class="x-small text-muted mb-0 opacity-75 mt-1">Sincronización de sucursales y reportes financieros activa.</p>
-        </div>
-    </div>
+    {{-- Header removido para usar el del layout --}}
 
     {{-- ======================================================
         NOTIFICACIONES / TAREAS PENDIENTES

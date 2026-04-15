@@ -1,180 +1,95 @@
 @extends('layouts.empresa')
 
 @php
-    // Detectar modo oscuro desde la configuración de la empresa
     $config = auth()->user()->empresa->config;
     $modoOscuro = ($config?->theme ?? 'light') === 'dark';
 @endphp
 
 @section('styles')
 <style>
-    /* VARIABLES DE DISEÑO */
     :root {
         --rr-gold: #d4af37;
         --rr-gold-glow: rgba(212, 175, 55, 0.3);
     }
 
-    /* 🌙 ESTILOS PARA MODO OSCURO (OLED) */
     @if($modoOscuro)
     :root {
         --rr-dark-bg: #050505;
         --rr-card-bg: rgba(15, 15, 15, 0.9);
         --rr-border: rgba(212, 175, 55, 0.15);
     }
-
-    body {
-        background-color: var(--rr-dark-bg) !important;
-        color: #e0e0e0 !important;
-    }
-
-    .oled-card {
-        background: var(--rr-card-bg) !important;
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--rr-border) !important;
-        border-radius: 20px !important;
-    }
-
-    .stat-value {
-        background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .premium-table {
-        background: transparent !important;
-        color: #e0e0e0 !important;
-    }
-
-    .premium-table thead th { background: rgba(255, 255, 255, 0.05); }
+    body { background-color: var(--rr-dark-bg) !important; color: #e0e0e0 !important; }
+    .oled-card { background: var(--rr-card-bg) !important; backdrop-filter: blur(20px); border: 1px solid var(--rr-border) !important; border-radius: 15px !important; }
+    .stat-value { color: #fff; }
+    .premium-table { background: transparent !important; color: #e0e0e0 !important; }
+    .premium-table thead th { background: rgba(255, 255, 255, 0.05); color: var(--rr-gold); font-size: 0.7rem; border: none !important; }
     .premium-table tbody tr { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-    
-    /* FIX: Forzar que el fondo de la tabla sea oscuro si el global falla */
-    .table-responsive, .table { background-color: transparent !important; }
-    .table td, .table th { border-color: rgba(255,255,255,0.05) !important; color: #eee !important; }
-
     @else
-    /* ☀️ ESTILOS PARA MODO CLARO (VÍA NORMAL) */
-    .oled-card {
-        background: #ffffff !important;
-        border: 1px solid #e0e0e0 !important;
-        border-radius: 20px !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
-    }
-
-    .stat-value {
-        color: var(--color-primario);
-        font-weight: 800;
-    }
-
-    .gold-text {
-        color: var(--color-primario) !important;
-    }
-
-    .premium-table thead th {
-        background: #f8f9fa;
-        color: #333;
-    }
-    
-    .badge-premium {
-        background: rgba(var(--color-primario-rgb), 0.1);
-        border: 1px solid var(--color-primario);
-        color: var(--color-primario);
-    }
+    .oled-card { background: #ffffff !important; border: 1px solid #e0e0e0 !important; border-radius: 15px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important; }
+    .stat-value { color: var(--color-primario); font-weight: 800; }
+    .premium-table thead th { background: #f8f9fa; color: #444; font-size: 0.7rem; border: none !important; }
+    .badge-premium { background: rgba(var(--color-primario-rgb), 0.1); border: 1px solid var(--color-primario); color: var(--color-primario); }
     @endif
 
-    /* COMUNES */
-    .premium-header {
-        border-left: 4px solid var(--rr-gold);
-        padding-left: 20px;
-        margin-bottom: 40px;
-    }
+    .premium-header { border-left: 3px solid var(--rr-gold); padding-left: 15px; margin-bottom: 25px; }
+    .stat-value { font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.5px; }
 
-    .stat-value {
-        font-family: 'Inter', sans-serif;
-        font-weight: 800;
-        letter-spacing: -1px;
-    }
-
-    .gold-text-accent {
-        color: var(--rr-gold) !important;
-    }
-
-    /* Score Circular */
-    .score-container { position: relative; width: 150px; height: 150px; margin: 0 auto; }
-    .score-svg { transform: rotate(-90deg); width: 150px; height: 150px; }
-    .score-bg { fill: none; stroke: rgba(128, 128, 128, 0.1); stroke-width: 10; }
-    .score-fill { fill: none; stroke: @if($modoOscuro) var(--rr-gold) @else var(--color-primario) @endif; stroke-width: 10; stroke-linecap: round; transition: stroke-dasharray 1s ease-out; }
+    /* Score Circular Compacto */
+    .score-container { position: relative; width: 110px; height: 110px; margin: 0 auto; }
+    .score-svg { transform: rotate(-90deg); width: 110px; height: 110px; }
+    .score-bg { fill: none; stroke: rgba(128, 128, 128, 0.1); stroke-width: 8; }
+    .score-fill { fill: none; stroke: @if($modoOscuro) var(--rr-gold) @else var(--color-primario) @endif; stroke-width: 8; stroke-linecap: round; }
     .score-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
 
     .badge-premium {
         @if($modoOscuro)
-        background: rgba(212, 175, 55, 0.1);
-        border: 1px solid var(--rr-gold);
-        color: var(--rr-gold);
+        background: rgba(212, 175, 55, 0.1); border: 1px solid var(--rr-gold); color: var(--rr-gold);
         @endif
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.7rem;
-        padding: 5px 12px;
+        font-weight: 700; text-transform: uppercase; font-size: 0.6rem; padding: 4px 10px; letter-spacing: 0.5px;
     }
-
-    .animate-pulse-gold { animation: pulse-gold 2s infinite; }
-    @keyframes pulse-gold {
-        0% { box-shadow: 0 0 0 0 @if($modoOscuro) rgba(212, 175, 55, 0.4) @else rgba(var(--color-primario-rgb), 0.4) @endif; }
-        70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
-    }
+    .x-small { font-size: 0.65rem; }
+    .ls-1 { letter-spacing: 1px; }
 </style>
 @endsection
 
 @section('content')
-
-<div class="main-content p-4">
-    {{-- ENCABEZADO --}}
-    <div class="mb-5 d-flex align-items-center justify-content-between flex-wrap gap-3 premium-header">
+<div class="p-3 @if(!$modoOscuro) pt-1 @endif">
+    {{-- ENCABEZADO COMPACTO --}}
+    <div class="mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2 premium-header">
         <div>
-            <h1 class="fw-bold mb-0 @if($modoOscuro) text-white @else text-dark @endif display-5">
-                PERformance <span class="@if($modoOscuro) gold-text-accent @else text-primary @endif">HUB</span>
-            </h1>
-            <p class="text-muted mb-0 mt-2">
-                <i class="bi bi-shield-check me-2"></i>Análisis Operativo: <span class="@if($modoOscuro) text-white @else text-dark fw-bold @endif">{{ $user->name }}</span> 
-                <span class="mx-2">|</span> 
-                {{ now()->translatedFormat('F Y') }}
+            <h3 class="fw-bold mb-0 @if($modoOscuro) text-white @else text-dark @endif">
+                DESEMPEÑO <span class="@if($modoOscuro) gold-text @else text-primary @endif">OPERATIVO</span>
+            </h3>
+            <p class="text-muted mb-0 x-small">
+                <i class="bi bi-person-badge me-1"></i>Analizando a: <span class="@if($modoOscuro) text-white @else text-dark fw-bold @endif">{{ $user->name }}</span> 
+                <span class="mx-2">|</span> {{ now()->translatedFormat('F Y') }}
             </p>
         </div>
         <div class="d-flex gap-2">
             @if($user->activo)
-                <span class="badge-premium rounded-pill">
-                    <i class="bi bi-dot me-1"></i>System Active
-                </span>
+                <span class="badge-premium rounded-pill"><i class="bi bi-dot me-1"></i>SISTEMA ACTIVO</span>
             @endif
-            
             @php $enTurno = $asistencias->first() && !$asistencias->first()->salida; @endphp
             @if($enTurno)
-                <span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm animate-pulse-gold">
-                    <i class="bi bi-clock-history me-1"></i>ON DUTY
-                </span>
+                <span class="badge bg-primary px-3 py-1 rounded-pill shadow-sm x-small fw-bold"> EN TURNO </span>
             @endif
         </div>
     </div>
 
-    {{-- KPIs PRINCIPALES --}}
-    <div class="row g-4 mb-5">
-        
-        {{-- Total Ventas --}}
+    {{-- KPIs COMPACTOS --}}
+    <div class="row g-3 mb-4">
+        {{-- Ventas --}}
         <div class="col-xl-3 col-md-6">
-            <div class="card oled-card h-100 shadow-lg border-0">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="text-info fs-3">
-                            <i class="bi bi-lightning-charge"></i>
-                        </div>
-                        <span class="text-muted small">NET SALES</span>
+            <div class="card oled-card h-100 border-0">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="text-info h5 mb-0"><i class="bi bi-lightning-charge"></i></div>
+                        <span class="text-muted x-small fw-bold ls-1">VENTAS NETAS</span>
                     </div>
-                    <div class="stat-value display-6">$ {{ number_format($ventas->monto ?? 0, 2, ',', '.') }}</div>
-                    <div class="mt-3 d-flex align-items-center">
-                        <span class="badge bg-info-subtle text-info me-2">{{ $ventas->cant ?? 0 }} Tx</span>
-                        <div class="progress flex-grow-1 @if($modoOscuro) bg-dark @else bg-light @endif" style="height: 4px;">
+                    <div class="h4 mb-1 stat-value">$ {{ number_format($ventas->monto ?? 0, 2, ',', '.') }}</div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-info-subtle text-info x-small me-2">{{ $ventas->cant ?? 0 }} Op.</span>
+                        <div class="progress flex-grow-1 @if($modoOscuro) bg-dark @else bg-light-subtle @endif" style="height: 3px;">
                             <div class="progress-bar bg-info" style="width: 75%"></div>
                         </div>
                     </div>
@@ -184,17 +99,15 @@
 
         {{-- Asistencia --}}
         <div class="col-xl-3 col-md-6">
-            <div class="card oled-card h-100 shadow-lg border-0">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="text-success fs-3">
-                            <i class="bi bi-calendar2-check"></i>
-                        </div>
-                        <span class="text-muted small">ATTENDANCE</span>
+            <div class="card oled-card h-100 border-0">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="text-success h5 mb-0"><i class="bi bi-calendar2-check"></i></div>
+                        <span class="text-muted x-small fw-bold ls-1">ASISTENCIA</span>
                     </div>
-                    <div class="stat-value display-6">{{ number_format($porcentajeAsistencia, 0) }}%</div>
-                    <div class="mt-3 text-muted small">
-                        Presente en <b class="@if($modoOscuro) text-white @else text-dark @endif">{{ $diasPresente }}</b> / 22 jornadas laborales.
+                    <div class="h4 mb-1 stat-value text-success">{{ number_format($porcentajeAsistencia, 0) }}%</div>
+                    <div class="text-muted x-small">
+                        En <b class="@if($modoOscuro) text-white @else text-dark @endif">{{ $diasPresente }}</b> / 22 jornadas.
                     </div>
                 </div>
             </div>
@@ -202,99 +115,73 @@
 
         {{-- Horas --}}
         <div class="col-xl-3 col-md-6">
-            <div class="card oled-card h-100 shadow-lg border-0">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="text-primary fs-3">
-                            <i class="bi bi-stopwatch"></i>
-                        </div>
-                        <span class="text-muted small">TOTAL HOURS</span>
+            <div class="card oled-card h-100 border-0">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="text-primary h5 mb-0"><i class="bi bi-stopwatch"></i></div>
+                        <span class="text-muted x-small fw-bold ls-1">HORAS TOTALES</span>
                     </div>
-                    <div class="stat-value display-6 @if($modoOscuro) text-white @else text-primary @endif">{{ number_format($totalHoras, 1) }}h</div>
-                    <div class="mt-3 text-muted small">
-                        Tiempo total acumulado en el sistema pos.
-                    </div>
+                    <div class="h4 mb-1 stat-value @if($modoOscuro) text-white @else text-primary @endif">{{ number_format($totalHoras, 1) }}h</div>
+                    <div class="text-muted x-small">Tiempo total acumulado.</div>
                 </div>
             </div>
         </div>
 
-        {{-- Faltantes --}}
+        {{-- Diferencia de Caja --}}
         <div class="col-xl-3 col-md-6">
-            <div class="card oled-card h-100 shadow-lg border-0 {{ $faltantes > 0 ? 'border border-danger' : '' }}">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="{{ $faltantes > 0 ? 'text-danger' : ($modoOscuro ? 'gold-text-accent' : 'text-warning') }} fs-3">
-                            <i class="bi bi-currency-dollar"></i>
-                        </div>
-                        <span class="text-muted small">CASH DELTA</span>
+            <div class="card oled-card h-100 border-0 {{ $faltantes > 0 ? 'border border-danger' : '' }}">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="{{ $faltantes > 0 ? 'text-danger' : 'text-warning' }} h5 mb-0"><i class="bi bi-currency-dollar"></i></div>
+                        <span class="text-muted x-small fw-bold ls-1">DIFERENCIA CAJA</span>
                     </div>
-                    <div class="stat-value display-6 {{ $faltantes > 0 ? 'text-danger' : '' }}">
+                    <div class="h4 mb-1 stat-value {{ $faltantes > 0 ? 'text-danger' : '' }}">
                         $ {{ number_format($faltantes, 2, ',', '.') }}
                     </div>
-                    <div class="mt-3 text-muted small">
-                        Diferencias de caja detectadas al cierre.
-                    </div>
+                    <div class="text-muted x-small">Diferencia detectada cierres.</div>
                 </div>
             </div>
         </div>
-
     </div>
 
-    <div class="row g-4 mb-5">
-        
-        {{-- TABLA DE ACTIVIDAD --}}
+    <div class="row g-3 mb-4">
+        {{-- HISTORIAL TURNOS --}}
         <div class="col-lg-8">
-            <div class="card oled-card h-100 border-0 shadow-lg">
-                <div class="card-header border-0 bg-transparent p-4">
-                    <h5 class="fw-bold mb-0 @if($modoOscuro) text-white @else text-dark @endif">
-                        <i class="bi bi-activity @if($modoOscuro) gold-text-accent @else text-primary @endif me-3"></i>Historial de Turnos
-                    </h5>
+            <div class="card oled-card h-100 border-0">
+                <div class="card-header border-0 bg-transparent py-3 px-4">
+                    <h6 class="fw-bold mb-0 @if($modoOscuro) text-white @else text-dark @endif">
+                        <i class="bi bi-activity text-primary me-2"></i>Historial de Turnos
+                    </h6>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table premium-table align-middle mb-0 @if($modoOscuro) table-dark @endif">
+                        <table class="table premium-table align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th class="ps-4">Timestamp</th>
-                                    <th>In</th>
-                                    <th>Out</th>
-                                    <th>Net Duration</th>
-                                    <th class="text-end pe-4">Status</th>
+                                    <th class="ps-4">Fecha</th>
+                                    <th>Entrada</th>
+                                    <th>Salida</th>
+                                    <th>Duración</th>
+                                    <th class="text-end pe-4">Estado</th>
                                 </tr>
                             </thead>
-                            <tbody class="border-0">
+                            <tbody>
                                 @forelse($asistencias->take(8) as $reg)
-                                <tr class="border-0">
-                                    <td class="ps-4 border-0">
-                                        <span class="@if($modoOscuro) text-white @else text-dark @endif">{{ $reg->entrada->translatedFormat('d M, Y') }}</span>
+                                <tr>
+                                    <td class="ps-4 fw-bold @if($modoOscuro) text-white @else text-dark @endif small">{{ $reg->entrada->translatedFormat('d M, Y') }}</td>
+                                    <td class="text-success small">{{ $reg->entrada->format('H:i') }}</td>
+                                    <td class="small">
+                                        @if($reg->salida) <span class="text-danger">{{ $reg->salida->format('H:i') }}</span> @else <span class="text-primary italic">...</span> @endif
                                     </td>
-                                    <td class="border-0"><span class="text-success">{{ $reg->entrada->format('H:i') }}</span></td>
-                                    <td class="border-0">
-                                        @if($reg->salida)
-                                            <span class="text-danger">{{ $reg->salida->format('H:i') }}</span>
-                                        @else
-                                            <span class="text-primary italic animate-pulse">...</span>
-                                        @endif
+                                    <td class="fw-bold small">
+                                        @if($reg->salida) {{ number_format($reg->entrada->diffInMinutes($reg->salida) / 60, 1) }} hs @else -- @endif
                                     </td>
-                                    <td class="fw-bold @if($modoOscuro) text-white @else text-dark @endif border-0">
-                                        @if($reg->salida)
-                                            {{ number_format($reg->entrada->diffInMinutes($reg->salida) / 60, 1) }} hs
-                                        @else
-                                            --
-                                        @endif
-                                    </td>
-                                    <td class="text-end pe-4 border-0">
-                                        @if($reg->salida)
-                                            <span class="badge-premium rounded-pill px-3">Closed</span>
-                                        @else
-                                            <span class="badge bg-primary rounded-pill px-3">Active</span>
-                                        @endif
+                                    <td class="text-end pe-4">
+                                        @if($reg->salida) <span class="badge-premium rounded-pill">Cerrado</span> @else <span class="badge bg-primary rounded-pill x-small px-3">Activo</span> @endif
                                     </td>
                                 </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted border-0">No activity logs found.</td>
-                                </tr>
+                                <tr><td colspan="5" class="text-center py-4 text-muted x-small">Sin registros de actividad.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -303,80 +190,48 @@
             </div>
         </div>
 
-        {{-- PRODUCTIVIDAD SCORE --}}
+        {{-- SCORE OPERADOR --}}
         <div class="col-lg-4">
-            <div class="card oled-card h-100 shadow-lg border-0 @if($modoOscuro) border-rr-gold @endif">
-                <div class="card-header border-0 bg-transparent p-4">
-                    <h5 class="fw-bold mb-0 @if($modoOscuro) text-white @else text-dark @endif">
-                        <i class="bi bi-stars @if($modoOscuro) gold-text-accent @else text-warning @endif me-3"></i>Operator Score
-                    </h5>
+            <div class="card oled-card h-100 border-0">
+                <div class="card-header border-0 bg-transparent py-3 px-4">
+                    <h6 class="fw-bold mb-0 @if($modoOscuro) text-white @else text-dark @endif">
+                        <i class="bi bi-stars text-warning me-2"></i>Puntuación
+                    </h6>
                 </div>
-                <div class="card-body text-center p-4">
-                    
-                    @php
-                        $dashArray = 440; // 2 * PI * r
-                        $dashOffset = $dashArray - ($dashArray * $score) / 100;
-                    @endphp
-
-                    <div class="score-container mb-4">
-                        <svg class="score-svg">
-                            <circle class="score-bg" cx="75" cy="75" r="70"></circle>
-                            <circle class="score-fill" cx="75" cy="75" r="70" 
-                                style="stroke-dasharray: {{ $dashArray }}; stroke-dashoffset: {{ $dashOffset }};">
-                            </circle>
+                <div class="card-body text-center p-3">
+                    @php $dashArray = 345; $dashOffset = $dashArray - ($dashArray * $score) / 100; @endphp
+                    <div class="score-container mb-3">
+                        <svg class="score-svg" viewBox="0 0 120 120">
+                            <circle class="score-bg" cx="60" cy="60" r="55"></circle>
+                            <circle class="score-fill" cx="60" cy="60" r="55" style="stroke-dasharray: {{ $dashArray }}; stroke-dashoffset: {{ $dashOffset }};"></circle>
                         </svg>
                         <div class="score-text">
-                            <div class="display-5 fw-bold @if($modoOscuro) text-white @else text-dark @endif stat-value">{{ $score }}</div>
-                            <div class="@if($modoOscuro) gold-text-accent @else text-muted @endif fw-bold x-small">POINTS</div>
+                            <div class="h2 fw-bold @if($modoOscuro) text-white @else text-dark @endif mb-0">{{ $score }}</div>
+                            <div class="text-muted x-small fw-bold">PUNTOS</div>
                         </div>
                     </div>
 
-                    <div class="p-3 mb-4 rounded-4" style="background: @if($modoOscuro) rgba(255,255,255,0.03) @else #f8f9fa @endif;">
-                        <h6 class="@if($modoOscuro) gold-text-accent @else text-primary @endif small fw-bold mb-3 text-uppercase ls-1">Core Metrics</h6>
-                        <div class="d-flex justify-content-between mb-2 small">
-                            <span class="text-muted">Attendance Precision</span>
-                            <span class="@if($modoOscuro) text-white @else text-dark @endif">{{ number_format($porcentajeAsistencia, 0) }}%</span>
+                    <div class="p-2 mb-3 rounded-3 @if($modoOscuro) bg-white bg-opacity-5 @else bg-light @endif">
+                        <h6 class="text-primary x-small fw-bold mb-2 text-uppercase ls-1">Métricas Clave</h6>
+                        <div class="d-flex justify-content-between mb-1 x-small">
+                            <span class="text-muted">Asistencia</span>
+                            <span class="fw-bold">{{ number_format($porcentajeAsistencia, 0) }}%</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2 small">
-                            <span class="text-muted">Sales Impact</span>
-                            <span class="@if($modoOscuro) text-white @else text-dark @endif">High</span>
-                        </div>
-                        <div class="d-flex justify-content-between small">
-                            <span class="text-muted">Cash Integrity</span>
-                            <span class="{{ $faltantes == 0 ? 'text-success' : 'text-danger' }}">
-                                {{ $faltantes == 0 ? 'Perfect' : 'Review Required' }}
-                            </span>
+                        <div class="d-flex justify-content-between x-small">
+                            <span class="text-muted">Integridad Caja</span>
+                            <span class="{{ $faltantes == 0 ? 'text-success' : 'text-danger' }} fw-bold">{{ $faltantes == 0 ? 'Perfecta' : 'Revisar' }}</span>
                         </div>
                     </div>
 
-                    <div class="text-start">
-                        <div class="mb-2"><i class="bi bi-chat-right-quote @if($modoOscuro) gold-text-accent @else text-primary @endif me-2"></i><span class="small fw-bold @if($modoOscuro) text-white @else text-dark @endif">SYSTEM FEEDBACK:</span></div>
-                        <p class="text-muted small italic">
-                            @if($score >= 85)
-                                "Top Tier Operator. Demonstrates exceptional consistency and sales conversion results."
-                            @elseif($score >= 60)
-                                "Standard Performance. Operates within baseline parameters."
-                            @else
-                                "Critical Status. Performance metrics are below minimum efficiency."
-                            @endif
-                        </p>
-                    </div>
+                    <p class="text-muted x-small italic mb-0">
+                        @if($score >= 85) "Operador de nivel superior. Consistencia excepcional." @elseif($score >= 60) "Rendimiento estándar según parámetros." @else "Estado crítico. Requiere revisión de eficiencia." @endif
+                    </p>
                 </div>
             </div>
         </div>
-
-    </div>
-
-    {{-- ACCIONES --}}
-    <div class="d-flex align-items-center justify-content-between mt-5">
-        <a href="{{ route('empresa.usuarios.index') }}" class="btn @if($modoOscuro) btn-dark border-secondary @else btn-outline-secondary @endif px-5 py-3 rounded-pill transition-all">
-            <i class="bi bi-arrow-left me-2"></i>Back to Control Center
-        </a>
-        <button onclick="window.print()" class="btn btn-outline-warning px-4 py-3 rounded-pill">
-            <i class="bi bi-printer me-2"></i>Export Analysis
-        </button>
     </div>
 </div>
+@endsection
 
 <style>
     .ls-1 { letter-spacing: 2px; }

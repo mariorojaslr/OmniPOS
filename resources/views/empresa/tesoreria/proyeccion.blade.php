@@ -9,7 +9,7 @@
             <p class="text-muted small mb-0">Estimación de liquidez basada en vencimientos de cheques a {{ $proyeccionDias }} días.</p>
         </div>
         <div>
-            <a href="{{ route('tesoreria.index') }}" class="btn btn-light px-4 rounded-pill border fw-bold shadow-sm">
+            <a href="{{ route('empresa.tesoreria.index') }}" class="btn btn-light px-4 rounded-pill border fw-bold shadow-sm">
                 <i class="fas fa-arrow-left me-1"></i> Volver
             </a>
         </div>

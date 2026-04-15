@@ -147,7 +147,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column lh-1">
-                                            <span class="small text-dark fw-medium">{{ $m->descripcion }}</span>
+                                            <span class="small text-dark fw-medium">{{ $m->concepto }}</span>
                                             <span class="x-small text-muted text-uppercase">{{ $m->tipo }}</span>
                                         </div>
                                     </td>

@@ -14,12 +14,13 @@
         min-height: 100vh;
     }
     .oled-card { 
-        background: {{ $modoOscuro ? '#111' : '#000' }}; 
-        border: 1px solid rgba(255, 255, 255, 0.1); 
+        background: {{ $modoOscuro ? '#111' : '#fff' }}; 
+        border: 2px solid {{ $modoOscuro ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' }}; 
         border-radius: 16px; 
-        color: #fff; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        color: {{ $modoOscuro ? '#fff' : '#1e293b' }}; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     }
+    .text-main-contrast { color: {{ $modoOscuro ? '#fff' : '#0f172a' }} !important; }
     .label-mini { 
         color: {{ $primary }}; 
         font-size: 0.65rem; 
@@ -28,19 +29,20 @@
         font-weight: 800; 
     }
     .stat-value { font-size: 2.8rem; font-weight: 800; line-height: 1; letter-spacing: -2px; }
-    .expense-row { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 15px 0; }
+    .expense-row { border-bottom: 1px solid {{ $modoOscuro ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}; padding: 15px 0; }
     .expense-row:last-child { border-bottom: none; }
     .neon-text-green { color: #10b981; }
     .neon-text-red { color: #ef4444; }
     
     .btn-return {
-        background: {{ $modoOscuro ? '#222' : '#000' }};
-        color: white !important;
+        background: {{ $modoOscuro ? '#222' : '#f8fafc' }};
+        color: {{ $modoOscuro ? '#fff' : '#000' }} !important;
         font-weight: 800;
         font-size: 0.75rem;
         padding: 8px 20px;
         border-radius: 100px;
         text-decoration: none;
+        border: 1px solid rgba(0,0,0,0.05);
     }
 </style>
 @endsection
@@ -67,22 +69,22 @@
                 </div>
                 
                 <div class="label-mini mb-2">Responsable del Turno</div>
-                <h2 class="fw-bold mb-4 text-white display-6" style="letter-spacing: -1.5px;">{{ $cierre->user->name }}</h2>
+                <h2 class="fw-bold mb-4 text-main-contrast display-6" style="letter-spacing: -1.5px;">{{ $cierre->user->name }}</h2>
 
                 <div class="row g-4 mb-5">
                     <div class="col-6">
                         <div class="label-mini">Hélicestatus Apertura</div>
-                        <div class="text-white-50 fw-bold">{{ $cierre->fecha_apertura->format('d/m/Y H:i') }} hs</div>
+                        <div class="text-main-contrast opacity-50 fw-bold">{{ $cierre->fecha_apertura->format('d/m/Y H:i') }} hs</div>
                     </div>
                     <div class="col-6 text-end">
                         <div class="label-mini">Cierre Efectivo</div>
-                        <div class="text-white-50 fw-bold">{{ $cierre->fecha_cierre ? $cierre->fecha_cierre->format('d/m/Y H:i') . ' hs' : '-' }}</div>
+                        <div class="text-main-contrast opacity-50 fw-bold">{{ $cierre->fecha_cierre ? $cierre->fecha_cierre->format('d/m/Y H:i') . ' hs' : '-' }}</div>
                     </div>
                 </div>
 
-                <div class="p-4 bg-white bg-opacity-5 rounded-4 border border-white border-opacity-10 mb-5">
+                <div class="p-4 bg-primary bg-opacity-5 rounded-4 border border-primary border-opacity-10 mb-5">
                     <div class="label-mini mb-2">Análisis de Operador</div>
-                    <div class="small text-white-50 opacity-75 italic" style="line-height: 1.6;">
+                    <div class="small text-main-contrast opacity-75 italic" style="line-height: 1.6;">
                         "{{ $cierre->observaciones ?: 'Apertura de turno (Cajero): Sin detalles registrados en sistema.' }}"
                     </div>
                 </div>
@@ -104,11 +106,11 @@
                     <i class="bi bi-graph-up-arrow text-primary"></i>
                 </div>
                 <div class="row g-3 text-center">
-                    <div class="col-4 border-end border-white border-opacity-10">
+                    <div class="col-4 border-end {{ $modoOscuro ? 'border-white' : 'border-dark' }} border-opacity-10">
                         <div class="label-mini">EFECTIVO</div>
-                        <div class="text-white fw-bold fs-4">${{ number_format($cierre->ventas_efectivo, 0, ',', '.') }}</div>
+                        <div class="text-main-contrast fw-bold fs-4">${{ number_format($cierre->ventas_efectivo, 0, ',', '.') }}</div>
                     </div>
-                    <div class="col-4 border-end border-white border-opacity-10">
+                    <div class="col-4 border-end {{ $modoOscuro ? 'border-white' : 'border-dark' }} border-opacity-10">
                         <div class="label-mini">TARJETA</div>
                         <div class="text-info fw-bold fs-4">${{ number_format($cierre->ventas_tarjeta, 0, ',', '.') }}</div>
                     </div>

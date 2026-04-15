@@ -1,4 +1,5 @@
 @extends('layouts.empresa')
+@section('page_title', '📦 Terminal de Ventas (POS)')
 
 @section('content')
 
@@ -50,8 +51,6 @@
 <div class="d-flex justify-content-between mb-2">
 
 <div class="d-flex align-items-center gap-3">
-<h3 class="mb-0">Punto de Venta</h3>
-
 <div id="ventaFlash" style="display:none;background:#c8f7c5;color:#1b5e20;padding:6px 12px;border-radius:6px;font-size:14px">
 ✔ Venta registrada
 </div>

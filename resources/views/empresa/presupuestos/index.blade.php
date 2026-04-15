@@ -2,71 +2,154 @@
 
 @section('styles')
 <style>
-/* RESTAURACIÓN ESTÉTICA ORIGINAL - MODO CLARO PROFESIONAL */
-.card-stats {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
+/* REDUCCIÓN DE ESPACIOS SUPERIORES */
+.content-wrapper-compact {
+    padding-top: 0.5rem !important;
 }
-.card-stats:hover { transform: translateY(-5px); }
 
+/* HEADER COMPACTO */
+.page-header-compact {
+    margin-bottom: 1.5rem !important;
+}
+.page-header-compact h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0 !important;
+}
+
+/* TARJETAS DE ESTADÍSTICAS MINI */
+.card-stats-mini {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    background: #ffffff;
+    transition: all 0.2s;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.card-stats-mini:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+.stat-icon-mini {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 1.1rem;
+}
+
+.stat-label-mini {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.stat-value-mini {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+}
+
+/* TABLA Y DROPDOWN ESTILO VIÑETA */
 .table-premium thead th {
     background-color: #f8fafc;
     color: #475569;
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     letter-spacing: 0.5px;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     border-bottom: 2px solid #e2e8f0;
 }
-.table-premium tbody td {
-    padding: 1rem;
-    color: #1e293b;
-    vertical-align: middle;
+
+/* Menú Estilo Burbuja/Viñeta */
+.dropdown-menu-bubble {
+    border: none !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    border-radius: 12px !important;
+    padding: 0.5rem !important;
+    margin-top: 10px !important;
+    animation: fadeInScale 0.2s ease-out;
+}
+
+.dropdown-menu-bubble::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    transform: rotate(45deg);
+    border-top: 1px solid rgba(0,0,0,0.05);
+    border-left: 1px solid rgba(0,0,0,0.05);
+}
+
+@keyframes fadeInScale {
+    0% { opacity: 0; transform: scale(0.95) translateY(-10px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.dropdown-item {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+    transition: all 0.2s;
+}
+.dropdown-item:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    transform: translateX(5px);
+}
+
+/* Prevenir corte en tabla-responsive */
+.table-responsive {
+    overflow: visible !important;
 }
 </style>
 @endsection
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid content-wrapper-compact pb-4">
     
-    {{-- HEADER --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    {{-- HEADER COMPACTO --}}
+    <div class="d-flex justify-content-between align-items-end page-header-compact">
         <div>
-            <h2 class="fw-bold text-dark mb-1">Gestión de Presupuestos</h2>
-            <p class="text-muted small mb-0">Seguimiento comercial y cotizaciones en tiempo real</p>
+            <h2 class="fw-bold text-dark">Gestión de Presupuestos</h2>
+            <p class="text-muted small">Seguimiento comercial y cotizaciones en tiempo real</p>
         </div>
         <div class="d-flex gap-2">
             @if(auth()->user()->role === 'empresa')
-                <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
+                <a href="{{ route('empresa.presupuestos.create') }}" class="btn btn-primary fw-bold rounded-pill px-3 shadow-sm btn-sm d-flex align-items-center">
                     <i class="bi bi-plus-lg me-2"></i> Nueva Cotización
                 </a>
             @endif
-            <button class="btn btn-outline-secondary fw-bold rounded-pill px-4 shadow-sm">
+            <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 shadow-sm btn-sm d-flex align-items-center">
                 <i class="bi bi-file-earmark-pdf me-2"></i> Reportes
             </button>
         </div>
     </div>
 
-    {{-- INDICADORES --}}
-    <div class="row g-3 mb-4">
+    {{-- INDICADORES MINI --}}
+    <div class="row g-2 mb-4">
         @foreach([
             ['L'=>'Total Emitidos', 'V'=>$stats['total'], 'C'=>'primary', 'I' => 'bi-file-text'],
             ['L'=>'Pendientes', 'V'=>$stats['pendientes'], 'C'=>'warning', 'I' => 'bi-clock-history'],
             ['L'=>'Aceptados', 'V'=>$stats['aceptados'], 'C'=>'success', 'I' => 'bi-check-circle'],
             ['L'=>'Vencidos', 'V'=>$stats['vencidos'], 'C'=>'danger', 'I' => 'bi-exclamation-octagon']
         ] as $s)
-        <div class="col-md-3">
-            <div class="card card-stats h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="bg-{{ $s['C'] }} bg-opacity-10 p-3 rounded-circle me-3">
-                        <i class="bi {{ $s['I'] }} text-{{ $s['C'] }} fs-4"></i>
+        <div class="col-6 col-md-3">
+            <div class="card card-stats-mini">
+                <div class="card-body p-2 d-flex align-items-center">
+                    <div class="stat-icon-mini bg-{{ $s['C'] }} bg-opacity-10 text-{{ $s['C'] }} me-2">
+                        <i class="bi {{ $s['I'] }}"></i>
                     </div>
                     <div>
-                        <div class="text-muted small fw-bold text-uppercase">{{ $s['L'] }}</div>
-                        <div class="h3 fw-bold mb-0">{{ $s['V'] }}</div>
+                        <div class="stat-label-mini">{{ $s['L'] }}</div>
+                        <div class="stat-value-mini">{{ $s['V'] }}</div>
                     </div>
                 </div>
             </div>
@@ -144,7 +227,7 @@
 
                                         {{-- CLONAR --}}
                                         <li>
-                                            <form action="{{ route('empresa.presupuestos.clonar', $presu->id) }}" method="POST">
+                                            <form action="{{ route('empresa.presupuestos.clone', $presu->id) }}" method="POST">
                                                 @csrf
                                                 <button type="submit" class="dropdown-item"
                                                     onclick="return confirm('¿Clonar el presupuesto {{ $presu->numero }}? Se creará uno nuevo con los mismos ítems para que pueda editarlo.')">

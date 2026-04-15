@@ -439,7 +439,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/remitos/{remito}/pdf', [App\Http\Controllers\Empresa\RemitoController::class, 'pdf'])->name('remitos.pdf');
 
         // PRESUPUESTOS (NUEVO)
-        Route::post('/presupuestos/{id}/clone', [App\Http\Controllers\Empresa\PresupuestoController::class, 'clone'])->name('presupuestos.clonar');
+        Route::post('/presupuestos/{id}/clone', [App\Http\Controllers\Empresa\PresupuestoController::class, 'clone'])->name('presupuestos.clone');
         Route::post('/presupuestos/{id}/convertir-factura', [App\Http\Controllers\Empresa\PresupuestoController::class, 'convertirAFactura'])->name('presupuestos.convertir_factura');
         Route::get('/presupuestos/{presupuesto}/pdf', [App\Http\Controllers\Empresa\PresupuestoController::class, 'pdf'])->name('presupuestos.pdf');
         Route::resource('presupuestos', App\Http\Controllers\Empresa\PresupuestoController::class);

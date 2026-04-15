@@ -121,9 +121,16 @@ class POSController extends Controller
         });
 
 
+        $posMode = true;
+        $empresa = $user->empresa;
+        $logo    = $empresa->config->logo_url ?? asset('images/logo-placeholder.png');
+
         return view('empresa.pos.index', compact(
             'productsData',
-            'clientesData'
+            'clientesData',
+            'posMode',
+            'empresa',
+            'logo'
         ));
     }
 
