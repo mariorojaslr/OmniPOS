@@ -1,5 +1,9 @@
 @extends('layouts.empresa')
 
+@section('css')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+@endsection
+
 @section('content')
 <div class="container-fluid py-4">
 
@@ -52,19 +56,38 @@
 
         {{-- RESULTADO Y MAPA --}}
         <div class="col-md-7">
-            <div class="card bg-dark border-0 shadow-lg rounded-4 overflow-hidden h-100">
-                <div class="card-body d-flex flex-column align-items-center justify-content-center py-5">
-                    <div class="text-center opacity-25 mb-4">
-                        <i class="bi bi-map fs-1 text-white"></i>
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100" style="background: #f8fafc;">
+                <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-map me-2 text-primary"></i> Visor de Recorrido Logístico</h5>
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 rounded-pill">Visualización en tiempo real</span>
+                </div>
+                <div id="routeMap" style="height: 500px; width: 100%; background: #e2e8f0; position: relative;">
+                    {{-- El mapa se inicializará aquí --}}
+                    <div id="map-placeholder" class="position-absolute top-50 start-50 translate-middle text-center" style="z-index: 1000; pointer-events: none;">
+                        <div class="spinner-grow text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                        <h6 class="fw-bold text-dark opacity-75">Configurá las paradas para trazar el mapa</h6>
+                        <p class="text-muted small">El recorrido optimizado aparecerá aquí</p>
                     </div>
-                    <h5 class="text-muted fw-bold">Mapa de Recorrido</h5>
-                    <p class="text-muted small text-center px-5">Una vez generada la ruta, aquí aparecerá el mapa interactivo y el botón para enviar el link al conductor.</p>
                 </div>
                 
-                {{-- BOTÓN COMPARTIR (HIDDEN BY DEFAULT) --}}
-                <div class="p-4 bg-white bg-opacity-5 border-top border-white border-opacity-5 d-none">
-                    <button class="btn btn-success w-100 py-3 fw-bold rounded-4">
-                        <i class="bi bi-whatsapp me-2"></i> ENVIAR RUTA AL CHOFER
+                {{-- INFO DE RUTA --}}
+                <div id="routeInfo" class="p-4 bg-white border-top d-none">
+                    <div class="row text-center mb-4">
+                        <div class="col-4 border-end">
+                            <div class="small text-muted text-uppercase">Distancia</div>
+                            <div class="fw-bold fs-5 text-primary" id="totalDistance">-- km</div>
+                        </div>
+                        <div class="col-4 border-end">
+                            <div class="small text-muted text-uppercase">Tiempo Est.</div>
+                            <div class="fw-bold fs-5 text-primary" id="totalTime">-- min</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="small text-muted text-uppercase">Paradas</div>
+                            <div class="fw-bold fs-5 text-primary" id="totalStops">0</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-success w-100 py-3 fw-bold rounded-pill shadow-sm">
+                        <i class="bi bi-whatsapp me-2"></i> ENVIAR RUTA OPTIMIZADA AL CHOFER
                     </button>
                 </div>
             </div>
@@ -81,4 +104,25 @@
         box-shadow: none;
     }
 </style>
+@section('js')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    let map;
+    function initRouteMap() {
+        // Inicializar el mapa en una ubicación neutra o la de la empresa
+        map = L.map('routeMap').setView([-34.6037, -58.3816], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Ocultar el placeholder cuando el mapa cargue (simulado)
+        setTimeout(() => {
+            document.getElementById('map-placeholder').style.display = 'none';
+        }, 1000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initRouteMap);
+</script>
+@endsection
 @endsection
