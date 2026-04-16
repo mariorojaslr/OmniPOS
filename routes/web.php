@@ -487,9 +487,6 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/gps', [App\Http\Controllers\Empresa\GpsController::class, 'index'])->name('gps.index');
         Route::get('/gps/rutas', [App\Http\Controllers\Empresa\GpsController::class, 'rutas'])->name('gps.rutas');
 
-        // ASISTENTE DE AYUDA / MANUAL INTERACTIVO
-        Route::get('/ayuda/{topic}', [App\Http\Controllers\Empresa\HelpController::class, 'show'])->name('ayuda.show');
-
 
         /*
      |--------------------------------------------------------------------------

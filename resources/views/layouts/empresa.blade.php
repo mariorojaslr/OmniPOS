@@ -20,6 +20,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<style>
+    .help-content img { max-width: 100%; border-radius: 12px; margin: 15px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    .note-editor.note-frame { border: 1px solid rgba(255,255,255,0.1) !important; background: rgba(0,0,0,0.2); }
+    .note-editable { color: #fff !important; background: #000 !important; }
+</style>
 
 @php
     $user = auth()->user();
@@ -324,6 +330,90 @@ body {
     }
 }
 
+/* =========================================================
+   BOTÓN MÁGICO (ASISTENTE 360)
+   ========================================================= */
+#help-trigger {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--color-primario), #a855f7);
+    color: white;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 10px 25px rgba(var(--color-primario-rgb), 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+}
+
+#help-trigger:hover {
+    transform: scale(1.1) rotate(15deg);
+    box-shadow: 0 15px 35px rgba(var(--color-primario-rgb), 0.6);
+}
+
+#help-trigger i {
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+}
+
+@keyframes pulse-magic {
+    0% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(var(--color-primario-rgb), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0); }
+}
+
+#help-trigger {
+    animation: pulse-magic 2s infinite;
+}
+
+/* OFFCANVAS DE AYUDA PREMIUM */
+.offcanvas-help {
+    position: fixed;
+    top: 20px;
+    right: -450px;
+    bottom: 20px;
+    width: 400px;
+    background: {{ $modoOscuro ? 'rgba(10, 12, 14, 0.95)' : 'rgba(255, 255, 255, 0.98)' }};
+    backdrop-filter: blur(20px);
+    z-index: 10000;
+    border-radius: 25px 0 0 25px;
+    box-shadow: -20px 0 50px rgba(0,0,0,0.3);
+    transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.offcanvas-help.show {
+    right: 0;
+}
+
+.help-drag-handle {
+    padding: 30px;
+    cursor: default;
+}
+
+.help-header-gradient {
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--text-main), var(--color-primario));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.help-body-scroll {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0 30px 30px;
+}
+
 </style>
 
 @stack('styles')
@@ -549,9 +639,41 @@ body {
     <div class="help-body-scroll">
         <div id="help-loading" class="text-center py-5 d-none">
             <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted x-small">Buscando instrucciones...</p>
         </div>
+        
         <div id="help-view-mode">
-            <div id="help-display"></div>
+            <div id="help-empty" style="display:none;" class="text-center py-5">
+                <i class="bi bi-journal-x fs-1 text-muted"></i>
+                <h5 class="mt-3">Sin instrucciones aún</h5>
+                <p class="text-muted small">Esta página todavía no tiene contenido de ayuda asignado.</p>
+                @if(auth()->user()->role === 'owner' || session('impersonator_id'))
+                    <button class="btn btn-primary btn-sm mt-3 fw-bold rounded-pill px-4" onclick="enterEditMode()">CREAR AYUDA</button>
+                @endif
+            </div>
+
+            <div id="help-display" style="display:none;">
+                <h4 id="help-title" class="fw-bold mb-3 text-white"></h4>
+                <div id="help-body" class="help-content mb-4 text-muted small" style="line-height: 1.6;"></div>
+                @if(auth()->user()->role === 'owner' || session('impersonator_id'))
+                    <button class="btn btn-outline-primary w-100 fw-bold rounded-pill" onclick="enterEditMode()">EDITAR MANUAL</button>
+                @endif
+            </div>
+        </div>
+
+        <div id="help-edit-mode" style="display:none;">
+            <div class="mb-3">
+                <label class="form-label fw-bold small text-muted text-uppercase tracking-wider">Título del Manual</label>
+                <input type="text" id="edit-help-title" class="form-control bg-dark text-white border-0 shadow-none py-2 px-3 rounded-3" placeholder="Ej: Gestión de Cobros">
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold small text-muted text-uppercase tracking-wider">Contenido Profesional</label>
+                <textarea id="edit-help-content" class="form-control"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success w-100 fw-bold rounded-3" onclick="saveHelp()">GUARDAR CAMBIOS</button>
+                <button class="btn btn-light rounded-3" onclick="exitEditMode()">Cancelar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -568,12 +690,14 @@ body {
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
 <script>
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
     const btnToggle = document.getElementById('btnToggle');
     const overlay = document.getElementById('sidebarOverlay');
+    const currentRoute = "{{ Route::currentRouteName() }}";
 
     // Estado inicial persistente
     if(localStorage.getItem('sidebar-state') === 'collapsed' && window.innerWidth > 991) {
@@ -591,31 +715,71 @@ body {
         }
     }
 
-    // --- LÓGICA MANUAL DINÁMICO ---
-    function openHelp(topic = 'general') {
+    // --- LÓGICA MANUAL NATIVO (RESTAURADA) ---
+    function openHelp() {
         const offcanvas = document.getElementById('offcanvasHelp');
-        const display = document.getElementById('help-display');
-        const loading = document.getElementById('help-loading');
-
         offcanvas.classList.add('show');
-        display.innerHTML = '';
-        loading.classList.remove('d-none');
+        $("#help-loading").removeClass('d-none');
+        $("#help-view-mode, #help-edit-mode").hide();
 
-        fetch(`/ayuda/${topic}`)
-            .then(res => res.text())
-            .then(html => {
-                display.innerHTML = html;
-            })
-            .catch(err => {
-                display.innerHTML = '<div class="alert alert-danger">Error al cargar el manual.</div>';
-            })
-            .finally(() => {
-                loading.classList.add('d-none');
-            });
+        $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
+            $("#help-loading").addClass('d-none');
+            $("#help-view-mode").show();
+            if(res.success && res.data) {
+                $("#help-empty").hide(); 
+                $("#help-display").show();
+                $("#help-title").text(res.data.title);
+                $("#help-body").html(res.data.content);
+            } else {
+                $("#help-display").hide(); 
+                $("#help-empty").show();
+            }
+        });
     }
 
     function closeHelp() {
         document.getElementById('offcanvasHelp').classList.remove('show');
+    }
+
+    function enterEditMode() {
+        $("#help-view-mode").hide(); 
+        $("#help-edit-mode").show();
+        $("#edit-help-title").val($("#help-title").text());
+        $("#edit-help-content").summernote({ 
+            height: 350,
+            theme: 'lite',
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+        $("#edit-help-content").summernote('code', $("#help-body").html());
+    }
+
+    function exitEditMode() { 
+        $("#help-edit-mode").hide(); 
+        $("#help-view-mode").show(); 
+    }
+
+    function saveHelp() {
+        const data = {
+            _token: "{{ csrf_token() }}",
+            route_name: currentRoute,
+            title: $("#edit-help-title").val(),
+            content: $("#edit-help-content").summernote('code')
+        };
+        $.post("{{ route('help.save') }}", data, function(res){
+            if(res.success) { 
+                exitEditMode(); 
+                openHelp(); 
+            }
+        });
     }
 
     btnToggle.addEventListener('click', toggleSidebar);
