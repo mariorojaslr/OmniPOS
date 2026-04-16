@@ -8,8 +8,8 @@
         <a href="{{ route('empresa.gps.index') }}" class="text-decoration-none text-muted small mb-3 d-block">
             <i class="bi bi-arrow-left me-1"></i> Volver a Utilidades GPS
         </a>
-        <h2 class="fw-bold text-white mb-1">Smart Route: Recorrido Ideal 🚚</h2>
-        <p class="text-muted">Seleccioná los puntos de visita y optimizá tu jornada.</p>
+        <h2 class="fw-bold mb-1" style="color: #1e293b;">Smart Route: Recorrido Ideal 🚚</h2>
+        <p class="text-muted fw-500">Seleccioná los puntos de visita y optimizá tu jornada.</p>
     </div>
 
     <div class="row g-4">
@@ -75,7 +75,6 @@
 </div>
 
 <style>
-    body { background-color: #0b0b0b !important; }
     .form-control:focus {
         background-color: #000 !important;
         border-color: var(--color-primario) !important;
