@@ -18,7 +18,62 @@ class ReporteController extends Controller
     */
     public function panel()
     {
-        return view('empresa.reportes.panel');
+        $empresaId = auth()->user()->empresa_id;
+        $mesActual = now()->month;
+        $anioActual = now()->year;
+
+        // KPI 1: Ventas del Mes
+        $ventasMes = DB::table('ventas')
+            ->where('empresa_id', $empresaId)
+            ->whereMonth('created_at', $mesActual)
+            ->whereYear('created_at', $anioActual)
+            ->sum('total_con_iva');
+
+        // KPI 2: Compras del Mes
+        $comprasMes = DB::table('purchases')
+            ->where('empresa_id', $empresaId)
+            ->whereMonth('created_at', $mesActual)
+            ->whereYear('created_at', $anioActual)
+            ->sum('total');
+
+        // KPI 3: Deuda Clientes (Morosidad)
+        $deudaClientes = DB::table('client_ledgers')
+            ->where('empresa_id', $empresaId)
+            ->sum(DB::raw('CASE WHEN type = "debit" THEN amount ELSE -amount END'));
+
+        // KPI 4: Deuda a Proveedores
+        $deudaProveedores = DB::table('supplier_ledgers')
+            ->where('empresa_id', $empresaId)
+            ->sum(DB::raw('CASE WHEN type = "debit" THEN amount ELSE -amount END'));
+
+        // Gráfica: Ventas últimos 15 días
+        $ventasLast15 = DB::table('ventas')
+            ->where('empresa_id', $empresaId)
+            ->where('created_at', '>=', now()->subDays(15))
+            ->select(DB::raw('DATE(created_at) as fecha'), DB::raw('SUM(total_con_iva) as total'))
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('fecha')
+            ->get();
+
+        // Categorías más vendidas
+        $topCategorias = DB::table('venta_items as vi')
+            ->join('ventas as v', 'v.id', '=', 'vi.venta_id')
+            ->join('products as p', 'p.id', '=', 'vi.product_id')
+            ->leftJoin('rubros as r', 'r.id', '=', 'p.rubro_id')
+            ->where('v.empresa_id', $empresaId)
+            ->select(
+                DB::raw('COALESCE(r.nombre, "General") as cat'), 
+                DB::raw('SUM(vi.total_item_con_iva) as monto')
+            )
+            ->groupBy(DB::raw('COALESCE(r.nombre, "General")'))
+            ->orderByDesc('monto')
+            ->limit(5)
+            ->get();
+
+        return view('empresa.reportes.panel', compact(
+            'ventasMes', 'comprasMes', 'deudaClientes', 'deudaProveedores', 
+            'ventasLast15', 'topCategorias'
+        ));
     }
 
     public function ventasVendedor(Request $request)

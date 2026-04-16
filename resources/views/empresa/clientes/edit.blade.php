@@ -75,6 +75,26 @@
                         </select>
                     </div>
 
+                    {{-- Dirección --}}
+                    <div class="col-md-6">
+                        <label class="form-label">Dirección</label>
+                        <input type="text" name="address" class="form-control" value="{{ old('address', $cliente->address) }}">
+                    </div>
+
+                    {{-- GPS --}}
+                    <div class="col-md-2">
+                        <label class="form-label">Latitud (GPS)</label>
+                        <input type="text" name="lat" class="form-control" value="{{ old('lat', $cliente->lat) }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Longitud (GPS)</label>
+                        <input type="text" name="lng" class="form-control" value="{{ old('lng', $cliente->lng) }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label text-primary fw-bold text-uppercase" style="font-size: 0.75rem;">Plus Code 🌐</label>
+                        <input type="text" name="plus_code" class="form-control" value="{{ old('plus_code', $cliente->plus_code) }}" placeholder="8GV2+M9">
+                    </div>
+
                     {{-- Límite crédito --}}
                     <div class="col-md-6">
                         <label class="form-label">Límite de crédito</label>

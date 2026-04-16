@@ -477,6 +477,12 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/personal/gastos/rapido', [App\Http\Controllers\Empresa\GastoRapidoController::class, 'create'])->name('gastos.quick');
         Route::post('/personal/gastos/rapido', [App\Http\Controllers\Empresa\GastoRapidoController::class, 'store'])->name('gastos.store-quick');
 
+        // LISTADOS MAESTROS (Reportes Imprimibles)
+        Route::get('/listados', [App\Http\Controllers\Empresa\ListadoController::class, 'index'])->name('listados.index');
+        Route::get('/listados/articulos', [App\Http\Controllers\Empresa\ListadoController::class, 'articulos'])->name('listados.articulos');
+        Route::get('/listados/clientes', [App\Http\Controllers\Empresa\ListadoController::class, 'clientes'])->name('listados.clientes');
+        Route::get('/listados/cheques', [App\Http\Controllers\Empresa\ListadoController::class, 'cheques'])->name('listados.cheques');
+
 
         /*
      |--------------------------------------------------------------------------

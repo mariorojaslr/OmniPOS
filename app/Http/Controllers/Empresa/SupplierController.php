@@ -75,6 +75,10 @@ class SupplierController extends Controller
             'phone' => $request->phone,
             'email' => $request->email,
             'document' => $request->document,
+            'direccion' => $request->direccion ?? null,
+            'lat' => $request->lat ?? null,
+            'lng' => $request->lng ?? null,
+            'plus_code' => $request->plus_code ?? null,
             'active' => 1
         ]);
 
@@ -237,6 +241,10 @@ class SupplierController extends Controller
             'phone' => $request->phone,
             'email' => $request->email,
             'document' => $request->document,
+            'direccion' => $request->direccion,
+            'lat' => $request->lat,
+            'lng' => $request->lng,
+            'plus_code' => $request->plus_code,
             'active' => $request->active ?? 1,
         ]);
 

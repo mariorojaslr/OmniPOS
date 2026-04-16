@@ -3,7 +3,20 @@
 @section('page_title', 'Consolidado de Tesorería')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-4">
+
+    {{-- CABECERA --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Tesorería & Finanzas</h2>
+            <p class="text-muted small mb-0">Gestión consolidada de todas las fuentes de dinero.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary px-4 fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNuevaCuenta">
+                <i class="bi bi-plus-circle me-1"></i> Nueva Cuenta / Caja
+            </button>
+        </div>
+    </div>
 
     {{-- ════════════════════════════════════════════════════════
         DASHBOARD DE LIQUIDEZ (KPIs SUPERIORES)
@@ -11,62 +24,56 @@
     <div class="row g-3 mb-4">
         <!-- TOTAL GENERAL (LIQUIDEZ TOTAL) -->
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-primary text-white">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-dark text-white">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase x-small fw-bold opacity-75">Liquidez Total</span>
-                        <i class="bi bi-wallet2 fs-4"></i>
+                        <div class="bg-primary p-2 rounded-3"><i class="bi bi-wallet2 fs-5"></i></div>
                     </div>
                     <h2 class="fw-bold mb-0">${{ number_format($metricas['total_general'], 2, ',', '.') }}</h2>
-                    <p class="x-small mb-0 opacity-75 mt-1">Suma de todas las fuentes</p>
+                    <p class="x-small mb-0 opacity-50 mt-1 ls-1">CAPITAL DISPONIBLE</p>
                 </div>
             </div>
         </div>
 
         <!-- TOTAL BANCOS -->
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 bg-white">
+            <div class="card border-0 shadow-sm rounded-4 bg-white border-bottom border-info border-4">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-uppercase x-small fw-bold text-muted">Total Bancos</span>
+                        <span class="text-uppercase x-small fw-bold text-muted">Bancos</span>
                         <i class="bi bi-bank text-info fs-4"></i>
                     </div>
                     <h2 class="fw-bold mb-0 text-dark">${{ number_format($metricas['total_bancos'], 2, ',', '.') }}</h2>
-                    <div class="progress mt-2" style="height: 4px;">
-                        <div class="progress-bar bg-info" style="width: {{ $metricas['total_general'] > 0 ? ($metricas['total_bancos'] / $metricas['total_general'] * 100) : 0 }}%"></div>
-                    </div>
+                    <div class="x-small text-muted mt-1 fw-bold">{{ $cuentas->where('tipo', 'banco')->count() }} entidades</div>
                 </div>
             </div>
         </div>
 
         <!-- TOTAL BILLETERAS -->
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 bg-white">
+            <div class="card border-0 shadow-sm rounded-4 bg-white border-bottom border-primary border-4">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-uppercase x-small fw-bold text-muted">Billeteras Virtuales</span>
                         <i class="bi bi-phone text-primary fs-4"></i>
                     </div>
                     <h2 class="fw-bold mb-0 text-dark">${{ number_format($metricas['total_billeteras'], 2, ',', '.') }}</h2>
-                    <div class="progress mt-2" style="height: 4px;">
-                        <div class="progress-bar bg-primary" style="width: {{ $metricas['total_general'] > 0 ? ($metricas['total_billeteras'] / $metricas['total_general'] * 100) : 0 }}%"></div>
-                    </div>
+                    <div class="x-small text-muted mt-1 fw-bold">Mercado Pago & Otros</div>
                 </div>
             </div>
         </div>
 
         <!-- TOTAL EFECTIVO -->
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 bg-white border-start border-4 border-success">
+            <div class="card border-0 shadow-sm rounded-4 bg-white border-bottom border-success border-4">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-uppercase x-small fw-bold text-muted">Efectivo (Cajas)</span>
+                        <span class="text-uppercase x-small fw-bold text-muted">Efectivo</span>
                         <i class="bi bi-cash-stack text-success fs-4"></i>
                     </div>
                     <h2 class="fw-bold mb-0 text-dark">${{ number_format($metricas['total_efectivo'], 2, ',', '.') }}</h2>
-                    <div class="progress mt-2" style="height: 4px;">
-                        <div class="progress-bar bg-success" style="width: {{ $metricas['total_general'] > 0 ? ($metricas['total_efectivo'] / $metricas['total_general'] * 100) : 0 }}%"></div>
-                    </div>
+                    <div class="x-small text-muted mt-1 fw-bold">Cajas en sucursales</div>
                 </div>
             </div>
         </div>
@@ -75,41 +82,51 @@
     <div class="row g-4">
         {{-- COLUMNA IZQUIERDA: GESTIÓN DE CUENTAS --}}
         <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 mb-4">
-                <div class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0 text-dark">Mis Cuentas y Cajas</h5>
-                    <button class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalNuevaCuenta">
-                        <i class="bi bi-plus-circle me-1"></i> Nueva
-                    </button>
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                <div class="card-header bg-white border-0 p-4">
+                    <h5 class="fw-bold mb-0 text-dark">Mis Cuentas & Fuentes</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
-                        @forelse($cuentas as $c)
-                        <div class="list-group-item p-4 border-0 border-bottom">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="d-flex gap-3">
-                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-primary" style="width: 45px; height: 45px;">
-                                        @if($c->tipo == 'banco') <i class="bi bi-bank fs-5"></i> 
-                                        @elseif($c->tipo == 'billetera_digital') <i class="bi bi-phone fs-5"></i> 
-                                        @else <i class="bi bi-cash-stack fs-5"></i> @endif
-                                    </div>
-                                    <div>
-                                        <h6 class="fw-bold mb-0 text-dark">{{ $c->nombre }}</h6>
-                                        <span class="x-small text-muted text-uppercase fw-bold">{{ str_replace('_', ' ', $c->tipo) }}</span>
-                                        @if($c->cbu_cvu)<div class="x-small text-muted mt-1 font-monospace">{{ $c->cbu_cvu }}</div>@endif
+                        @php
+                            $tipos = [
+                                'banco' => ['titulo' => 'Bancos', 'icon' => 'bank', 'color' => 'info'],
+                                'billetera_digital' => ['titulo' => 'Billeteras Virtuales', 'icon' => 'phone', 'color' => 'primary'],
+                                'caja' => ['titulo' => 'Cajas & Efectivo', 'icon' => 'cash-stack', 'color' => 'success']
+                            ];
+                        @endphp
+
+                        @foreach($tipos as $key => $info)
+                            @php $cuentasSegmento = $cuentas->where('tipo', $key); @endphp
+                            @if($cuentasSegmento->count() > 0)
+                                <div class="bg-light px-4 py-2 border-top border-bottom x-small fw-bold text-muted text-uppercase ls-1">
+                                    <i class="bi bi-{{ $info['icon'] }} me-1"></i> {{ $info['titulo'] }}
+                                </div>
+                                @foreach($cuentasSegmento as $c)
+                                <div class="list-group-item p-4 border-0 border-bottom hover-bg transition-all">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex gap-3 align-items-center">
+                                            <div class="bg-{{ $info['color'] }} bg-opacity-10 rounded-3 d-flex align-items-center justify-content-center text-{{ $info['color'] }}" style="width: 45px; height: 45px;">
+                                                <i class="bi bi-{{ $info['icon'] }} fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-0 text-dark">{{ $c->nombre }}</h6>
+                                                @if($c->cbu_cvu)<div class="x-small text-muted mt-1 font-monospace opacity-75">{{ $c->cbu_cvu }}</div>@endif
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <h5 class="fw-bold mb-0 text-dark">${{ number_format($c->saldo_actual, 2, ',', '.') }}</h5>
+                                            <span class="badge bg-light text-muted rounded-pill x-small border px-2 fw-medium">{{ $c->movimientos_count }} movs.</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="text-end">
-                                    <h5 class="fw-bold mb-0 text-dark">${{ number_format($c->saldo_actual, 2, ',', '.') }}</h5>
-                                    <span class="badge bg-light text-muted rounded-pill x-small border">{{ $c->movimientos_count }} movs.</span>
-                                </div>
-                            </div>
-                        </div>
-                        @empty
-                        <div class="p-5 text-center text-muted small">
-                            No hay cuentas configuradas para este filtro.
-                        </div>
-                        @endforelse
+                                @endforeach
+                            @endif
+                        @endforeach
+                        
+                        @if($cuentas->count() == 0)
+                            <div class="p-5 text-center text-muted small">No hay fuentes configuradas.</div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -117,39 +134,44 @@
 
         {{-- COLUMNA DERECHA: SÁBANA DE CONTROL (MOVIMIENTOS GLOBALES) --}}
         <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-transparent border-0 p-4">
-                    <h5 class="fw-bold mb-0 text-dark">Sábana de Control (Auditoría Global)</h5>
-                    <p class="text-muted x-small mb-0">Últimos movimientos liquidados en todas las fuentes.</p>
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                <div class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark">Sábana de Control</h5>
+                        <p class="text-muted x-small mb-0">Auditoría global de fondos liquidados.</p>
+                    </div>
+                    <a href="{{ route('empresa.reportes.caja_diaria') }}" class="btn btn-sm btn-light border rounded-pill px-3">
+                        <i class="bi bi-collection me-1"></i> Auditoría Diaria
+                    </a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light border-0">
-                                <tr>
-                                    <th class="ps-4 text-muted x-small text-uppercase border-0">Fecha</th>
-                                    <th class="text-muted x-small text-uppercase border-0">Fuente</th>
-                                    <th class="text-muted x-small text-uppercase border-0">Concepto</th>
-                                    <th class="text-end pe-4 text-muted x-small text-uppercase border-0">Monto</th>
+                            <thead class="bg-light">
+                                <tr class="x-small fw-bold text-muted text-uppercase ls-1">
+                                    <th class="ps-4 py-3">Fecha / Hora</th>
+                                    <th>Fuente</th>
+                                    <th>Concepto</th>
+                                    <th class="text-end pe-4">Monto</th>
                                 </tr>
                             </thead>
-                            <tbody class="border-0">
+                            <tbody>
                                 @forelse($movimientos as $m)
                                 <tr>
-                                    <td class="ps-4 py-3">
-                                        <div class="d-flex flex-column lh-1">
-                                            <span class="small fw-bold text-dark">{{ $m->fecha->format('d/m/Y') }}</span>
-                                            <span class="x-small text-muted">{{ $m->fecha->format('H:i') }} hs</span>
-                                        </div>
+                                    <td class="ps-4">
+                                        <div class="small fw-bold text-dark">{{ $m->fecha->format('d/m/Y') }}</div>
+                                        <div class="x-small text-muted fw-medium">{{ $m->fecha->format('H:i') }} hs</div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-light text-dark border rounded-pill x-small">{{ $m->cuenta->nombre }}</span>
+                                        <span class="badge bg-light text-dark border rounded-pill x-small px-3 py-1 fw-bold">{{ $m->cuenta->nombre }}</span>
                                     </td>
                                     <td>
-                                        <div class="d-flex flex-column lh-1">
-                                            <span class="small text-dark fw-medium">{{ $m->concepto }}</span>
-                                            <span class="x-small text-muted text-uppercase">{{ $m->tipo }}</span>
-                                        </div>
+                                        <div class="small text-dark fw-medium">{{ $m->concepto }}</div>
+                                        @if($m->tipo == 'ingreso')
+                                            <span class="x-small text-success fw-bold text-uppercase">Entrata <i class="bi bi-arrow-up-right"></i></span>
+                                        @else
+                                            <span class="x-small text-danger fw-bold text-uppercase">Salida <i class="bi bi-arrow-down-left"></i></span>
+                                        @endif
                                     </td>
                                     <td class="text-end pe-4">
                                         <h6 class="fw-bold mb-0 {{ $m->tipo == 'ingreso' ? 'text-success' : 'text-danger' }}">
@@ -166,9 +188,9 @@
                         </table>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 p-4 text-center">
-                    <a href="{{ route('empresa.reportes.panel') }}" class="btn btn-light btn-sm fw-bold rounded-pill border px-4">
-                        VER REPORTE DE MOVIMIENTOS COMPLETO
+                <div class="card-footer bg-white border-0 p-4 text-center">
+                    <a href="{{ route('empresa.reportes.panel') }}" class="btn btn-outline-primary btn-sm fw-bold rounded-pill px-4">
+                        <i class="bi bi-file-earmark-bar-graph me-1"></i> VER DASHBOARD COMPLETO
                     </a>
                 </div>
             </div>
@@ -179,41 +201,48 @@
 {{-- MODAL NUEVA CUENTA --}}
 <div class="modal fade" id="modalNuevaCuenta" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-dark text-white p-4 border-0">
                 <h5 class="modal-title fw-bold">Configurar Nueva Fuente</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('empresa.tesoreria.cuentas.store') }}" method="POST">
                 @csrf
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="small text-muted fw-bold text-uppercase mb-1">Nombre Descriptivo</label>
-                        <input type="text" name="nombre" class="form-control border-0 bg-light rounded-pill px-3" placeholder="Ej: Santander Río, Efectivo Central, Mercado Pago" required>
+                <div class="modal-body p-4 bg-light">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 mb-3">
+                        <div class="mb-3">
+                            <label class="small text-muted fw-bold text-uppercase mb-1 ls-1">Nombre Descriptivo</label>
+                            <input type="text" name="nombre" class="form-control border-0 bg-light rounded-pill px-3 fw-bold" placeholder="Ej: Santander Río, Mercado Pago" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-muted fw-bold text-uppercase mb-1 ls-1">Tipo de Fuente</label>
+                            <select name="tipo" class="form-select border-0 bg-light rounded-pill px-3 fw-bold" required>
+                                <option value="caja">💵 Caja / Efectivo</option>
+                                <option value="banco">🏦 Banco</option>
+                                <option value="billetera_digital">📱 Billetera Digital</option>
+                                <option value="tarjeta_credito">💳 Tarjeta de Crédito</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="small text-muted fw-bold text-uppercase mb-1">Tipo de Fuente</label>
-                        <select name="tipo" class="form-select border-0 bg-light rounded-pill px-3" required>
-                            <option value="caja">💵 Caja / Efectivo</option>
-                            <option value="banco">🏦 Banco</option>
-                            <option value="billetera_digital">📱 Billetera Digital</option>
-                            <option value="tarjeta_credito">💳 Tarjeta de Crédito</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="small text-muted fw-bold text-uppercase mb-1">CBU / CVU / Alias</label>
-                        <input type="text" name="cbu_cvu" class="form-control border-0 bg-light rounded-pill px-3" placeholder="Opcional">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small text-muted fw-bold text-uppercase mb-1">Saldo Inicial</label>
-                        <div class="input-group">
-                            <span class="input-group-text border-0 bg-light rounded-start-pill ps-3">$</span>
-                            <input type="number" name="saldo_inicial" step="0.01" class="form-control border-0 bg-light rounded-end-pill pe-3" value="0.00" required>
+
+                    <div class="card border-0 shadow-sm rounded-4 p-3">
+                        <div class="mb-3">
+                            <label class="small text-muted fw-bold text-uppercase mb-1 ls-1">CBU / CVU / Alias</label>
+                            <input type="text" name="cbu_cvu" class="form-control border-0 bg-light rounded-pill px-3 font-monospace" placeholder="Opcional">
+                        </div>
+                        <div class="mb-0">
+                            <label class="small text-muted fw-bold text-uppercase mb-1 ls-1">Saldo Inicial</label>
+                            <div class="input-group">
+                                <span class="input-group-text border-0 bg-light rounded-start-pill ps-3 fw-bold">$</span>
+                                <input type="number" name="saldo_inicial" step="0.01" class="form-control border-0 bg-light rounded-end-pill pe-3 fw-bold fs-4 text-primary" value="0.00" required>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm">GUARDAR FUENTE DE DINERO</button>
+                <div class="modal-footer border-0 p-4 bg-white">
+                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm scale-up">
+                        CREAR FUENTE DE FONDOS <i class="bi bi-check-circle ms-1"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -221,6 +250,11 @@
 </div>
 
 <style>
-    .x-small { font-size: 0.7rem; }
+    .x-small { font-size: 0.65rem; }
+    .ls-1 { letter-spacing: 1px; }
+    .transition-all { transition: all 0.3s ease; }
+    .hover-bg:hover { background: #f8f9ff !important; }
+    .scale-up { transition: transform 0.2s; }
+    .scale-up:hover { transform: scale(1.02); }
 </style>
 @endsection

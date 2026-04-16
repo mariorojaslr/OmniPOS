@@ -32,6 +32,26 @@
                     <input type="text" name="document" class="form-control">
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" name="direccion" class="form-control">
+                </div>
+
+                <div class="row gx-3 text-start">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Latitud (GPS)</label>
+                        <input type="text" name="lat" class="form-control" placeholder="-34...">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Longitud (GPS)</label>
+                        <input type="text" name="lng" class="form-control" placeholder="-58...">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold text-primary">PLUS CODE 🌐</label>
+                        <input type="text" name="plus_code" class="form-control" placeholder="8GV2+M9">
+                    </div>
+                </div>
+
                 <button class="btn btn-success">Guardar proveedor</button>
                 <a href="{{ route('empresa.proveedores.index') }}" class="btn btn-secondary">Volver</a>
 

@@ -47,8 +47,16 @@
         @endif
         font-weight: 700; text-transform: uppercase; font-size: 0.6rem; padding: 4px 10px; letter-spacing: 0.5px;
     }
-    .x-small { font-size: 0.65rem; }
-    .ls-1 { letter-spacing: 1px; }
+    .ls-1 { letter-spacing: 2px; }
+    .x-small { font-size: 0.7rem; }
+    .transition-all { transition: all 0.3s ease; }
+    .transition-all:hover { transform: translateX(-5px); }
+    .animate-pulse { animation: pulse 1.5s infinite; }
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
 </style>
 @endsection
 
@@ -231,19 +239,4 @@
         </div>
     </div>
 </div>
-@endsection
-
-<style>
-    .ls-1 { letter-spacing: 2px; }
-    .x-small { font-size: 0.7rem; }
-    .transition-all { transition: all 0.3s ease; }
-    .transition-all:hover { transform: translateX(-5px); }
-    .animate-pulse { animation: pulse 1.5s infinite; }
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.3; }
-        100% { opacity: 1; }
-    }
-</style>
-
 @endsection

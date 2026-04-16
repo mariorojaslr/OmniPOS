@@ -1,0 +1,82 @@
+@extends('layouts.empresa')
+
+@section('content')
+<div class="container-fluid py-3 px-4">
+
+    {{-- CABECERA --}}
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <div>
+            <h4 class="fw-bold text-dark mb-0">Listado Maestro de Clientes</h4>
+            <p class="text-muted small mb-0">Total de clientes activos: {{ $items->count() }}</p>
+        </div>
+        <button onclick="window.print()" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
+            <i class="bi bi-printer me-2"></i> IMPRIMIR LISTADO
+        </button>
+    </div>
+
+    {{-- LISTADO --}}
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <table class="table table-hover table-sm align-middle mb-0 printable-table">
+                <thead class="bg-light">
+                    <tr class="x-small fw-bold text-muted text-uppercase ls-1">
+                        <th class="ps-3 py-2" style="width: 50px;">O</th>
+                        <th class="py-2">Cliente / Empresa</th>
+                        <th class="py-2">Contacto</th>
+                        <th class="py-2">Ubicación / Dirección</th>
+                        <th class="text-end py-2 px-3">Límite Crédito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($items as $i)
+                    <tr>
+                        <td class="ps-3">
+                            <div class="check-box border rounded d-inline-block" style="width: 18px; height: 18px;"></div>
+                        </td>
+                        <td>
+                            <div class="small fw-bold text-dark">{{ $i->name }}</div>
+                            <div class="x-small text-muted">{{ $i->document ?? 'Sin Documento' }}</div>
+                        </td>
+                        <td>
+                            <div class="small fw-medium text-dark"><i class="bi bi-telephone x-small me-1"></i> {{ $i->phone ?? '---' }}</div>
+                            <div class="x-small text-muted">{{ $i->email ?? '---' }}</div>
+                        </td>
+                        <td>
+                            <div class="small text-dark">{{ $i->address ?? '---' }}</div>
+                            <div class="x-small text-muted">{{ $i->city ?? '---' }}</div>
+                            @if($i->plus_code)
+                                <div class="x-small text-primary fw-bold mt-1"><i class="bi bi-hash me-1"></i> PLUS CODE: {{ $i->plus_code }}</div>
+                            @endif
+                            @if($i->lat && $i->lng)
+                                <a href="https://www.google.com/maps?q={{ $i->lat }},{{ $i->lng }}" target="_blank" class="badge bg-success-subtle text-success border border-success rounded-pill x-small no-print text-decoration-none px-2 mt-1">
+                                    <i class="bi bi-geo-alt-fill me-1"></i> VER GPS
+                                </a>
+                            @endif
+                        </td>
+                        <td class="text-end px-3">
+                            <span class="small fw-bold text-dark">${{ number_format($i->credit_limit, 2, ',', '.') }}</span>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .x-small { font-size: 0.65rem; }
+    .ls-1 { letter-spacing: 1px; }
+    .check-box { border: 1px solid #ccc !important; }
+    
+    @media print {
+        .no-print, .main-sidebar, .top-bar, .btn { display: none !important; }
+        .content-wrapper { margin: 0 !important; padding: 0 !important; }
+        .card { box-shadow: none !important; border: none !important; }
+        body { background: white !important; }
+        .printable-table { width: 100% !important; }
+        .printable-table th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
+    }
+</style>
+@endsection

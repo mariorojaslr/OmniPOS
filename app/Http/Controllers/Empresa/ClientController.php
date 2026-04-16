@@ -97,6 +97,10 @@ class ClientController extends Controller
             'tax_condition' => $request->tax_condition ?? null,
             'credit_limit' => $request->credit_limit ?? 0,
             'discount_percentage' => $request->discount_percentage ?? 0,
+            'address' => $request->address ?? null,
+            'lat' => $request->lat ?? null,
+            'lng' => $request->lng ?? null,
+            'plus_code' => $request->plus_code ?? null,
             'active' => 1
         ]);
 
@@ -289,6 +293,10 @@ class ClientController extends Controller
             'email' => $request->email,
             'document' => $request->document,
             'type' => $request->type,
+            'address' => $request->address,
+            'lat' => $request->lat,
+            'lng' => $request->lng,
+            'plus_code' => $request->plus_code,
             'tax_condition' => $request->tax_condition ?? null,
             'credit_limit' => $request->credit_limit ?? 0,
             'discount_percentage' => $request->discount_percentage ?? 0,

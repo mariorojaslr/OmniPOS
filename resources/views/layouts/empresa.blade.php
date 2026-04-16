@@ -131,7 +131,7 @@ body {
 .sidebar-logo span { 
     font-weight: 800; 
     font-size: 0.95rem; 
-    color: #f8fafc;
+    color: #ffffff; /* Blanco puro */
     letter-spacing: -0.5px;
     transition: opacity 0.3s, transform 0.3s;
 }
@@ -153,7 +153,7 @@ body {
     padding: 20px 25px 8px;
     font-size: 0.65rem;
     font-weight: 800;
-    color: #64748b;
+    color: rgba(255,255,255,0.5); /* Titulo sección en blanco tenue */
     text-transform: uppercase;
     letter-spacing: 1.5px;
     white-space: nowrap;
@@ -163,25 +163,27 @@ body {
     display: flex;
     align-items: center;
     padding: 10px 18px;
-    color: #94a3b8;
+    color: #ffffff !important; /* Blanco puro obligatorio */
     text-decoration: none;
     font-size: 0.85rem;
     font-weight: 600;
     margin: 2px 14px;
     border-radius: 10px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
 }
 
 .nav-link-item:hover {
-    background: rgba(255, 255, 255, 0.04);
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff !important;
+    transform: translateX(5px) scale(1.02); /* Efecto elegante de desplazamiento */
+    text-shadow: 0 0 8px rgba(255,255,255,0.4); /* Sutil resplandor */
 }
 
 .nav-link-item.active {
-    background: rgba(var(--color-primario-rgb), 0.1);
-    color: var(--color-primario);
-    box-shadow: inset 0 0 0 1px rgba(var(--color-primario-rgb), 0.2);
+    background: var(--color-primario);
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(var(--color-primario-rgb), 0.4);
 }
 
 .nav-link-item i { 
@@ -203,17 +205,20 @@ body {
 .submenu-item {
     display: block;
     padding: 8px 18px 8px 45px;
-    color: #94a3b8;
+    color: #ffffff !important; /* Blanco puro para submenús */
     text-decoration: none !important;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    opacity: 0.85;
 }
 
 .submenu-item:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateX(3px);
+    color: #ffffff !important;
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(8px); /* Desplazamiento más notorio */
+    text-shadow: 0 0 5px rgba(255,255,255,0.3);
 }
 
 /* --- Limpieza en Modo Colapsado --- */
@@ -252,11 +257,12 @@ body {
 #main-content {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
-    transition: margin-left var(--transition-speed) var(--transition-curve);
+    transition: all var(--transition-speed) var(--transition-curve);
     background: var(--bg-main);
+    padding-top: 110px; /* Separación perfecta debajo de la top-bar */
+    padding-left: 20px;
+    padding-right: 20px;
     position: relative;
-    display: flex;
-    flex-direction: column;
 }
 
 #main-content.expanded {
@@ -268,26 +274,17 @@ body {
     top: 0;
     right: 0;
     left: var(--sidebar-width);
-    height: var(--navbar-height);
+    height: 70px;
     background: {{ $modoOscuro ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.85)' }};
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border-bottom: 1px solid var(--sidebar-border);
+    border-bottom: 1px solid {{ $modoOscuro ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }};
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1.5rem;
+    padding: 0 2rem;
     z-index: 1000; 
     transition: left var(--transition-speed) var(--transition-curve);
-}
-
-#main-content.expanded .top-bar {
-    left: var(--sidebar-collapsed-width);
-}
-
-main {
-    padding: calc(var(--navbar-height) + 20px) 1.5rem 2rem;
-    flex-grow: 1;
 }
 
 /* UI Elements */
@@ -348,79 +345,85 @@ main {
 
     <div class="sidebar-nav">
         <a href="{{ route('empresa.dashboard') }}" class="nav-link-item {{ Route::is('empresa.dashboard') ? 'active' : '' }}">
-            <i class="bi bi-house-door"></i> <span>Dashboard</span>
+            <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
         </a>
 
-        {{-- VENTAS Y CRM --}}
-        <div class="nav-label">Ventas & Clientes</div>
+        {{-- MÓDULO: ARTÍCULOS --}}
+        <div class="nav-label text-info">Inventario & Stock</div>
+        <a href="#sm_articulos" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-box-seam"></i> <span>Artículos</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/products*') || Request::is('empresa/stock*') ? 'show' : '' }}" id="sm_articulos">
+            <a href="{{ route('empresa.products.index') }}" class="submenu-item">📦 Listado Maestro</a>
+            <a href="{{ route('empresa.stock.index') }}" class="submenu-item">🔄 Movimientos Stock</a>
+            <a href="{{ route('empresa.inventory_scan') }}" class="submenu-item fw-bold">📲 Escáner Móvil</a>
+            <a href="{{ route('empresa.recipes.index') }}" class="submenu-item">🧪 Recetas de Fábrica</a>
+        </div>
+
+        {{-- MÓDULO: VENTAS --}}
+        <div class="nav-label text-warning">Área de Ventas</div>
         <a href="{{ route('empresa.pos.index') }}" class="nav-link-item {{ Route::is('empresa.pos.index') ? 'active' : '' }}">
             <i class="bi bi-shop"></i> <span>🏪 VENTAS (POS)</span>
         </a>
-        
         <a href="#sm_ventas" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
             <i class="bi bi-receipt"></i> <span>Gestión Ventas</span>
         </a>
         <div class="collapse submenu-collapse {{ Request::is('empresa/ventas*') || Request::is('empresa/presupuestos*') ? 'show' : '' }}" id="sm_ventas">
-            <a href="{{ route('empresa.ventas.index') }}" class="submenu-item">📋 Ver Historial</a>
-            <a href="{{ route('empresa.ventas.manual') }}" class="submenu-item text-primary fw-bold">✍️ Venta Manual</a>
+            <a href="{{ route('empresa.ventas.index') }}" class="submenu-item">📋 Historial Ventas</a>
+            <a href="{{ route('empresa.ventas.manual') }}" class="submenu-item fw-bold">✍️ Venta Manual</a>
             <a href="{{ route('empresa.presupuestos.index') }}" class="submenu-item">📜 Presupuestos</a>
-            <a href="{{ route('empresa.orders.index') }}" class="submenu-item">📦 Pedidos Online</a>
-            <a href="{{ route('empresa.logistica.reporte') }}" class="submenu-item text-warning">🚚 Reporte Guarda</a>
         </div>
 
+        {{-- MÓDULO: COMPRAS --}}
+        <div class="nav-label text-danger">Área de Compras</div>
+        <a href="#sm_compras" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-cart-check"></i> <span>Abastecimiento</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/compras*') ? 'show' : '' }}" id="sm_compras">
+            <a href="{{ route('empresa.compras.create') }}" class="submenu-item fw-bold">🟢 Nueva Compra</a>
+            <a href="{{ route('empresa.compras.index') }}" class="submenu-item">📋 Historial Compras</a>
+        </div>
+
+        {{-- MÓDULO: CLIENTES --}}
+        <div class="nav-label text-primary">Área de Clientes</div>
         <a href="#sm_clientes" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
             <i class="bi bi-people"></i> <span>Cartera Clientes</span>
         </a>
         <div class="collapse submenu-collapse {{ Request::is('empresa/clientes*') || Request::is('empresa/pagos*') ? 'show' : '' }}" id="sm_clientes">
             <a href="{{ route('empresa.clientes.index') }}" class="submenu-item">👥 Listado Clientes</a>
-            <a href="{{ route('empresa.pagos.index') }}" class="submenu-item text-success fw-bold">💰 CTA. CTE. / COBROS</a>
+            <a href="{{ route('empresa.pagos.index') }}" class="submenu-item fw-bold">💰 Cta. Cte. y Recibos</a>
         </div>
 
-        {{-- COMPRAS Y FINANZAS --}}
-        <div class="nav-label">Compras & Bancos</div>
-        <a href="#sm_compras" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-bag-check"></i> <span>Abastecimiento</span>
+        {{-- MÓDULO: PROVEEDORES --}}
+        <div class="nav-label text-success">Área de Proveedores</div>
+        <a href="#sm_proveedores" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-truck"></i> <span>Gestión Proveedores</span>
         </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/compras*') ? 'show' : '' }}" id="sm_compras">
-            <a href="{{ route('empresa.compras.create') }}" class="submenu-item text-success fw-bold">🟢 Nueva Compra</a>
-            <a href="{{ route('empresa.compras.index') }}" class="submenu-item">📋 Historial</a>
-            <a href="{{ route('empresa.proveedores.index') }}" class="submenu-item">🚛 Proveedores</a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/proveedores*') ? 'show' : '' }}" id="sm_proveedores">
+            <a href="{{ route('empresa.proveedores.index') }}" class="submenu-item">🚛 Mis Proveedores</a>
+            <a href="{{ route('empresa.proveedores.index', ['has_debt' => 1]) }}" class="submenu-item fw-bold">🏦 Cuentas Corrientes</a>
         </div>
 
-        <a href="#sm_tesoreria" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-bank"></i> <span>Finanzas & Tesorería</span>
+        {{-- MÓDULO: BANCO --}}
+        <div class="nav-label">Área de Bancos</div>
+        <a href="#sm_bancos" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-bank"></i> <span>Bancos & Billeteras</span>
         </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/tesoreria*') ? 'show' : '' }}" id="sm_tesoreria">
-            <a href="{{ route('empresa.tesoreria.index') }}" class="submenu-item text-warning fw-bold">📊 PANEL DE TESORERÍA</a>
-            <a href="{{ route('empresa.tesoreria.index', ['filter' => 'banco']) }}" class="submenu-item text-info"><i class="bi bi-university me-1"></i> Mis Bancos</a>
-            <a href="{{ route('empresa.tesoreria.index', ['filter' => 'billetera']) }}" class="submenu-item text-primary"><i class="bi bi-phone me-1"></i> Billeteras Virtuales</a>
-            <a href="{{ route('empresa.tesoreria.cheques.index') }}" class="submenu-item">✍️ Cartera de Cheques</a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/tesoreria*') ? 'show' : '' }}" id="sm_bancos">
+            <a href="{{ route('empresa.tesoreria.index') }}" class="submenu-item fw-bold">🏦 Mis Cuentas / Billeteras</a>
+            <a href="{{ route('empresa.tesoreria.cheques.index') }}" class="submenu-item">✍️ Cheques de Terceros</a>
             <a href="{{ route('empresa.tesoreria.chequeras.index') }}" class="submenu-item">📖 Chequeras Propias</a>
-            <a href="{{ route('empresa.tesoreria.proyeccion') }}" class="submenu-item">📈 Flujo / Cashflow</a>
         </div>
 
-        {{-- INVENTARIO Y PRODUCCIÓN --}}
-        <div class="nav-label">Producción & Stock</div>
-        <a href="#sm_stock" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-box-seam"></i> <span>Control Stock</span>
+        {{-- MÓDULO: REPORTES --}}
+        <div class="nav-label">Centro de Inteligencia</div>
+        <a href="#sm_reportes" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-bar-chart-line"></i> <span>Reportes & Estadísticas</span>
         </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/products*') || Request::is('empresa/stock*') ? 'show' : '' }}" id="sm_stock">
-            <a href="{{ route('empresa.products.index') }}" class="submenu-item">🔍 Listado Maestro</a>
-            <a href="{{ route('empresa.stock.index') }}" class="submenu-item">📦 Movimientos Stock</a>
-            <a href="{{ route('empresa.inventory_scan') }}" class="submenu-item text-primary fw-bold">📲 ESCÁNER MÓVIL</a>
-            <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-item text-danger">⚠️ Reposición</a>
-            <a href="{{ route('empresa.stock.valuation') }}" class="submenu-item text-success">💲 Valorización</a>
-            <a href="{{ route('empresa.labels.index') }}" class="submenu-item">🖨️ Etiquetas</a>
-        </div>
-
-        <a href="#sm_fabrica" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-gear"></i> <span>Fábrica/Producción</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/recipes*') || Request::is('empresa/production_orders*') ? 'show' : '' }}" id="sm_fabrica">
-            <a href="{{ route('empresa.recipes.index') }}" class="submenu-item">🧪 Recetas (Fórmulas)</a>
-            <a href="{{ route('empresa.production_orders.index') }}" class="submenu-item text-success">⚙️ Órdenes de Prod.</a>
-            <a href="{{ route('empresa.units.index') }}" class="submenu-item">📏 Unidades Medida</a>
-            <a href="{{ route('empresa.rubros.index') }}" class="submenu-item">🏷️ Rubros</a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/reportes*') ? 'show' : '' }}" id="sm_reportes">
+            <a href="{{ route('empresa.reportes.panel') }}" class="submenu-item fw-bold">📊 Dashboard Global</a>
+            <a href="{{ route('empresa.reportes.caja_diaria') }}" class="submenu-item">💵 Caja Diaria / Auditoría</a>
+            <a href="{{ route('empresa.clientes.index', ['has_debt' => 1]) }}" class="submenu-item">📉 Morosidad Clientes</a>
         </div>
 
         {{-- ADMINISTRACIÓN --}}
@@ -430,31 +433,23 @@ main {
         </a>
         <div class="collapse submenu-collapse {{ Request::is('empresa/usuarios*') || Request::is('empresa/personal*') ? 'show' : '' }}" id="sm_admin">
             <a href="{{ route('empresa.usuarios.index') }}" class="submenu-item">👥 Gestión Usuarios</a>
-            <a href="{{ route('empresa.personal.rendimiento') }}" class="submenu-item">📊 Rendimiento</a>
-            <a href="{{ route('empresa.personal.cajas.index') }}" class="submenu-item text-danger">🕵️ Auditoría Cajas</a>
-            <a href="{{ route('empresa.personal.asistencia.qr') }}" class="submenu-item text-primary fw-bold">📲 PUNTO QR</a>
-        </div>
-
-        <a href="#sm_gastos" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-wallet2"></i> <span>Gastos & Auditoría</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/gastos*') ? 'show' : '' }}" id="sm_gastos">
-            <a href="{{ route('empresa.gastos.index') }}" class="submenu-item">📋 Ver Gastos</a>
-            <a href="{{ route('empresa.gastos_categorias.index') }}" class="submenu-item">🏷️ Categorías</a>
-            <a href="{{ route('empresa.gastos.quick') }}" class="submenu-item text-warning fw-bold">📱 Registro Rápido</a>
+            <a href="{{ route('empresa.personal.rendimiento') }}" class="submenu-item">📊 Rendimiento Operativo</a>
+            <a href="{{ route('empresa.personal.asistencia.qr') }}" class="submenu-item fw-bold">📲 Punto QR Asistencia</a>
         </div>
 
         <a href="{{ route('empresa.reportes.panel') }}" class="nav-link-item {{ Route::is('empresa.reportes.*') ? 'active' : '' }}">
             <i class="bi bi-bar-chart-line"></i> <span>Reportes Pro</span>
         </a>
 
-        <div class="nav-label">Sistema</div>
-        <a href="{{ route('empresa.soporte.index') }}" class="nav-link-item text-info">
-            <i class="bi bi-headset"></i> <span>Soporte Técnico</span>
+        <a href="{{ route('empresa.configuracion.index') }}" class="nav-link-item {{ Route::is('empresa.configuracion.*') ? 'active' : '' }}">
+            <i class="bi bi-gear-fill"></i> <span>Configuración App</span>
         </a>
-        <a href="{{ route('empresa.configuracion.index') }}" class="nav-link-item">
-            <i class="bi bi-gear-fill"></i> <span>Configuración</span>
-        </a>
+
+        <div class="p-3 mt-4">
+            <a href="{{ route('logout.get') }}" class="btn btn-outline-danger w-100 rounded-pill x-small">
+                <i class="bi bi-power me-2"></i> Cerrar Sesión
+            </a>
+        </div>
     </div>
 
     <div class="p-4 mt-auto border-top border-opacity-10" style="border-top: 1px solid var(--sidebar-border) !important;">
@@ -550,7 +545,14 @@ main {
         </div>
         <button type="button" class="btn-close shadow-none" onclick="closeHelp()"></button>
     </div>
-    <div class="help-body-scroll"><div id="help-loading" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div><div id="help-view-mode"><div id="help-display"></div></div></div>
+    <div class="help-body-scroll">
+        <div id="help-loading" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+        <div id="help-view-mode">
+            <div id="help-display"></div>
+        </div>
+    </div>
 </div>
 
 {{-- MODALES ASISTENCIA --}}

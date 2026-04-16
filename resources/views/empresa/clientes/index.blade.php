@@ -142,6 +142,15 @@
                                        Cuenta corriente
                                     </a>
 
+                                    @if($c->lat && $c->lng)
+                                        <a href="https://www.google.com/maps?q={{ $c->lat }},{{ $c->lng }}"
+                                           target="_blank"
+                                           class="btn btn-sm btn-dark"
+                                           title="Ver en Google Maps">
+                                           📍 GPS
+                                        </a>
+                                    @endif
+
                                 @else
 
                                     <span class="badge bg-secondary">
@@ -257,6 +266,7 @@ input.addEventListener('input', function(){
                        class="btn btn-sm btn-outline-primary">Editar</a>
                     <a href="${baseUrl}/${c.id}"
                        class="btn btn-sm btn-outline-success">Cuenta corriente</a>
+                    ${(c.lat && c.lng) ? `<a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank" class="btn btn-sm btn-dark">📍 GPS</a>` : ''}
                 `;
             } else {
                 acciones = `<span class="badge bg-secondary">Cliente del sistema</span>`;

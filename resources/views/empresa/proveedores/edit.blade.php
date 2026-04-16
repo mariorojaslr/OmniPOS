@@ -33,6 +33,26 @@
                     <input type="text" name="document" class="form-control" value="{{ $supplier->document }}">
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" name="direccion" class="form-control" value="{{ $supplier->direccion }}">
+                </div>
+
+                <div class="row gx-3 text-start">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Latitud (GPS)</label>
+                        <input type="text" name="lat" class="form-control" value="{{ $supplier->lat }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Longitud (GPS)</label>
+                        <input type="text" name="lng" class="form-control" value="{{ $supplier->lng }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold text-primary">PLUS CODE 🌐</label>
+                        <input type="text" name="plus_code" class="form-control" value="{{ $supplier->plus_code }}" placeholder="8GV2+M9">
+                    </div>
+                </div>
+
                 <div class="form-check mb-3">
                     <input type="checkbox" name="active" value="1" class="form-check-input"
                            {{ $supplier->active ? 'checked' : '' }}>

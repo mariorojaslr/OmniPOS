@@ -140,6 +140,7 @@
                             @forelse($movimientos as $m)
                             <tr class="cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">
                                 <td class="ps-4">
+                                    @php $diasAntig = floor($m->created_at->diffInDays(now())); @endphp
                                     <div class="fw-bold text-dark">{{ $m->created_at->format('d/m/Y') }}</div>
                                     <div class="x-small text-muted">{{ $m->created_at->format('H:i') }} hs</div>
                                 </td>
@@ -266,7 +267,10 @@
                                 <tr>
                                     <td class="ps-4">
                                         <div class="fw-bold">{{ $d->created_at->format('d/m/Y') }}</div>
-                                        <div class="x-small {{ $dias > 30 ? 'text-danger fw-bold' : 'text-muted' }}">{{ $dias }} días de antigüedad</div>
+                                        @php $dias = (int)$d->created_at->diffInDays(now()); @endphp
+                                        <div class="x-small {{ $dias > 30 ? 'text-danger fw-bold' : 'text-muted' }}">
+                                            {{ $dias == 0 ? 'Hoy' : ($dias == 1 ? 'Hace 1 día' : "Hace $dias días") }}
+                                        </div>
                                     </td>
                                     <td class="text-end fw-bold text-danger">${{ number_format($d->pending_amount, 2, ',', '.') }}</td>
                                     <td class="text-end pe-4">
