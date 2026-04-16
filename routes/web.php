@@ -483,6 +483,13 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/listados/clientes', [App\Http\Controllers\Empresa\ListadoController::class, 'clientes'])->name('listados.clientes');
         Route::get('/listados/cheques', [App\Http\Controllers\Empresa\ListadoController::class, 'cheques'])->name('listados.cheques');
 
+        // UTILIDADES GPS (Dashboard Logístico)
+        Route::get('/gps', [App\Http\Controllers\Empresa\GpsController::class, 'index'])->name('gps.index');
+        Route::get('/gps/rutas', [App\Http\Controllers\Empresa\GpsController::class, 'rutas'])->name('gps.rutas');
+
+        // ASISTENTE DE AYUDA / MANUAL INTERACTIVO
+        Route::get('/ayuda/{topic}', [App\Http\Controllers\Empresa\HelpController::class, 'show'])->name('ayuda.show');
+
 
         /*
      |--------------------------------------------------------------------------

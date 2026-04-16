@@ -423,6 +423,7 @@ body {
         <div class="collapse submenu-collapse {{ Request::is('empresa/reportes*') ? 'show' : '' }}" id="sm_reportes">
             <a href="{{ route('empresa.reportes.panel') }}" class="submenu-item fw-bold">📊 Dashboard Global</a>
             <a href="{{ route('empresa.reportes.caja_diaria') }}" class="submenu-item">💵 Caja Diaria / Auditoría</a>
+            <a href="{{ route('empresa.gps.index') }}" class="submenu-item text-warning fw-bold"><i class="bi bi-geo-alt-fill me-1"></i> Utilidades GPS (Beta)</a>
             <a href="{{ route('empresa.clientes.index', ['has_debt' => 1]) }}" class="submenu-item">📉 Morosidad Clientes</a>
         </div>
 
@@ -588,6 +589,33 @@ body {
             mainContent.classList.toggle('expanded');
             localStorage.setItem('sidebar-state', sidebar.classList.contains('collapsed') ? 'collapsed' : 'full');
         }
+    }
+
+    // --- LÓGICA MANUAL DINÁMICO ---
+    function openHelp(topic = 'general') {
+        const offcanvas = document.getElementById('offcanvasHelp');
+        const display = document.getElementById('help-display');
+        const loading = document.getElementById('help-loading');
+
+        offcanvas.classList.add('show');
+        display.innerHTML = '';
+        loading.classList.remove('d-none');
+
+        fetch(`/ayuda/${topic}`)
+            .then(res => res.text())
+            .then(html => {
+                display.innerHTML = html;
+            })
+            .catch(err => {
+                display.innerHTML = '<div class="alert alert-danger">Error al cargar el manual.</div>';
+            })
+            .finally(() => {
+                loading.classList.add('d-none');
+            });
+    }
+
+    function closeHelp() {
+        document.getElementById('offcanvasHelp').classList.remove('show');
     }
 
     btnToggle.addEventListener('click', toggleSidebar);
