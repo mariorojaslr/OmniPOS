@@ -6,11 +6,11 @@
     {{-- CABECERA PREMIUM --}}
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h1 class="fw-bold mb-1 text-white" style="letter-spacing: -1px;">Utilidades GPS <span class="badge bg-warning text-dark fs-6 ms-2" style="vertical-align: middle;">BETA PRO</span></h1>
-            <p class="text-muted opacity-75">Optimización logística y geolocalización avanzada para tu flota.</p>
+            <h1 class="fw-bold mb-1" style="color: #1e293b; letter-spacing: -1px;">Utilidades GPS <span class="badge bg-warning text-dark fs-6 ms-2" style="vertical-align: middle;">BETA PRO</span></h1>
+            <p class="text-muted opacity-75 fw-500">Optimización logística y geolocalización avanzada para tu flota.</p>
         </div>
         <div>
-            <button onclick="openHelp('gps_hub')" class="btn btn-outline-warning border-2 fw-bold rounded-pill px-4">
+            <button onclick="openHelp('gps_hub')" class="btn btn-outline-warning border-2 fw-bold rounded-pill px-4 shadow-sm">
                 <i class="bi bi-magic me-2"></i> ¿CÓMO USAR ESTO?
             </button>
         </div>
@@ -32,9 +32,6 @@
                     <a href="{{ route('empresa.gps.rutas') }}" class="btn btn-primary w-100 py-3 fw-bold rounded-4 shadow-sm">
                         CONFIGURAR RUTA 🚀
                     </a>
-                </div>
-                <div class="bg-primary bg-opacity-5 py-2 px-4 border-top border-white border-opacity-10">
-                    <small class="text-primary fw-bold">Optimización con Plus Code</small>
                 </div>
             </div>
         </div>
@@ -81,9 +78,6 @@
     .card:hover {
         transform: translateY(-10px);
         background: #1a1a1a !important;
-    }
-    body {
-        background-color: #0b0b0b !important;
     }
 </style>
 @endsection
