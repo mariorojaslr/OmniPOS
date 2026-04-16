@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ClientAccountService
 {
+    protected $tesoreriaService;
+
+    public function __construct(TesoreriaService $tesoreriaService)
+    {
+        $this->tesoreriaService = $tesoreriaService;
+    }
+
     /**
      * Registrar un cobro oficial y aplicarlo a la deuda (FIFO u opcional facturas)
      */
@@ -55,7 +62,24 @@ class ClientAccountService
                             'metodo_pago' => $p['metodo_pago'],
                             'monto'       => $p['monto'],
                             'referencia'  => $p['referencia'] ?? null,
+                            'finanza_cuenta_id' => $p['finanza_cuenta_id'] ?? null, // Persistimos la cuenta en el detalle
                         ]);
+
+                        // IMPACTO EN TESORERIA (Si tiene cuenta elegida)
+                        if (!empty($p['finanza_cuenta_id'])) {
+                            $this->tesoreriaService->registrarMovimiento(
+                                $p['finanza_cuenta_id'],
+                                'ingreso',
+                                (float)$p['monto'],
+                                "Cobro Cliente: " . ($recibo->client->name ?? 'S/N') . " (Recibo #{$numeroRecibo})",
+                                [
+                                    'categoria'      => 'Cobranzas',
+                                    'reference_type' => Recibo::class,
+                                    'reference_id'   => $recibo->id,
+                                    'fecha'          => $fecha
+                                ]
+                            );
+                        }
 
                         if ($p['metodo_pago'] == 'cheque' || $p['metodo_pago'] == 'cheque_tercero') {
                             \App\Models\Cheque::create([

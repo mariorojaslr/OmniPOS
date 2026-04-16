@@ -99,8 +99,8 @@
                                 <div id="paymentRows" class="mb-3">
                                     <!-- Fila Inicial -->
                                     <div class="row g-2 align-items-center mb-2 payment-row">
-                                        <div class="col-md-3">
-                                            <select name="pagos_diferenciados[0][metodo_pago]" class="form-select form-select-sm border-0 bg-light shadow-none fw-bold" required>
+                                        <div class="col-md-2">
+                                            <select name="pagos_diferenciados[0][metodo_pago]" class="form-select form-select-sm border-0 bg-light shadow-none fw-bold" required onchange="toggleAccountField(this)">
                                                 <option value="Efectivo">Efectivo 💵</option>
                                                 <option value="Transferencia">Transferencia 🏦</option>
                                                 <option value="Mercado Pago">Mercado Pago 📱</option>
@@ -108,13 +108,21 @@
                                                 <option value="E-Check">Cheque ✍️</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-5">
+                                        <div class="col-md-3">
                                             <div class="input-group input-group-sm shadow-sm rounded">
                                                 <span class="input-group-text bg-white border-end-0 text-muted fw-bold">$</span>
-                                                <input type="number" step="0.01" name="pagos_diferenciados[0][monto]" class="form-control border-start-0 ps-0 pago-monto text-primary fs-5 fw-extrabold text-end bg-white" placeholder="0.00" required onkeyup="syncGlobalMonto()" id="montoPrincipal">
+                                                <input type="number" step="0.01" name="pagos_diferenciados[0][monto]" class="form-control border-start-0 ps-0 pago-monto text-primary fs-6 fw-extrabold text-end bg-white" placeholder="0.00" required onkeyup="syncGlobalMonto()" id="montoPrincipal">
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-3 account-field d-none">
+                                            <select name="pagos_diferenciados[0][finanza_cuenta_id]" class="form-select form-select-sm border-0 bg-primary bg-opacity-10 text-primary shadow-none fw-bold">
+                                                <option value="">-- Cta. Destino --</option>
+                                                @foreach($cuentas as $cta)
+                                                    <option value="{{ $cta->id }}">{{ $cta->nombre }} ({{ $cta->moneda }})</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 reference-field">
                                             <input type="text" name="pagos_diferenciados[0][referencia]" class="form-control form-control-sm border-0 bg-light shadow-none" placeholder="Referencia / Nro...">
                                         </div>
                                         <div class="col-md-1 text-center"></div>
@@ -263,13 +271,28 @@
         }
     }
 
+    function toggleAccountField(select) {
+        const row = select.closest('.payment-row');
+        const accountField = row.querySelector('.account-field');
+        const referenceField = row.querySelector('.reference-field');
+        const method = select.value;
+
+        if (method === 'Transferencia' || method === 'Mercado Pago' || method === 'Tarjeta') {
+            accountField.classList.remove('d-none');
+            referenceField.className = 'col-md-3 reference-field';
+        } else {
+            accountField.classList.add('d-none');
+            referenceField.className = 'col-md-6 reference-field';
+        }
+    }
+
     function addPaymentMethod() {
         const container = document.getElementById('paymentRows');
         const row = document.createElement('div');
         row.className = 'row g-2 align-items-center mb-2 payment-row fade-in';
         row.innerHTML = `
-            <div class="col-md-3">
-                <select name="pagos_diferenciados[${paymentRowIndex}][metodo_pago]" class="form-select form-select-sm border-0 bg-light shadow-none fw-bold" required>
+            <div class="col-md-2">
+                <select name="pagos_diferenciados[${paymentRowIndex}][metodo_pago]" class="form-select form-select-sm border-0 bg-light shadow-none fw-bold" required onchange="toggleAccountField(this)">
                     <option value="Efectivo">Efectivo 💵</option>
                     <option value="Transferencia">Transferencia 🏦</option>
                     <option value="Mercado Pago">Mercado Pago 📱</option>
@@ -277,13 +300,21 @@
                     <option value="E-Check">Cheque ✍️</option>
                 </select>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-3">
                 <div class="input-group input-group-sm shadow-sm rounded">
                     <span class="input-group-text bg-white border-end-0 text-muted fw-bold">$</span>
-                    <input type="number" step="0.01" name="pagos_diferenciados[${paymentRowIndex}][monto]" class="form-control border-start-0 ps-0 pago-monto text-primary fs-5 fw-extrabold text-end bg-white" placeholder="0.00" required onkeyup="syncGlobalMonto()">
+                    <input type="number" step="0.01" name="pagos_diferenciados[${paymentRowIndex}][monto]" class="form-control border-start-0 ps-0 pago-monto text-primary fs-6 fw-extrabold text-end bg-white" placeholder="0.00" required onkeyup="syncGlobalMonto()">
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 account-field d-none">
+                <select name="pagos_diferenciados[${paymentRowIndex}][finanza_cuenta_id]" class="form-select form-select-sm border-0 bg-primary bg-opacity-10 text-primary shadow-none fw-bold">
+                    <option value="">-- Cta. Destino --</option>
+                    @foreach($cuentas as $cta)
+                        <option value="{{ $cta->id }}">{{ $cta->nombre }} ({{ $cta->moneda }})</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3 reference-field">
                 <input type="text" name="pagos_diferenciados[${paymentRowIndex}][referencia]" class="form-control form-control-sm border-0 bg-light shadow-none" placeholder="Referencia / Nro...">
             </div>
             <div class="col-md-1 text-center">

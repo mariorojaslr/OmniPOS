@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Recibo;
 use App\Models\Client;
+use App\Models\FinanzaCuenta; // Modelo correcto para saldos operativos
 use App\Services\ClientAccountService;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,11 +40,16 @@ class ReciboController extends Controller
     {
         $empresaId = Auth::user()->empresa_id;
         $clientes = Client::where('empresa_id', $empresaId)
-            ->where('document', '!=', 'CF') // Excluir Consumidor Final si es necesario, o dejarlo
+            ->where('document', '!=', 'CF') 
             ->orderBy('name')
             ->get();
 
-        return view('empresa.pagos.create', compact('clientes'));
+        $cuentas = FinanzaCuenta::where('empresa_id', $empresaId)
+            ->where('activo', true)
+            ->orderBy('nombre')
+            ->get();
+
+        return view('empresa.pagos.create', compact('clientes', 'cuentas'));
     }
 
     /**
