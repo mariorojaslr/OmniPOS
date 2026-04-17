@@ -396,10 +396,19 @@
                                 <label class="form-label fw-bold small">CUIT del Titular</label>
                                 <input type="text" id="wiz_cuit" class="form-control" name="cuit" value="{{ $empresa->arca_cuit ?? $empresa->cuit }}" required>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small">Razón Social Exacta</label>
-                                <input type="text" id="wiz_razon" class="form-control" name="razon_social" value="{{ $empresa->nombre_comercial }}" required>
-                            </div>
+                            <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Nombre Comercial <span class="text-danger">*</span></label>
+                            <input type="text" name="nombre_comercial" class="form-control border-2" value="{{ $empresa->nombre_comercial }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Provincia (Principal para GPS) <span class="text-danger">*</span></label>
+                            <select name="provincia" class="form-select border-2" required>
+                                <option value="">Seleccionar Provincia...</option>
+                                @foreach(['Buenos Aires','CABA','Catamarca','Chaco','Chubut','Córdoba','Corrientes','Entre Ríos','Formosa','Jujuy','La Pampa','La Rioja','Mendoza','Misiones','Neuquén','Río Negro','Salta','San Juan','San Luis','Santa Cruz','Santa Fe','Santiago del Estero','Tierra del Fuego','Tucumán'] as $prov)
+                                    <option value="{{ $prov }}" {{ ($empresa->provincia ?? '') == $prov ? 'selected' : '' }}>{{ $prov }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small">Localidad / Ciudad</label>
                                 <input type="text" id="wiz_localidad" class="form-control" name="localidad" placeholder="Ej: CABA" required>
