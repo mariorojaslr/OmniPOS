@@ -447,6 +447,10 @@ body {
             <i class="bi bi-box-seam"></i> <span>📑 MIS ARTÍCULOS</span>
         </a>
 
+        <a href="{{ route('empresa.rubros.index') }}" class="nav-link-item {{ Request::is('empresa/rubros*') ? 'active' : '' }}">
+            <i class="bi bi-tags"></i> <span>🏷️ RUBROS / CATEGORÍAS</span>
+        </a>
+
         <a href="{{ route('catalog.index', ['empresa' => auth()->user()->empresa->slug]) }}" target="_blank" class="nav-link-item">
             <i class="bi bi-shop"></i> <span>🛒 MI CATÁLOGO (Store)</span>
         </a>
