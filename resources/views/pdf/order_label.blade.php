@@ -24,7 +24,7 @@
         <span class="data">{{ $order->nombre_cliente }}</span>
         
         <span class="label">Dirección:</span>
-        <span class="data">{{ $order->direccion ?: 'Retiro en local' }}</span>
+        <span class="data">{{ $order->direccion ?: ($order->client->address ?? 'Retiro en local') }}</span>
         
         <span class="label">Teléfono:</span>
         <span class="data">{{ $order->telefono }}</span>

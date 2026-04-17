@@ -26,6 +26,9 @@ class Supplier extends Model
         'tipo_factura_default',
         'cuit',
         'direccion',
+        'lat',
+        'lng',
+        'plus_code',
         'saldo',
         'active'
     ];

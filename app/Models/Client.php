@@ -24,6 +24,9 @@ class Client extends Model
         'type',
         'discount_percentage',
         'credit_limit',
+        'lat',
+        'lng',
+        'plus_code',
         'active',
     ];
 

@@ -24,6 +24,7 @@ class Empresa extends Model
         'razon_social',
         'email',
         'telefono',
+        'provincia',
         'activo',
         'fecha_vencimiento',
         'fecha_cierre_ejercicio',

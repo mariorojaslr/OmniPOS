@@ -81,7 +81,7 @@ class DashboardController extends Controller
         |----------------------------------------------------------------------
         */
         $pedidosPendientes = \App\Models\Order::where('empresa_id', $empresaId)
-            ->where('estado', 'pendiente')
+            ->whereIn('estado', ['pendiente', 'en_proceso', 'pedido_armado'])
             ->count();
 
         $pedidosTotales = \App\Models\Order::where('empresa_id', $empresaId)->count();

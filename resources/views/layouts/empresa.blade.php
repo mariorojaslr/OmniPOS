@@ -395,23 +395,25 @@ body {
     right: 0;
 }
 
+.help-resize-handle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    cursor: ew-resize;
+    background: rgba(var(--color-primario-rgb), 0.05);
+    transition: background 0.3s;
+    z-index: 10;
+}
+
+.help-resize-handle:hover {
+    background: rgba(var(--color-primario-rgb), 0.2);
+}
+
 .help-drag-handle {
     padding: 30px;
-    cursor: default;
-}
-
-.help-header-gradient {
-    font-weight: 800;
-    background: linear-gradient(90deg, var(--text-main), var(--color-primario));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 0;
-}
-
-.help-body-scroll {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 0 30px 30px;
+    cursor: move;
 }
 
 </style>
@@ -781,6 +783,53 @@ body {
             }
         });
     }
+
+    // --- LÓGICA DE PANEL FLOTANTE, DRAGGABLE Y RESIZABLE ---
+    const helpPanel = document.getElementById('offcanvasHelp');
+    const helpDrag = document.getElementById('helpDrag');
+    const helpResize = document.getElementById('helpResize');
+    let isDragging = false;
+    let isResizing = false;
+    let startX, startY, startWidth, startRight;
+
+    // Arrastre (Drag)
+    helpDrag.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX - helpPanel.offsetLeft;
+        startY = e.clientY - helpPanel.offsetTop;
+        helpPanel.style.transition = 'none'; // Quitar transición para suavidad
+        e.preventDefault();
+    });
+
+    // Redimensión (Resize)
+    helpResize.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        startX = e.clientX;
+        startWidth = parseInt(getComputedStyle(helpPanel).width, 10);
+        helpPanel.style.transition = 'none';
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            helpPanel.style.left = (e.clientX - startX) + 'px';
+            helpPanel.style.top = (e.clientY - startY) + 'px';
+            helpPanel.style.right = 'auto'; // Liberar el anclaje derecho
+            helpPanel.style.bottom = 'auto';
+        }
+        if (isResizing) {
+            const width = startWidth + (startX - e.clientX);
+            if (width > 300 && width < 900) {
+                helpPanel.style.width = width + 'px';
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        isResizing = false;
+        helpPanel.style.transition = 'right 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+    });
 
     btnToggle.addEventListener('click', toggleSidebar);
     if(overlay) overlay.addEventListener('click', () => sidebar.classList.remove('show'));

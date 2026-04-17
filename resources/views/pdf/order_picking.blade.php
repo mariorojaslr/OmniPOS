@@ -32,7 +32,7 @@
         <strong>CLIENTE:</strong> {{ $order->nombre_cliente }}<br>
         <strong>TELEFONO:</strong> {{ $order->telefono }}<br>
         <strong>METODO ENTREGA:</strong> {{ strtoupper($order->metodo_entrega) }}<br>
-        <strong>DIRECCIÓN:</strong> {{ $order->direccion ?: 'RETIRO EN LOCAL' }}
+        <strong>DIRECCIÓN:</strong> {{ $order->direccion ?: ($order->client->address ?? 'RETIRO EN LOCAL') }}
     </div>
 
     <h3>PRODUCTOS A PREPARAR</h3>

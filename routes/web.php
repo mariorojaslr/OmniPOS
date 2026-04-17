@@ -486,6 +486,12 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         // UTILIDADES GPS (Dashboard Logístico)
         Route::get('/gps', [App\Http\Controllers\Empresa\GpsController::class, 'index'])->name('gps.index');
         Route::get('/gps/rutas', [App\Http\Controllers\Empresa\GpsController::class, 'rutas'])->name('gps.rutas');
+        Route::get('/gps/search', [App\Http\Controllers\Empresa\GpsController::class, 'searchEntities'])->name('gps.search');
+        Route::get('/gps/zonas-calientes', [App\Http\Controllers\Empresa\GpsController::class, 'zonasCalientes'])->name('gps.zonas_calientes');
+        Route::get('/gps/heatmap-data', [App\Http\Controllers\Empresa\GpsController::class, 'getHeatmapData'])->name('gps.heatmap_data');
+        Route::get('/gps/retiros-inteligentes', [App\Http\Controllers\Empresa\GpsController::class, 'retirosInteligentes'])->name('gps.retiros_inteligentes');
+        Route::get('/gps/proveedores-data', [App\Http\Controllers\Empresa\GpsController::class, 'getSupplierLocations'])->name('gps.proveedores_data');
+        Route::get('/gps/pedidos-pendientes', [App\Http\Controllers\Empresa\GpsController::class, 'getPendingDeliveries'])->name('gps.pedidos_pendientes');
 
 
         /*

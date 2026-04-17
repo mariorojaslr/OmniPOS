@@ -162,6 +162,7 @@
                     <table class="table premium-table mb-0">
                         <thead>
                             <tr>
+                                <th class="text-center" style="width: 50px;">Visto</th>
                                 <th>Producto / Especificación</th>
                                 <th class="text-center">Cant.</th>
                                 <th class="text-end">P. Unitario</th>
@@ -171,8 +172,11 @@
                         <tbody>
                             @foreach($order->items as $item)
                             <tr>
+                                <td class="text-center">
+                                    <input type="checkbox" class="form-check-input bg-dark border-secondary p-2" style="cursor: pointer; width: 22px; height: 22px;">
+                                </td>
                                 <td>
-                                    <div class="fw-bold text-white fs-6">{{ $item->product->name }}</div>
+                                    <div class="fw-bold text-white fs-6">{{ $item->product->name ?? $item->nombre_producto }}</div>
                                     @if($item->variant)
                                         <div class="small text-secondary mt-1">
                                             <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">
@@ -182,7 +186,7 @@
                                     @endif
                                 </td>
                                 <td class="text-center fs-5 fw-bold text-white">{{ $item->cantidad }}</td>
-                                <td class="text-end text-secondary">$ {{ number_format($item->precio, 0, ',', '.') }}</td>
+                                <td class="text-end text-secondary">$ {{ number_format($item->precio ?? $item->precio_unitario, 0, ',', '.') }}</td>
                                 <td class="text-end fw-bold text-white fs-5">$ {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
@@ -231,11 +235,11 @@
                         </div>
                         <div class="col-12">
                             <label class="info-label">Destino de Envío / Modalidad</label>
-                            <div class="p-3 fs-5 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid var(--oled-border);">
-                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
-                                {{ $order->direccion ?: 'Retiro en Sucursal / Local' }}
-                                <div class="mt-2 text-secondary small text-uppercase">
-                                    Método: {{ $order->metodo_entrega }}
+                            <div class="p-3 fs-5 rounded-3" style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2);">
+                                <i class="fas fa-truck text-primary me-2"></i>
+                                <span class="text-white">{{ $order->direccion ?: ($order->client->address ?? 'Retiro en Sucursal / Local') }}</span>
+                                <div class="mt-2 text-info small text-uppercase fw-bold">
+                                    <i class="fas fa-box-open me-1"></i> MODALIDAD: {{ $order->metodo_entrega }}
                                 </div>
                             </div>
                         </div>
