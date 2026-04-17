@@ -30,7 +30,7 @@
     <div class="row g-4 text-start">
         <div class="col-md-4">
             <div class="card bg-white border-0 shadow-lg rounded-4 overflow-hidden h-100 border border-light">
-                <div class="card-header bg-light bg-opacity-30 border-bottom p-3">
+                <div class="card-header bg-opacity-30 border-bottom p-3">
                     <div class="input-group">
                         <span class="input-group-text bg-white border-0 text-muted"><i class="bi bi-search"></i></span>
                         <input type="text" id="searchSupplier" class="form-control bg-white border-0 text-dark fw-bold" placeholder="Buscar proveedor...">
@@ -62,13 +62,12 @@
 <script>
     let map, markers = [], allSuppliers = [];
     function initMap() {
-        map = L.map('supplierMap').setView([-29.4124, -66.8566], 12); // LA RIOJA FALLBACK
+        map = L.map('supplierMap').setView([-29.4124, -66.8566], 12); 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
         loadSuppliers();
     }
     function loadSuppliers() {
-        const path = "{{ route('empresa.gps.proveedores_data') }}";
-        fetch(path).then(r => r.json()).then(data => {
+        fetch("{{ route('empresa.gps.proveedores_data') }}").then(r => r.json()).then(data => {
             allSuppliers = data;
             document.getElementById('suppliersCount').innerText = data.length;
             renderSuppliers(data);
@@ -87,7 +86,7 @@
             bounds.extend([s.lat, s.lng]);
             const item = document.createElement('div');
             item.className = 'list-group-item bg-white text-dark border-light p-3 supplier-item shadow-sm mb-1 rounded-3 mx-2';
-            item.innerHTML = `<div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold text-dark small">${s.name}</div><div class="x-small text-muted fw-bold">📍 ${s.direccion || 'Ubicante'}</div></div><i class="bi bi-chevron-right text-primary"></i></div>`;
+            item.innerHTML = `<div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold text-dark small">${s.name}</div><div class="x-small text-muted fw-bold">📍 \${s.direccion || 'Ubicante'}</div></div><i class="bi bi-chevron-right text-primary"></i></div>`;
             item.onclick = () => { map.setView([s.lat, s.lng], 16); marker.openPopup(); };
             list.appendChild(item);
         });
@@ -97,4 +96,3 @@
     document.addEventListener('DOMContentLoaded', initMap);
 </script>
 @endpush
-@endsection

@@ -89,7 +89,7 @@
     }
     function loadHeatmapData() {
         document.getElementById('loader').style.display = 'block';
-        fetch("{{ route('empresa.gps.heatmap-data') }}").then(r => r.json()).then(data => {
+        fetch("{{ route('empresa.gps.heatmap_data') }}").then(r => r.json()).then(data => {
             const points = data.map(p => [parseFloat(p.lat), parseFloat(p.lng), parseFloat(p.total) / 1000]);
             if (heatLayer) map.removeLayer(heatLayer);
             heatLayer = L.heatLayer(points, {
