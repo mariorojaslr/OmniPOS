@@ -441,16 +441,20 @@ body {
         </a>
 
         {{-- MÓDULO: ARTÍCULOS --}}
-        <div class="nav-label text-info">Inventario & Stock</div>
+        <div class="nav-label text-info">Gestión de Productos</div>
+        
         <a href="{{ route('empresa.products.index') }}" class="nav-link-item {{ Request::is('empresa/products*') ? 'active' : '' }}">
-            <i class="bi bi-shop"></i> <span>📦 CATÁLOGO</span>
+            <i class="bi bi-box-seam"></i> <span>📑 MIS ARTÍCULOS</span>
+        </a>
+
+        <a href="{{ route('catalog.index', ['empresa' => auth()->user()->empresa->slug]) }}" target="_blank" class="nav-link-item">
+            <i class="bi bi-shop"></i> <span>🛒 MI CATÁLOGO (Store)</span>
         </a>
 
         <a href="#sm_articulos" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-box-seam"></i> <span>Artículos</span>
+            <i class="bi bi-gear-wide-connected"></i> <span>Herramientas de Stock</span>
         </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/products*') || Request::is('empresa/stock*') ? 'show' : '' }}" id="sm_articulos">
-            <a href="{{ route('empresa.products.index') }}" class="submenu-item">📦 Listado Maestro</a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/stock*') ? 'show' : '' }}" id="sm_articulos">
             <a href="{{ route('empresa.stock.index') }}" class="submenu-item">🔄 Movimientos Stock</a>
             <a href="{{ route('empresa.inventory_scan') }}" class="submenu-item fw-bold">📲 Escáner Móvil</a>
             <a href="{{ route('empresa.recipes.index') }}" class="submenu-item">🧪 Recetas de Fábrica</a>
