@@ -442,7 +442,7 @@ body {
 
         {{-- MÓDULO: ARTÍCULOS --}}
         <div class="nav-label text-info">Inventario & Stock</div>
-        <a href="{{ route('empresa.catalogo.index') }}" class="nav-link-item {{ Request::is('empresa/catalogo*') ? 'active' : '' }}">
+        <a href="{{ route('empresa.products.index') }}" class="nav-link-item {{ Request::is('empresa/products*') ? 'active' : '' }}">
             <i class="bi bi-shop"></i> <span>📦 CATÁLOGO</span>
         </a>
 
@@ -469,6 +469,12 @@ body {
             <a href="{{ route('empresa.ventas.manual') }}" class="submenu-item fw-bold">✍️ Venta Manual</a>
             <a href="{{ route('empresa.presupuestos.index') }}" class="submenu-item">📜 Presupuestos</a>
         </div>
+
+        {{-- MÓDULO: GASTOS --}}
+        <div class="nav-label text-danger">Área Financiera</div>
+        <a href="{{ route('empresa.gastos.index') }}" class="nav-link-item {{ Request::is('empresa/gastos*') ? 'active' : '' }}">
+            <i class="bi bi-cash-stack"></i> <span>💸 GESTIÓN GASTOS</span>
+        </a>
 
         {{-- MÓDULO: COMPRAS --}}
         <div class="nav-label text-danger">Área de Compras</div>
