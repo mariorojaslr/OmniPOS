@@ -442,6 +442,10 @@ body {
 
         {{-- MÓDULO: ARTÍCULOS --}}
         <div class="nav-label text-info">Inventario & Stock</div>
+        <a href="{{ route('empresa.catalogo.index') }}" class="nav-link-item {{ Request::is('empresa/catalogo*') ? 'active' : '' }}">
+            <i class="bi bi-shop"></i> <span>📦 CATÁLOGO</span>
+        </a>
+
         <a href="#sm_articulos" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
             <i class="bi bi-box-seam"></i> <span>Artículos</span>
         </a>
