@@ -293,6 +293,10 @@ body {
     transition: left var(--transition-speed) var(--transition-curve);
 }
 
+#main-content.expanded .top-bar {
+    left: var(--sidebar-collapsed-width);
+}
+
 /* UI Elements */
 .btn-sidebar-toggle {
     background: transparent;
@@ -458,8 +462,9 @@ body {
         <a href="#sm_articulos" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
             <i class="bi bi-gear-wide-connected"></i> <span>Herramientas de Stock</span>
         </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/stock*') ? 'show' : '' }}" id="sm_articulos">
+        <div class="collapse submenu-collapse {{ Request::is('empresa/stock*') || Request::is('empresa/faltantes*') ? 'show' : '' }}" id="sm_articulos">
             <a href="{{ route('empresa.stock.index') }}" class="submenu-item">🔄 Movimientos Stock</a>
+            <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-item fw-bold text-warning">⚠️ Reposición de Stock</a>
             <a href="{{ route('empresa.inventory_scan') }}" class="submenu-item fw-bold">📲 Escáner Móvil</a>
             <a href="{{ route('empresa.recipes.index') }}" class="submenu-item">🧪 Recetas de Fábrica</a>
         </div>
@@ -478,6 +483,16 @@ body {
             <a href="{{ route('empresa.presupuestos.index') }}" class="submenu-item">📜 Presupuestos</a>
         </div>
 
+        {{-- MÓDULO: LOGÍSTICA --}}
+        <div class="nav-label text-white">Logística & Guarda</div>
+        <a href="#sm_logistica" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
+            <i class="bi bi-truck"></i> <span>Entregas (Remitos)</span>
+        </a>
+        <div class="collapse submenu-collapse {{ Request::is('empresa/remitos*') || Request::is('empresa/logistica*') ? 'show' : '' }}" id="sm_logistica">
+            <a href="{{ route('empresa.logistica.reporte') }}" class="submenu-item fw-bold">📦 Stock en Guarda</a>
+            <a href="{{ route('empresa.remitos.index') }}" class="submenu-item">📋 Historial Remitos</a>
+        </div>
+
         {{-- MÓDULO: GASTOS --}}
         <div class="nav-label text-danger">Área Financiera</div>
         <a href="{{ route('empresa.gastos.index') }}" class="nav-link-item {{ Request::is('empresa/gastos*') ? 'active' : '' }}">
@@ -491,6 +506,7 @@ body {
         </a>
         <div class="collapse submenu-collapse {{ Request::is('empresa/compras*') ? 'show' : '' }}" id="sm_compras">
             <a href="{{ route('empresa.compras.create') }}" class="submenu-item fw-bold">🟢 Nueva Compra</a>
+            <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-item">📋 Plan de Reposición</a>
             <a href="{{ route('empresa.compras.index') }}" class="submenu-item">📋 Historial Compras</a>
         </div>
 

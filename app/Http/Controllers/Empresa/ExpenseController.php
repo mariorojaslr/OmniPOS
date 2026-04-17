@@ -47,7 +47,10 @@ class ExpenseController extends Controller
         $categories = ExpenseCategory::where('empresa_id', auth()->user()->empresa_id)
             ->where('activo', true)
             ->get();
-        return view('empresa.expenses.create', compact('categories'));
+        
+        $users = \App\Models\User::where('empresa_id', auth()->user()->empresa_id)->get();
+
+        return view('empresa.expenses.create', compact('categories', 'users'));
     }
 
     public function store(Request $request)
@@ -55,13 +58,14 @@ class ExpenseController extends Controller
         $request->validate([
             'amount' => 'required|numeric|min:0',
             'date' => 'required|date',
+            'user_id' => 'required|exists:users,id',
             'category_id' => 'nullable|exists:expense_categories,id',
             'description' => 'required|string|max:500',
         ]);
 
         Expense::create([
             'empresa_id' => auth()->user()->empresa_id,
-            'user_id' => auth()->id(),
+            'user_id' => $request->user_id,
             'category_id' => $request->category_id,
             'amount' => $request->amount,
             'description' => $request->description,
@@ -77,7 +81,9 @@ class ExpenseController extends Controller
         if ($gasto->empresa_id !== auth()->user()->empresa_id) abort(403);
         
         $categories = ExpenseCategory::where('empresa_id', auth()->user()->empresa_id)->get();
-        return view('empresa.expenses.edit', compact('gasto', 'categories'));
+        $users = \App\Models\User::where('empresa_id', auth()->user()->empresa_id)->get();
+
+        return view('empresa.expenses.edit', compact('gasto', 'categories', 'users'));
     }
 
     public function update(Request $request, Expense $gasto)
@@ -87,12 +93,14 @@ class ExpenseController extends Controller
         $request->validate([
             'amount' => 'required|numeric|min:0',
             'date' => 'required|date',
+            'user_id' => 'required|exists:users,id',
             'category_id' => 'nullable|exists:expense_categories,id',
             'description' => 'required|string|max:500',
         ]);
 
         $gasto->update([
             'category_id' => $request->category_id,
+            'user_id' => $request->user_id,
             'amount' => $request->amount,
             'description' => $request->description,
             'date' => $request->date,

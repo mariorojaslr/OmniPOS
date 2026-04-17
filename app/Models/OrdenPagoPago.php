@@ -10,6 +10,7 @@ class OrdenPagoPago extends Model
 
     protected $fillable = [
         'orden_pago_id',
+        'finanza_cuenta_id',
         'metodo_pago',
         'monto',
         'referencia',

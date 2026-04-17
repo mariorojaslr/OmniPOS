@@ -84,7 +84,22 @@
             </div>
 
             <!-- TABLA DE ARTÍCULOS -->
-            <div class="card luxury-card overflow-hidden">
+            <div class="card luxury-card mb-4 overflow-hidden shadow-sm">
+                {{-- ESCÁNER TÁCTICO --}}
+                <div class="p-3 bg-white border-bottom">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <div class="input-group">
+                                <span class="input-group-text bg-success text-white border-0"><i class="bi bi-barcode-scan"></i></span>
+                                <input type="text" id="barcodeScanner" class="form-control border-success fw-bold" placeholder="ESCANEAR CÓDIGO DE BARRAS O SKU (Pulsa Enter)..." autofocus>
+                            </div>
+                        </div>
+                        <div class="col-md-5 text-end">
+                            <span class="badge bg-light text-muted border py-2 px-3"><i class="bi bi-info-circle me-1"></i>Agregado instantáneo tras escanear</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-luxury mb-0" id="tablaVentaManual">
                         <thead>
@@ -258,9 +273,50 @@ $(document).ready(function() {
             $('#montoEntrega').val('');
         }
     });
+
+    // LÓGICA DE ESCÁNER DE BARRAS
+    $('#barcodeScanner').on('keypress', function(e) {
+        if (e.which == 13) { // Enter clave
+            e.preventDefault();
+            const code = $(this).val().trim();
+            if (code) {
+                buscarYAgregarPorBarcode(code);
+                $(this).val('').focus();
+            }
+        }
+    });
+
+    function buscarYAgregarPorBarcode(code) {
+        let found = false;
+
+        // 1. Buscar en productos raíz
+        let product = products.find(p => p.barcode == code || p.sku == code);
+        if (product) {
+            agregarFila(product.id, 1, product.price);
+            found = true;
+        } else {
+            // 2. Buscar en variantes
+            for (let p of products) {
+                if (p.variants && p.variants.length > 0) {
+                    let variant = p.variants.find(v => v.barcode == code || v.sku == code);
+                    if (variant) {
+                        agregarFila(p.id, 1, variant.price || p.price, variant.id);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!found) {
+            // Toast o Notificación sutil (Opcional, de momento alert para visibilidad)
+            const msg = "Código [" + code + "] no encontrado.";
+            alert(msg);
+        }
+    }
 });
 
-function agregarFila(prodId = null, qty = 1, price = null) {
+function agregarFila(prodId = null, qty = 1, price = null, variantId = null) {
     const tbody = document.querySelector("#tablaVentaManual tbody");
     const tr = document.createElement("tr");
     tr.id = `row_${idx}`;
@@ -272,6 +328,11 @@ function agregarFila(prodId = null, qty = 1, price = null) {
                     <option value="{{ $p->id }}" data-price="{{ $p->price }}" data-stock="{{ $p->stock }}">{{ $p->name }}</option>
                 @endforeach
             </select>
+            <div class="variant-area mt-1" style="display:none;">
+                <select name="items[${idx}][variant_id]" class="form-select form-select-sm var-sel">
+                    <option value="">Sin variante</option>
+                </select>
+            </div>
         </td>
         <td class="text-center fw-bold stk-disp text-muted">-</td>
         <td><input type="number" name="items[${idx}][quantity]" class="form-control qty-in text-center" value="${qty}" step="0.01"></td>
@@ -289,6 +350,8 @@ function agregarFila(prodId = null, qty = 1, price = null) {
     }
 
     $sel.on('change', function() {
+        const id = $(this).val();
+        const product = products.find(p => p.id == id);
         const opt = $(this).find(':selected');
         const stock = parseFloat(opt.data('stock')) || 0;
         const priceFromDb = parseFloat(opt.data('price')) || 0;
@@ -298,6 +361,36 @@ function agregarFila(prodId = null, qty = 1, price = null) {
         
         if (!price) {
             $(tr).find('.prc-in').val(priceFromDb);
+        }
+
+        // Manejo de Variantes
+        const $varArea = $(tr).find('.variant-area');
+        const $varSel  = $(tr).find('.var-sel');
+        
+        if (product && product.variants && product.variants.length > 0) {
+            $varArea.show();
+            $varSel.html('<option value="">Seleccionar variante...</option>');
+            product.variants.forEach(v => {
+                let selected = (variantId && variantId == v.id) ? 'selected' : '';
+                $varSel.append(`<option value="${v.id}" ${selected} data-price="${v.price || ''}">${v.size} / ${v.color}</option>`);
+            });
+            
+            if (variantId) {
+                $varSel.trigger('change');
+            }
+        } else {
+            $varArea.hide();
+            $varSel.html('<option value="">Sin variante</option>');
+        }
+
+        recalcularTotales();
+    });
+
+    $(tr).find('.var-sel').on('change', function() {
+        const selectedVar = $(this).find(':selected');
+        const vPrice = selectedVar.data('price');
+        if (vPrice) {
+            $(tr).find('.prc-in').val(vPrice);
         }
         recalcularTotales();
     });
@@ -334,9 +427,11 @@ document.getElementById('formVentaManual').onsubmit = async function(e) {
     let items = [];
     document.querySelectorAll("#tablaVentaManual tbody tr").forEach((tr) => {
         const prodId = tr.querySelector(".prod-sel").value;
+        const variantId = tr.querySelector(".var-sel") ? tr.querySelector(".var-sel").value : null;
         if(prodId) {
             items.push({
                 product_id: prodId,
+                variant_id: variantId,
                 quantity: tr.querySelector(".qty-in").value,
                 price: tr.querySelector(".prc-in").value
             });

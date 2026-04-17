@@ -51,11 +51,29 @@ class SupplierAccountService
                     if ((float) $p['monto'] > 0) {
                         $pagoDetail = OrdenPagoPago::create([
                             'orden_pago_id' => $ordenPago->id,
+                            'finanza_cuenta_id' => $p['finanza_cuenta_id'] ?? null,
                             'metodo_pago'   => $p['metodo_pago'],
                             'monto'         => $p['monto'],
                             'referencia'    => $p['referencia'] ?? null,
                             'cheque_id'     => $p['cheque_id'] ?? null,
                         ]);
+
+                        // IMPACTO EN TESORERIA (Si tiene cuenta elegida y no es cheque)
+                        // Los cheques se concilian al cobrarse, pero el efectivo/transferencia impacta directo.
+                        if (!empty($p['finanza_cuenta_id']) && $p['metodo_pago'] !== 'cheque_propio' && $p['metodo_pago'] !== 'cheque_tercero') {
+                            app(\App\Services\TesoreriaService::class)->registrarMovimiento(
+                                $p['finanza_cuenta_id'],
+                                'egreso',
+                                (float)$p['monto'],
+                                "Pago Proveedor: " . ($supplier->name ?? 'S/N') . " (Orden Pago #{$numeroOrden})",
+                                [
+                                    'categoria'      => 'Pagos a Proveedores',
+                                    'reference_type' => OrdenPago::class,
+                                    'reference_id'   => $ordenPago->id,
+                                    'fecha'          => $fecha
+                                ]
+                            );
+                        }
 
                         // Si usamos un cheque de terceros, marcarlo como entregado
                         if ($p['metodo_pago'] === 'cheque_tercero' && !empty($p['cheque_id'])) {

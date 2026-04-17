@@ -36,6 +36,19 @@
                         </div>
                     </div>
 
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Responsable del Gasto (Empleado) *</label>
+                            <select name="user_id" class="form-select rounded-3 p-2 bg-light border-0" required>
+                                <option value="">-- Seleccionar Persona --</option>
+                                @foreach($users as $usr)
+                                    <option value="{{ $usr->id }}" {{ auth()->id() == $usr->id ? 'selected' : '' }}>{{ $usr->name }}</option>
+                                @endforeach
+                            </select>
+                            <div class="form-text small">Indicá quién realizó la compra o el gasto.</div>
+                        </div>
+                    </div>
+
                     <div class="mb-4">
                         <label class="form-label fw-bold">Monto ($) *</label>
                         <div class="input-group">

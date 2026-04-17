@@ -435,8 +435,18 @@
                                         <select name="pagos_diferenciados[0][metodo_pago]" class="form-select form-select-sm border-0 shadow-none bg-white rounded-pill" onchange="toggleChequeInput(this, 0)" required>
                                             <option value="efectivo">💵 Efectivo</option>
                                             <option value="transferencia">🏦 Transferencia Bancaria</option>
+                                            <option value="debito_automatico">💳 Débito Automático</option>
                                             <option value="cheque_tercero">✍️ Cheque de Terceros</option>
                                             <option value="cheque_propio">📝 Cheque Propio</option>
+                                        </select>
+                                    </div>
+                                    <div id="cuenta-selection-0" class="mb-2">
+                                        <label class="x-small fw-bold text-muted mb-1 d-block ms-2">Origen de Fondos (Caja/Banco)</label>
+                                        <select name="pagos_diferenciados[0][finanza_cuenta_id]" class="form-select form-select-sm border-0 shadow-none bg-white rounded-pill">
+                                            <option value="">-- Seleccionar Cuenta --</option>
+                                            @foreach($cuentas as $acc)
+                                                <option value="{{ $acc->id }}">{{ $acc->nombre }} (${{ number_format($acc->saldo_actual, 2) }})</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                     <div id="cheque-selection-0" style="display:none;" class="mb-2">
@@ -603,11 +613,21 @@
         row.innerHTML = `
             <button type="button" class="btn-close position-absolute top-0 end-0 m-2" style="font-size:0.6rem;" onclick="this.parentElement.remove(); checkSums();"></button>
             <div class="mb-2">
-                <select name="pagos_diferenciados[${rowIndex}][metodo_pago]" class="form-select form-select-sm border-0 shadow-none bg-white rounded-pill" onchange="toggleChequeInput(this, ${rowIndex})" required>
+                <select name="pagos_diferenciados[\${rowIndex}][metodo_pago]" class="form-select form-select-sm border-0 shadow-none bg-white rounded-pill" onchange="toggleChequeInput(this, \${rowIndex})" required>
                     <option value="efectivo">💵 Efectivo</option>
                     <option value="transferencia">🏦 Transferencia Bancaria</option>
+                    <option value="debito_automatico">💳 Débito Automático</option>
                     <option value="cheque_tercero">✍️ Cheque de Terceros</option>
                     <option value="cheque_propio">📝 Cheque Propio</option>
+                </select>
+            </div>
+            <div id="cuenta-selection-\${rowIndex}" class="mb-2">
+                <label class="x-small fw-bold text-muted mb-1 d-block ms-2">Origen de Fondos (Caja/Banco)</label>
+                <select name="pagos_diferenciados[\${rowIndex}][finanza_cuenta_id]" class="form-select form-select-sm border-0 shadow-none bg-white rounded-pill">
+                    <option value="">-- Seleccionar Cuenta --</option>
+                    @foreach($cuentas as $acc)
+                        <option value="{{ $acc->id }}">{{ $acc->nombre }} (\${{ number_format($acc->saldo_actual, 2) }})</option>
+                    @endforeach
                 </select>
             </div>
             <div id="cheque-selection-${rowIndex}" style="display:none;" class="mb-2">
@@ -651,9 +671,13 @@
     function toggleChequeInput(select, idx) {
         const chequeDiv = document.getElementById(`cheque-selection-${idx}`);
         const chequeraDiv = document.getElementById(`chequera-selection-${idx}`);
+        const cuentaDiv = document.getElementById(`cuenta-selection-${idx}`);
         
         chequeDiv.style.display = select.value === 'cheque_tercero' ? 'block' : 'none';
         chequeraDiv.style.display = select.value === 'cheque_propio' ? 'block' : 'none';
+        
+        // Cuentas de fondos (no aplica para cheques, ya que el cheque es el fondo en sí o se emite desde chequera)
+        cuentaDiv.style.display = (select.value !== 'cheque_tercero' && select.value !== 'cheque_propio') ? 'block' : 'none';
     }
 
     // --- Toggle número manual para E-Check ---

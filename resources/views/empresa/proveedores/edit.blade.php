@@ -82,11 +82,11 @@
 
 </div>
 
-@section('css')
+@push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-@endsection
+@endpush
 
-@section('js')
+@push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     let map, marker;
@@ -119,6 +119,9 @@
             marker.setLatLng(e.latlng);
             updateInputs(e.latlng.lat, e.latlng.lng);
         });
+
+        // Forzar renderizado correcto
+        setTimeout(() => { map.invalidateSize(); }, 500);
     }
 
     function updateInputs(lat, lng) {
@@ -152,5 +155,5 @@
 
     document.addEventListener('DOMContentLoaded', initMap);
 </script>
-@endsection
+@endpush
 @endsection

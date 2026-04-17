@@ -111,10 +111,13 @@ class SupplierAccountController extends Controller
             ->where('activo', true)
             ->get();
 
+        // Cuentas de tesorería para pagos
+        $cuentas = \App\Models\FinanzaCuenta::where('empresa_id', $empresaId)->where('activo', true)->get();
+            
         return view('empresa.proveedores.cta_cte', compact(
             'supplier', 'movimientos', 'saldo', 'deudas', 'aging', 
             'totalCompras', 'totalPagado', 'ultimasOP', 'creditosAFavorDisponible',
-            'cheques', 'chequeras'
+            'cheques', 'chequeras', 'cuentas'
         ));
     }
 

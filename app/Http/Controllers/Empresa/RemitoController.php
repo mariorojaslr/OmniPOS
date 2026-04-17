@@ -14,6 +14,30 @@ use Illuminate\Support\Facades\Auth;
 class RemitoController extends Controller
 {
     /**
+     * 📋 Listado centralizado de Remitos
+     */
+    public function index(Request $request)
+    {
+        $empresaId = Auth::user()->empresa_id;
+
+        $q = Remito::where('empresa_id', $empresaId)
+            ->with(['cliente', 'user', 'venta'])
+            ->orderByDesc('created_at');
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $q->where(function($query) use ($s) {
+                $query->where('numero_remito', 'like', "%$s%")
+                      ->orWhereHas('cliente', fn($c) => $c->where('name', 'like', "%$s%"));
+            });
+        }
+
+        $remitos = $q->paginate(15);
+
+        return view('empresa.remitos.index', compact('remitos'));
+    }
+
+    /**
      * 🚚 Formulario para generar una entrega parcial (Remito)
      */
     public function create(Venta $venta)
