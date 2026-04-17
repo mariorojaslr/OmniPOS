@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('empresas', function (Blueprint $table) {
-            $table->string('provincia')->nullable()->after('provincia_fiscal'); // Ajuste si existe o al final
             if (!Schema::hasColumn('empresas', 'provincia')) {
+                // Usamos razon_social como referencia segura
                 $table->string('provincia')->nullable()->after('razon_social');
             }
         });
