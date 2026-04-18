@@ -126,6 +126,10 @@ class POSController extends Controller
             ->orderBy('nombre')
             ->get();
 
+        $posMode = true;
+        $empresa = $user->empresa;
+        $logo    = $empresa->config->logo_url ?? asset('images/logo-placeholder.png');
+
         return view('empresa.pos.index', compact(
             'productsData',
             'clientesData',
