@@ -34,6 +34,9 @@ class VentaController extends Controller
             ->get()
             ->values(); // Asegura un array secuencial para JS
 
+        // Pre-llenado desde conversión de Presupuesto a Factura
+        $prefill = session()->pull('prefill_factura', null);
+
         // Cuentas de tesorería activas
         $cuentas = \App\Models\FinanzaCuenta::where('empresa_id', $empresaId)
             ->where('activo', 1)

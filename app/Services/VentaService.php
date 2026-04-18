@@ -64,7 +64,7 @@ class VentaService
         |--------------------------------------------------------------------------
         */
 
-        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago, $montoEntrega, $pagosDiferenciados) {
+        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago, $montoEntrega, $pagosDiferenciados, $finanza_cuenta_id) {
 
             // Re-obtener empresa con bloqueo para asegurar número correlativo único
             $empresaActual = \App\Models\Empresa::where('id', $user->empresa_id)->lockForUpdate()->first();
