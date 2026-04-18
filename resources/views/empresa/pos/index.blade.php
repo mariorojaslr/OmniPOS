@@ -136,13 +136,22 @@ Clientes
 </div>
 
 <div class="mb-3">
-<label>Método de pago</label>
-<select id="metodoPago" class="form-select">
-<option value="efectivo">Efectivo</option>
-<option value="tarjeta">Tarjeta</option>
-<option value="transferencia">Transferencia</option>
-<option value="qr">QR</option>
-</select>
+    <label class="form-label"><strong>Método de pago</strong></label>
+    <select id="metodoPago" class="form-select mb-2">
+        <option value="efectivo">Efectivo</option>
+        <option value="tarjeta">Tarjeta</option>
+        <option value="transferencia">Transferencia</option>
+        <option value="qr">QR</option>
+    </select>
+    
+    <div id="cuentaDestinoBox">
+        <label class="form-label small text-primary fw-bold">Destino de los fondos (Caja/Banco/Billetera)</label>
+        <select id="finanza_cuenta_id" class="form-select border-primary border-opacity-50">
+            @foreach($cuentas as $cta)
+                <option value="{{ $cta->id }}">{{ $cta->nombre }} ({{ ucfirst($cta->tipo) }})</option>
+            @endforeach
+        </select>
+    </div>
 </div>
 
 <div class="mb-3">
@@ -675,8 +684,16 @@ function setEntregaTotal() {
     });
 }
 
-
 /* ================= COBRAR ACCIONES ================= */
+
+// Lógica para mostrar/ocultar selector de cuenta según tipo de venta
+document.getElementById('tipoVentaCliente').onchange = (e) => {
+    const isCC = e.target.value === 'cuenta_corriente';
+    const box = document.getElementById('cuentaDestinoBox');
+    if (box) {
+        box.style.display = isCC ? 'none' : 'block';
+    }
+};
 
 async function procesarVenta(imprimir = false) {
     if(!Object.keys(cart).length){
@@ -684,43 +701,46 @@ async function procesarVenta(imprimir = false) {
         return;
     }
 
-    const total = parseFloat(document.getElementById('modalTotal').innerText) || 0;
+    const total = parseFloat(document.getElementById('total').innerText) || 0;
     const pagado = evaluarExpresion(document.getElementById('montoPagado').value);
 
     // Permitir pagos menores si es cuenta corriente
     const tipoVenta = document.getElementById('tipoVentaCliente').value;
     if(tipoVenta === 'contado' && pagado < total){
-        alert('Pago insuficiente para venta al contado');
+        alert('Pago insuficiente para venta al contado (Saldo: ' + (total-pagado) + ')');
         return;
     }
 
     let clienteID = document.getElementById('cliente_id').value;
-
     if(!clienteID && consumidorFinal){
         clienteID = consumidorFinal.id;
     }
 
     const items = Object.values(cart).map(p => ({
         product_id: p.id,
-        cantidad: p.qty
+        cantidad: p.qty,
+        variant_id: p.variant_id || null
     }));
 
     try {
+        const payload = {
+            items: items,
+            cliente_id: clienteID,
+            tipo_venta_cliente: tipoVenta,
+            metodo_pago: document.getElementById('metodoPago').value,
+            finanza_cuenta_id: document.getElementById('finanza_cuenta_id').value,
+            tipo_comprobante: document.querySelector('input[name="tipoComprobante"]:checked').value,
+            hacer_remito: document.getElementById('hacerRemito').checked,
+            items_entregar: getItemsEntregar()
+        };
+
         const response = await fetch("{{ route('empresa.pos.checkout') }}", {
             method:'POST',
             headers:{
                 'Content-Type':'application/json',
                 'X-CSRF-TOKEN':'{{ csrf_token() }}'
             },
-            body:JSON.stringify({
-                items:items,
-                cliente_id:clienteID,
-                tipo_venta_cliente:document.getElementById('tipoVentaCliente') ? document.getElementById('tipoVentaCliente').value : 'contado',
-                metodo_pago:document.getElementById('metodoPago').value,
-                tipo_comprobante: document.querySelector('input[name="tipoComprobante"]:checked').value,
-                hacer_remito: document.getElementById('hacerRemito').checked,
-                items_entregar: getItemsEntregar()
-            })
+            body:JSON.stringify(payload)
         });
 
         const data = await response.json();
@@ -730,9 +750,10 @@ async function procesarVenta(imprimir = false) {
             return;
         }
 
-        // SI SE GENERÓ REMITO -> ABRIR PDF EN NUEVA PESTAÑA (Solo si NO es venta AFIP o si se marcó explícitamente)
-        if(data.remito_id && !data.es_afip) {
-            window.open("{{ url('empresa/remitos') }}/" + data.remito_id + "/pdf", '_blank');
+        // CONTROL DE IMPRESIÓN DE REMITO
+        // Solo se abre si el usuario quiere imprimir (botón azul) y si se generó un remito (marcó el swtich)
+        if(imprimir && data.remito_id) {
+             window.open("{{ url('empresa/remitos') }}/" + data.remito_id + "/pdf", '_blank');
         }
 
         modalCobrar.hide();
@@ -742,49 +763,56 @@ async function procesarVenta(imprimir = false) {
                 window.open("{{ url('empresa/ventas') }}/" + data.venta_id + "/pdf", '_blank');
             } else {
                 let ticket = `
-                MULTIPOS
+                {{ $empresa->nombre_comercial }}
                 ---------------------------
                 Venta #${data.venta_id}
+                Fecha: ${new Date().toLocaleString()}
                 
                 `;
 
                 Object.values(cart).forEach(p=>{
                     ticket += `${p.name}\n`;
-                    ticket += `${p.qty} x $${p.price}\n`;
+                    ticket += `${p.qty} x $${p.price.toFixed(2)}\n`;
                     ticket += `$${(p.qty*p.price).toFixed(2)}\n\n`;
                 });
 
                 ticket += `
                 ---------------------------
-                TOTAL: $${data.total}
+                TOTAL: $${parseFloat(data.total).toFixed(2)}
                 
                 Gracias por su compra
                 `;
 
                 const w = window.open('', 'PRINT', 'height=600,width=350');
-                w.document.write('<pre>'+ticket+'</pre>');
+                w.document.write('<pre style="font-family:monospace; font-size:12px;">'+ticket+'</pre>');
                 w.document.close();
                 w.focus();
-                w.print();
-                w.close();
+                setTimeout(() => { w.print(); w.close(); }, 700);
             }
         }
 
-        /* LIMPIAR POS */
+        /* LIMPIAR POS Y RESETEAR INTERFAZ */
         cart={};
         renderCart();
 
-        const flash=document.getElementById('ventaFlash');
-        flash.style.display='block';
-        setTimeout(()=>flash.style.display='none', 1500);
+        const flash = document.getElementById('ventaFlash');
+        flash.style.display = 'block';
+        setTimeout(() => flash.style.display = 'none', 2000);
 
-        document.getElementById('montoPagado').value='';
-        document.getElementById('cliente_id').value='';
-        document.getElementById('clienteNombre').innerText='CONSUMIDOR FINAL';
-        document.getElementById('tipoVentaClienteBox').style.display='none';
+        // Resetear estado del modal
+        document.getElementById('montoPagado').value = '';
+        document.getElementById('resultadoParcial').innerText = '0';
+        document.getElementById('cliente_id').value = '';
+        document.getElementById('clienteNombre').innerText = 'CONSUMIDOR FINAL';
+        document.getElementById('tipoVentaClienteBox').style.display = 'none';
         document.getElementById('hacerRemito').checked = false;
+        document.getElementById('remitoDetails').style.display = 'none';
+        document.getElementById('vueltoBox').style.display = 'none';
+        document.getElementById('resultadoPago').innerText = 'SALDO 0';
+        document.getElementById('resultadoPago').className = 'saldo';
 
     } catch(err) {
+        console.error(err);
         alert('Error en conexión: ' + err.message);
     }
 }

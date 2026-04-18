@@ -34,10 +34,13 @@ class VentaController extends Controller
             ->get()
             ->values(); // Asegura un array secuencial para JS
 
-        // Pre-llenado desde conversión de Presupuesto a Factura
-        $prefill = session()->pull('prefill_factura', null);
+        // Cuentas de tesorería activas
+        $cuentas = \App\Models\FinanzaCuenta::where('empresa_id', $empresaId)
+            ->where('activo', 1)
+            ->orderBy('nombre')
+            ->get();
 
-        return view('empresa.ventas.manual', compact('clients', 'products', 'prefill'));
+        return view('empresa.ventas.manual', compact('clients', 'products', 'prefill', 'cuentas'));
     }
 
     /**
@@ -87,7 +90,8 @@ class VentaController extends Controller
                 $request->input('items_entregar'),
                 $request->metodo_pago ?: 'efectivo',
                 $request->input('montoEntrega'),
-                $request->input('pagosDiferenciados') ?: []
+                $request->input('pagosDiferenciados') ?: [],
+                $request->input('finanza_cuenta_id')
             );
 
             if ($request->wantsJson() || $request->ajax()) {

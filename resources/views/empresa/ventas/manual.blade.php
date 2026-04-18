@@ -107,6 +107,7 @@
                                 <th class="ps-4">Artículo / Producto</th>
                                 <th width="100" class="text-center">Stock</th>
                                 <th width="120" class="text-center">Cantidad</th>
+                                <th width="100" class="text-center bg-light text-primary">📦 Retira</th>
                                 <th width="180" class="text-end">Precio Unit. (IVA Inc.)</th>
                                 <th width="180" class="text-end pe-4">Subtotal</th>
                                 <th width="50"></th>
@@ -145,18 +146,28 @@
                     </div>
 
                     <label class="form-label fw-bold small text-muted">Condición de Pago</label>
-                    <select name="metodo_pago" id="metodoPago" class="form-select mb-3">
+                    <select name="metodo_pago" id="metodoPago" class="form-select mb-3 shadow-sm border-primary border-opacity-25">
                         <option value="efectivo">Efectivo 💵</option>
                         <option value="transferencia">Transferencia 🏦</option>
-                        <option value="cuenta_corriente">Cuenta Corriente 👤</option>
                         <option value="tarjeta">Tarjeta (Débito/Crédito) 💳</option>
+                        <option value="qr">Billetera Virtual / QR 📱</option>
+                        <option value="cuenta_corriente">Cuenta Corriente (A Cuenta) 👤</option>
                     </select>
 
-                    <div id="cajaEntregaParcial" class="mb-4 p-3 border rounded-3 bg-white shadow-sm d-none">
+                    <div id="cuentaDestinoBox" class="mb-3 p-2 border rounded-3 bg-white shadow-sm border-primary border-opacity-10">
+                        <label class="form-label fw-bold small text-primary text-uppercase" style="font-size: 0.65rem;">Destino de Fondos</label>
+                        <select name="finanza_cuenta_id" id="finanza_cuenta_id" class="form-select form-select-sm">
+                            @foreach($cuentas as $cta)
+                                <option value="{{ $cta->id }}">{{ $cta->nombre }} ({{ ucfirst($cta->tipo) }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div id="cajaEntregaParcial" class="mb-3 p-3 border rounded-3 bg-white shadow-sm d-none">
                         <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="chkEntregaParcial">
                             <label class="form-check-label fw-bold text-dark small" for="chkEntregaParcial">
-                                💸 Recibir Pago Inicial / Anticipo
+                                💸 Recibir Anticipo / Entrega
                             </label>
                         </div>
                         <div id="camposEntrega" class="d-none mt-2 pt-2 border-top">
@@ -169,25 +180,31 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <label class="small text-muted fw-bold text-uppercase mt-1">Medio de este pago</label>
+                                    <label class="small text-muted fw-bold text-uppercase mt-1">Medio de ingreso</label>
                                     <select id="metodoEntrega" class="form-select form-select-sm">
-                                        <option value="Efectivo">Efectivo</option>
-                                        <option value="Transferencia">Transferencia</option>
-                                        <option value="Tarjeta">Tarjeta</option>
+                                        <option value="Efectivo">Efectivo 💵</option>
+                                        <option value="Transferencia">Transferencia 🏦</option>
+                                        <option value="Tarjeta">Tarjeta 💳</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-4 p-3 bg-light rounded-3 border">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="hacer_remito" id="hacerRemito" checked>
+                    <div class="mb-3 p-3 bg-light rounded-3 border">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" name="hacer_remito" id="hacerRemito">
                             <label class="form-check-label fw-bold small" for="hacerRemito">
                                 📦 Generar Remito / Entrega
                             </label>
                         </div>
-                        <small class="text-muted d-block mt-1" style="font-size: 0.7rem;">Si se desmarca, la mercadería quedará "En Guarda" para entrega posterior.</small>
+                        
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="imprimirAlFinal" checked>
+                            <label class="form-check-label fw-bold small" for="imprimirAlFinal text-primary">
+                                🖨️ Abrir Impresión al guardar
+                            </label>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-success btn-confirm w-100 py-3 fw-bold fs-5 shadow rounded-3">
@@ -254,12 +271,15 @@ $(document).ready(function() {
         });
     });
 
-    // Lógica visual para la cuenta corriente
+    // Lógica visual para la cuenta corriente y tesorería
     $('#metodoPago').on('change', function() {
-        if ($(this).val() === 'cuenta_corriente') {
+        const val = $(this).val();
+        if (val === 'cuenta_corriente') {
             $('#cajaEntregaParcial').removeClass('d-none');
+            $('#cuentaDestinoBox').addClass('d-none');
         } else {
             $('#cajaEntregaParcial').addClass('d-none');
+            $('#cuentaDestinoBox').removeClass('d-none');
             $('#chkEntregaParcial').prop('checked', false).trigger('change');
         }
     });
@@ -336,6 +356,7 @@ function agregarFila(prodId = null, qty = 1, price = null, variantId = null) {
         </td>
         <td class="text-center fw-bold stk-disp text-muted">-</td>
         <td><input type="number" name="items[${idx}][quantity]" class="form-control qty-in text-center" value="${qty}" step="0.01"></td>
+        <td><input type="number" name="items[${idx}][quantity_delivery]" class="form-control del-in text-center border-primary border-opacity-25" value="${qty}" step="0.01" title="Cuanto retira ahora"></td>
         <td><input type="number" name="items[${idx}][price]" class="form-control prc-in text-end fw-bold text-primary" value="${price || ''}" step="0.01"></td>
         <td class="text-end pe-4 fw-bold sub-disp">$ 0,00</td>
         <td class="text-center"><button type="button" class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove(); recalcularTotales();"><i class="bi bi-trash3 fs-5"></i></button></td>
@@ -396,6 +417,9 @@ function agregarFila(prodId = null, qty = 1, price = null, variantId = null) {
     });
 
     $(tr).find('input').on('input', recalcularTotales);
+    $(tr).find('.qty-in').on('input', function() {
+        $(tr).find('.del-in').val($(this).val());
+    });
     recalcularTotales();
     idx++;
 }
@@ -425,16 +449,30 @@ document.getElementById('formVentaManual').onsubmit = async function(e) {
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>PROCESANDO...';
 
     let items = [];
+    let itemsEntregados = [];
+    const hacerRemito = document.getElementById('hacerRemito').checked;
+
     document.querySelectorAll("#tablaVentaManual tbody tr").forEach((tr) => {
         const prodId = tr.querySelector(".prod-sel").value;
         const variantId = tr.querySelector(".var-sel") ? tr.querySelector(".var-sel").value : null;
+        const qty = tr.querySelector(".qty-in").value;
+        const qtyDel = tr.querySelector(".del-in").value;
+
         if(prodId) {
             items.push({
                 product_id: prodId,
                 variant_id: variantId,
-                quantity: tr.querySelector(".qty-in").value,
+                quantity: qty,
                 price: tr.querySelector(".prc-in").value
             });
+
+            if (hacerRemito) {
+                itemsEntregados.push({
+                    id: prodId,
+                    variant_id: variantId,
+                    quantity_delivery: qtyDel
+                });
+            }
         }
     });
 
@@ -447,7 +485,9 @@ document.getElementById('formVentaManual').onsubmit = async function(e) {
     const formData = new FormData(this);
     const data = Object.fromEntries(formData);
     data.items = items;
-    data.hacer_remito = document.getElementById('hacerRemito').checked;
+    data.hacer_remito = hacerRemito;
+    data.items_entregar = itemsEntregados;
+    data.finanza_cuenta_id = document.getElementById('finanza_cuenta_id').value;
 
     // Agregar parcialidad si está activa
     if ($('#metodoPago').val() === 'cuenta_corriente' && $('#chkEntregaParcial').is(':checked')) {
@@ -475,7 +515,21 @@ document.getElementById('formVentaManual').onsubmit = async function(e) {
         const res = await response.json();
         if(!response.ok) throw new Error(res.error || 'Error desconocido al registrar venta');
 
-        window.location.href = "{{ route('empresa.ventas.index') }}?success=" + encodeURIComponent(res.message);
+        const imprimir = document.getElementById('imprimirAlFinal').checked;
+
+        if (imprimir) {
+            // Abrir Factura
+            window.open("{{ url('empresa/ventas') }}/" + res.venta_id + "/pdf", '_blank');
+            // Abrir Remito si existe
+            if (res.remito_id) {
+                window.open("{{ url('empresa/remitos') }}/" + res.remito_id + "/pdf", '_blank');
+            }
+        }
+
+        setTimeout(() => {
+            window.location.href = "{{ route('empresa.ventas.index') }}?success=" + encodeURIComponent(res.message);
+        }, 1000);
+
     } catch (err) {
         alert(err.message); 
         btn.disabled = false; 

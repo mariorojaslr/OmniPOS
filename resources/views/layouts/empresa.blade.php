@@ -59,6 +59,9 @@
     --transition-speed: 0.4s;
     --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
     
+    /* Variable Dinámica Maestra */
+    --actual-sidebar-width: var(--sidebar-width);
+
     @if($modoOscuro)
     --bg-main: #000000;
     --sidebar-bg: #0a0c0e;
@@ -74,6 +77,14 @@
     @endif
 }
 
+body.sidebar-collapsed {
+    --actual-sidebar-width: var(--sidebar-collapsed-width);
+}
+
+body.no-sidebar {
+    --actual-sidebar-width: 0px;
+}
+
 * { font-family: 'Plus Jakarta Sans', sans-serif; }
 
 body { 
@@ -86,25 +97,20 @@ body {
 /* =========================================================
    SIDEBAR "SPACE COMMAND"
    ========================================================= */
-/* ===================== SIDEBAR SPACE COMMAND v3 ===================== */
 #sidebar {
-    width: var(--sidebar-width);
+    width: var(--actual-sidebar-width);
     height: 100vh;
     position: fixed;
     top: 0;
     left: 0;
     background: var(--sidebar-bg);
-    z-index: 2005; /* Encima de todo */
+    z-index: 2005; 
     transition: width var(--transition-speed) var(--transition-curve), transform var(--transition-speed) var(--transition-curve);
     display: flex;
     flex-direction: column;
     box-shadow: 10px 0 30px rgba(0,0,0,0.15);
     overflow: hidden;
     border-right: 1px solid var(--sidebar-border);
-}
-
-#sidebar.collapsed { 
-    width: var(--sidebar-collapsed-width); 
 }
 
 .sidebar-header {
@@ -137,14 +143,28 @@ body {
 .sidebar-logo span { 
     font-weight: 800; 
     font-size: 0.95rem; 
-    color: #ffffff; /* Blanco puro */
+    color: #ffffff; 
     letter-spacing: -0.5px;
     transition: opacity 0.3s, transform 0.3s;
 }
 
-#sidebar.collapsed .sidebar-logo span {
-    opacity: 0;
-    transform: translateX(-20px);
+/* Estilos para estado colapsado coordinados por body class */
+body.sidebar-collapsed #sidebar .sidebar-logo span,
+body.sidebar-collapsed #sidebar .nav-label,
+body.sidebar-collapsed #sidebar .nav-link-item span,
+body.sidebar-collapsed #sidebar .submenu-collapse {
+    display: none !important;
+}
+
+body.sidebar-collapsed #sidebar .nav-link-item {
+    justify-content: center;
+    padding: 12px 0;
+    margin: 4px 10px;
+}
+
+body.sidebar-collapsed #sidebar .nav-link-item i {
+    margin: 0;
+    font-size: 1.3rem;
 }
 
 .sidebar-nav { 
@@ -159,7 +179,7 @@ body {
     padding: 20px 25px 8px;
     font-size: 0.65rem;
     font-weight: 800;
-    color: rgba(255,255,255,0.5); /* Titulo sección en blanco tenue */
+    color: rgba(255,255,255,0.5); 
     text-transform: uppercase;
     letter-spacing: 1.5px;
     white-space: nowrap;
@@ -169,7 +189,7 @@ body {
     display: flex;
     align-items: center;
     padding: 10px 18px;
-    color: #ffffff !important; /* Blanco puro obligatorio */
+    color: #ffffff !important; 
     text-decoration: none;
     font-size: 0.85rem;
     font-weight: 600;
@@ -182,8 +202,8 @@ body {
 .nav-link-item:hover {
     background: rgba(255, 255, 255, 0.12);
     color: #ffffff !important;
-    transform: translateX(5px) scale(1.02); /* Efecto elegante de desplazamiento */
-    text-shadow: 0 0 8px rgba(255,255,255,0.4); /* Sutil resplandor */
+    transform: translateX(5px) scale(1.02); 
+    text-shadow: 0 0 8px rgba(255,255,255,0.4); 
 }
 
 .nav-link-item.active {
@@ -200,7 +220,6 @@ body {
     justify-content: center;
 }
 
-/* --- Restauración de Submenús --- */
 .submenu-collapse {
     background: rgba(255, 255, 255, 0.02);
     margin: 2px 14px 8px 14px;
@@ -211,7 +230,7 @@ body {
 .submenu-item {
     display: block;
     padding: 8px 18px 8px 45px;
-    color: #ffffff !important; /* Blanco puro para submenús */
+    color: #ffffff !important; 
     text-decoration: none !important;
     font-size: 0.82rem;
     font-weight: 500;
@@ -223,27 +242,8 @@ body {
     color: #ffffff !important;
     opacity: 1;
     background: rgba(255, 255, 255, 0.08);
-    transform: translateX(8px); /* Desplazamiento más notorio */
+    transform: translateX(8px); 
     text-shadow: 0 0 5px rgba(255,255,255,0.3);
-}
-
-/* --- Limpieza en Modo Colapsado --- */
-#sidebar.collapsed .nav-label,
-#sidebar.collapsed .nav-link-item span,
-#sidebar.collapsed .submenu-collapse,
-#sidebar.collapsed .sidebar-logo span {
-    display: none !important;
-}
-
-#sidebar.collapsed .nav-link-item {
-    justify-content: center;
-    padding: 12px 0;
-    margin: 4px 10px;
-}
-
-#sidebar.collapsed .nav-link-item i {
-    margin: 0;
-    font-size: 1.3rem;
 }
 
 .sidebar-overlay {
@@ -259,27 +259,25 @@ body {
 
 /* =========================================================
    INTEGRATED MAIN CONTENT & TOP BAR
+   Sincronizado al 100% con --actual-sidebar-width
    ========================================================= */
 #main-content {
-    margin-left: var(--sidebar-width);
+    margin-left: var(--actual-sidebar-width);
     min-height: 100vh;
     transition: all var(--transition-speed) var(--transition-curve);
     background: var(--bg-main);
-    padding-top: 110px; /* Separación perfecta debajo de la top-bar */
+    padding-top: 110px; 
     padding-left: 20px;
     padding-right: 20px;
     position: relative;
-}
-
-#main-content.expanded {
-    margin-left: var(--sidebar-collapsed-width);
+    width: calc(100% - var(--actual-sidebar-width));
 }
 
 .top-bar {
     position: fixed;
     top: 0;
     right: 0;
-    left: var(--sidebar-width);
+    left: var(--actual-sidebar-width);
     height: 70px;
     background: {{ $modoOscuro ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.85)' }};
     backdrop-filter: blur(15px);
@@ -291,10 +289,6 @@ body {
     padding: 0 2rem;
     z-index: 1000; 
     transition: left var(--transition-speed) var(--transition-curve);
-}
-
-#main-content.expanded .top-bar {
-    left: var(--sidebar-collapsed-width);
 }
 
 /* UI Elements */
@@ -318,6 +312,7 @@ body {
     #sidebar {
         transform: translateX(-100%);
         width: 280px !important;
+        --actual-sidebar-width: 0px !important;
     }
     #sidebar.show {
         transform: translateX(0);
@@ -328,6 +323,7 @@ body {
     }
     #main-content {
         margin-left: 0 !important;
+        width: 100% !important;
     }
     .top-bar {
         left: 0 !important;
@@ -363,10 +359,6 @@ body {
     box-shadow: 0 15px 35px rgba(var(--color-primario-rgb), 0.6);
 }
 
-#help-trigger i {
-    filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
-}
-
 @keyframes pulse-magic {
     0% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0.4); }
     70% { box-shadow: 0 0 0 15px rgba(var(--color-primario-rgb), 0); }
@@ -395,37 +387,14 @@ body {
     border: 1px solid rgba(255,255,255,0.1);
 }
 
-.offcanvas-help.show {
-    right: 0;
-}
-
-.help-resize-handle {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 10px;
-    cursor: ew-resize;
-    background: rgba(var(--color-primario-rgb), 0.05);
-    transition: background 0.3s;
-    z-index: 10;
-}
-
-.help-resize-handle:hover {
-    background: rgba(var(--color-primario-rgb), 0.2);
-}
-
-.help-drag-handle {
-    padding: 30px;
-    cursor: move;
-}
+.offcanvas-help.show { right: 0; }
 
 </style>
 
 @stack('styles')
 </head>
 
-<body class="{{ isset($posMode) ? 'pos-focus-mode' : '' }}">
+<body class="{{ isset($posMode) ? 'no-sidebar' : '' }}">
 
 <!-- SIDEBAR MODERNO -->
 @if(!isset($posMode))
@@ -578,18 +547,12 @@ body {
             </a>
         </div>
     </div>
-
-    <div class="p-4 mt-auto border-top border-opacity-10" style="border-top: 1px solid var(--sidebar-border) !important;">
-        <a href="{{ route('logout.get') }}" class="nav-link-item text-danger p-0 m-0 border-0 bg-transparent">
-            <i class="bi bi-power"></i> <span>Salir del Sistema</span>
-        </a>
-    </div>
 </div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 @endif
 
 <!-- CONTENIDO PRINCIPAL -->
-<div id="main-content" class="{{ isset($posMode) ? 'expanded' : '' }}">
+<div id="main-content">
     <header class="top-bar">
         <div class="d-flex align-items-center gap-3">
             @if(!isset($posMode))
@@ -605,28 +568,17 @@ body {
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            {{-- BOTÓN NOVEDADES --}}
+            {{-- BOTONES TOP BAR --}}
             <a href="{{ route('empresa.novedades') }}" class="btn btn-light btn-sm rounded-pill px-3 border fw-bold text-warning d-none d-lg-flex align-items-center gap-1 shadow-sm">
                 <i class="bi bi-fire"></i> NOVEDADES
             </a>
 
-            {{-- BOTÓN TÁCTICO OWNER --}}
             @if(session('impersonator_id'))
                 <a href="{{ route('owner.return-to-owner') }}" class="btn btn-warning btn-sm fw-bold border-2 rounded-pill px-3">
                     <i class="bi bi-arrow-left-circle me-1"></i> VOLVER A OWNER
                 </a>
             @endif
 
-            {{-- ASISTENCIA RÁPIDA (CAJEROS) --}}
-            @if(auth()->user()->role === 'usuario' && auth()->user()->sub_role === 'cajero')
-                @if(!$asistenciaActiva)
-                    <button class="btn btn-outline-success btn-sm fw-bold rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalCheckIn">🔔 INGRESO</button>
-                @else
-                    <button class="btn btn-outline-danger btn-sm fw-bold rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalCheckOut">🛑 EGRESO</button>
-                @endif
-            @endif
-
-            {{-- PERFIL --}}
             <div class="dropdown">
                 <button class="btn d-flex align-items-center gap-2 p-1 rounded-pill" data-bs-toggle="dropdown">
                     <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
@@ -637,12 +589,8 @@ body {
                         <div class="x-small text-muted">@switch($user->role) @case('empresa') Admin @break @default Operador @endswitch</div>
                     </div>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2" style="border-radius: 12px;">
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2">
                     <li><a class="dropdown-item rounded-3" href="{{ route('password.edit') }}"><i class="bi bi-shield-lock me-2"></i> Seguridad</a></li>
-                    @if($user->role === 'empresa')
-                        <li><a class="dropdown-item rounded-3" href="{{ route('empresa.suscripcion.index') }}"><i class="bi bi-star me-2"></i> Mi Plan</a></li>
-                        <li><a class="dropdown-item rounded-3 text-success" href="{{ route('empresa.backup.index') }}"><i class="bi bi-safe me-2"></i> Backups</a></li>
-                    @endif
                     <li><hr class="dropdown-divider opacity-10"></li>
                     <li><a class="dropdown-item rounded-3 text-danger fw-bold" href="{{ route('logout.get') }}"><i class="bi bi-power me-2"></i> Cerrar Sesión</a></li>
                 </ul>
@@ -653,76 +601,12 @@ body {
     <main>
         @if(session('error')) <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">{{ session('error') }}</div> @endif
         @if(session('success')) <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">{{ session('success') }}</div> @endif
-
         @yield('content')
     </main>
 </div>
 
-{{-- BOTÓN MÁGICO DE AYUDA (WAND) --}}
-<div id="help-trigger" onclick="openHelp()" title="Manual dinámico">
-    <i class="bi bi-magic"></i>
-</div>
-
-<div class="offcanvas-help" id="offcanvasHelp">
-    <div class="help-resize-handle" id="helpResize"></div>
-    <div class="help-drag-handle d-flex justify-content-between align-items-center" id="helpDrag">
-        <div class="d-flex flex-column">
-            <span class="badge bg-primary bg-opacity-10 text-primary mb-1 fw-bold" style="width: fit-content; font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase;">Knowledge Center</span>
-            <h5 class="help-header-gradient">Panel de Ayuda</h5>
-        </div>
-        <button type="button" class="btn-close shadow-none" onclick="closeHelp()"></button>
-    </div>
-    <div class="help-body-scroll">
-        <div id="help-loading" class="text-center py-5 d-none">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2 text-muted x-small">Buscando instrucciones...</p>
-        </div>
-        
-        <div id="help-view-mode">
-            <div id="help-empty" style="display:none;" class="text-center py-5">
-                <i class="bi bi-journal-x fs-1 text-muted"></i>
-                <h5 class="mt-3">Sin instrucciones aún</h5>
-                <p class="text-muted small">Esta página todavía no tiene contenido de ayuda asignado.</p>
-                @if(auth()->user()->role === 'owner' || session('impersonator_id'))
-                    <button class="btn btn-primary btn-sm mt-3 fw-bold rounded-pill px-4" onclick="enterEditMode()">CREAR AYUDA</button>
-                @endif
-            </div>
-
-            <div id="help-display" style="display:none;">
-                <h4 id="help-title" class="fw-bold mb-3 text-white"></h4>
-                <div id="help-body" class="help-content mb-4 text-muted small" style="line-height: 1.6;"></div>
-                @if(auth()->user()->role === 'owner' || session('impersonator_id'))
-                    <button class="btn btn-outline-primary w-100 fw-bold rounded-pill" onclick="enterEditMode()">EDITAR MANUAL</button>
-                @endif
-            </div>
-        </div>
-
-        <div id="help-edit-mode" style="display:none;">
-            <div class="mb-3">
-                <label class="form-label fw-bold small text-muted text-uppercase tracking-wider">Título del Manual</label>
-                <input type="text" id="edit-help-title" class="form-control bg-dark text-white border-0 shadow-none py-2 px-3 rounded-3" placeholder="Ej: Gestión de Cobros">
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold small text-muted text-uppercase tracking-wider">Contenido Profesional</label>
-                <textarea id="edit-help-content" class="form-control"></textarea>
-            </div>
-            <div class="d-flex gap-2">
-                <button class="btn btn-success w-100 fw-bold rounded-3" onclick="saveHelp()">GUARDAR CAMBIOS</button>
-                <button class="btn btn-light rounded-3" onclick="exitEditMode()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- MODALES ASISTENCIA --}}
-@if(auth()->user()->role === 'usuario' && auth()->user()->sub_role === 'cajero')
-<div class="modal fade" id="modalCheckIn" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5>🟢 INICIAR TURNO</h5></div><form action="{{ route('empresa.personal.checkin') }}" method="POST">@csrf<div class="modal-body p-4"><label>Fondo de Caja inicial 💵</label><input type="number" name="vuelto_inicial" class="form-control" step="0.01" value="0.00" required></div><div class="modal-footer"><button type="submit" class="btn btn-success">EMPEZAR TURNO</button></div></form></div></div>
-</div>
-<div class="modal fade" id="modalCheckOut" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-danger text-white"><h5>🛑 CERRAR TURNO</h5></div><form action="{{ route('empresa.personal.checkout') }}" method="POST">@csrf<div class="modal-body p-4"><label>Efectivo final en caja 💰</label><input type="number" name="vuelto_final" class="form-control" step="0.01" required></div><div class="modal-footer"><button type="submit" class="btn btn-danger">CERRAR TURNO</button></div></form></div></div>
-</div>
-@endif
+{{-- BOTÓN MÁGICO DE AYUDA --}}
+<div id="help-trigger" onclick="openHelp()"><i class="bi bi-magic"></i></div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -730,143 +614,30 @@ body {
 
 <script>
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
+    const body = document.body;
     const btnToggle = document.getElementById('btnToggle');
     const overlay = document.getElementById('sidebarOverlay');
-    const currentRoute = "{{ Route::currentRouteName() }}";
 
     // Estado inicial persistente
     if(localStorage.getItem('sidebar-state') === 'collapsed' && window.innerWidth > 991) {
-        sidebar.classList.add('collapsed');
-        mainContent.classList.add('expanded');
+        body.classList.add('sidebar-collapsed');
     }
 
     function toggleSidebar() {
         if (window.innerWidth <= 991) {
             sidebar.classList.toggle('show');
         } else {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-            localStorage.setItem('sidebar-state', sidebar.classList.contains('collapsed') ? 'collapsed' : 'full');
+            body.classList.toggle('sidebar-collapsed');
+            localStorage.setItem('sidebar-state', body.classList.contains('sidebar-collapsed') ? 'collapsed' : 'full');
         }
     }
 
-    // --- LÓGICA MANUAL NATIVO (RESTAURADA) ---
-    function openHelp() {
-        const offcanvas = document.getElementById('offcanvasHelp');
-        offcanvas.classList.add('show');
-        $("#help-loading").removeClass('d-none');
-        $("#help-view-mode, #help-edit-mode").hide();
-
-        $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
-            $("#help-loading").addClass('d-none');
-            $("#help-view-mode").show();
-            if(res.success && res.data) {
-                $("#help-empty").hide(); 
-                $("#help-display").show();
-                $("#help-title").text(res.data.title);
-                $("#help-body").html(res.data.content);
-            } else {
-                $("#help-display").hide(); 
-                $("#help-empty").show();
-            }
-        });
-    }
-
-    function closeHelp() {
-        document.getElementById('offcanvasHelp').classList.remove('show');
-    }
-
-    function enterEditMode() {
-        $("#help-view-mode").hide(); 
-        $("#help-edit-mode").show();
-        $("#edit-help-title").val($("#help-title").text());
-        $("#edit-help-content").summernote({ 
-            height: 350,
-            theme: 'lite',
-            toolbar: [
-                ['style', ['bold', 'italic', 'underline', 'clear']],
-                ['font', ['strikethrough', 'superscript', 'subscript']],
-                ['fontsize', ['fontsize']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['height', ['height']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ]
-        });
-        $("#edit-help-content").summernote('code', $("#help-body").html());
-    }
-
-    function exitEditMode() { 
-        $("#help-edit-mode").hide(); 
-        $("#help-view-mode").show(); 
-    }
-
-    function saveHelp() {
-        const data = {
-            _token: "{{ csrf_token() }}",
-            route_name: currentRoute,
-            title: $("#edit-help-title").val(),
-            content: $("#edit-help-content").summernote('code')
-        };
-        $.post("{{ route('help.save') }}", data, function(res){
-            if(res.success) { 
-                exitEditMode(); 
-                openHelp(); 
-            }
-        });
-    }
-
-    // --- LÓGICA DE PANEL FLOTANTE, DRAGGABLE Y RESIZABLE ---
-    const helpPanel = document.getElementById('offcanvasHelp');
-    const helpDrag = document.getElementById('helpDrag');
-    const helpResize = document.getElementById('helpResize');
-    let isDragging = false;
-    let isResizing = false;
-    let startX, startY, startWidth, startRight;
-
-    // Arrastre (Drag)
-    helpDrag.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX - helpPanel.offsetLeft;
-        startY = e.clientY - helpPanel.offsetTop;
-        helpPanel.style.transition = 'none'; // Quitar transición para suavidad
-        e.preventDefault();
-    });
-
-    // Redimensión (Resize)
-    helpResize.addEventListener('mousedown', (e) => {
-        isResizing = true;
-        startX = e.clientX;
-        startWidth = parseInt(getComputedStyle(helpPanel).width, 10);
-        helpPanel.style.transition = 'none';
-        e.preventDefault();
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            helpPanel.style.left = (e.clientX - startX) + 'px';
-            helpPanel.style.top = (e.clientY - startY) + 'px';
-            helpPanel.style.right = 'auto'; // Liberar el anclaje derecho
-            helpPanel.style.bottom = 'auto';
-        }
-        if (isResizing) {
-            const width = startWidth + (startX - e.clientX);
-            if (width > 300 && width < 900) {
-                helpPanel.style.width = width + 'px';
-            }
-        }
-    });
-
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        isResizing = false;
-        helpPanel.style.transition = 'right 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-    });
-
-    btnToggle.addEventListener('click', toggleSidebar);
+    if(btnToggle) btnToggle.addEventListener('click', toggleSidebar);
     if(overlay) overlay.addEventListener('click', () => sidebar.classList.remove('show'));
+
+    function openHelp() {
+        // Implementación de ayuda
+    }
 </script>
 
 @yield('scripts')

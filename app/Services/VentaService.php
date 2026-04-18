@@ -34,7 +34,7 @@ class VentaService
     |--------------------------------------------------------------------------
     */
 
-    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo', $montoEntrega = null, $pagosDiferenciados = []): Venta
+    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo', $montoEntrega = null, $pagosDiferenciados = [], $finanzaCuentaId = null): Venta
     {
         $empresa = $user->empresa;
 
@@ -315,21 +315,55 @@ class VentaService
 
             /*
             |--------------------------------------------------------------------------
+            | IMPACTO FINANCIERO (CAJA/BANCO)
+            |--------------------------------------------------------------------------
+            | Si es venta al contado y tenemos una cuenta de finanzas, impactamos.
+            | Si es cuenta corriente, el cobro se maneja por separado (o vía registrarCobro).
+            */
+
+            if ($tipoVentaCliente === 'contado' && $finanzaCuentaId) {
+                
+                $cuenta = \App\Models\FinanzaCuenta::where('empresa_id', $empresaActual->id)
+                    ->where('id', $finanzaCuentaId)
+                    ->first();
+
+                if ($cuenta) {
+                    \App\Models\FinanzaMovimiento::create([
+                        'empresa_id'   => $empresaActual->id,
+                        'cuenta_id'    => $cuenta->id,
+                        'user_id'      => $user->id,
+                        'tipo'         => 'ingreso',
+                        'monto'        => $totalConIva,
+                        'fecha'        => now(),
+                        'concepto'     => "Venta #{$venta->numero_comprobante}",
+                        'categoria'    => 'Ventas',
+                        'reference_type' => Venta::class,
+                        'reference_id'   => $venta->id,
+                    ]);
+
+                    // Actualizar saldo de la cuenta
+                    $cuenta->increment('saldo_actual', $totalConIva);
+                }
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
             | GESTIÓN LOGÍSTICA (REMITOS)
             |--------------------------------------------------------------------------
-            | Si el usuario NO eligió "Hacer Remito" (entrega parcial), se asume
-            | que la entrega fue total y se genera el remito automático.
+            | Solo generamos remito si el usuario lo marcó explícitamente.
+            | Esto evita la queja del usuario sobre remitos automáticos no deseados.
             |--------------------------------------------------------------------------
             */
 
-            if (!$hacerRemito && !$esNC) {
-                $remito = $this->generarRemitoAutomatico($venta, $user, $empresaActual);
-                $venta->setRelation('remito_principal', $remito);
-            }
-
-            // GESTIÓN DE ENTREGA PARCIAL INMEDIATA (SI SE ESPECIFICÓ)
-            if ($hacerRemito && !empty($itemsEntregados) && !$esNC) {
-                $remito = $this->generarRemitoParcialInicial($venta, $user, $empresaActual, $itemsEntregados);
+            // SI SE MARCO EXPLÍCITAMENTE HACER REMITO (Entrega Parcial / En Guarda)
+            if ($hacerRemito && !$esNC) {
+                if (!empty($itemsEntregados)) {
+                    $remito = $this->generarRemitoParcialInicial($venta, $user, $empresaActual, $itemsEntregados);
+                } else {
+                    // Si marcó remito pero no especificó cantidades, entregamos 100% por defecto pero con documento
+                    $remito = $this->generarRemitoAutomatico($venta, $user, $empresaActual);
+                }
                 $venta->setRelation('remito_principal', $remito);
             }
 

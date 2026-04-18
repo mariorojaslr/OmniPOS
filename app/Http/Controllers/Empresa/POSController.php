@@ -121,16 +121,18 @@ class POSController extends Controller
         });
 
 
-        $posMode = true;
-        $empresa = $user->empresa;
-        $logo    = $empresa->config->logo_url ?? asset('images/logo-placeholder.png');
+        $cuentas = \App\Models\FinanzaCuenta::where('empresa_id', $empresaId)
+            ->where('activo', 1)
+            ->orderBy('nombre')
+            ->get();
 
         return view('empresa.pos.index', compact(
             'productsData',
             'clientesData',
             'posMode',
             'empresa',
-            'logo'
+            'logo',
+            'cuentas'
         ));
     }
 
@@ -208,6 +210,7 @@ class POSController extends Controller
 
 
             $metodoPago       = $request->input('metodo_pago', 'efectivo');
+            $finanzaCuentaId  = $request->input('finanza_cuenta_id');
 
             /*
             |--------------------------------------------------------------------------
@@ -223,7 +226,10 @@ class POSController extends Controller
                 $tipoComprobante,
                 $hacerRemito,
                 $itemsEntregar,
-                $metodoPago
+                $metodoPago,
+                null, // montoEntrega
+                [],   // pagosDiferenciados
+                $finanzaCuentaId
             );
 
 
