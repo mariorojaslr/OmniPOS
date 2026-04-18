@@ -34,7 +34,7 @@ class VentaService
     |--------------------------------------------------------------------------
     */
 
-    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo', $montoEntrega = null, $pagosDiferenciados = [], $finanzaCuentaId = null): Venta
+    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo', $montoEntrega = null, $pagosDiferenciados = [], $finanza_cuenta_id = null): Venta
     {
         $empresa = $user->empresa;
 
@@ -321,10 +321,10 @@ class VentaService
             | Si es cuenta corriente, el cobro se maneja por separado (o vía registrarCobro).
             */
 
-            if ($tipoVentaCliente === 'contado' && $finanzaCuentaId) {
+            if ($tipoVentaCliente === 'contado' && $finanza_cuenta_id) {
                 
                 $cuenta = \App\Models\FinanzaCuenta::where('empresa_id', $empresaActual->id)
-                    ->where('id', $finanzaCuentaId)
+                    ->where('id', $finanza_cuenta_id)
                     ->first();
 
                 if ($cuenta) {

@@ -214,7 +214,7 @@ class POSController extends Controller
 
 
             $metodoPago       = $request->input('metodo_pago', 'efectivo');
-            $finanzaCuentaId  = $request->input('finanza_cuenta_id');
+            $finanza_cuenta_id  = $request->input('finanza_cuenta_id');
 
             /*
             |--------------------------------------------------------------------------
@@ -233,7 +233,7 @@ class POSController extends Controller
                 $metodoPago,
                 null, // montoEntrega
                 [],   // pagosDiferenciados
-                $finanzaCuentaId
+                $finanza_cuenta_id
             );
 
 
