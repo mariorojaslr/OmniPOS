@@ -25,8 +25,8 @@ class AppServiceProvider extends ServiceProvider
 
         // 🛡️ BLINDAJE DE PRODUCCIÓN: 
         // Si no estamos en local, forzamos el apagado de errores técnicos
-        if (config('app.env') !== 'local') {
-            config(['app.debug' => false]);
-        }
+        // if (config('app.env') !== 'local') {
+        //    config(['app.debug' => false]);
+        // }
     }
 }
