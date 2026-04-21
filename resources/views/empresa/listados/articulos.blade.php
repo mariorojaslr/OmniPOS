@@ -50,6 +50,23 @@
                         <input class="form-check-input" type="checkbox" name="mostrar_fotos" id="mostrar_fotos" value="1" {{ request('mostrar_fotos') ? 'checked' : '' }}>
                         <label class="form-check-label small fw-bold text-primary" for="mostrar_fotos">Visualizar Fotos</label>
                     </div>
+
+                    {{-- Selector de Tamaño de Fotos --}}
+                    @if(request('mostrar_fotos'))
+                    <div class="ms-3 d-flex align-items-center gap-2 border-start ps-3">
+                        <span class="x-small fw-bold text-muted">Tamaño:</span>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <input type="radio" class="btn-check" name="foto_size" id="size_S" value="38" {{ request('foto_size') == '38' || !request('foto_size') ? 'checked' : '' }} onchange="this.form.submit()">
+                            <label class="btn btn-outline-primary" for="size_S">1cm</label>
+                            
+                            <input type="radio" class="btn-check" name="foto_size" id="size_M" value="113" {{ request('foto_size') == '113' ? 'checked' : '' }} onchange="this.form.submit()">
+                            <label class="btn btn-outline-primary" for="size_M">3cm</label>
+                            
+                            <input type="radio" class="btn-check" name="foto_size" id="size_L" value="189" {{ request('foto_size') == '189' ? 'checked' : '' }} onchange="this.form.submit()">
+                            <label class="btn btn-outline-primary" for="size_L">5cm</label>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 {{-- Botones de Acción --}}
@@ -104,12 +121,13 @@
                         </td>
                         @if(request('mostrar_fotos'))
                         <td class="text-center">
-                            <div class="rounded-3 border overflow-hidden bg-light mx-auto" style="width: 50px; height: 50px;">
+                            @php $imgSize = request('foto_size', 38); @endphp
+                            <div class="rounded-3 border overflow-hidden bg-light mx-auto" style="width: {{ $imgSize }}px; height: {{ $imgSize }}px;">
                                 @if($i->image)
                                     <img src="{{ Storage::url($i->image) }}" class="w-100 h-100 object-fit-cover" alt="">
                                 @else
                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted opacity-25">
-                                        <i class="bi bi-image"></i>
+                                        <i class="bi bi-image" style="font-size: {{ $imgSize * 0.5 }}px;"></i>
                                     </div>
                                 @endif
                             </div>
