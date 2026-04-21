@@ -266,9 +266,9 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
     min-height: 100vh;
     transition: margin-left var(--transition-speed) var(--transition-curve), width var(--transition-speed) var(--transition-curve);
     background: var(--bg-main);
-    padding-top: 100px; 
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-top: 90px; 
+    padding-left: 45px;
+    padding-right: 45px;
     position: relative;
     width: calc(100% - var(--actual-sidebar-width));
 }
@@ -279,16 +279,16 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
     right: 0;
     left: var(--actual-sidebar-width);
     height: 70px;
-    background: {{ $modoOscuro ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.95)' }};
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid {{ $modoOscuro ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }};
+    background: {{ $modoOscuro ? 'rgba(0, 0, 0, 0.92)' : 'rgba(255, 255, 255, 0.98)' }};
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-bottom: 1px solid {{ $modoOscuro ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)' }};
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2rem;
+    padding: 0 2.5rem;
     z-index: 1000; 
-    transition: left var(--transition-speed) var(--transition-curve);
+    transition: left var(--transition-speed) var(--transition-curve), width var(--transition-speed) var(--transition-curve);
 }
 
 /* UI Elements */
