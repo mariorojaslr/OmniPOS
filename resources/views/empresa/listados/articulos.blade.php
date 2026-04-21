@@ -25,7 +25,8 @@
                 {{-- Filtro por Rubro --}}
                 <div class="col-md-3">
                     <label class="x-small fw-bold text-muted mb-1">Categorías</label>
-                    <select name="rubro_id[]" class="form-select form-select-sm select2" multiple data-placeholder="Todos los rubros">
+                    <select name="rubro_id[]" class="form-select form-select-sm border-primary fw-bold" style="border-radius: 8px;">
+                        <option value="">-- TODO EL CATÁLOGO --</option>
                         @foreach($rubros as $r)
                             <option value="{{ $r->id }}" {{ is_array(request('rubro_id')) && in_array($r->id, request('rubro_id')) ? 'selected' : '' }}>
                                 {{ $r->nombre }}
