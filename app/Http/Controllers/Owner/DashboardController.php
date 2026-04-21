@@ -16,7 +16,7 @@ class DashboardController extends Controller
         try {
             $today = now()->toDateString();
             
-            // Métricas de Facturación (Global)
+            // 1. Métricas de Facturación (Global)
             $facturacionMesNum = \App\Models\Venta::whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->sum('total_con_iva');
@@ -25,47 +25,36 @@ class DashboardController extends Controller
                 ->whereYear('created_at', now()->year)
                 ->sum('amount');
 
-            // Cálculo de MRR (Ingreso Mensual Recurrente)
+            // 2. Cálculo de MRR (Ingreso Mensual Recurrente)
             $mrrNum = Empresa::where('activo', true)
                 ->join('plans', 'empresas.plan_id', '=', 'plans.id')
                 ->sum('plans.price');
 
-            // Métricas de Infraestructura
+            // 3. Métricas de Infraestructura
             $imagenesCountValue = \App\Models\ProductImage::count();
             $videosCountValue   = \App\Models\ProductVideo::count();
             
-            // Peso de la DB (en MB) - Blindaje para Producción/Hosting
+            // Peso de la DB (en MB)
             try {
                 $dbName = config('database.connections.mysql.database');
                 $dbSizeQueryResult = \DB::select('SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?', [$dbName]);
                 $dbSizeMB = round($dbSizeQueryResult[0]->size ?? 0, 2);
-            } catch (\Throwable $e) {
-                $dbSizeMB = 0; 
-            }
+            } catch (\Throwable $e) { $dbSizeMB = 0; }
 
-            $consumoGB = round(($imagenesCountValue * 0.5) / 1024, 2); // Estimado 0.5MB por foto
-            $costoStorage = $consumoGB * 0.01; // $0.01 USD por GB (Bunny.net aprox)
+            $consumoGB = round(($imagenesCountValue * 0.5) / 1024, 2); 
+            $costoStorage = $consumoGB * 0.01;
 
-            // KPIs de Salud
+            // 4. KPIs de Salud
             $saludVentas = min(round(($facturacionMesNum / 1000000) * 100), 100);
             $saludGastos = $facturacionMesNum > 0 ? round(($gastosGlobal / $facturacionMesNum) * 100) : 0;
-            $saludServer = 98; // Placeholder para monitoreo real
+            $saludServer = 98;
 
-            // Tráfico del Sistema (Desactivado temporalmente por falta de columna en DB)
-            // $traffic = \App\Models\OwnerSystemTraffic::firstOrCreate(['date' => $today]);
-            // $traffic->increment('hits');
-
-            // CRM Quick View
+            // 5. CRM Quick View
             $leadsCountValue     = User::where('status', 'prospecto')->count();
             $clientesCountValue  = \App\Models\Client::count();
             $nuevosLeads         = User::where('status', 'prospecto')->where('role', 'empresa')->latest()->limit(5)->get();
 
-            // Configuración del Sistema
-            $settings = \App\Models\SystemSetting::pluck('value', 'key')->toArray();
-            $ownerEmail = $settings['owner_email'] ?? 'admin@multipos.com';
-            $ownerWp    = $settings['owner_whatsapp'] ?? '5493510000000';
-
-            // Actividad Reciente
+            // 6. Actividad Reciente
             $channels = ['facebook', 'instagram', 'whatsapp', 'recomendado', 'publicidad'];
             $scanned_counts = CrmActivity::selectRaw('channel, count(*) as total')->groupBy('channel')->pluck('total', 'channel')->toArray();
             $hunted_counts  = User::where('status', 'prospecto')->selectRaw('lead_source, count(*) as total')->groupBy('lead_source')->pluck('total', 'lead_source')->toArray();
@@ -82,11 +71,9 @@ class DashboardController extends Controller
             $ultimosTickets = SupportTicket::with('empresa')->orderByDesc('created_at')->limit(5)->get();
             $ultimosPagos   = SuscripcionPago::with('empresa')->orderByDesc('created_at')->limit(5)->get();
 
-            $globalActivities = \App\Models\ActivityLog::with(['user', 'empresa'])
-                ->latest()
-                ->limit(10)
-                ->get();
+            $globalActivities = \App\Models\ActivityLog::with(['user', 'empresa'])->latest()->limit(10)->get();
 
+            // 7. Preparación de Data para Vista
             $data = [
                 'facturacionMes'    => number_format($facturacionMesNum, 0, ',', '.'),
                 'gastosGlobal'      => number_format($gastosGlobal, 0, ',', '.'),
@@ -108,37 +95,31 @@ class DashboardController extends Controller
                 'ultimosTickets'    => $ultimosTickets,
                 'ultimosPagos'      => $ultimosPagos,
                 'globalActivities'  => $globalActivities,
-                'ownerEmail'        => $ownerEmail,
-                'ownerWp'           => $ownerWp,
+                'ownerEmail'        => 'admin@multipos.com',
+                'ownerWp'           => '5493510000000',
                 'crmActivities'     => $agent_data,
-                'settings'          => $settings,
+                'agent_data'        => $agent_data,
+                'settings'          => [],
             ];
 
             return view('owner.dashboard', $data);
 
         } catch (\Throwable $e) {
-            return "❌ ERROR DETECTADO EN DASHBOARD: " . $e->getMessage() . " en el archivo " . $e->getFile() . " línea " . $e->getLine();
+            return "❌ ERROR DETECTADO: " . $e->getMessage() . " en " . $e->getFile() . " línea " . $e->getLine();
         }
     }
 
-    /**
-     * Actualizar configuraciones globales del SaaS
-     */
     public function updateSettings(\Illuminate\Http\Request $request)
     {
         try {
             foreach ($request->all() as $key => $value) {
                 if (in_array($key, ['afip_tutorial_video'])) {
-                    \App\Models\SystemSetting::updateOrCreate(
-                        ['key' => $key],
-                        ['value' => $value]
-                    );
+                    \App\Models\SystemSetting::updateOrCreate(['key' => $key], ['value' => $value]);
                 }
             }
-
-            return redirect()->back()->with('success', 'Ajustes globales actualizados con éxito.');
+            return redirect()->back()->with('success', 'Ajustes globales actualizados.');
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Error al actualizar ajustes: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 }
