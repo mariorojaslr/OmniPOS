@@ -72,7 +72,7 @@
                         {{-- Plan --}}
                         <td>
                             <span class="badge bg-info text-dark">
-                                {{ $empresa->plan->name ?? '-' }}
+                                {{ $empresa->plan?->name ?? '-' }}
                             </span>
                         </td>
 

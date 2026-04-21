@@ -484,8 +484,8 @@
                         </div>
                         <div class="flex-grow-1">
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-bold" style="font-size: 0.75rem; color: #fff;">{{ $log->empresa->nombre_comercial ?? 'Sistema' }}</span>
-                                <span class="status-badge" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1);">{{ $log->user->name ?? 'Admin' }}</span>
+                                <span class="fw-bold" style="font-size: 0.75rem; color: #fff;">{{ $log->empresa?->nombre_comercial ?? 'Sistema' }}</span>
+                                <span class="status-badge" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1);">{{ $log->user?->name ?? 'Admin' }}</span>
                             </div>
                             <div class="text-white-50 mt-1" style="font-size: 0.75rem;">
                                 @if(str_contains($log->description, 'venta'))
@@ -552,7 +552,7 @@
                         @endif
                         <div>
                             <div class="text-white fw-bold" style="font-size: 0.8rem;">
-                                {{ $ticket->empresa->nombre_comercial ?? 'GENERAL' }}
+                                {{ $ticket->empresa?->nombre_comercial ?? 'GENERAL' }}
                             </div>
                             <div class="text-muted" style="font-size: 0.7rem;">
                                 {{ Str::limit($ticket->subject, 48) }}
@@ -586,7 +586,7 @@
                         <div>
                             <div class="text-white fw-bold" style="font-size: 0.85rem;">{{ $emp->nombre_comercial }}</div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="status-badge" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.15);">{{ $emp->plan->nombre ?? 'BÁSICO' }}</span>
+                                <span class="status-badge" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.15);">{{ $emp->plan?->name ?? $emp->plan?->nombre ?? 'BÁSICO' }}</span>
                                 <span class="text-muted" style="font-size: 0.6rem;">{{ $emp->created_at->format('d/m/Y') }}</span>
                                 @if($emp->activo)
                                 <span class="live-dot" style="width: 5px; height: 5px; margin: 0;"></span>

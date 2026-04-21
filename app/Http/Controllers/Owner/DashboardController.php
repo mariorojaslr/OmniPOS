@@ -31,9 +31,14 @@ class DashboardController extends Controller
         $imagenesCountValue = \App\Models\ProductImage::count();
         $videosCountValue   = \App\Models\ProductVideo::count();
         
-        // Peso de la DB (en MB)
-        $dbSizeQueryResult = \DB::select('SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?', [env('DB_DATABASE')]);
-        $dbSizeMB = round($dbSizeQueryResult[0]->size ?? 0, 2);
+        // Peso de la DB (en MB) - Blindaje para Producción/Hosting
+        try {
+            $dbName = config('database.connections.mysql.database');
+            $dbSizeQueryResult = \DB::select('SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?', [$dbName]);
+            $dbSizeMB = round($dbSizeQueryResult[0]->size ?? 0, 2);
+        } catch (\Exception $e) {
+            $dbSizeMB = 0; 
+        }
 
         $consumoGB = round(($imagenesCountValue * 0.5) / 1024, 2); // Estimado 0.5MB por foto
         $costoStorage = $consumoGB * 0.01; // $0.01 USD por GB (Bunny.net aprox)

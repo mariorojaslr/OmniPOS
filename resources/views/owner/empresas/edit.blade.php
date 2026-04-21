@@ -88,12 +88,12 @@
                                 <span class="input-group-text">$</span>
                                 <input type="number" name="custom_price" class="form-control" value="{{ $empresa->custom_price }}" placeholder="Ej: 40000">
                             </div>
-                            <small class="text-muted">Vacío = Usa precio de plan (${{ number_format($empresa->plan->price ?? 0, 0, ',', '.') }})</small>
+                            <small class="text-muted">Vacío = Usa precio de plan (${{ number_format($empresa->plan?->price ?? 0, 0, ',', '.') }})</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Límite de Artículos</label>
                             <input type="number" name="custom_max_products" class="form-control" value="{{ $empresa->custom_max_products }}" placeholder="Ej: 1000">
-                            <small class="text-muted">Vacío = Usa límite de plan ({{ $empresa->plan->max_products ?? '∞' }})</small>
+                            <small class="text-muted">Vacío = Usa límite de plan ({{ $empresa->plan?->max_products ?? '∞' }})</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Fin de Período de Gracia</label>
