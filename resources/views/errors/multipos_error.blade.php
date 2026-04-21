@@ -202,7 +202,7 @@
         
         <p>@yield('message')</p>
 
-        <a href="{{ url('/') }}" class="btn-safety">
+        <a href="{{ session('impersonator_id') ? route('owner.return-to-owner') : url('/') }}" class="btn-safety">
             <i class="bi bi-shield-check"></i> Volver a Zona Segura
         </a>
 
