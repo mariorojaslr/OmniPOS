@@ -49,10 +49,12 @@
                     {{-- Selector de Tamaño de Fotos (DROPDOWN COMPACTO) --}}
                     @if(request('mostrar_fotos'))
                     <div class="border-start ps-3 ms-2">
-                        <select name="foto_size" class="form-select form-select-sm py-0" style="font-size: 0.7rem; height: 28px;" onchange="this.form.submit()">
-                            <option value="38" {{ request('foto_size') == '38' || !request('foto_size') ? 'selected' : '' }}>Mini (1cm)</option>
-                            <option value="113" {{ request('foto_size') == '113' ? 'selected' : '' }}>Catálogo (3cm)</option>
-                            <option value="189" {{ request('foto_size') == '189' ? 'selected' : '' }}>Grande (5cm)</option>
+                        <select name="foto_size" class="form-select form-select-sm py-0 fw-bold border-primary" style="font-size: 0.75rem; height: 32px;" onchange="this.form.submit()">
+                            <option value="38" {{ request('foto_size') == '38' || !request('foto_size') ? 'selected' : '' }}>1 cm</option>
+                            <option value="76" {{ request('foto_size') == '76' ? 'selected' : '' }}>2 cm</option>
+                            <option value="113" {{ request('foto_size') == '113' ? 'selected' : '' }}>3 cm</option>
+                            <option value="151" {{ request('foto_size') == '151' ? 'selected' : '' }}>4 cm</option>
+                            <option value="189" {{ request('foto_size') == '189' ? 'selected' : '' }}>5 cm</option>
                         </select>
                     </div>
                     @endif
