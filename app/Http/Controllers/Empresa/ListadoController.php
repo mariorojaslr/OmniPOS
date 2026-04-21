@@ -24,7 +24,10 @@ class ListadoController extends Controller
 
         // Filtro: Rubro
         if ($request->filled('rubro_id')) {
-            $query->whereIn('rubro_id', (array)$request->rubro_id);
+            $rubroIds = array_filter((array)$request->rubro_id);
+            if (!empty($rubroIds)) {
+                $query->whereIn('rubro_id', $rubroIds);
+            }
         }
 
         // Filtro: Rango Alfabético (Desde - Hasta)
