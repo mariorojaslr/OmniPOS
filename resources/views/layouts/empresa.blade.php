@@ -537,6 +537,10 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
             <i class="bi bi-bar-chart-line"></i> <span>Reportes Pro</span>
         </a>
 
+        <a href="{{ route('empresa.backup.index') }}" class="nav-link-item {{ Route::is('empresa.backup.*') ? 'active' : '' }}">
+            <i class="bi bi-shield-lock-fill"></i> <span>Bóveda (Backup)</span>
+        </a>
+
         <a href="{{ route('empresa.configuracion.index') }}" class="nav-link-item {{ Route::is('empresa.configuracion.*') ? 'active' : '' }}">
             <i class="bi bi-gear-fill"></i> <span>Configuración App</span>
         </a>

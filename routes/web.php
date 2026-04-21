@@ -308,6 +308,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         // BÓVEDA DE RESGUARDO (BACKUPS)
         Route::get('/backup', [App\Http\Controllers\Empresa\BackupController::class, 'index'])->name('backup.index');
+        Route::get('/backup/download', [App\Http\Controllers\Empresa\BackupController::class, 'download'])->name('backup.download');
 
         Route::resource('soporte', SupportTicketController::class)->names('soporte');
         Route::post('soporte/upload-media', [SupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');

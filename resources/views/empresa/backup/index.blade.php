@@ -214,6 +214,13 @@
         document.getElementById('step-3').style.display = 'none';
         
         document.getElementById('step-' + step).style.display = 'block';
+
+        if(step === 3) {
+            document.getElementById('finalActionBtn').onclick = function() {
+                window.location.href = "{{ route('empresa.backup.download') }}?type=" + currentType;
+                wizardModal.hide();
+            };
+        }
     }
 
 </script>
