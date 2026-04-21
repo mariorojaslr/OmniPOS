@@ -23,10 +23,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
 
-        // 🛡️ BLINDAJE DE PRODUCCIÓN: 
-        // Si no estamos en local, forzamos el apagado de errores técnicos
-        // if (config('app.env') !== 'local') {
-        //    config(['app.debug' => false]);
-        // }
+        // 🛠️ MODO RESCATE: Forzamos Debug en TRUE para ver qué está pasando
+        config(['app.debug' => true]);
     }
 }
