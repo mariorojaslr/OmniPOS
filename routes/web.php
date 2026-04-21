@@ -72,12 +72,16 @@ Route::middleware('auth')->group(function() {
     })->name('dashboard');
 
     // SALIDA DE MIMETIZACIÓN (ÚNICA Y GLOBAL)
-    Route::get('/return-to-owner', function(){
-        if(session('impersonator_id')){
-            $owner = \App\Models\User::find(session('impersonator_id'));
-            Auth::login($owner);
-            session()->forget('impersonator_id');
-            return redirect()->route('owner.dashboard')->with('success', 'Has vuelto a tu sesión de Propietario');
+    Route::get('/return-to-owner', function(Request $request){
+        if(session()->has('impersonator_id')){
+            $ownerId = session()->pull('impersonator_id');
+            $owner = \App\Models\User::find($ownerId);
+            
+            if($owner) {
+                Auth::login($owner);
+                $request->session()->regenerate();
+                return redirect()->route('owner.dashboard')->with('success', 'Has vuelto a tu sesión de Propietario');
+            }
         }
         return redirect('/');
     })->name('owner.return-to-owner');
@@ -189,17 +193,7 @@ Route::middleware(['auth'])->group(function () {
 
 /* |-------------------------------------------------------------------------- | SALIR DEL MODO "ENTRAR COMO USUARIO" (IMPERSONATE) |-------------------------------------------------------------------------- */
 Route::middleware('auth')->get('/impersonate/leave', function (Request $request) {
-    if (session()->has('impersonate_by')) {
-        $ownerId = session()->pull('impersonate_by');
-        $owner = \App\Models\User::find($ownerId);
-
-        if ($owner) {
-            Auth::login($owner);
-            $request->session()->regenerate();
-            return redirect()->route('owner.dashboard')->with('success', 'Has vuelto a tu cuenta principal de Owner.');
-        }
-    }
-    return redirect()->route('dashboard');
+    return redirect()->route('owner.return-to-owner');
 })->name('impersonate.leave');
 
 
