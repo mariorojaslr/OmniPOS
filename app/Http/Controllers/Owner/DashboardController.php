@@ -51,9 +51,9 @@ class DashboardController extends Controller
             $saludGastos = $facturacionMesNum > 0 ? round(($gastosGlobal / $facturacionMesNum) * 100) : 0;
             $saludServer = 98; // Placeholder para monitoreo real
 
-            // Tráfico del Sistema
-            $traffic = \App\Models\OwnerSystemTraffic::firstOrCreate(['date' => $today]);
-            $traffic->increment('hits');
+            // Tráfico del Sistema (Desactivado temporalmente por falta de columna en DB)
+            // $traffic = \App\Models\OwnerSystemTraffic::firstOrCreate(['date' => $today]);
+            // $traffic->increment('hits');
 
             // CRM Quick View
             $leadsCountValue     = User::where('status', 'prospecto')->count();
