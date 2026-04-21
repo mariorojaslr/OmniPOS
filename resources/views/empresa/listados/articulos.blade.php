@@ -7,27 +7,25 @@
 
     {{-- PANEL DE FILTROS (No se imprime) --}}
     <div class="card border-0 shadow-sm rounded-4 mb-4 no-print" style="background: #ffffff;">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
-                <i class="bi bi-sliders text-primary"></i> Configurar mi Listado
-            </h5>
+        <div class="card-body p-3">
+            <h6 class="fw-bold mb-3 d-flex align-items-center gap-2 border-bottom pb-2">
+                <i class="bi bi-sliders text-primary"></i> Centro de Comando de Listados
+            </h6>
             
-            <form action="{{ route('empresa.listados.articulos') }}" method="GET" class="row g-3">
+            <form action="{{ route('empresa.listados.articulos') }}" method="GET" class="row g-2 align-items-end">
                 {{-- Filtro por Letra --}}
-                <div class="col-md-3">
-                    <label class="small fw-bold text-muted mb-1">Rango Alfabético (Nombre)</label>
-                    <div class="input-group">
-                        <input type="text" name="desde" value="{{ request('desde') }}" class="form-control" placeholder="Desde..." maxlength="10">
-                        <span class="input-group-text bg-light border-0">-</span>
-                        <input type="text" name="hasta" value="{{ request('hasta') }}" class="form-control" placeholder="Hasta..." maxlength="10">
+                <div class="col-md-2">
+                    <label class="x-small fw-bold text-muted mb-1">Rango A-Z</label>
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="desde" value="{{ request('desde') }}" class="form-control" placeholder="Desde" maxlength="10">
+                        <input type="text" name="hasta" value="{{ request('hasta') }}" class="form-control" placeholder="Hasta" maxlength="10">
                     </div>
-                    <div class="x-small text-muted mt-1">Sugerencia: "A" hasta "M"</div>
                 </div>
 
                 {{-- Filtro por Rubro --}}
                 <div class="col-md-3">
-                    <label class="small fw-bold text-muted mb-1">Rubros / Categorías</label>
-                    <select name="rubro_id[]" class="form-select select2" multiple>
+                    <label class="x-small fw-bold text-muted mb-1">Categorías</label>
+                    <select name="rubro_id[]" class="form-select form-select-sm select2" multiple data-placeholder="Todos los rubros">
                         @foreach($rubros as $r)
                             <option value="{{ $r->id }}" {{ is_array(request('rubro_id')) && in_array($r->id, request('rubro_id')) ? 'selected' : '' }}>
                                 {{ $r->nombre }}
@@ -37,63 +35,52 @@
                 </div>
 
                 {{-- Opciones Checkbox --}}
-                <div class="col-md-4 d-flex align-items-end gap-3 pb-2">
-                    <div class="form-check form-switch">
+                <div class="col-md-4 d-flex align-items-center gap-3 pb-1">
+                    <div class="form-check form-switch cursor-pointer">
                         <input class="form-check-input" type="checkbox" name="solo_stock" id="solo_stock" value="1" {{ request('solo_stock') ? 'checked' : '' }}>
-                        <label class="form-check-label small fw-bold" for="solo_stock">Solo con Stock</label>
+                        <label class="form-check-label x-small fw-bold" for="solo_stock">Con Stock</label>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="solo_con_foto" id="solo_con_foto" value="1" {{ request('solo_con_foto') ? 'checked' : '' }}>
-                        <label class="form-check-label small fw-bold" for="solo_con_foto">Solo con Foto</label>
-                    </div>
-                    <div class="form-check form-switch">
+                    <div class="form-check form-switch cursor-pointer">
                         <input class="form-check-input" type="checkbox" name="mostrar_fotos" id="mostrar_fotos" value="1" {{ request('mostrar_fotos') ? 'checked' : '' }}>
-                        <label class="form-check-label small fw-bold text-primary" for="mostrar_fotos">Visualizar Fotos</label>
+                        <label class="form-check-label x-small fw-bold text-primary" for="mostrar_fotos"><i class="bi bi-image me-1"></i>Fotos</label>
                     </div>
 
-                    {{-- Selector de Tamaño de Fotos --}}
+                    {{-- Selector de Tamaño de Fotos (DROPDOWN COMPACTO) --}}
                     @if(request('mostrar_fotos'))
-                    <div class="ms-3 d-flex align-items-center gap-2 border-start ps-3">
-                        <span class="x-small fw-bold text-muted">Tamaño:</span>
-                        <div class="btn-group btn-group-sm" role="group">
-                            <input type="radio" class="btn-check" name="foto_size" id="size_S" value="38" {{ request('foto_size') == '38' || !request('foto_size') ? 'checked' : '' }} onchange="this.form.submit()">
-                            <label class="btn btn-outline-primary" for="size_S">1cm</label>
-                            
-                            <input type="radio" class="btn-check" name="foto_size" id="size_M" value="113" {{ request('foto_size') == '113' ? 'checked' : '' }} onchange="this.form.submit()">
-                            <label class="btn btn-outline-primary" for="size_M">3cm</label>
-                            
-                            <input type="radio" class="btn-check" name="foto_size" id="size_L" value="189" {{ request('foto_size') == '189' ? 'checked' : '' }} onchange="this.form.submit()">
-                            <label class="btn btn-outline-primary" for="size_L">5cm</label>
-                        </div>
+                    <div class="border-start ps-3 ms-2">
+                        <select name="foto_size" class="form-select form-select-sm py-0" style="font-size: 0.7rem; height: 28px;" onchange="this.form.submit()">
+                            <option value="38" {{ request('foto_size') == '38' || !request('foto_size') ? 'selected' : '' }}>Mini (1cm)</option>
+                            <option value="113" {{ request('foto_size') == '113' ? 'selected' : '' }}>Catálogo (3cm)</option>
+                            <option value="189" {{ request('foto_size') == '189' ? 'selected' : '' }}>Grande (5cm)</option>
+                        </select>
                     </div>
                     @endif
                 </div>
 
                 {{-- Botones de Acción --}}
-                <div class="col-md-2 d-flex flex-column gap-2">
-                    <button type="submit" class="btn btn-primary rounded-pill fw-bold w-100 h-100">
-                        <i class="bi bi-funnel-fill me-1"></i> APLICAR
+                <div class="col-md-3 d-flex gap-2 justify-content-end">
+                    <a href="{{ route('empresa.listados.articulos') }}" class="btn btn-light btn-sm rounded-pill px-3 fw-bold border">
+                        RESET
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="bi bi-funnel-fill me-1"></i> APLICAR FILTROS
                     </button>
-                    <a href="{{ route('empresa.listados.articulos') }}" class="btn btn-outline-secondary btn-sm rounded-pill">Resetear</a>
                 </div>
             </form>
         </div>
     </div>
 
     {{-- CABECERA DEL LISTADO --}}
-    <div class="d-flex justify-content-between align-items-end mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h2 class="fw-bold text-dark mb-0 d-none d-print-block">MultIPOS - Catálogo de Artículos</h2>
-            <h4 class="fw-bold text-dark mb-0 no-print">Previsualización del Listado</h4>
-            <p class="text-muted small mb-0">
-                Resumen de filtros: 
-                <span class="badge bg-light text-dark border">{{ $items->count() }} Productos encontrados</span>
-                @if(request('desde') || request('hasta')) <span class="badge bg-primary">Rango: {{ request('desde') ?? 'Inic.' }} -> {{ request('hasta') ?? 'Fin' }}</span> @endif
-                @if(request('solo_stock')) <span class="badge bg-success">Solo con Stock</span> @endif
+            <h5 class="fw-bold text-dark mb-0 no-print"><i class="bi bi-layout-text-sidebar-reverse me-2"></i>Previsualización del Listado</h5>
+            <p class="text-muted x-small mb-0 opacity-75">
+                {{ $items->count() }} Artículos encontrados • Generado el {{ date('d/m/Y H:i') }}
             </p>
         </div>
-        <button onclick="window.print()" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm no-print mb-1">
-            <i class="bi bi-printer-fill me-2"></i> IMPRIMIR AHORA
+        <button onclick="window.print()" class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm no-print">
+            <i class="bi bi-printer-fill me-2"></i> IMPRIMIR
         </button>
     </div>
 
@@ -105,29 +92,33 @@
                     <tr class="x-small fw-bold text-muted text-uppercase ls-1" style="height: 45px;">
                         <th class="ps-4 py-2" style="width: 40px;">#</th>
                         @if(request('mostrar_fotos'))
-                        <th class="py-2 text-center" style="width: 80px;">Foto</th>
+                        <th class="py-2 text-center" style="width: 100px;">Foto</th>
                         @endif
                         <th class="py-2">Producto / Descripción</th>
                         <th class="py-2">Rubro</th>
-                        <th class="text-end py-2">Precio de Venta</th>
-                        <th class="text-end py-2 pe-4" style="width: 120px;">Disponibilidad</th>
+                        <th class="text-end py-2">Precio Venta</th>
+                        <th class="text-end py-2 pe-4" style="width: 130px;">Stock</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($items as $i)
                     <tr>
                         <td class="ps-4 border-end-0">
-                            <div class="check-box border rounded d-inline-block" style="width: 15px; height: 15px;"></div>
+                            <div class="check-box border rounded d-inline-block" style="width: 14px; height: 14px;"></div>
                         </td>
                         @if(request('mostrar_fotos'))
                         <td class="text-center">
-                            @php $imgSize = request('foto_size', 38); @endphp
+                            @php 
+                                $imgSize = request('foto_size', 38); 
+                                // Usamos el fallback de local-media para asegurar que carguen en Hostinger
+                                $imgPath = $i->image ? route('local.media', ['path' => $i->image]) : null;
+                            @endphp
                             <div class="rounded-3 border overflow-hidden bg-light mx-auto" style="width: {{ $imgSize }}px; height: {{ $imgSize }}px;">
                                 @if($i->image)
-                                    <img src="{{ Storage::url($i->image) }}" class="w-100 h-100 object-fit-cover" alt="">
+                                    <img src="{{ $imgPath }}" class="w-100 h-100 object-fit-cover" alt="">
                                 @else
                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted opacity-25">
-                                        <i class="bi bi-image" style="font-size: {{ $imgSize * 0.5 }}px;"></i>
+                                        <i class="bi bi-image" style="font-size: {{ $imgSize * 0.4 }}px;"></i>
                                     </div>
                                 @endif
                             </div>
