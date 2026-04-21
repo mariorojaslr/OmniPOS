@@ -16,7 +16,12 @@ class DashboardController extends Controller
         try {
             $today = now()->toDateString();
             
-            // 1. Métricas de Facturación (Global)
+            // 1. Estadísticas Base
+            $empresasCount    = Empresa::count();
+            $empresasActivas  = Empresa::where('activo', true)->count();
+            $usuariosCount    = User::whereNotNull('empresa_id')->count();
+
+            // 2. Métricas de Facturación (Global)
             $facturacionMesNum = \App\Models\Venta::whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->sum('total_con_iva');
@@ -25,36 +30,35 @@ class DashboardController extends Controller
                 ->whereYear('created_at', now()->year)
                 ->sum('amount');
 
-            // 2. Cálculo de MRR (Ingreso Mensual Recurrente)
+            // 3. Cálculo de MRR (Ingreso Mensual Recurrente)
             $mrrNum = Empresa::where('activo', true)
                 ->join('plans', 'empresas.plan_id', '=', 'plans.id')
                 ->sum('plans.price');
 
-            // 3. Métricas de Infraestructura
+            // 4. Métricas de Infraestructura
             $imagenesCountValue = \App\Models\ProductImage::count();
             $videosCountValue   = \App\Models\ProductVideo::count();
             
-            // Peso de la DB (en MB)
+            $dbSizeMB = 0;
             try {
                 $dbName = config('database.connections.mysql.database');
                 $dbSizeQueryResult = \DB::select('SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?', [$dbName]);
                 $dbSizeMB = round($dbSizeQueryResult[0]->size ?? 0, 2);
-            } catch (\Throwable $e) { $dbSizeMB = 0; }
+            } catch (\Throwable $e) { }
 
             $consumoGB = round(($imagenesCountValue * 0.5) / 1024, 2); 
             $costoStorage = $consumoGB * 0.01;
 
-            // 4. KPIs de Salud
+            // 5. KPIs de Salud
             $saludVentas = min(round(($facturacionMesNum / 1000000) * 100), 100);
             $saludGastos = $facturacionMesNum > 0 ? round(($gastosGlobal / $facturacionMesNum) * 100) : 0;
-            $saludServer = 98;
 
-            // 5. CRM Quick View
+            // 6. CRM Quick View
             $leadsCountValue     = User::where('status', 'prospecto')->count();
             $clientesCountValue  = \App\Models\Client::count();
             $nuevosLeads         = User::where('status', 'prospecto')->where('role', 'empresa')->latest()->limit(5)->get();
 
-            // 6. Actividad Reciente
+            // 7. Actividad Reciente
             $channels = ['facebook', 'instagram', 'whatsapp', 'recomendado', 'publicidad'];
             $scanned_counts = CrmActivity::selectRaw('channel, count(*) as total')->groupBy('channel')->pluck('total', 'channel')->toArray();
             $hunted_counts  = User::where('status', 'prospecto')->selectRaw('lead_source, count(*) as total')->groupBy('lead_source')->pluck('total', 'lead_source')->toArray();
@@ -70,11 +74,13 @@ class DashboardController extends Controller
 
             $ultimosTickets = SupportTicket::with('empresa')->orderByDesc('created_at')->limit(5)->get();
             $ultimosPagos   = SuscripcionPago::with('empresa')->orderByDesc('created_at')->limit(5)->get();
-
             $globalActivities = \App\Models\ActivityLog::with(['user', 'empresa'])->latest()->limit(10)->get();
 
-            // 7. Preparación de Data para Vista
+            // 8. Preparación de Data para Vista
             $data = [
+                'empresasCount'     => $empresasCount,
+                'empresasActivas'   => $empresasActivas,
+                'usuariosCount'     => $usuariosCount,
                 'facturacionMes'    => number_format($facturacionMesNum, 0, ',', '.'),
                 'gastosGlobal'      => number_format($gastosGlobal, 0, ',', '.'),
                 'mrr'               => number_format($mrrNum, 0, ',', '.'),
@@ -89,7 +95,7 @@ class DashboardController extends Controller
                 'streamingMensual'  => ($videosCountValue * 1.5) . ' hs', 
                 'saludVentas'       => $saludVentas ?: 1, 
                 'saludGastos'       => $saludGastos ?: 1,
-                'saludServer'       => $saludServer,
+                'saludServer'       => 98,
                 'saludGlobal'       => 95,
                 'ultimasEmpresas'   => Empresa::with('plan')->orderByDesc('created_at')->limit(5)->get(),
                 'ultimosTickets'    => $ultimosTickets,
