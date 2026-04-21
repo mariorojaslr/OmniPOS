@@ -39,7 +39,7 @@ class DashboardController extends Controller
                 $dbName = config('database.connections.mysql.database');
                 $dbSizeQueryResult = \DB::select('SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?', [$dbName]);
                 $dbSizeMB = round($dbSizeQueryResult[0]->size ?? 0, 2);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $dbSizeMB = 0; 
             }
 
@@ -79,8 +79,8 @@ class DashboardController extends Controller
                 ];
             }
 
-            $ultimosTickets = \App\Models\SupportTicket::with('empresa')->orderByDesc('created_at')->limit(5)->get();
-            $ultimosPagos   = \App\Models\SuscripcionPago::with('empresa')->orderByDesc('created_at')->limit(5)->get();
+            $ultimosTickets = SupportTicket::with('empresa')->orderByDesc('created_at')->limit(5)->get();
+            $ultimosPagos   = SuscripcionPago::with('empresa')->orderByDesc('created_at')->limit(5)->get();
 
             $globalActivities = \App\Models\ActivityLog::with(['user', 'empresa'])
                 ->latest()
@@ -103,6 +103,7 @@ class DashboardController extends Controller
                 'saludVentas'       => $saludVentas ?: 1, 
                 'saludGastos'       => $saludGastos ?: 1,
                 'saludServer'       => $saludServer,
+                'saludGlobal'       => 95,
                 'ultimasEmpresas'   => Empresa::with('plan')->orderByDesc('created_at')->limit(5)->get(),
                 'ultimosTickets'    => $ultimosTickets,
                 'ultimosPagos'      => $ultimosPagos,
@@ -110,16 +111,14 @@ class DashboardController extends Controller
                 'ownerEmail'        => $ownerEmail,
                 'ownerWp'           => $ownerWp,
                 'crmActivities'     => $agent_data,
+                'settings'          => $settings,
             ];
-            'saludGlobal'       => 95, 
-            'ultimasEmpresas'   => Empresa::with('plan')->orderByDesc('created_at')->limit(5)->get(),
-            'settings'          => $settings,
-            'crmActivities'     => $crmActivities,
-            'nuevosLeads'       => $nuevosLeads,
-            'ultimosTickets'    => $ultimosTickets,
-            'ultimosPagos'      => $ultimosPagos,
-            'agent_data'        => $agent_data
-        ]);
+
+            return view('owner.dashboard', $data);
+
+        } catch (\Throwable $e) {
+            return "❌ ERROR DETECTADO EN DASHBOARD: " . $e->getMessage() . " en el archivo " . $e->getFile() . " línea " . $e->getLine();
+        }
     }
 
     /**
@@ -138,7 +137,7 @@ class DashboardController extends Controller
             }
 
             return redirect()->back()->with('success', 'Ajustes globales actualizados con éxito.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Error al actualizar ajustes: ' . $e->getMessage());
         }
     }
