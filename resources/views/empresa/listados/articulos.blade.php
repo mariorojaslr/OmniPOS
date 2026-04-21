@@ -111,11 +111,11 @@
                         <td class="text-center">
                             @php 
                                 $imgSize = request('foto_size', 38); 
-                                // Usamos el fallback de local-media para asegurar que carguen en Hostinger
-                                $imgPath = $i->image ? route('local.media', ['path' => $i->image]) : null;
+                                $firstImg = $i->images->where('is_main', true)->first() ?? $i->images->first();
+                                $imgPath = $firstImg ? route('local.media', ['path' => $firstImg->path]) : null;
                             @endphp
                             <div class="rounded-3 border overflow-hidden bg-light mx-auto" style="width: {{ $imgSize }}px; height: {{ $imgSize }}px;">
-                                @if($i->image)
+                                @if($firstImg)
                                     <img src="{{ $imgPath }}" class="w-100 h-100 object-fit-cover" alt="">
                                 @else
                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted opacity-25">

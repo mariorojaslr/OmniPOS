@@ -20,7 +20,7 @@ class ListadoController extends Controller
         
         $query = Product::where('empresa_id', $empresaId)
             ->where('active', true)
-            ->with('rubro');
+            ->with(['rubro', 'unit', 'images']);
 
         // Filtro: Rubro
         if ($request->filled('rubro_id')) {
@@ -46,7 +46,7 @@ class ListadoController extends Controller
 
         // Filtro: Con Foto
         if ($request->has('solo_con_foto')) {
-            $query->whereNotNull('image')->where('image', '!=', '');
+            $query->whereHas('images');
         }
 
         $items = $query->orderBy('name')->get();
