@@ -126,10 +126,9 @@ class DashboardController extends Controller
                 'recentActivities' => $recentActivities,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return "❌ ERROR EN CONTROLADOR DE EMPRESA: " . $e->getMessage() . " en " . $e->getFile() . " línea " . $e->getLine();
         }
-    }
     }
 
     public function novedades()
