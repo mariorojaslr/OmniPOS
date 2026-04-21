@@ -103,20 +103,25 @@ class EmpresaUserController extends Controller
      */
     public function impersonate($empresaId, User $usuario)
     {
-        $empresa = Empresa::findOrFail($empresaId);
+        try {
+            $empresa = Empresa::findOrFail($empresaId);
+            
+            // Verificar que el usuario pertenezca a la empresa por seguridad
+            abort_if($usuario->empresa_id !== $empresa->id, 403);
 
-        // Verificar que el usuario pertenezca a la empresa por seguridad
-        abort_if($usuario->empresa_id !== $empresa->id, 403);
+            $ownerId = auth()->id();
 
-        $ownerId = auth()->id();
+            // Guardar el ID del owner ANTES del login para asegurar persistencia
+            session(['impersonator_id' => $ownerId]);
 
-        // Iniciar sesión silenciosamente como el usuario de la empresa
-        Auth::login($usuario);
+            // Iniciar sesión silenciosamente
+            Auth::login($usuario);
 
-        // Guardar la sesión original del owner DESPUÉS de loguear para evitar pérdida por regeneración
-        session(['impersonator_id' => $ownerId]);
+            return redirect()->route('empresa.dashboard')
+                ->with('info', "Mimetización activa: Estás viendo la plataforma como {$usuario->name}");
 
-        return redirect()->route('empresa.dashboard')
-            ->with('info', "Mimetización activa: Estás viendo la plataforma como {$usuario->name} de {$empresa->nombre_comercial}");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al intentar entrar como usuario: ' . $e->getMessage());
+        }
     }
 }
