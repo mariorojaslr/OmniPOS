@@ -112,10 +112,7 @@
                             @php 
                                 $imgSize = request('foto_size', 38); 
                                 $firstImg = $i->images->where('is_main', true)->first() ?? $i->images->first();
-                                
-                                // LÓGICA DE BUNNY.NET: Las fotos NO están en local
-                                $bunnyBaseUrl = config('filesystems.disks.bunny_storage.url', 'https://gentepiola.b-cdn.net');
-                                $imgPath = $firstImg ? rtrim($bunnyBaseUrl, '/') . '/' . ltrim($firstImg->path, '/') : null;
+                                $imgPath = $firstImg ? $firstImg->url : null;
                             @endphp
                             <div class="rounded-3 border overflow-hidden bg-light mx-auto" style="width: {{ $imgSize }}px; height: {{ $imgSize }}px;">
                                 @if($firstImg)
