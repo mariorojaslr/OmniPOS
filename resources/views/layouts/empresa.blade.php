@@ -264,11 +264,11 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
 #main-content {
     margin-left: var(--actual-sidebar-width);
     min-height: 100vh;
-    transition: all var(--transition-speed) var(--transition-curve);
+    transition: margin-left var(--transition-speed) var(--transition-curve), width var(--transition-speed) var(--transition-curve);
     background: var(--bg-main);
-    padding-top: 110px; 
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-top: 100px; 
+    padding-left: 30px;
+    padding-right: 30px;
     position: relative;
     width: calc(100% - var(--actual-sidebar-width));
 }
@@ -279,9 +279,9 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
     right: 0;
     left: var(--actual-sidebar-width);
     height: 70px;
-    background: {{ $modoOscuro ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.85)' }};
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    background: {{ $modoOscuro ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.95)' }};
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid {{ $modoOscuro ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }};
     display: flex;
     align-items: center;
@@ -424,7 +424,7 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
             <i class="bi bi-tags"></i> <span>🏷️ RUBROS / CATEGORÍAS</span>
         </a>
 
-        <a href="{{ route('catalog.index', ['empresa' => auth()->user()->empresa->slug]) }}" target="_blank" class="nav-link-item">
+        <a href="{{ (auth()->user()?->empresa?->slug) ? route('catalog.index', ['empresa' => auth()->user()->empresa->slug]) : '#' }}" target="_blank" class="nav-link-item">
             <i class="bi bi-shop"></i> <span>🛒 MI CATÁLOGO (Store)</span>
         </a>
 
