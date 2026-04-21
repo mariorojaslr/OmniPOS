@@ -518,6 +518,7 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
         <div class="collapse submenu-collapse {{ Request::is('empresa/reportes*') ? 'show' : '' }}" id="sm_reportes">
             <a href="{{ route('empresa.reportes.panel') }}" class="submenu-item fw-bold">📊 Dashboard Global</a>
             <a href="{{ route('empresa.reportes.caja_diaria') }}" class="submenu-item">💵 Caja Diaria / Auditoría</a>
+            <a href="{{ route('empresa.listados.articulos') }}" class="submenu-item">📑 Listados Maestros</a>
             <a href="{{ route('empresa.gps.index') }}" class="submenu-item text-warning fw-bold"><i class="bi bi-geo-alt-fill me-1"></i> Utilidades GPS (Beta)</a>
             <a href="{{ route('empresa.clientes.index', ['has_debt' => 1]) }}" class="submenu-item">📉 Morosidad Clientes</a>
         </div>

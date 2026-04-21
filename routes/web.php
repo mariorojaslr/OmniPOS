@@ -43,6 +43,7 @@ use App\Http\Controllers\Empresa\InventoryController;
 use App\Http\Controllers\Empresa\BulkPriceUpdateController;
 use App\Http\Controllers\Empresa\ExpenseController;
 use App\Http\Controllers\Empresa\ExpenseCategoryController;
+use App\Http\Controllers\Empresa\ListadoController;
 
 // ================= AUTH =================
 use App\Http\Controllers\Auth\PasswordController;
@@ -309,6 +310,9 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         // BÓVEDA DE RESGUARDO (BACKUPS)
         Route::get('/backup', [App\Http\Controllers\Empresa\BackupController::class, 'index'])->name('backup.index');
         Route::get('/backup/download', [App\Http\Controllers\Empresa\BackupController::class, 'download'])->name('backup.download');
+
+        // LISTADOS MAESTROS
+        Route::get('/listados/articulos', [ListadoController::class, 'articulos'])->name('listados.articulos');
 
         Route::resource('soporte', SupportTicketController::class)->names('soporte');
         Route::post('soporte/upload-media', [SupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');
