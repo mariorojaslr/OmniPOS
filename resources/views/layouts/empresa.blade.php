@@ -369,25 +369,46 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
     animation: pulse-magic 2s infinite;
 }
 
-/* OFFCANVAS DE AYUDA PREMIUM */
+/* AYUDA INTELIGENTE FLOTANTE */
 .offcanvas-help {
     position: fixed;
-    top: 20px;
-    right: -450px;
-    bottom: 20px;
-    width: 400px;
-    background: {{ $modoOscuro ? 'rgba(10, 12, 14, 0.95)' : 'rgba(255, 255, 255, 0.98)' }};
-    backdrop-filter: blur(20px);
-    z-index: 10000;
-    border-radius: 25px 0 0 25px;
-    box-shadow: -20px 0 50px rgba(0,0,0,0.3);
-    transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
+    top: 50px;
+    right: 30px;
+    width: 450px;
+    height: 600px;
+    background: {{ $modoOscuro ? 'rgba(10, 12, 14, 0.85)' : 'rgba(255, 255, 255, 0.9)' }};
+    backdrop-filter: blur(15px);
+    z-index: 11000;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    display: none; /* Se activa con JS */
     flex-direction: column;
     border: 1px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    resize: both;
 }
 
-.offcanvas-help.show { right: 0; }
+.offcanvas-help.active { display: flex; }
+
+.help-header {
+    background: {{ $modoOscuro ? 'rgba(212, 175, 55, 0.2)' : 'rgba(212, 175, 55, 0.1)' }};
+    padding: 15px 20px;
+    cursor: move;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.help-content-area {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.help-footer {
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.05);
+    font-size: 0.7rem;
+    color: gray;
+}
 
 </style>
 
@@ -609,6 +630,45 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
         @yield('content')
     </main>
 </div>
+<!-- PANEL INTEGRADO DE AYUDA (AYUDA 360) -->
+<div class="offcanvas-help" id="helpPanel">
+    <div class="help-header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <div class="bg-warning rounded-circle p-1" style="width:24px; height:24px; display:flex; align-items:center; justify-content:center;">
+                <i class="bi bi-robot text-dark fs-6"></i>
+            </div>
+            <h6 class="mb-0 fw-bold text-main" id="helpHeaderTitle">Centro de Ayuda</h6>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            @if(auth()->user()->role == 'owner' || session('impersonator_id'))
+                <button class="btn btn-sm btn-outline-warning border-0" id="btnEditHelp" title="Editar Manual">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+            @endif
+            <button type="button" class="btn-close" onclick="openHelp()"></button>
+        </div>
+    </div>
+
+    <!-- ÁREA DE CONTENIDO -->
+    <div class="help-content-area" id="helpContentArea">
+        {{-- Cargando contenido contextual... --}}
+    </div>
+
+    <!-- EDITOR (SOLO VISIBLE SI ES OWNER Y ACTIVA EDICIÓN) -->
+    <div id="helpEditorArea" style="display:none;" class="p-3">
+        <input type="text" id="editHelpTitle" class="form-control mb-2 bg-transparent text-main" placeholder="Título de la página...">
+        <div id="summernoteHelp"></div>
+        <div class="d-flex justify-content-end gap-2 mt-2">
+            <button class="btn btn-sm btn-secondary" onclick="cancelEditHelp()">Cancelar</button>
+            <button class="btn btn-sm btn-warning" onclick="saveHelpContent()">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <div class="help-footer d-flex justify-content-between align-items-center">
+        <span>Ruta: {{ Route::currentRouteName() }}</span>
+        <img src="{{ $logo }}" style="height: 20px; opacity: 0.3;" alt="Logo">
+    </div>
+</div>
 
 {{-- BOTÓN MÁGICO DE AYUDA --}}
 <div id="help-trigger" onclick="openHelp()"><i class="bi bi-magic"></i></div>
@@ -639,10 +699,158 @@ body.sidebar-collapsed #sidebar .nav-link-item i {
 
     if(btnToggle) btnToggle.addEventListener('click', toggleSidebar);
     if(overlay) overlay.addEventListener('click', () => sidebar.classList.remove('show'));
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script>
+    const currentRoute = '{{ Route::currentRouteName() }}';
+    
+    // Hacer el panel draggable
+    $(function() {
+        if($("#helpPanel").length) {
+            $("#helpPanel").draggable({
+                handle: ".help-header",
+                containment: "window"
+            }).resizable({
+                minWidth: 300,
+                minHeight: 300,
+                handles: "all"
+            });
+        }
+    });
 
     function openHelp() {
-        // Implementación de ayuda
+        const panel = document.getElementById('helpPanel');
+        if (panel.style.display === 'flex') {
+            panel.style.display = 'none';
+        } else {
+            panel.style.display = 'flex';
+            fetchHelpContent();
+        }
     }
+
+    function fetchHelpContent() {
+        const area = document.getElementById('helpContentArea');
+        area.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-warning" role="status"></div><p class="small mt-2">Sincronizando manual...</p></div>';
+
+        fetch(`/help/fetch?route=${currentRoute}`)
+            .then(res => res.json())
+            .then(res => {
+                if(res.success && res.data) {
+                    area.innerHTML = `
+                        <h5 class="fw-bold text-main mb-3 h4">${res.data.title}</h5>
+                        <div class="manual-body">${res.data.content}</div>
+                    `;
+                } else {
+                    area.innerHTML = `
+                        <div class="text-center py-5 opacity-50">
+                            <i class="bi bi-search fs-1"></i>
+                            <p class="mt-3">Aún no hay guías específicas para este sector.</p>
+                            @if(auth()->user()->role == 'owner' || session('impersonator_id'))
+                                <button class="btn btn-sm btn-warning" onclick="activateEditor()">Crear Manual Ahora</button>
+                            @endif
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                area.innerHTML = '<p class="text-danger">Error al cargar la ayuda.</p>';
+            });
+    }
+
+    @if(auth()->user()->role == 'owner' || session('impersonator_id'))
+    function activateEditor() {
+        document.getElementById('helpContentArea').style.display = 'none';
+        document.getElementById('helpEditorArea').style.display = 'block';
+        
+        // Cargar datos actuales si existen
+        const area = document.getElementById('helpContentArea');
+        const currentTitle = area.querySelector('h5')?.innerText || '';
+        const currentContent = area.querySelector('.manual-body')?.innerHTML || '';
+        
+        document.getElementById('editHelpTitle').value = currentTitle;
+        $('#summernoteHelp').summernote({
+            placeholder: 'Escribe el manual aquí...',
+            tabsize: 2,
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+        $('#summernoteHelp').summernote('code', currentContent);
+    }
+
+    function cancelEditHelp() {
+        document.getElementById('helpContentArea').style.display = 'block';
+        document.getElementById('helpEditorArea').style.display = 'none';
+        $('#summernoteHelp').summernote('destroy');
+    }
+
+    function saveHelpContent() {
+        const title = document.getElementById('editHelpTitle').value;
+        const content = $('#summernoteHelp').summernote('code');
+
+        if(!title || !content) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Campos incompletos',
+                text: 'Título y Contenido son obligatorios.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            return;
+        }
+
+        fetch('/help/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                route_name: currentRoute,
+                title: title,
+                content: content
+            })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.success) {
+                // Notificación sutil (Toast)
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Guardado con éxito!',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true,
+                });
+                
+                cancelEditHelp(); // Salir del modo edición
+                openHelp();      // Cerrar el panel automáticamente
+                fetchHelpContent(); // Recargar contenido para la próxima apertura
+            } else {
+                Swal.fire('Error', res.message || 'No se pudo guardar.', 'error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire('Error Fatal', 'Consulta la consola para más detalles.', 'error');
+        });
+    }
+
+    document.getElementById('btnEditHelp')?.addEventListener('click', activateEditor);
+    @endif
 </script>
 
 @yield('scripts')

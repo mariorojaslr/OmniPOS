@@ -1,5 +1,13 @@
 @extends('layouts.empresa')
 
+@section('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map { height: 350px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); }
+</style>
+@endsection
+
+
 @section('content')
 
 <div class="container-fluid py-3">
@@ -117,6 +125,13 @@
                                value="{{ old('credit_limit',0) }}">
                     </div>
 
+                    {{-- MAPA --}}
+                    <div class="col-12 mt-4">
+                        <label class="form-label fw-bold"><i class="bi bi-map me-2"></i>Ubicar en el Mapa</label>
+                        <div id="map"></div>
+                        <small class="text-muted">Haz clic en el mapa para ajustar la ubicación exacta del cliente.</small>
+                    </div>
+
                 </div>
 
                 {{-- BOTONES --}}
@@ -195,5 +210,40 @@ document.getElementById('btnSearchCuit').addEventListener('click', function() {
             spinner.classList.add('d-none');
         });
 });
+</script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Inicializar Mapa
+    var default_lat = -34.6037;
+    var default_lng = -58.3816;
+    
+    var map = L.map('map').setView([default_lat, default_lng], 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    var marker = L.marker([default_lat, default_lng], {draggable: true}).addTo(map);
+
+    // Al mover el marcador manualmente
+    marker.on('dragend', function(event) {
+        var position = marker.getLatLng();
+        updateCoords(position.lat, position.lng);
+    });
+
+    // Al hacer clic en el mapa
+    map.on('click', function(e) {
+        marker.setLatLng(e.latlng);
+        updateCoords(e.latlng.lat, e.latlng.lng);
+    });
+
+    function updateCoords(lat, lng) {
+        document.querySelector('input[name="lat"]').value = lat.toFixed(7);
+        document.querySelector('input[name="lng"]').value = lng.toFixed(7);
+    }
+
+    // Geocodificación inversa (Opcional si se quiere autocompletar dirección desde mapa)
+    // Pero aquí el usuario prefiere AFIP -> Coords.
 </script>
 @endsection

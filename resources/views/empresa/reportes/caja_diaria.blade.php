@@ -101,7 +101,7 @@
     {{-- ENCABEZADO --}}
     <div class="mb-5 d-flex align-items-center justify-content-between flex-wrap gap-3 premium-header">
         <div>
-            <h1 class="fw-bold mb-0 text-white display-5">
+            <h1 class="fw-bold mb-0 text-dark display-5">
                 CASH <span class="gold-text">AUDIT</span>
             </h1>
             <p class="text-muted mb-0 mt-2">
@@ -181,9 +181,9 @@
                                 @else
                                     <span class="status-badge border border-success text-success">Cerrada</span>
                                 @endif
-                                <button class="btn btn-action ms-2" title="Ver Detalles/Obs" data-bs-toggle="tooltip">
+                                <a href="{{ route('empresa.personal.cajas.show', $c->id) }}" class="btn btn-action ms-2" title="Ver Detalles/Obs" data-bs-toggle="tooltip">
                                     <i class="bi bi-search"></i>
-                                </button>
+                                </a>
                             </td>
                         </tr>
                         @empty
