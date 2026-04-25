@@ -193,8 +193,10 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         initMap();
-        // Un solo recálculo tras carga para asegurar tiles correctas
-        setTimeout(() => { if(map) map.invalidateSize(); }, 500);
+        // Cascada de recálculos para asegurar tiles perfectas
+        [100, 500, 1000, 2000].forEach(ms => {
+            setTimeout(() => { if(map) map.invalidateSize(); }, ms);
+        });
     });
 
     window.addEventListener('resize', () => {
