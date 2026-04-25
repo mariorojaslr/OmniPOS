@@ -66,8 +66,13 @@
         map = L.map('supplierMap').setView([-29.4124, -66.8566], 12); 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
         
+        // BLINDAJE ANTI-BUCLE: Observación con freno de seguridad
+        let resizeTimer;
         const resizeObserver = new ResizeObserver(() => {
-            if (map) map.invalidateSize();
+            cancelAnimationFrame(resizeTimer);
+            resizeTimer = requestAnimationFrame(() => {
+                if (map) map.invalidateSize();
+            });
         });
         resizeObserver.observe(document.getElementById('supplierMap'));
         

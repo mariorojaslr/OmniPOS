@@ -86,9 +86,13 @@
         map = L.map('heatmap').setView([-29.4124, -66.8566], 11); 
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '© CARTO' }).addTo(map);
         
-        // BLINDAJE TOTAL: Re-inicialización por observación de tamaño
+        // BLINDAJE ANTI-BUCLE: Observación con freno de seguridad
+        let resizeTimer;
         const resizeObserver = new ResizeObserver(() => {
-            if (map) map.invalidateSize();
+            cancelAnimationFrame(resizeTimer);
+            resizeTimer = requestAnimationFrame(() => {
+                if (map) map.invalidateSize();
+            });
         });
         resizeObserver.observe(document.getElementById('heatmap'));
         

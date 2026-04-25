@@ -201,18 +201,17 @@
         }, 500);
     });
 
-    // BLINDAJE TOTAL: Re-inicialización por observación de tamaño
+    // BLINDAJE ANTI-BUCLE: Observación con freno de seguridad
+    let resizeTimer;
     const mapContainer = document.getElementById('routeMap');
-    const resizeObserver = new ResizeObserver(() => {
-        if (map) {
-            map.invalidateSize();
-        }
-    });
-    resizeObserver.observe(mapContainer);
-
-    // Re-calculado forzado tras carga total
-    window.addEventListener('load', () => {
-        setTimeout(() => { map.invalidateSize(); }, 500);
-    });
+    if (mapContainer) {
+        const resizeObserver = new ResizeObserver(() => {
+            cancelAnimationFrame(resizeTimer);
+            resizeTimer = requestAnimationFrame(() => {
+                if (map) map.invalidateSize();
+            });
+        });
+        resizeObserver.observe(mapContainer);
+    }
 </script>
 @endpush
