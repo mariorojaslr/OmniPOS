@@ -191,6 +191,19 @@
         });
     });
 
-    document.addEventListener('DOMContentLoaded', initMap);
+    document.addEventListener('DOMContentLoaded', () => {
+        initMap();
+        // Forzamos el recalculo del mapa para que cargue las teselas perfectamente con el nuevo layout
+        setTimeout(() => {
+            if(map) {
+                map.invalidateSize();
+            }
+        }, 500);
+    });
+
+    // Aseguramos que si se cambia el tamaño de la ventana, el mapa se ajuste
+    window.addEventListener('resize', () => {
+        if(map) map.invalidateSize();
+    });
 </script>
 @endpush
