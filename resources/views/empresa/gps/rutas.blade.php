@@ -3,7 +3,7 @@
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
-    #routeMap { height: 500px; width: 100%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    #routeMap { height: 500px; max-height: 500px; width: 100%; border-radius: 0 0 20px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
     #main-content { padding-top: 80px !important; }
 </style>
 @endpush
@@ -75,7 +75,7 @@
                     <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-map me-2 text-primary"></i> Visor Logístico</h6>
                     <span class="badge bg-primary bg-opacity-10 text-primary px-3 rounded-pill x-small fw-bold">PROVINCIA DETECTADA</span>
                 </div>
-                <div id="routeMap"></div>
+                <div id="routeMap" style="height: 500px; max-height: 500px; overflow: hidden;"></div>
             </div>
         </div>
     </div>
@@ -193,13 +193,12 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         initMap();
-        // SOLUCIÓN ESTABLE: Re-calculado tras carga y en resize manual
+        // Un solo recálculo tras carga para asegurar tiles correctas
         setTimeout(() => { if(map) map.invalidateSize(); }, 500);
-        setTimeout(() => { if(map) map.invalidateSize(); }, 1500);
-        
-        window.addEventListener('resize', () => {
-            if(map) map.invalidateSize();
-        });
+    });
+
+    window.addEventListener('resize', () => {
+        if(map) map.invalidateSize();
     });
 </script>
 @endpush

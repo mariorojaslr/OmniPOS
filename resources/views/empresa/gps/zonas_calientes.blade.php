@@ -30,7 +30,7 @@
 
     <div class="row g-4 text-start">
         <div class="col-md-9">
-            <div id="heatmap" class="heatmap-container bg-white border position-relative">
+            <div id="heatmap" class="heatmap-container bg-white border position-relative" style="height: 600px; max-height: 600px; overflow: hidden;">
                 <div id="loader" class="position-absolute top-50 start-50 translate-middle text-center" style="z-index: 1000;">
                     <div class="spinner-border text-danger" role="status"></div>
                 </div>
@@ -116,13 +116,6 @@
     };
     document.addEventListener('DOMContentLoaded', () => {
         initMap();
-        setTimeout(() => {
-            if(map) map.invalidateSize();
-        }, 500);
-    });
-
-    window.addEventListener('resize', () => {
-        if(map) map.invalidateSize();
     });
 </script>
 @endpush

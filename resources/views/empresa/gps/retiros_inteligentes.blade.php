@@ -47,7 +47,7 @@
             </div>
         </div>
         <div class="col-md-8">
-            <div id="supplierMap" class="map-container bg-white border position-relative">
+            <div id="supplierMap" class="map-container bg-white border position-relative" style="height: 600px; max-height: 600px; overflow: hidden;">
                  <div id="loader" class="position-absolute top-50 start-50 translate-middle text-center" style="z-index: 1000;">
                     <div class="spinner-border text-info" role="status"></div>
                 </div>
@@ -107,13 +107,6 @@
     document.getElementById('searchSupplier').oninput = e => { renderSuppliers(allSuppliers.filter(s => s.name.toLowerCase().includes(e.target.value.toLowerCase()))); };
     document.addEventListener('DOMContentLoaded', () => {
         initMap();
-        setTimeout(() => {
-            if(map) map.invalidateSize();
-        }, 500);
-    });
-
-    window.addEventListener('resize', () => {
-        if(map) map.invalidateSize();
     });
 </script>
 @endpush
