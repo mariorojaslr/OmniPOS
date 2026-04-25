@@ -83,8 +83,15 @@
 <script>
     let map, heatLayer;
     function initMap() {
-        map = L.map('heatmap').setView([-29.4124, -66.8566], 11); // LA RIOJA FALLBACK
+        map = L.map('heatmap').setView([-29.4124, -66.8566], 11); 
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '© CARTO' }).addTo(map);
+        
+        // BLINDAJE TOTAL: Re-inicialización por observación de tamaño
+        const resizeObserver = new ResizeObserver(() => {
+            if (map) map.invalidateSize();
+        });
+        resizeObserver.observe(document.getElementById('heatmap'));
+        
         loadHeatmapData();
     }
     function loadHeatmapData() {
