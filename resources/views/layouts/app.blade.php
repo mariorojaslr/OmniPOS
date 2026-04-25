@@ -177,7 +177,7 @@
 <nav class="navbar navbar-expand-lg navbar-premium shadow-sm">
     <div class="{{ auth()->check() ? 'container-fluid px-4 px-md-5' : 'container' }}">
 
-        <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ route('empresa.dashboard') }}">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ route('dashboard') }}">
             <img src="{{ asset('images/logo_premium.png') }}" alt="Logo" style="height:40px; width:auto; border-radius: 10px;" class="me-2 shadow">
             MultiPOS Central
         </a>
