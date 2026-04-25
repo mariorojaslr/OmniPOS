@@ -434,12 +434,113 @@ body {
 {{-- AYUDA MÁGICA --}}
 <div id="help-trigger" onclick="openHelp()"><i class="bi bi-magic"></i></div>
 
+{{-- SISTEMA DE AYUDA INTELIGENTE (ARTI) --}}
+<div class="offcanvas offcanvas-end offcanvas-help" tabindex="-1" id="offcanvasHelp" style="width: 450px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); color: #f8fafc; border-left: 1px solid rgba(255,255,255,0.1);">
+    <div class="offcanvas-header border-bottom border-secondary">
+        <h5 class="offcanvas-title fw-bold">🧠 Cerebro de Arti</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="help-loading" class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2 text-muted small">Sincronizando con Arti...</p>
+        </div>
+
+        <div id="help-view-mode">
+            <div id="help-empty" style="display:none;" class="text-center py-5">
+                <i class="bi bi-journal-x fs-1 text-muted"></i>
+                <h5 class="mt-3">Sin instrucciones aún</h5>
+                <p class="text-muted small">Esta sección no tiene contenido de ayuda. Arti está listo para aprender.</p>
+                <button class="btn btn-primary btn-sm mt-3" onclick="enterEditMode()">Crear Ayuda</button>
+            </div>
+
+            <div id="help-display" style="display:none;">
+                <h4 id="help-title" class="fw-bold mb-3 text-primary"></h4>
+                <div id="help-body" class="help-content mb-4 small opacity-90" style="line-height:1.6;"></div>
+                <hr class="opacity-10">
+                <button class="btn btn-sm btn-outline-light w-100 opacity-50" onclick="enterEditMode()">Editar Manual de Arti</button>
+            </div>
+        </div>
+
+        <div id="help-edit-mode" style="display:none;">
+            <div class="mb-3">
+                <label class="form-label fw-bold small">Título del Módulo</label>
+                <input type="text" id="edit-help-title" class="form-control bg-dark text-white border-secondary">
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold small">Contenido de la Ayuda</label>
+                <textarea id="edit-help-content" class="form-control"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success w-100 fw-bold" onclick="saveHelp()">GUARDAR CAMBIOS</button>
+                <button class="btn btn-light btn-sm" onclick="exitEditMode()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
 <script>
+    const helpOffcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasHelp'));
+    const currentRoute = "{{ Route::currentRouteName() }}";
+
     function openHelp() {
-        alert("Sincronizando con el cerebro de Arti...");
+        helpOffcanvas.show();
+        $("#help-loading").show();
+        $("#help-view-mode, #help-edit-mode").hide();
+
+        $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
+            $("#help-loading").hide();
+            $("#help-view-mode").show();
+            if(res.success && res.data) {
+                $("#help-empty").hide(); 
+                $("#help-display").show();
+                $("#help-title").text(res.data.title);
+                $("#help-body").html(res.data.content);
+            } else {
+                $("#help-display").hide(); 
+                $("#help-empty").show();
+            }
+        });
+    }
+
+    function enterEditMode() {
+        $("#help-view-mode").hide(); 
+        $("#help-edit-mode").show();
+        $("#edit-help-title").val($("#help-title").text() || "Ayuda de " + currentRoute);
+        $("#edit-help-content").summernote({ 
+            height: 350,
+            theme: 'lite',
+            styleTags: ['p', 'h3', 'h4'],
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link', 'picture', 'video']],
+            ]
+        });
+        $("#edit-help-content").summernote('code', $("#help-body").html());
+    }
+
+    function exitEditMode() { 
+        $("#help-edit-mode").hide(); 
+        $("#help-view-mode").show(); 
+    }
+
+    function saveHelp() {
+        const data = {
+            _token: "{{ csrf_token() }}",
+            route_name: currentRoute,
+            title: $("#edit-help-title").val(),
+            content: $("#edit-help-content").summernote('code')
+        };
+        $.post("{{ route('help.save') }}", data, function(res){
+            if(res.success) { exitEditMode(); openHelp(); }
+        });
     }
 </script>
 
