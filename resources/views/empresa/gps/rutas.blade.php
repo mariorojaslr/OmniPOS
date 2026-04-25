@@ -201,9 +201,18 @@
         }, 500);
     });
 
-    // Aseguramos que si se cambia el tamaño de la ventana, el mapa se ajuste
-    window.addEventListener('resize', () => {
-        if(map) map.invalidateSize();
+    // BLINDAJE TOTAL: Re-inicialización por observación de tamaño
+    const mapContainer = document.getElementById('routeMap');
+    const resizeObserver = new ResizeObserver(() => {
+        if (map) {
+            map.invalidateSize();
+        }
+    });
+    resizeObserver.observe(mapContainer);
+
+    // Re-calculado forzado tras carga total
+    window.addEventListener('load', () => {
+        setTimeout(() => { map.invalidateSize(); }, 500);
     });
 </script>
 @endpush

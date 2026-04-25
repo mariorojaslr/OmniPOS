@@ -61,11 +61,19 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     let map, markers = [], allSuppliers = [];
+    
     function initMap() {
         map = L.map('supplierMap').setView([-29.4124, -66.8566], 12); 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
+        
+        const resizeObserver = new ResizeObserver(() => {
+            if (map) map.invalidateSize();
+        });
+        resizeObserver.observe(document.getElementById('supplierMap'));
+        
         loadSuppliers();
     }
+
     function loadSuppliers() {
         fetch("{{ route('empresa.gps.proveedores_data') }}").then(r => r.json()).then(data => {
             allSuppliers = data;
@@ -73,6 +81,7 @@
             renderSuppliers(data);
         }).finally(() => document.getElementById('loader').style.display = 'none');
     }
+
     function renderSuppliers(suppliers) {
         const list = document.getElementById('suppliersList');
         list.innerHTML = '';
