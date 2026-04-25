@@ -1,856 +1,446 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
 <title>{{ config('app.name', 'MultiPOS') }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="{{ ($config?->theme ?? 'light') === 'dark' ? '#000000' : '#ffffff' }}">
-
-<link rel="manifest" href="{{ asset('manifest.json') }}">
-<link rel="apple-touch-icon" href="{{ asset('img/logo_v2.png') }}">
-<link rel="icon" href="{{ asset('favicon.png') }}">
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="{{ asset('css/app.css') }}" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-<style>
-    .help-content img { max-width: 100%; border-radius: 12px; margin: 15px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-    .note-editor.note-frame { border: 1px solid rgba(255,255,255,0.1) !important; background: rgba(0,0,0,0.2); }
-    .note-editable { color: #fff !important; background: #000 !important; }
-</style>
 
 @php
     $user = auth()->user();
     $empresa = $user->empresa ?? null;
     $config  = $empresa?->config ?? null;
     $colorPrimario = $config?->color_primary ?? '#0d6efd';
-    $colorSecundario = $config?->color_secondary ?? '#6c757d';
     $modoOscuro = ($config?->theme ?? 'light') === 'dark';
     $logo = ($config && $config->logo_url) ? $config->logo_url : asset('images/logo_premium.png');
-    
-    // Asistencia activa
-    $asistenciaActiva = \App\Models\Asistencia::where('user_id', $user?->id)
-        ->whereNull('salida')
-        ->latest()
-        ->first();
-
-    $rgb = [0,0,0];
-    if (preg_match('/#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/i', $colorPrimario, $matches)) {
-        $rgb = [hexdec($matches[1]), hexdec($matches[2]), hexdec($matches[3])];
-    }
 @endphp
 
 <style>
 :root {
-    --sidebar-width: 280px;
-    --sidebar-collapsed-width: 85px;
+    --sidebar-width: 105px;
     --navbar-height: 70px;
     --color-primario: {{ $colorPrimario }};
-    --color-secundario: {{ $colorSecundario }};
-    --color-primario-rgb: {{ implode(',', $rgb) }};
-    --transition-speed: 0.4s;
-    --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Variable Dinámica Maestra */
-    --actual-sidebar-width: var(--sidebar-width);
-
-    @if($modoOscuro)
-    --bg-main: #000000;
-    --sidebar-bg: #0a0c0e;
-    --sidebar-border: rgba(255,255,255,0.08);
-    --text-main: #f8fafc;
-    --card-bg: #0f172a;
-    @else
-    --bg-main: #f4f7fa;
-    --sidebar-bg: #111827;
-    --sidebar-border: rgba(0,0,0,0.05);
-    --text-main: #1e293b;
-    --card-bg: #ffffff;
-    @endif
+    --sidebar-bg: #0b1120;
+    --sidebar-border: rgba(255, 255, 255, 0.08);
 }
 
-body.sidebar-collapsed {
-    --actual-sidebar-width: var(--sidebar-collapsed-width);
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: {{ $modoOscuro ? '#020617' : '#f8fafc' }};
+    color: {{ $modoOscuro ? '#f1f5f9' : '#334155' }};
+    overflow-x: hidden;
 }
 
-body.no-sidebar {
-    --actual-sidebar-width: 0px;
-}
-
-* { font-family: 'Plus Jakarta Sans', sans-serif; }
-
-body { 
-    background: var(--bg-main); 
-    color: var(--text-main); 
-    overflow-x: hidden; 
-    margin: 0;
-}
-
-/* =========================================================
-   SIDEBAR "SPACE COMMAND"
-   ========================================================= */
+/* SIDEBAR SLIM MEJORADO */
 #sidebar {
-    width: var(--actual-sidebar-width);
+    width: var(--sidebar-width);
     height: 100vh;
+    background: var(--sidebar-bg);
     position: fixed;
     top: 0;
     left: 0;
-    background: var(--sidebar-bg);
-    z-index: 2005; 
-    transition: width var(--transition-speed) var(--transition-curve), transform var(--transition-speed) var(--transition-curve);
+    z-index: 999999;
+    border-right: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
-    box-shadow: 10px 0 30px rgba(0,0,0,0.15);
-    overflow: hidden;
-    border-right: 1px solid var(--sidebar-border);
+    overflow: visible !important;
 }
 
 .sidebar-header {
-    min-height: 100px;
+    height: var(--navbar-height);
     display: flex;
     align-items: center;
-    padding: 20px;
-    background: rgba(255,255,255,0.02);
-    border-bottom: 1px solid var(--sidebar-border);
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    color: white;
-}
-
-.sidebar-logo img { 
-    height: 42px; 
-    width: 42px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 10px rgba(var(--color-primario-rgb), 0.3));
-    transition: transform 0.3s;
-}
-
-.sidebar-logo span { 
-    font-weight: 800; 
-    font-size: 0.95rem; 
-    color: #ffffff; 
-    letter-spacing: -0.5px;
-    transition: opacity 0.3s, transform 0.3s;
-}
-
-/* Estilos para estado colapsado coordinados por body class */
-body.sidebar-collapsed #sidebar .sidebar-logo span,
-body.sidebar-collapsed #sidebar .nav-label,
-body.sidebar-collapsed #sidebar .nav-link-item span,
-body.sidebar-collapsed #sidebar .submenu-collapse {
-    display: none !important;
-}
-
-body.sidebar-collapsed #sidebar .nav-link-item {
     justify-content: center;
-    padding: 12px 0;
-    margin: 4px 10px;
+    border-bottom: 1px solid var(--sidebar-border);
 }
 
-body.sidebar-collapsed #sidebar .nav-link-item i {
-    margin: 0;
-    font-size: 1.3rem;
-}
-
-.sidebar-nav { 
-    flex-grow: 1; 
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
     padding: 15px 0;
-    overflow-y: auto; 
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.1) transparent;
-}
-
-.nav-label {
-    padding: 20px 25px 8px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    color: rgba(255,255,255,0.5); 
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    white-space: nowrap;
+    overflow: visible !important;
 }
 
 .nav-link-item {
+    width: 100%;
+    padding: 15px 5px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    padding: 10px 18px;
-    color: #ffffff !important; 
+    justify-content: center;
+    color: rgba(255,255,255,0.6);
     text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin: 2px 14px;
-    border-radius: 10px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    white-space: nowrap;
+    position: relative;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-align: center;
 }
+
+.nav-link-item i { font-size: 1.6rem; margin-bottom: 6px; transition: transform 0.2s; }
+.nav-icon-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; line-height: 1.1; }
 
 .nav-link-item:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #ffffff !important;
-    transform: translateX(5px) scale(1.02); 
-    text-shadow: 0 0 8px rgba(255,255,255,0.4); 
+    color: #fff;
+    background: rgba(255,255,255,0.05);
 }
+.nav-link-item:hover i { transform: scale(1.1); }
 
-.nav-link-item.active {
-    background: var(--color-primario);
-    color: #ffffff !important;
-    box-shadow: 0 4px 15px rgba(var(--color-primario-rgb), 0.4);
-}
-
-.nav-link-item i { 
-    width: 24px; 
-    font-size: 1.1rem; 
-    margin-right: 12px; 
-    display: flex; 
-    justify-content: center;
-}
-
-.submenu-collapse {
-    background: rgba(255, 255, 255, 0.02);
-    margin: 2px 14px 8px 14px;
-    border-radius: 10px;
-    padding: 5px 0;
-}
-
-.submenu-item {
-    display: block;
-    padding: 8px 18px 8px 45px;
-    color: #ffffff !important; 
-    text-decoration: none !important;
-    font-size: 0.82rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    opacity: 0.85;
-}
-
-.submenu-item:hover {
-    color: #ffffff !important;
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateX(8px); 
-    text-shadow: 0 0 5px rgba(255,255,255,0.3);
-}
-
-.sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    z-index: 2000;
-    display: none;
+/* GLOBO FLOTANTE POSICIÓN FIJA (FIX PARA EL SCROLL) */
+.floating-balloon {
+    position: absolute;
+    left: var(--sidebar-width);
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 20px 0 50px rgba(0,0,0,0.6);
+    border-radius: 15px;
+    padding: 20px;
+    width: 260px;
     opacity: 0;
-    transition: opacity 0.3s;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000000;
+    pointer-events: none;
 }
 
-/* =========================================================
-   INTEGRATED MAIN CONTENT & TOP BAR
-   Sincronizado al 100% con --actual-sidebar-width
-   ========================================================= */
+.nav-link-item:hover .floating-balloon {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(5px);
+    pointer-events: auto;
+}
+
+.floating-balloon h6 {
+    color: var(--color-primario);
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
+}
+
+.submenu-list { display: flex; flex-direction: column; gap: 6px; }
+.submenu-link {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: all 0.2s;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.submenu-link:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    padding-left: 20px;
+}
+
+/* CONTENT LAYOUT */
 #main-content {
-    margin-left: var(--actual-sidebar-width);
+    padding-left: var(--sidebar-width);
+    padding-top: calc(var(--navbar-height) + 20px);
     min-height: 100vh;
-    transition: margin-left var(--transition-speed) var(--transition-curve), width var(--transition-speed) var(--transition-curve);
-    background: var(--bg-main);
-    padding-top: 90px; 
-    padding-left: 45px;
-    padding-right: 45px;
-    position: relative;
-    width: calc(100% - var(--actual-sidebar-width));
 }
 
 .top-bar {
     position: fixed;
     top: 0;
     right: 0;
-    left: var(--actual-sidebar-width);
-    height: 70px;
-    background: {{ $modoOscuro ? 'rgba(0, 0, 0, 0.92)' : 'rgba(255, 255, 255, 0.98)' }};
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-bottom: 1px solid {{ $modoOscuro ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)' }};
+    left: var(--sidebar-width);
+    height: var(--navbar-height);
+    background: {{ $modoOscuro ? 'rgba(2, 6, 23, 0.95)' : 'rgba(255, 255, 255, 0.98)' }};
+    backdrop-filter: blur(15px);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2.5rem;
-    z-index: 1000; 
-    transition: left var(--transition-speed) var(--transition-curve), width var(--transition-speed) var(--transition-curve);
+    padding: 0 30px;
+    z-index: 999;
+    border-bottom: 1px solid var(--sidebar-border);
 }
 
-/* UI Elements */
-.btn-sidebar-toggle {
-    background: transparent;
-    border: none;
-    color: var(--text-main);
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    transition: background 0.2s;
-}
-.btn-sidebar-toggle:hover { background: rgba(0,0,0,0.05); }
-
-/* Optimizaciones Mobile */
-@media (max-width: 991px) {
-    #sidebar {
-        transform: translateX(-100%);
-        width: 280px !important;
-        --actual-sidebar-width: 0px !important;
-    }
-    #sidebar.show {
-        transform: translateX(0);
-    }
-    #sidebar.show ~ .sidebar-overlay {
-        display: block;
-        opacity: 1;
-    }
-    #main-content {
-        margin-left: 0 !important;
-        width: 100% !important;
-    }
-    .top-bar {
-        left: 0 !important;
-    }
-}
-
-/* =========================================================
-   BOTÓN MÁGICO (ASISTENTE 360)
-   ========================================================= */
+/* BOTÓN DE AYUDA MÁGICA */
 #help-trigger {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, var(--color-primario), #a855f7);
+    bottom: 25px;
+    right: 25px;
+    width: 55px;
+    height: 55px;
+    background: var(--color-primario);
     color: white;
-    border-radius: 20px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     cursor: pointer;
-    z-index: 9999;
-    box-shadow: 0 10px 25px rgba(var(--color-primario-rgb), 0.4);
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border: 2px solid rgba(255,255,255,0.2);
-    backdrop-filter: blur(10px);
-}
-
-#help-trigger:hover {
-    transform: scale(1.1) rotate(15deg);
-    box-shadow: 0 15px 35px rgba(var(--color-primario-rgb), 0.6);
-}
-
-@keyframes pulse-magic {
-    0% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0.4); }
-    70% { box-shadow: 0 0 0 15px rgba(var(--color-primario-rgb), 0); }
-    100% { box-shadow: 0 0 0 0 rgba(var(--color-primario-rgb), 0); }
-}
-
-#help-trigger {
-    animation: pulse-magic 2s infinite;
-}
-
-/* AYUDA INTELIGENTE FLOTANTE */
-.offcanvas-help {
-    position: fixed;
-    top: 50px;
-    right: 30px;
-    width: 450px;
-    height: 600px;
-    background: {{ $modoOscuro ? 'rgba(10, 12, 14, 0.85)' : 'rgba(255, 255, 255, 0.9)' }};
-    backdrop-filter: blur(15px);
-    z-index: 11000;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    display: none; /* Se activa con JS */
-    flex-direction: column;
-    border: 1px solid rgba(255,255,255,0.1);
-    overflow: hidden;
-    resize: both;
-}
-
-.offcanvas-help.active { display: flex; }
-
-.help-header {
-    background: {{ $modoOscuro ? 'rgba(212, 175, 55, 0.2)' : 'rgba(212, 175, 55, 0.1)' }};
-    padding: 15px 20px;
-    cursor: move;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-}
-
-.help-content-area {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 20px;
-}
-
-.help-footer {
-    padding: 10px 20px;
-    background: rgba(0,0,0,0.05);
-    font-size: 0.7rem;
-    color: gray;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    z-index: 1000001;
 }
 
 </style>
-
-@stack('styles')
 </head>
 
-<body class="{{ isset($posMode) ? 'no-sidebar' : '' }}">
+<body>
 
-<!-- SIDEBAR MODERNO -->
 @if(!isset($posMode))
 <div id="sidebar">
     <div class="sidebar-header">
-        <a href="{{ route('empresa.dashboard') }}" class="sidebar-logo">
-            <div class="bg-white p-2 rounded-3 shadow-sm d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                <img src="{{ $logo }}" alt="Logo" style="max-height: 100%;">
-            </div>
-            <span>{{ $empresa->nombre_comercial ?? 'MultiPOS' }}</span>
-        </a>
+        <img src="{{ $logo }}" style="height: 45px; border-radius: 8px;" alt="Logo">
     </div>
 
     <div class="sidebar-nav">
+        {{-- DASHBOARD --}}
         <a href="{{ route('empresa.dashboard') }}" class="nav-link-item {{ Route::is('empresa.dashboard') ? 'active' : '' }}">
-            <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
+            <i class="bi bi-speedometer2" style="color: var(--color-primario);"></i>
+            <span class="nav-icon-label">Inicio</span>
         </a>
 
-        {{-- MÓDULO: ARTÍCULOS --}}
-        <div class="nav-label text-info">Gestión de Productos</div>
-        
-        <a href="{{ route('empresa.products.index') }}" class="nav-link-item {{ Request::is('empresa/products*') ? 'active' : '' }}">
-            <i class="bi bi-box-seam"></i> <span>📑 MIS ARTÍCULOS</span>
-        </a>
-
-        <a href="{{ route('empresa.rubros.index') }}" class="nav-link-item {{ Request::is('empresa/rubros*') ? 'active' : '' }}">
-            <i class="bi bi-tags"></i> <span>🏷️ RUBROS / CATEGORÍAS</span>
-        </a>
-
-        <a href="{{ (auth()->user()?->empresa?->slug) ? route('catalog.index', ['empresa' => auth()->user()->empresa->slug]) : '#' }}" target="_blank" class="nav-link-item">
-            <i class="bi bi-shop"></i> <span>🛒 MI CATÁLOGO (Store)</span>
-        </a>
-
-        <a href="#sm_articulos" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-gear-wide-connected"></i> <span>Herramientas de Stock</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/stock*') || Request::is('empresa/faltantes*') ? 'show' : '' }}" id="sm_articulos">
-            <a href="{{ route('empresa.stock.index') }}" class="submenu-item">🔄 Movimientos Stock</a>
-            <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-item fw-bold text-warning">⚠️ Reposición de Stock</a>
-            <a href="{{ route('empresa.inventory_scan') }}" class="submenu-item fw-bold">📲 Escáner Móvil</a>
-            <a href="{{ route('empresa.recipes.index') }}" class="submenu-item">🧪 Recetas de Fábrica</a>
+        {{-- STOCK (AGRUPADO) --}}
+        <div class="nav-link-item">
+            <i class="bi bi-box-seam" style="color: #00d2ff;"></i>
+            <span class="nav-icon-label">Stock & Art.</span>
+            <div class="floating-balloon">
+                <h6>📦 Gestión de Stock</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.products.index') }}" class="submenu-link">📄 Mis Artículos</a>
+                    <a href="{{ route('empresa.rubros.index') }}" class="submenu-link">🏷️ Rubros / Categorías</a>
+                    <a href="{{ route('empresa.stock.index') }}" class="submenu-link">🔄 Movimientos Stock</a>
+                    <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-link">⚠️ Reposición</a>
+                    <a href="{{ route('empresa.inventory_scan') }}" class="submenu-link">📸 Escáner Cámara</a>
+                    <a href="{{ route('empresa.recipes.index') }}" class="submenu-link">🧪 Recetas Fábrica</a>
+                </div>
+            </div>
         </div>
 
-        {{-- MÓDULO: VENTAS --}}
-        <div class="nav-label text-warning">Área de Ventas</div>
-        <a href="{{ route('empresa.pos.index') }}" class="nav-link-item {{ Route::is('empresa.pos.index') ? 'active' : '' }}">
-            <i class="bi bi-shop"></i> <span>🏪 VENTAS (POS)</span>
-        </a>
-        <a href="#sm_ventas" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-receipt"></i> <span>Gestión Ventas</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/ventas*') || Request::is('empresa/presupuestos*') ? 'show' : '' }}" id="sm_ventas">
-            <a href="{{ route('empresa.ventas.index') }}" class="submenu-item">📋 Historial Ventas</a>
-            <a href="{{ route('empresa.ventas.manual') }}" class="submenu-item fw-bold">✍️ Venta Manual</a>
-            <a href="{{ route('empresa.presupuestos.index') }}" class="submenu-item">📜 Presupuestos</a>
+        {{-- VENTAS (AGRUPADO) --}}
+        <div class="nav-link-item">
+            <i class="bi bi-shop" style="color: #ffc107;"></i>
+            <span class="nav-icon-label">Ventas</span>
+            <div class="floating-balloon">
+                <h6>📑 Área de Ventas</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.pos.index') }}" class="submenu-link text-success">🚀 Punto de Venta (POS)</a>
+                    <a href="{{ route('empresa.ventas.index') }}" class="submenu-link">📋 Historial Ventas</a>
+                    <a href="{{ route('empresa.ventas.manual') }}" class="submenu-link">✍️ Venta Manual</a>
+                    <a href="{{ route('empresa.presupuestos.index') }}" class="submenu-link">📜 Presupuestos</a>
+                </div>
+            </div>
         </div>
 
-        {{-- MÓDULO: LOGÍSTICA --}}
-        <div class="nav-label text-white">Logística & Guarda</div>
-        <a href="#sm_logistica" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-truck"></i> <span>Entregas (Remitos)</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/remitos*') || Request::is('empresa/logistica*') ? 'show' : '' }}" id="sm_logistica">
-            <a href="{{ route('empresa.logistica.reporte') }}" class="submenu-item fw-bold">📦 Stock en Guarda</a>
-            <a href="{{ route('empresa.remitos.index') }}" class="submenu-item">📋 Historial Remitos</a>
+        {{-- ENTREGAS / LOGÍSTICA --}}
+        <div class="nav-link-item">
+            <i class="bi bi-truck" style="color: #fff;"></i>
+            <span class="nav-icon-label">Logística</span>
+            <div class="floating-balloon">
+                <h6>🚚 Entregas & Guarda</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.logistica.reporte') }}" class="submenu-link">📦 Stock en Guarda</a>
+                    <a href="{{ route('empresa.remitos.index') }}" class="submenu-link">📜 Historial Remitos</a>
+                </div>
+            </div>
         </div>
 
-        {{-- MÓDULO: GASTOS --}}
-        <div class="nav-label text-danger">Área Financiera</div>
-        <a href="{{ route('empresa.gastos.index') }}" class="nav-link-item {{ Request::is('empresa/gastos*') ? 'active' : '' }}">
-            <i class="bi bi-cash-stack"></i> <span>💸 GESTIÓN GASTOS</span>
-        </a>
-
-        {{-- MÓDULO: COMPRAS --}}
-        <div class="nav-label text-danger">Área de Compras</div>
-        <a href="#sm_compras" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-cart-check"></i> <span>Abastecimiento</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/compras*') ? 'show' : '' }}" id="sm_compras">
-            <a href="{{ route('empresa.compras.create') }}" class="submenu-item fw-bold">🟢 Nueva Compra</a>
-            <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-item">📋 Plan de Reposición</a>
-            <a href="{{ route('empresa.compras.index') }}" class="submenu-item">📋 Historial Compras</a>
+        {{-- ÁREA FINANCIERA (CAJAS + GASTOS + BANCOS) --}}
+        <div class="nav-link-item">
+            <i class="bi bi-bank" style="color: #4da3ff;"></i>
+            <span class="nav-icon-label">Finanzas</span>
+            <div class="floating-balloon">
+                <h6>🏦 Caja & Finanzas</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.tesoreria.index') }}" class="submenu-link">🏦 Cuentas & Billeteras</a>
+                    <a href="{{ route('empresa.tesoreria.cheques.index') }}" class="submenu-link">✍️ Cheques de Terceros</a>
+                    <a href="{{ route('empresa.tesoreria.chequeras.index') }}" class="submenu-link">📖 Chequeras Propias</a>
+                    <hr class="my-1 opacity-10">
+                    <a href="{{ route('empresa.gastos.index') }}" class="submenu-link">💸 Gestión de Gastos</a>
+                </div>
+            </div>
         </div>
 
-        {{-- MÓDULO: CLIENTES --}}
-        <div class="nav-label text-primary">Área de Clientes</div>
-        <a href="#sm_clientes" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-people"></i> <span>Cartera Clientes</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/clientes*') || Request::is('empresa/pagos*') ? 'show' : '' }}" id="sm_clientes">
-            <a href="{{ route('empresa.clientes.index') }}" class="submenu-item">👥 Listado Clientes</a>
-            <a href="{{ route('empresa.pagos.index') }}" class="submenu-item fw-bold">💰 Cta. Cte. y Recibos</a>
+        {{-- ABASTECIMIENTO (COMPRAS) --}}
+        <div class="nav-link-item">
+            <i class="bi bi-cart3" style="color: #ff4d4d;"></i>
+            <span class="nav-icon-label">Abasto</span>
+            <div class="floating-balloon">
+                <h6>🛒 Abastecimiento</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.compras.create') }}" class="submenu-link text-success">🟢 Nueva Compra</a>
+                    <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Historial de Compras</a>
+                    <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-link">📋 Plan de Reposición</a>
+                </div>
+            </div>
         </div>
 
-        {{-- MÓDULO: PROVEEDORES --}}
-        <div class="nav-label text-success">Área de Proveedores</div>
-        <a href="#sm_proveedores" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-truck"></i> <span>Gestión Proveedores</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/proveedores*') ? 'show' : '' }}" id="sm_proveedores">
-            <a href="{{ route('empresa.proveedores.index') }}" class="submenu-item">🚛 Mis Proveedores</a>
-            <a href="{{ route('empresa.proveedores.index', ['has_debt' => 1]) }}" class="submenu-item fw-bold">🏦 Cuentas Corrientes</a>
+        {{-- ÁREA DE CLIENTES --}}
+        <div class="nav-link-item">
+            <i class="bi bi-people" style="color: #00d2ff;"></i>
+            <span class="nav-icon-label">Clientes</span>
+            <div class="floating-balloon">
+                <h6>👥 Cartera de Clientes</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.clientes.index') }}" class="submenu-link">📄 Listado de Clientes</a>
+                    <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">💰 Cta. Cte. Clientes</a>
+                    <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">🧾 Recibos de Cobro</a>
+                </div>
+            </div>
         </div>
 
-        {{-- MÓDULO: BANCO --}}
-        <div class="nav-label">Área de Bancos</div>
-        <a href="#sm_bancos" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-bank"></i> <span>Bancos & Billeteras</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/tesoreria*') ? 'show' : '' }}" id="sm_bancos">
-            <a href="{{ route('empresa.tesoreria.index') }}" class="submenu-item fw-bold">🏦 Mis Cuentas / Billeteras</a>
-            <a href="{{ route('empresa.tesoreria.cheques.index') }}" class="submenu-item">✍️ Cheques de Terceros</a>
-            <a href="{{ route('empresa.tesoreria.chequeras.index') }}" class="submenu-item">📖 Chequeras Propias</a>
+        {{-- ÁREA DE PROVEEDORES --}}
+        <div class="nav-link-item">
+            <i class="bi bi-truck-flatbed" style="color: #28a745;"></i>
+            <span class="nav-icon-label">Proveedores</span>
+            <div class="floating-balloon">
+                <h6>🚛 Gestión Proveedores</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🚚 Mis Proveedores</a>
+                    <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Facturas de Compra</a>
+                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">💳 Cta. Cte. Proveedores</a>
+                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🧾 Recibos de Pago</a>
+                </div>
+            </div>
         </div>
 
-        {{-- MÓDULO: REPORTES --}}
-        <div class="nav-label">Centro de Inteligencia</div>
-        <a href="#sm_reportes" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-bar-chart-line"></i> <span>Reportes & Estadísticas</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/reportes*') ? 'show' : '' }}" id="sm_reportes">
-            <a href="{{ route('empresa.reportes.panel') }}" class="submenu-item fw-bold">📊 Dashboard Global</a>
-            <a href="{{ route('empresa.reportes.caja_diaria') }}" class="submenu-item">💵 Caja Diaria / Auditoría</a>
-            <a href="{{ route('empresa.listados.articulos') }}" class="submenu-item">📑 Listados Maestros</a>
-            <a href="{{ route('empresa.gps.index') }}" class="submenu-item text-warning fw-bold"><i class="bi bi-geo-alt-fill me-1"></i> Utilidades GPS (Beta)</a>
-            <a href="{{ route('empresa.clientes.index', ['has_debt' => 1]) }}" class="submenu-item">📉 Morosidad Clientes</a>
+        {{-- REPORTES & BI --}}
+        <div class="nav-link-item">
+            <i class="bi bi-bar-chart-line" style="color: #adb5bd;"></i>
+            <span class="nav-icon-label">Reportes</span>
+            <div class="floating-balloon">
+                <h6>📊 Inteligencia & BI</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.reportes.panel') }}" class="submenu-link">📈 Dashboard Global</a>
+                    <a href="{{ route('empresa.reportes.caja_diaria') }}" class="submenu-link">💵 Auditoría de Caja</a>
+                    <a href="{{ route('empresa.gps.index') }}" class="submenu-link">📍 GPS (Beta)</a>
+                </div>
+            </div>
         </div>
 
-        {{-- ADMINISTRACIÓN --}}
-        <div class="nav-label">Administración</div>
-        <a href="#sm_admin" class="nav-link-item submenu-toggle" data-bs-toggle="collapse">
-            <i class="bi bi-person-badge"></i> <span>Recursos Humanos</span>
-        </a>
-        <div class="collapse submenu-collapse {{ Request::is('empresa/usuarios*') || Request::is('empresa/personal*') ? 'show' : '' }}" id="sm_admin">
-            <a href="{{ route('empresa.usuarios.index') }}" class="submenu-item">👥 Gestión Usuarios</a>
-            <a href="{{ route('empresa.personal.rendimiento') }}" class="submenu-item">📊 Rendimiento Operativo</a>
-            <a href="{{ route('empresa.personal.asistencia.qr') }}" class="submenu-item fw-bold">📲 Punto QR Asistencia</a>
+        {{-- SISTEMA & CONFIG --}}
+        <div class="nav-link-item">
+            <i class="bi bi-gear" style="color: #f1f5f9;"></i>
+            <span class="nav-icon-label">Ajustes</span>
+            <div class="floating-balloon">
+                <h6>⚙️ Administración</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.configuracion.index') }}" class="submenu-link">🛠️ Configurar App</a>
+                    <a href="{{ route('empresa.usuarios.index') }}" class="submenu-link">👥 Gestión Usuarios</a>
+                    <a href="{{ route('empresa.personal.rendimiento') }}" class="submenu-link">📊 Rendimiento</a>
+                    <a href="{{ route('empresa.backup.index') }}" class="submenu-link">🛡️ Bóveda Backups</a>
+                </div>
+            </div>
         </div>
 
-        <a href="{{ route('empresa.reportes.panel') }}" class="nav-link-item {{ Route::is('empresa.reportes.*') ? 'active' : '' }}">
-            <i class="bi bi-bar-chart-line"></i> <span>Reportes Pro</span>
-        </a>
-
-        <a href="{{ route('empresa.backup.index') }}" class="nav-link-item {{ Route::is('empresa.backup.*') ? 'active' : '' }}">
-            <i class="bi bi-shield-lock-fill"></i> <span>Bóveda (Backup)</span>
-        </a>
-
-        <a href="{{ route('empresa.configuracion.index') }}" class="nav-link-item {{ Route::is('empresa.configuracion.*') ? 'active' : '' }}">
-            <i class="bi bi-gear-fill"></i> <span>Configuración App</span>
-        </a>
-
-        <div class="p-3 mt-4">
-            <a href="{{ route('logout.get') }}" class="btn btn-outline-danger w-100 rounded-pill x-small">
-                <i class="bi bi-power me-2"></i> Cerrar Sesión
+        <div class="mt-auto px-2 pb-3">
+             <a href="{{ route('logout.get') }}" class="text-danger d-flex flex-column align-items-center text-decoration-none py-2" style="border: 1px solid rgba(220,53,69,0.3); border-radius: 12px;">
+                <i class="bi bi-power fs-4"></i>
+                <span class="nav-icon-label x-small">SALIR</span>
             </a>
         </div>
     </div>
 </div>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
 @endif
 
-<!-- CONTENIDO PRINCIPAL -->
 <div id="main-content">
-    <header class="top-bar">
+    <div class="top-bar" style="{{ isset($posMode) ? 'left: 0;' : '' }}">
         <div class="d-flex align-items-center gap-3">
-            @if(!isset($posMode))
-                <button class="btn-sidebar-toggle" id="btnToggle">
-                    <i class="bi bi-list"></i>
-                </button>
+            @if(isset($posMode))
+                <a href="{{ route('empresa.dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-grid-fill"></i> PANEL DE GESTIÓN
+                </a>
+                <h4 class="mb-0 fw-bold ms-2">📦 Terminal de Ventas (POS)</h4>
             @else
-                <a href="{{ route('empresa.dashboard') }}" class="btn btn-light btn-sm rounded-pill px-3 border fw-bold">
-                    <i class="bi bi-grid-fill me-1"></i> PANEL DE GESTIÓN
+                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa->nombre_comercial ?? 'MultiPOS' }}</h4>
+                {{-- NOVEDADES --}}
+                <a href="{{ route('empresa.novedades') }}" class="btn btn-sm btn-light border rounded-pill px-3 ms-2 d-none d-lg-flex align-items-center gap-2">
+                    <span class="pulse-dot"></span>
+                    <span class="small fw-bold">Novedades v2.4</span>
                 </a>
             @endif
-            <h5 class="mb-0 fw-bold d-none d-md-block" id="page_title">@yield('page_title', 'MultiPOS v2')</h5>
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            {{-- BOTONES TOP BAR --}}
-            <a href="{{ route('empresa.novedades') }}" class="btn btn-light btn-sm rounded-pill px-3 border fw-bold text-warning d-none d-lg-flex align-items-center gap-1 shadow-sm">
-                <i class="bi bi-fire"></i> NOVEDADES
-            </a>
-
-            @if(session('impersonator_id'))
-                <a href="{{ route('owner.return-to-owner') }}" class="btn btn-warning btn-sm fw-bold border-2 rounded-pill px-3">
-                    <i class="bi bi-arrow-left-circle me-1"></i> VOLVER A OWNER
+            {{-- BOTÓN REGRESAR A OWNER (MIMETIZACIÓN) --}}
+            @if(session()->has('impersonator_id'))
+                <a href="{{ route('owner.return-to-owner') }}" class="btn btn-warning btn-sm fw-bold px-3 shadow-sm d-flex align-items-center gap-2 animate__animated animate__pulse animate__infinite">
+                    <i class="bi bi-person-badge-fill"></i>
+                    VOLVER A MI PANEL
                 </a>
             @endif
 
             <div class="dropdown">
-                <button class="btn d-flex align-items-center gap-2 p-1 rounded-pill" data-bs-toggle="dropdown">
-                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
+                <div class="d-flex align-items-center gap-3 cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                    <div class="text-end d-none d-md-block">
+                        <div class="small fw-bold lh-1 text-dark">{{ $user->name }}</div>
+                        <div class="x-small opacity-50">{{ $user->email }}</div>
+                    </div>
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width:42px; height:42px; font-size: 1.2rem; border: 3px solid rgba(255,255,255,0.8);">
                         {{ substr($user->name, 0, 1) }}
                     </div>
-                    <div class="text-start d-none d-md-block me-2">
-                        <div class="small fw-bold lh-1">{{ $user->name }}</div>
-                        <div class="x-small text-muted">@switch($user->role) @case('empresa') Admin @break @default Operador @endswitch</div>
-                    </div>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2">
-                    <li><a class="dropdown-item rounded-3" href="{{ route('password.edit') }}"><i class="bi bi-shield-lock me-2"></i> Seguridad</a></li>
-                    <li><hr class="dropdown-divider opacity-10"></li>
-                    <li><a class="dropdown-item rounded-3 text-danger fw-bold" href="{{ route('logout.get') }}"><i class="bi bi-power me-2"></i> Cerrar Sesión</a></li>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 mt-2" style="min-width: 220px;">
+                    <li><h6 class="dropdown-header small text-uppercase fw-800 opacity-50">Mi Usuario</h6></li>
+                    <li><a class="dropdown-item rounded-3 py-2" href="#"><i class="bi bi-person me-2"></i> Mi Perfil</a></li>
+                    <li><a class="dropdown-item rounded-3 py-2" href="{{ route('empresa.configuracion.index') }}"><i class="bi bi-gear me-2"></i> Ajustes App</a></li>
+                    @if($user->role === 'owner')
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item rounded-3 py-2 text-primary fw-bold" href="{{ route('owner.dashboard') }}"><i class="bi bi-shield-check me-2"></i> Panel Owner</a></li>
+                    @endif
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item rounded-3 py-2 text-danger fw-bold" href="{{ route('logout.get') }}">
+                            <i class="bi bi-power me-2"></i> Cerrar Sesión
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
-    </header>
+    </div>
 
-    <main>
-        @if(session('error')) <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">{{ session('error') }}</div> @endif
-        @if(session('success')) <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">{{ session('success') }}</div> @endif
+    <style>
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--color-primario);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 rgba(var(--color-primario-rgb), 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+        }
+        .cursor-pointer { cursor: pointer; }
+
+        @if(isset($posMode))
+        #main-content { padding-left: 0 !important; }
+        .top-bar { left: 0 !important; }
+        @endif
+    </style>
+
+    <main class="container-fluid p-4">
         @yield('content')
     </main>
 </div>
-<!-- PANEL INTEGRADO DE AYUDA (AYUDA 360) -->
-<div class="offcanvas-help" id="helpPanel">
-    <div class="help-header d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-2">
-            <div class="bg-warning rounded-circle p-1" style="width:24px; height:24px; display:flex; align-items:center; justify-content:center;">
-                <i class="bi bi-robot text-dark fs-6"></i>
-            </div>
-            <h6 class="mb-0 fw-bold text-main" id="helpHeaderTitle">Centro de Ayuda</h6>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            @if(auth()->user()->role == 'owner' || session('impersonator_id'))
-                <button class="btn btn-sm btn-outline-warning border-0" id="btnEditHelp" title="Editar Manual">
-                    <i class="bi bi-pencil-square"></i>
-                </button>
-            @endif
-            <button type="button" class="btn-close" onclick="openHelp()"></button>
-        </div>
-    </div>
 
-    <!-- ÁREA DE CONTENIDO -->
-    <div class="help-content-area" id="helpContentArea">
-        {{-- Cargando contenido contextual... --}}
-    </div>
-
-    <!-- EDITOR (SOLO VISIBLE SI ES OWNER Y ACTIVA EDICIÓN) -->
-    <div id="helpEditorArea" style="display:none;" class="p-3">
-        <input type="text" id="editHelpTitle" class="form-control mb-2 bg-transparent text-main" placeholder="Título de la página...">
-        <div id="summernoteHelp"></div>
-        <div class="d-flex justify-content-end gap-2 mt-2">
-            <button class="btn btn-sm btn-secondary" onclick="cancelEditHelp()">Cancelar</button>
-            <button class="btn btn-sm btn-warning" onclick="saveHelpContent()">Guardar Cambios</button>
-        </div>
-    </div>
-
-    <div class="help-footer d-flex justify-content-between align-items-center">
-        <span>Ruta: {{ Route::currentRouteName() }}</span>
-        <img src="{{ $logo }}" style="height: 20px; opacity: 0.3;" alt="Logo">
-    </div>
-</div>
-
-{{-- BOTÓN MÁGICO DE AYUDA --}}
+{{-- AYUDA MÁGICA --}}
 <div id="help-trigger" onclick="openHelp()"><i class="bi bi-magic"></i></div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
 <script>
-    const sidebar = document.getElementById('sidebar');
-    const body = document.body;
-    const btnToggle = document.getElementById('btnToggle');
-    const overlay = document.getElementById('sidebarOverlay');
-
-    // Estado inicial persistente
-    if(localStorage.getItem('sidebar-state') === 'collapsed' && window.innerWidth > 991) {
-        body.classList.add('sidebar-collapsed');
-    }
-
-    function toggleSidebar() {
-        if (window.innerWidth <= 991) {
-            sidebar.classList.toggle('show');
-        } else {
-            body.classList.toggle('sidebar-collapsed');
-            localStorage.setItem('sidebar-state', body.classList.contains('sidebar-collapsed') ? 'collapsed' : 'full');
-        }
-    }
-
-    if(btnToggle) btnToggle.addEventListener('click', toggleSidebar);
-    if(overlay) overlay.addEventListener('click', () => sidebar.classList.remove('show'));
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-<script>
-    const currentRoute = '{{ Route::currentRouteName() }}';
-    
-    // Hacer el panel draggable
-    $(function() {
-        if($("#helpPanel").length) {
-            $("#helpPanel").draggable({
-                handle: ".help-header",
-                containment: "window"
-            }).resizable({
-                minWidth: 300,
-                minHeight: 300,
-                handles: "all"
-            });
-        }
-    });
-
     function openHelp() {
-        const panel = document.getElementById('helpPanel');
-        if (panel.style.display === 'flex') {
-            panel.style.display = 'none';
-        } else {
-            panel.style.display = 'flex';
-            fetchHelpContent();
-        }
+        alert("Sincronizando con el cerebro de Arti...");
     }
-
-    function fetchHelpContent() {
-        const area = document.getElementById('helpContentArea');
-        area.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-warning" role="status"></div><p class="small mt-2">Sincronizando manual...</p></div>';
-
-        fetch(`/help/fetch?route=${currentRoute}`)
-            .then(res => res.json())
-            .then(res => {
-                if(res.success && res.data) {
-                    area.innerHTML = `
-                        <h5 class="fw-bold text-main mb-3 h4">${res.data.title}</h5>
-                        <div class="manual-body">${res.data.content}</div>
-                    `;
-                } else {
-                    area.innerHTML = `
-                        <div class="text-center py-5 opacity-50">
-                            <i class="bi bi-search fs-1"></i>
-                            <p class="mt-3">Aún no hay guías específicas para este sector.</p>
-                            @if(auth()->user()->role == 'owner' || session('impersonator_id'))
-                                <button class="btn btn-sm btn-warning" onclick="activateEditor()">Crear Manual Ahora</button>
-                            @endif
-                        </div>
-                    `;
-                }
-            })
-            .catch(err => {
-                area.innerHTML = '<p class="text-danger">Error al cargar la ayuda.</p>';
-            });
-    }
-
-    @if(auth()->user()->role == 'owner' || session('impersonator_id'))
-    function activateEditor() {
-        document.getElementById('helpContentArea').style.display = 'none';
-        document.getElementById('helpEditorArea').style.display = 'block';
-        
-        // Cargar datos actuales si existen
-        const area = document.getElementById('helpContentArea');
-        const currentTitle = area.querySelector('h5')?.innerText || '';
-        const currentContent = area.querySelector('.manual-body')?.innerHTML || '';
-        
-        document.getElementById('editHelpTitle').value = currentTitle;
-        $('#summernoteHelp').summernote({
-            placeholder: 'Escribe el manual aquí...',
-            tabsize: 2,
-            height: 300,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ]
-        });
-        $('#summernoteHelp').summernote('code', currentContent);
-    }
-
-    function cancelEditHelp() {
-        document.getElementById('helpContentArea').style.display = 'block';
-        document.getElementById('helpEditorArea').style.display = 'none';
-        $('#summernoteHelp').summernote('destroy');
-    }
-
-    function saveHelpContent() {
-        const title = document.getElementById('editHelpTitle').value;
-        const content = $('#summernoteHelp').summernote('code');
-
-        if(!title || !content) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Campos incompletos',
-                text: 'Título y Contenido son obligatorios.',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000
-            });
-            return;
-        }
-
-        fetch('/help/save', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                route_name: currentRoute,
-                title: title,
-                content: content
-            })
-        })
-        .then(res => res.json())
-        .then(res => {
-            if(res.success) {
-                // Notificación sutil (Toast)
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Guardado con éxito!',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2500,
-                    timerProgressBar: true,
-                });
-                
-                cancelEditHelp(); // Salir del modo edición
-                openHelp();      // Cerrar el panel automáticamente
-                fetchHelpContent(); // Recargar contenido para la próxima apertura
-            } else {
-                Swal.fire('Error', res.message || 'No se pudo guardar.', 'error');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            Swal.fire('Error Fatal', 'Consulta la consola para más detalles.', 'error');
-        });
-    }
-
-    document.getElementById('btnEditHelp')?.addEventListener('click', activateEditor);
-    @endif
 </script>
 
 @yield('scripts')

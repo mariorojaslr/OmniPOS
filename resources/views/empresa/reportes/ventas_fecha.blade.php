@@ -144,38 +144,37 @@
                 const content = detalleRow.querySelector('.accordion-content');
                 const chevron = this.querySelector('.chevron-icon');
 
-                // Si ya está abierto, lo cerramos (REPLIEGUE)
+                // Si está abierto, cerramos
                 if (!detalleRow.classList.contains('d-none')) {
                     content.style.maxHeight = '0';
                     chevron.style.transform = 'rotate(0deg)';
                     setTimeout(() => {
                         detalleRow.classList.add('d-none');
                     }, 400);
-                    return;
-                }
-
-                // Cerramos otros abiertos primero (Opcional, pero recomendado para prolijidad)
-                // document.querySelectorAll('.detalle-row:not(.d-none)').forEach(openRow => { ... });
-
-                // Abrimos el actual
-                detalleRow.classList.remove('d-none');
-                chevron.style.transform = 'rotate(90deg)';
-
-                // Si no tiene contenido (excepto el spinner), lo cargamos
-                const inner = content.querySelector('.ventas-inner');
-                if (!inner) {
-                    fetch(`{{ route('empresa.reportes.ventas_detalle') }}?fecha=${fecha}`)
-                        .then(response => response.text())
-                        .then(html => {
-                            content.innerHTML = `<div class="ventas-inner">${html}</div>`;
-                            content.style.maxHeight = content.scrollHeight + 'px';
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            content.innerHTML = '<div class="p-3 text-danger text-center small">Error al cargar detalles. Reintente.</div>';
-                        });
                 } else {
-                    content.style.maxHeight = content.scrollHeight + 'px';
+                    // Abrimos
+                    detalleRow.classList.remove('d-none');
+                    
+                    // Pequeño delay para que la transición de CSS se note
+                    setTimeout(() => {
+                        chevron.style.transform = 'rotate(90deg)';
+                        
+                        const inner = content.querySelector('.ventas-inner');
+                        if (!inner) {
+                            fetch(`{{ route('empresa.reportes.ventas_detalle') }}?fecha=${fecha}`)
+                                .then(response => response.text())
+                                .then(html => {
+                                    content.innerHTML = `<div class="ventas-inner">${html}</div>`;
+                                    content.style.maxHeight = content.scrollHeight + 200 + 'px'; // Margen extra por seguridad
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    content.innerHTML = '<div class="p-3 text-danger text-center small">Error al cargar detalles.</div>';
+                                });
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + 'px';
+                        }
+                    }, 10);
                 }
             });
         });

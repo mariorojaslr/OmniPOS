@@ -20,8 +20,17 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 ========================================================= */
 
 .dashboard-container {
-    padding: 0; /* Ya lo maneja el padre #main-content */
+    padding: 0;
     padding-bottom: 2.5rem;
+    margin-left: 0; /* Ya lo maneja el padre #main-content, pero aseguramos limpieza */
+    position: relative;
+    z-index: 1;
+}
+
+/* Forzar que el interior respete el espacio si hay algún conflicto de ancho */
+.dashboard-container .row {
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /* Background suave animado sutil basado en el color primario de la empresa */
@@ -36,7 +45,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 
 @keyframes bgPulse {
     0% { transform: scale(1); }
-    100% { transform: scale(1.1); }
+    100% { transform: scale(1.05); }
 }
 
 .header-title {
@@ -62,6 +71,16 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 .glass-panel:hover {
     transform: translateY(-4px);
     box-shadow: 0 15px 45px -10px rgba(0,0,0,0.12);
+}
+
+.sidebar-logo img { 
+    height: 52px; 
+    width: 52px;
+    object-fit: contain;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .glass-icon {
@@ -113,10 +132,10 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 }
 </style>
 
-{{-- Fondo animado inyectado --}}
-<div class="empresa-bg"></div>
+{{-- Fondo estático para estabilidad --}}
+<div class="empresa-bg" style="background: radial-gradient(circle at 10% 20%, {{ $primary }}05, transparent 50%);"></div>
 
-<div class="dashboard-container">
+<div class="dashboard-container" style="padding-left: 10px;">
 
     {{-- ======================================================
         CENTRO DE MANDO MÓVIL (SOLO CELULARES)
