@@ -114,7 +114,8 @@
         document.getElementById('intensityVal').innerText = this.value;
         if (heatLayer) heatLayer.setOptions({max: parseFloat(this.value)});
     };
-    document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar DESPUÉS de que TODO esté cargado
+    window.addEventListener('load', () => {
         initMap();
     });
 </script>

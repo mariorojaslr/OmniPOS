@@ -191,12 +191,11 @@
         });
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar DESPUÉS de que TODO esté cargado (CSS, fuentes, layout Bootstrap)
+    window.addEventListener('load', () => {
         initMap();
-        // Cascada de recálculos para asegurar tiles perfectas
-        [100, 500, 1000, 2000].forEach(ms => {
-            setTimeout(() => { if(map) map.invalidateSize(); }, ms);
-        });
+        // Un recálculo de seguridad por si el sidebar animó su entrada
+        setTimeout(() => { if(map) map.invalidateSize(); }, 300);
     });
 
     window.addEventListener('resize', () => {

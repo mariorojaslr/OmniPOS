@@ -105,7 +105,8 @@
         if (suppliers.length > 0) map.fitBounds(bounds, { padding: [50, 50] });
     }
     document.getElementById('searchSupplier').oninput = e => { renderSuppliers(allSuppliers.filter(s => s.name.toLowerCase().includes(e.target.value.toLowerCase()))); };
-    document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar DESPUÉS de que TODO esté cargado
+    window.addEventListener('load', () => {
         initMap();
     });
 </script>
