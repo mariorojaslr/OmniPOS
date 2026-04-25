@@ -151,11 +151,29 @@ body {
     min-height: 100vh;
 }
 
+/* FIX DEFINITIVO: APP SHELL RÍGIDO */
+body, html {
+    height: 100vh !important;
+    overflow: hidden !important;
+    background: #f8f9fa;
+}
+
+#main-content {
+    height: 100vh;
+    overflow-y: auto !important;
+    scrollbar-width: thin;
+    display: flex;
+    flex-direction: column;
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s ease;
+}
+
 .top-bar {
-    position: fixed;
+    position: sticky !important;
     top: 0;
     right: 0;
-    left: var(--sidebar-width);
+    left: 0;
+    width: 100%;
     height: var(--navbar-height);
     background: {{ $modoOscuro ? 'rgba(2, 6, 23, 0.95)' : 'rgba(255, 255, 255, 0.98)' }};
     backdrop-filter: blur(15px);
@@ -426,8 +444,8 @@ body {
         @endif
     </style>
 
-    {{-- CONTENIDO PRINCIPAL --}}
-    <main class="flex-grow-1 p-4" style="margin-left: 105px; transition: margin-left 0.3s ease;">
+    {{-- AREA DE TRABAJO (CONTENIDO REAL) --}}
+    <main class="flex-grow-1 p-4">
         @yield('content')
     </main>
 </div>
