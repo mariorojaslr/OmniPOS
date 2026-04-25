@@ -434,109 +434,210 @@ body {
 {{-- AYUDA MÁGICA --}}
 <div id="help-trigger" onclick="openHelp()"><i class="bi bi-magic"></i></div>
 
-{{-- SISTEMA DE AYUDA INTELIGENTE (ARTI) --}}
-<div class="offcanvas offcanvas-end offcanvas-help" tabindex="-1" id="offcanvasHelp" style="width: 450px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); color: #f8fafc; border-left: 1px solid rgba(255,255,255,0.1);">
-    <div class="offcanvas-header border-bottom border-secondary">
-        <h5 class="offcanvas-title fw-bold">🧠 Cerebro de Arti</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body">
-        <div id="help-loading" class="text-center py-5">
-            <div class="spinner-border text-primary"></div>
-            <p class="mt-2 text-muted small">Sincronizando con Arti...</p>
+{{-- ASISTENTE INTELIGENTE ARTI (VENTANA FLOTANTE) --}}
+<div id="arti-window" class="arti-window shadow-lg animate__animated animate__fadeInUp d-none">
+    <div id="arti-header" class="arti-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <span class="arti-status-dot"></span>
+            <span class="fw-800 small tracking-wider text-uppercase">Cerebro de Arti</span>
         </div>
-
-        <div id="help-view-mode">
-            <div id="help-empty" style="display:none;" class="text-center py-5">
-                <i class="bi bi-journal-x fs-1 text-muted"></i>
-                <h5 class="mt-3">Sin instrucciones aún</h5>
-                <p class="text-muted small">Esta sección no tiene contenido de ayuda. Arti está listo para aprender.</p>
-                <button class="btn btn-primary btn-sm mt-3" onclick="enterEditMode()">Crear Ayuda</button>
-            </div>
-
-            <div id="help-display" style="display:none;">
-                <h4 id="help-title" class="fw-bold mb-3 text-primary"></h4>
-                <div id="help-body" class="help-content mb-4 small opacity-90" style="line-height:1.6;"></div>
-                <hr class="opacity-10">
-                <button class="btn btn-sm btn-outline-light w-100 opacity-50" onclick="enterEditMode()">Editar Manual de Arti</button>
-            </div>
-        </div>
-
-        <div id="help-edit-mode" style="display:none;">
-            <div class="mb-3">
-                <label class="form-label fw-bold small">Título del Módulo</label>
-                <input type="text" id="edit-help-title" class="form-control bg-dark text-white border-secondary">
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold small">Contenido de la Ayuda</label>
-                <textarea id="edit-help-content" class="form-control"></textarea>
-            </div>
-            <div class="d-flex gap-2">
-                <button class="btn btn-success w-100 fw-bold" onclick="saveHelp()">GUARDAR CAMBIOS</button>
-                <button class="btn btn-light btn-sm" onclick="exitEditMode()">Cancelar</button>
-            </div>
+        <div class="d-flex align-items-center gap-2">
+            <button class="arti-control-btn edit-btn d-none" onclick="enterEditMode()" title="Editar Manual"><i class="bi bi-pencil-square"></i></button>
+            <button class="arti-control-btn close-btn" onclick="closeArti()"><i class="bi bi-x-lg"></i></button>
         </div>
     </div>
+    
+    <div class="arti-body">
+        <div id="arti-loader" class="text-center py-5">
+            <div class="spinner-border spinner-border-sm text-primary"></div>
+            <div class="mt-2 x-small opacity-50">Sincronizando...</div>
+        </div>
+
+        <div id="arti-view-mode">
+            <div id="arti-empty" class="text-center py-4 d-none">
+                <i class="bi bi-cpu fs-2 opacity-20"></i>
+                <h6 class="mt-2 fw-bold">Arti está listo para aprender</h6>
+                <p class="x-small opacity-50">No hay instrucciones cargadas para esta ruta.</p>
+                <button class="btn btn-primary btn-xs rounded-pill px-3 mt-2" onclick="enterEditMode()">CREAR MANUAL</button>
+            </div>
+
+            <div id="arti-display" class="d-none">
+                <h4 id="arti-title" class="fw-bold text-primary mb-3"></h4>
+                <div id="arti-content" class="arti-content-scroll small"></div>
+                <div id="arti-video" class="mt-3 d-none"></div>
+            </div>
+        </div>
+
+        <div id="arti-edit-mode" class="d-none">
+            <input type="text" id="edit-arti-title" class="form-control mb-2 bg-dark text-white border-secondary small" placeholder="Título del manual...">
+            <textarea id="edit-arti-content"></textarea>
+            <input type="text" id="edit-arti-video" class="form-control mt-2 mb-2 bg-dark text-white border-secondary x-small" placeholder="URL Video (Opcional)...">
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-success btn-sm w-100 fw-bold" onclick="saveArti()">GUARDAR</button>
+                <button class="btn btn-outline-light btn-sm" onclick="exitEditMode()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+    <div class="arti-resize-handle"></div>
 </div>
 
+<style>
+    .arti-window {
+        position: fixed;
+        bottom: 90px;
+        right: 30px;
+        width: 400px;
+        min-width: 300px;
+        height: 500px;
+        min-height: 250px;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        z-index: 1000002;
+        display: flex;
+        flex-direction: column;
+        color: #fff;
+    }
+
+    .arti-header {
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: move;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .arti-status-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--color-primario);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--color-primario);
+    }
+
+    .arti-control-btn {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 1.1rem;
+        transition: all 0.2s;
+        padding: 0 5px;
+    }
+    .arti-control-btn:hover { color: #fff; transform: scale(1.1); }
+
+    .arti-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    .arti-content-scroll {
+        max-height: 100%;
+        line-height: 1.6;
+        opacity: 0.9;
+    }
+
+    .arti-resize-handle {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 20px;
+        height: 20px;
+        cursor: nwse-resize;
+        background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.2) 50%);
+        border-bottom-right-radius: 20px;
+    }
+
+    /* Override Summernote para dark mode */
+    .note-editor.note-frame { border: 1px solid rgba(255,255,255,0.1) !important; background: #fff; color: #333; }
+    
+    .tracking-wider { letter-spacing: 1.5px; }
+    .x-small { font-size: 0.75rem; }
+    .btn-xs { padding: 4px 10px; font-size: 0.77rem; }
+</style>
+
+{{-- LIBRERIAS PARA ARRASTRAR --}}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
 <script>
-    const helpOffcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasHelp'));
     const currentRoute = "{{ Route::currentRouteName() }}";
+    const userRole = "{{ auth()->user()->role }}";
+    const isImpersonated = {{ session('impersonator_id') ? 'true' : 'false' }};
+
+    $(function() {
+        // Inicializar arrastre y redimensionado
+        $("#arti-window").draggable({ handle: "#arti-header", containment: "window" });
+        $("#arti-window").resizable({
+            handles: { 'se': '.arti-resize-handle' },
+            minWidth: 300, minHeight: 250,
+            containment: "window"
+        });
+    });
 
     function openHelp() {
-        helpOffcanvas.show();
-        $("#help-loading").show();
-        $("#help-view-mode, #help-edit-mode").hide();
+        const win = $("#arti-window");
+        if(!win.hasClass('d-none')) { closeArti(); return; }
+        
+        win.removeClass('d-none').addClass('animate__fadeInUp');
+        $("#arti-loader").show();
+        $("#arti-view-mode, #arti-edit-mode").hide();
+        $(".edit-btn").addClass('d-none');
 
         $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
-            $("#help-loading").hide();
-            $("#help-view-mode").show();
+            $("#arti-loader").hide();
+            $("#arti-view-mode").show();
+            
+            if(userRole === 'owner' || isImpersonated) $(".edit-btn").removeClass('d-none');
+
             if(res.success && res.data) {
-                $("#help-empty").hide(); 
-                $("#help-display").show();
-                $("#help-title").text(res.data.title);
-                $("#help-body").html(res.data.content);
+                $("#arti-empty").addClass('d-none');
+                $("#arti-display").removeClass('d-none');
+                $("#arti-title").text(res.data.title);
+                $("#arti-content").html(res.data.content);
+                
+                if(res.data.video_url) {
+                    let embed = res.data.video_url.replace("watch?v=", "embed/");
+                    $("#arti-video").html(`<iframe width="100%" height="200" src="${embed}" frameborder="0" allowfullscreen></iframe>`).removeClass('d-none');
+                } else {
+                    $("#arti-video").addClass('d-none');
+                }
             } else {
-                $("#help-display").hide(); 
-                $("#help-empty").show();
+                $("#arti-display").addClass('d-none');
+                $("#arti-empty").removeClass('d-none');
             }
         });
     }
 
+    function closeArti() {
+        $("#arti-window").addClass('d-none');
+    }
+
     function enterEditMode() {
-        $("#help-view-mode").hide(); 
-        $("#help-edit-mode").show();
-        $("#edit-help-title").val($("#help-title").text() || "Ayuda de " + currentRoute);
-        $("#edit-help-content").summernote({ 
-            height: 350,
-            theme: 'lite',
-            styleTags: ['p', 'h3', 'h4'],
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link', 'picture', 'video']],
-            ]
-        });
-        $("#edit-help-content").summernote('code', $("#help-body").html());
+        $("#arti-view-mode").hide();
+        $("#arti-edit-mode").show();
+        $("#edit-arti-title").val($("#arti-title").text() || "Manual de " + currentRoute);
+        $("#edit-arti-content").summernote({ height: 250 });
+        $("#edit-arti-content").summernote('code', $("#arti-content").html());
+        $("#edit-arti-video").val("");
     }
 
-    function exitEditMode() { 
-        $("#help-edit-mode").hide(); 
-        $("#help-view-mode").show(); 
+    function exitEditMode() {
+        $("#arti-edit-mode").hide();
+        $("#arti-view-mode").show();
     }
 
-    function saveHelp() {
+    function saveArti() {
         const data = {
             _token: "{{ csrf_token() }}",
             route_name: currentRoute,
-            title: $("#edit-help-title").val(),
-            content: $("#edit-help-content").summernote('code')
+            title: $("#edit-arti-title").val(),
+            content: $("#edit-arti-content").summernote('code'),
+            video_url: $("#edit-arti-video").val()
         };
         $.post("{{ route('help.save') }}", data, function(res){
             if(res.success) { exitEditMode(); openHelp(); }
