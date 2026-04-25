@@ -478,7 +478,7 @@ body {
     .arti-window-pro {
         position: fixed;
         right: 30px;
-        top: 90px; /* POSICIONADO ARRIBA POR DEFECTO */
+        top: 90px;
         width: 450px;
         height: 650px;
         min-width: 300px;
@@ -494,23 +494,25 @@ body {
         color: #fff;
         box-shadow: 0 40px 100px rgba(0,0,0,0.8);
     }
-</style>
 
     /* TIRADORES DE REDIMENSIONADO */
     .ui-resizable-handle { 
         z-index: 1000006 !important; 
         opacity: 0.5;
         transition: opacity 0.2s;
+        background: transparent !important;
     }
     .ui-resizable-handle:hover { opacity: 1; }
     
-    .ui-resizable-e { width: 8px; right: 0; background: rgba(255,255,255,0.05); cursor: ew-resize; }
-    .ui-resizable-s { height: 8px; bottom: 0; background: rgba(255,255,255,0.05); cursor: ns-resize; }
+    .ui-resizable-e { width: 10px !important; right: -5px !important; cursor: ew-resize !important; }
+    .ui-resizable-s { height: 10px !important; bottom: -5px !important; cursor: ns-resize !important; }
+    .ui-resizable-w { width: 10px !important; left: -5px !important; cursor: ew-resize !important; }
+    .ui-resizable-n { height: 10px !important; top: -5px !important; cursor: ns-resize !important; }
     .ui-resizable-se { 
-        width: 25px; height: 25px; 
-        right: 0; bottom: 0; 
-        background: radial-gradient(circle at bottom right, var(--color-primario) 0%, transparent 70%);
-        cursor: nwse-resize;
+        width: 25px !important; height: 25px !important; 
+        right: 0 !important; bottom: 0 !important; 
+        background: radial-gradient(circle at bottom right, var(--color-primario) 0%, transparent 70%) !important;
+        cursor: nwse-resize !important;
         border-bottom-right-radius: 20px;
     }
 
@@ -556,6 +558,9 @@ body {
         text-transform: uppercase;
         letter-spacing: 1px;
     }
+
+    .manual-body h1, .manual-body h2, .manual-body h3 { color: var(--color-primario) !important; margin-top: 1.2rem; }
+    .manual-body img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); }
 </style>
 
 {{-- LIBRERIAS MASTER --}}
