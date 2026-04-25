@@ -105,6 +105,15 @@
         document.getElementById('intensityVal').innerText = this.value;
         if (heatLayer) heatLayer.setOptions({max: parseFloat(this.value)});
     };
-    document.addEventListener('DOMContentLoaded', initMap);
+    document.addEventListener('DOMContentLoaded', () => {
+        initMap();
+        setTimeout(() => {
+            if(map) map.invalidateSize();
+        }, 500);
+    });
+
+    window.addEventListener('resize', () => {
+        if(map) map.invalidateSize();
+    });
 </script>
 @endpush

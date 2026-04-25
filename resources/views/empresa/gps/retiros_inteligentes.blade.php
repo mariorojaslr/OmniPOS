@@ -93,6 +93,15 @@
         if (suppliers.length > 0) map.fitBounds(bounds, { padding: [50, 50] });
     }
     document.getElementById('searchSupplier').oninput = e => { renderSuppliers(allSuppliers.filter(s => s.name.toLowerCase().includes(e.target.value.toLowerCase()))); };
-    document.addEventListener('DOMContentLoaded', initMap);
+    document.addEventListener('DOMContentLoaded', () => {
+        initMap();
+        setTimeout(() => {
+            if(map) map.invalidateSize();
+        }, 500);
+    });
+
+    window.addEventListener('resize', () => {
+        if(map) map.invalidateSize();
+    });
 </script>
 @endpush
