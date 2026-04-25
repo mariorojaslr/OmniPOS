@@ -569,24 +569,39 @@ body {
     const isImpersonated = {{ session('impersonator_id') ? 'true' : 'false' }};
 
     $(function() {
-        // HABILITAR ARRASTRE Y REDIMENSIONADO MULTI-EJE
-        $("#helpPanel").draggable({ handle: ".arti-header-pro", containment: "window" })
-                       .resizable({ minWidth: 350, minHeight: 300, handles: "all" });
+        // HABILITAR ARRASTRE Y REDIMENSIONADO TOTAL (LIBRE)
+        $("#helpPanel").draggable({ 
+            handle: ".arti-header-pro", 
+            containment: "window",
+            scroll: false 
+        }).resizable({ 
+            minWidth: 350, 
+            minHeight: 250, 
+            handles: "all",
+            resize: function(event, ui) {
+                // Ajustar altura del editor si está abierto al redimensionar la ventana
+                const editor = $('#summernoteHelp');
+                if (editor.next('.note-editor').length) {
+                    const newHeight = ui.size.height - 280; // Compensar cabecera, footer y controles
+                    editor.summernote('height', newHeight > 100 ? newHeight : 100);
+                }
+            }
+        });
     });
 
     function openHelp() {
         const panel = $("#helpPanel");
-        if (panel.css('display') === 'flex') {
-            panel.hide();
+        if (panel.is(':visible')) {
+            panel.fadeOut(200);
         } else {
-            panel.css('display', 'flex');
+            panel.fadeIn(200).css('display', 'flex');
             fetchHelpContent();
         }
     }
 
     function fetchHelpContent() {
         const area = $("#helpContentArea");
-        area.html('<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted x-small">Consultando cerebro...</p></div>');
+        area.html('<div class="text-center py-5"><div class="spinner-border text-primary spinner-border-sm"></div><p class="mt-2 text-muted x-small">Arti está pensando...</p></div>');
         $("#btnEditHelp").addClass('d-none');
 
         $.get(`/help/fetch?route=${currentRoute}`, function(res) {
@@ -607,9 +622,9 @@ body {
             } else {
                 area.html(`
                     <div class="text-center py-5 opacity-40">
-                        <i class="bi bi-journal-x fs-1"></i>
-                        <p class="mt-2 mb-0 fw-bold">Arti no tiene datos aquí aún.</p>
-                        ${(userRole === 'owner' || isImpersonated) ? '<button class="btn btn-sm btn-primary rounded-pill px-4 mt-3 mt-1" onclick="activateEditor()">INICIAR MANUAL</button>' : ''}
+                        <i class="bi bi-robot fs-1"></i>
+                        <p class="mt-2 mb-0 fw-bold">No hay instrucciones registradas.</p>
+                        ${(userRole === 'owner' || isImpersonated) ? '<button class="btn btn-sm btn-primary rounded-pill px-4 mt-3" onclick="activateEditor()">REGISTRAR MANUAL</button>' : ''}
                     </div>
                 `);
             }
@@ -619,21 +634,23 @@ body {
     function activateEditor() {
         $("#helpContentArea").hide();
         $("#helpEditorArea").show();
-        const currentTitle = $("#helpContentArea h3").text() || "Guía de " + currentRoute;
+        const currentTitle = $("#helpContentArea h3").text() || "Manual de " + currentRoute;
         const currentContent = $("#helpContentArea .manual-body").html() || "";
-        const currentVideo = ""; // Podríamos leerlo de un buffer si hiciese falta
+        const panelHeight = $("#helpPanel").height();
 
         $("#editHelpTitle").val(currentTitle);
         $('#summernoteHelp').summernote({ 
-            height: 300,
+            height: panelHeight - 350, // Calculamos altura inicial según ventana
+            lang: 'es-ES',
+            placeholder: 'Escribe aquí las instrucciones maestras...',
             toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'italic', 'underline', 'clear']],
-                ['fontname', ['fontname']],
+                ['style', ['style', 'bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
                 ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
+                ['para', ['ul', 'ol', 'paragraph', 'height']],
                 ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
+                ['insert', ['link', 'picture', 'video', 'hr']],
                 ['view', ['fullscreen', 'codeview', 'help']]
             ]
         });
@@ -652,7 +669,7 @@ body {
         const video = $("#editHelpVideo").val();
 
         if(!title || !content) {
-            Swal.fire({ icon: 'warning', title: 'Faltan datos', text: 'Arti necesita un título y contenido para guardar.', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+            Swal.fire({ icon: 'warning', title: 'Arti necesita datos', text: 'Por favor completa título y contenido.', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
             return;
         }
 
@@ -664,7 +681,7 @@ body {
             video_url: video
         }, function(res) {
             if(res.success) {
-                Swal.fire({ icon: 'success', title: '¡Memoria guardada!', text: 'Arti ha memorizado las instrucciones.', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+                Swal.fire({ icon: 'success', title: '¡Manual Guardado!', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
                 cancelEditHelp();
                 fetchHelpContent();
             }
