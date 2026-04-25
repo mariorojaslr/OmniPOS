@@ -452,7 +452,7 @@ body {
     </div>
 
     {{-- ZONA DE EDICIÓN --}}
-    <div id="helpEditorArea" style="display:none;" class="p-3 bg-white text-dark rounded-bottom-4">
+    <div id="helpEditorArea" style="display:none;" class="p-3 bg-white text-dark">
         <div class="mb-2">
             <label class="x-small fw-bold text-muted text-uppercase mb-1">Título del Manual</label>
             <input type="text" id="editHelpTitle" class="form-control form-control-sm border-secondary fw-bold" placeholder="Ej: Guía de Ventas...">
@@ -471,7 +471,6 @@ body {
     <div class="arti-footer-pro">
         Ruta operativa: <span class="text-white fw-bold">{{ Route::currentRouteName() }}</span>
     </div>
-    <div class="ui-resizable-handle ui-resizable-se"></div>
 </div>
 
 <style>
@@ -481,24 +480,41 @@ body {
         top: 100px;
         width: 450px;
         height: 650px;
-        min-width: 350px;
-        min-height: 300px;
-        background: rgba(10, 12, 14, 0.95);
+        min-width: 300px;
+        min-height: 200px;
+        background: rgba(10, 12, 14, 0.98);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        z-index: 1000002;
+        z-index: 1000005;
         display: none;
         flex-direction: column;
         color: #fff;
-        overflow: hidden;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+    }
+
+    /* TIRADORES DE REDIMENSIONADO */
+    .ui-resizable-handle { 
+        z-index: 1000006 !important; 
+        opacity: 0.5;
+        transition: opacity 0.2s;
+    }
+    .ui-resizable-handle:hover { opacity: 1; }
+    
+    .ui-resizable-e { width: 8px; right: 0; background: rgba(255,255,255,0.05); cursor: ew-resize; }
+    .ui-resizable-s { height: 8px; bottom: 0; background: rgba(255,255,255,0.05); cursor: ns-resize; }
+    .ui-resizable-se { 
+        width: 25px; height: 25px; 
+        right: 0; bottom: 0; 
+        background: radial-gradient(circle at bottom right, var(--color-primario) 0%, transparent 70%);
+        cursor: nwse-resize;
+        border-bottom-right-radius: 20px;
     }
 
     .arti-header-pro {
-        padding: 18px 22px;
-        background: rgba(255, 255, 255, 0.03);
+        padding: 15px 22px;
+        background: rgba(255, 255, 255, 0.05);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         cursor: move;
         border-radius: 20px 20px 0 0;
@@ -507,9 +523,15 @@ body {
     .arti-body-pro {
         flex-grow: 1;
         overflow-y: auto;
-        padding: 30px;
+        padding: 25px;
         line-height: 1.6;
         color: #e2e8f0;
+    }
+
+    #helpEditorArea {
+        border-radius: 0 0 20px 20px;
+        flex-grow: 1;
+        overflow-y: auto;
     }
 
     .btn-arti-tool {
@@ -531,13 +553,6 @@ body {
         color: #64748b;
         text-transform: uppercase;
         letter-spacing: 1px;
-    }
-
-    .manual-body h1, .manual-body h2, .manual-body h3 { color: var(--color-primario); margin-top: 1.2rem; }
-    .manual-body img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); }
-    
-    .ui-resizable-se {
-        width: 15px; height: 15px; background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.3) 50%); bottom: 5px; right: 5px; cursor: nwse-resize;
     }
 </style>
 
