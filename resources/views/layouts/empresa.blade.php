@@ -198,144 +198,56 @@ body {
     </div>
 
     <div class="sidebar-nav">
-        {{-- DASHBOARD --}}
+        {{-- ITEMS DEL MENÚ ORIGINALES --}}
         <a href="{{ route('empresa.dashboard') }}" class="nav-link-item {{ Route::is('empresa.dashboard') ? 'active' : '' }}">
-            <i class="bi bi-speedometer2" style="color: var(--color-primario);"></i>
+            <i class="bi bi-speedometer2"></i>
             <span class="nav-icon-label">Inicio</span>
         </a>
 
-        {{-- STOCK (AGRUPADO) --}}
-        <div class="nav-link-item">
+        <a href="{{ route('empresa.products.index') }}" class="nav-link-item {{ Route::is('empresa.products.*') ? 'active' : '' }}">
             <i class="bi bi-box-seam" style="color: #00d2ff;"></i>
-            <span class="nav-icon-label">Stock & Art.</span>
-            <div class="floating-balloon">
-                <h6>📦 Gestión de Stock</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.products.index') }}" class="submenu-link">📄 Mis Artículos</a>
-                    <a href="{{ route('empresa.rubros.index') }}" class="submenu-link">🏷️ Rubros / Categorías</a>
-                    <a href="{{ route('empresa.stock.index') }}" class="submenu-link">🔄 Movimientos Stock</a>
-                    <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-link">⚠️ Reposición</a>
-                    <a href="{{ route('empresa.inventory_scan') }}" class="submenu-link">📸 Escáner Cámara</a>
-                    <a href="{{ route('empresa.recipes.index') }}" class="submenu-link">🧪 Recetas Fábrica</a>
-                </div>
-            </div>
-        </div>
+            <span class="nav-icon-label text-center">Stock & Art.</span>
+        </a>
 
-        {{-- VENTAS (AGRUPADO) --}}
-        <div class="nav-link-item">
+        <a href="{{ route('empresa.ventas.index') }}" class="nav-link-item {{ Route::is('empresa.ventas.*') ? 'active' : '' }}">
             <i class="bi bi-shop" style="color: #ffc107;"></i>
             <span class="nav-icon-label">Ventas</span>
-            <div class="floating-balloon">
-                <h6>📑 Área de Ventas</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.pos.index') }}" class="submenu-link text-success">🚀 Punto de Venta (POS)</a>
-                    <a href="{{ route('empresa.ventas.index') }}" class="submenu-link">📋 Historial Ventas</a>
-                    <a href="{{ route('empresa.ventas.manual') }}" class="submenu-link">✍️ Venta Manual</a>
-                    <a href="{{ route('empresa.presupuestos.index') }}" class="submenu-link">📜 Presupuestos</a>
-                </div>
-            </div>
-        </div>
+        </a>
 
-        {{-- ENTREGAS / LOGÍSTICA --}}
-        <div class="nav-link-item">
-            <i class="bi bi-truck" style="color: #fff;"></i>
+        <a href="{{ route('empresa.gps.index') }}" class="nav-link-item {{ Route::is('empresa.gps.*') ? 'active' : '' }}">
+            <i class="bi bi-truck-flatbed"></i>
             <span class="nav-icon-label">Logística</span>
-            <div class="floating-balloon">
-                <h6>🚚 Entregas & Guarda</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.logistica.reporte') }}" class="submenu-link">📦 Stock en Guarda</a>
-                    <a href="{{ route('empresa.remitos.index') }}" class="submenu-link">📜 Historial Remitos</a>
-                </div>
-            </div>
-        </div>
+        </a>
 
-        {{-- ÁREA FINANCIERA (CAJAS + GASTOS + BANCOS) --}}
-        <div class="nav-link-item">
+        <a href="{{ route('empresa.tesoreria.index') }}" class="nav-link-item {{ Route::is('empresa.tesoreria.*') ? 'active' : '' }}">
             <i class="bi bi-bank" style="color: #4da3ff;"></i>
             <span class="nav-icon-label">Finanzas</span>
-            <div class="floating-balloon">
-                <h6>🏦 Caja & Finanzas</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.tesoreria.index') }}" class="submenu-link">🏦 Cuentas & Billeteras</a>
-                    <a href="{{ route('empresa.tesoreria.cheques.index') }}" class="submenu-link">✍️ Cheques de Terceros</a>
-                    <a href="{{ route('empresa.tesoreria.chequeras.index') }}" class="submenu-link">📖 Chequeras Propias</a>
-                    <hr class="my-1 opacity-10">
-                    <a href="{{ route('empresa.gastos.index') }}" class="submenu-link">💸 Gestión de Gastos</a>
-                </div>
-            </div>
-        </div>
+        </a>
 
-        {{-- ABASTECIMIENTO (COMPRAS) --}}
-        <div class="nav-link-item">
-            <i class="bi bi-cart3" style="color: #ff4d4d;"></i>
+        <a href="{{ route('empresa.compras.index') }}" class="nav-link-item {{ Route::is('empresa.compras.*') ? 'active' : '' }}">
+            <i class="bi bi-cart-check" style="color: #ff4d4d;"></i>
             <span class="nav-icon-label">Abasto</span>
-            <div class="floating-balloon">
-                <h6>🛒 Abastecimiento</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.compras.create') }}" class="submenu-link text-success">🟢 Nueva Compra</a>
-                    <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Historial de Compras</a>
-                    <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-link">📋 Plan de Reposición</a>
-                </div>
-            </div>
-        </div>
+        </a>
 
-        {{-- ÁREA DE CLIENTES --}}
-        <div class="nav-link-item">
+        <a href="{{ route('empresa.clientes.index') }}" class="nav-link-item {{ Route::is('empresa.clientes.*') ? 'active' : '' }}">
             <i class="bi bi-people" style="color: #00d2ff;"></i>
             <span class="nav-icon-label">Clientes</span>
-            <div class="floating-balloon">
-                <h6>👥 Cartera de Clientes</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.clientes.index') }}" class="submenu-link">📄 Listado de Clientes</a>
-                    <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">💰 Cta. Cte. Clientes</a>
-                    <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">🧾 Recibos de Cobro</a>
-                </div>
-            </div>
-        </div>
+        </a>
 
-        {{-- ÁREA DE PROVEEDORES --}}
-        <div class="nav-link-item">
-            <i class="bi bi-truck-flatbed" style="color: #28a745;"></i>
-            <span class="nav-icon-label">Proveedores</span>
-            <div class="floating-balloon">
-                <h6>🚛 Gestión Proveedores</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🚚 Mis Proveedores</a>
-                    <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Facturas de Compra</a>
-                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">💳 Cta. Cte. Proveedores</a>
-                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🧾 Recibos de Pago</a>
-                </div>
-            </div>
-        </div>
+        <a href="{{ route('empresa.proveedores.index') }}" class="nav-link-item {{ Route::is('empresa.proveedores.*') ? 'active' : '' }}">
+            <i class="bi bi-truck" style="color: #28a745;"></i>
+            <span class="nav-icon-label text-center">Proveedores</span>
+        </a>
 
-        {{-- REPORTES & BI --}}
-        <div class="nav-link-item">
+        <a href="{{ route('empresa.reportes.panel') }}" class="nav-link-item {{ Route::is('empresa.reportes.*') ? 'active' : '' }}">
             <i class="bi bi-bar-chart-line" style="color: #adb5bd;"></i>
             <span class="nav-icon-label">Reportes</span>
-            <div class="floating-balloon">
-                <h6>📊 Inteligencia & BI</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.reportes.panel') }}" class="submenu-link">📈 Dashboard Global</a>
-                    <a href="{{ route('empresa.reportes.caja_diaria') }}" class="submenu-link">💵 Auditoría de Caja</a>
-                    <a href="{{ route('empresa.gps.index') }}" class="submenu-link">📍 GPS (Beta)</a>
-                </div>
-            </div>
-        </div>
+        </a>
 
-        {{-- SISTEMA & CONFIG --}}
-        <div class="nav-link-item">
+        <a href="{{ route('empresa.configuracion.index') }}" class="nav-link-item {{ Route::is('empresa.configuracion.*') ? 'active' : '' }}">
             <i class="bi bi-gear" style="color: #f1f5f9;"></i>
             <span class="nav-icon-label">Ajustes</span>
-            <div class="floating-balloon">
-                <h6>⚙️ Administración</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.configuracion.index') }}" class="submenu-link">🛠️ Configurar App</a>
-                    <a href="{{ route('empresa.usuarios.index') }}" class="submenu-link">👥 Gestión Usuarios</a>
-                    <a href="{{ route('empresa.personal.rendimiento') }}" class="submenu-link">📊 Rendimiento</a>
-                    <a href="{{ route('empresa.backup.index') }}" class="submenu-link">🛡️ Bóveda Backups</a>
-                </div>
-            </div>
-        </div>
+        </a>
 
         <div class="mt-auto px-2 pb-3">
              <a href="{{ route('logout.get') }}" class="text-danger d-flex flex-column align-items-center text-decoration-none py-2" style="border: 1px solid rgba(220,53,69,0.3); border-radius: 12px;">
@@ -426,8 +338,8 @@ body {
         @endif
     </style>
 
-    {{-- CONTENIDO PRINCIPAL --}}
-    <main class="flex-grow-1 p-4" style="margin-left: 105px; transition: margin-left 0.3s ease;">
+    {{-- AREA DE TRABAJO (CONTENIDO REAL) --}}
+    <main class="flex-grow-1 p-4">
         @yield('content')
     </main>
 </div>
