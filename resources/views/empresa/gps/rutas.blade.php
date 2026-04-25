@@ -191,11 +191,24 @@
         });
     });
 
-    // Inicializar DESPUÉS de que TODO esté cargado (CSS, fuentes, layout Bootstrap)
+    // Inicializar DESPUÉS de que TODO esté cargado
     window.addEventListener('load', () => {
         initMap();
-        // Un recálculo de seguridad por si el sidebar animó su entrada
-        setTimeout(() => { if(map) map.invalidateSize(); }, 300);
+        
+        // CASCADA DE REDIBUJADO PROFUNDO (Evita teselas movidas)
+        [100, 500, 1000, 2500].forEach(ms => {
+            setTimeout(() => { 
+                if(map) {
+                    map.invalidateSize();
+                    // Forzar redibujado de cada capa de la cuadrícula
+                    map.eachLayer(function(layer) {
+                        if (layer instanceof L.TileLayer) {
+                            layer.redraw();
+                        }
+                    });
+                }
+            }, ms);
+        });
     });
 
     window.addEventListener('resize', () => {

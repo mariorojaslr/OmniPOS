@@ -108,6 +108,18 @@
     // Inicializar DESPUÉS de que TODO esté cargado
     window.addEventListener('load', () => {
         initMap();
+        [100, 500, 1000, 2500].forEach(ms => {
+            setTimeout(() => { 
+                if(map) {
+                    map.invalidateSize();
+                    map.eachLayer(function(layer) {
+                        if (layer instanceof L.TileLayer) {
+                            layer.redraw();
+                        }
+                    });
+                }
+            }, ms);
+        });
     });
 </script>
 @endpush
