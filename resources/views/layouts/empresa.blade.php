@@ -434,215 +434,229 @@ body {
 {{-- AYUDA MÁGICA --}}
 <div id="help-trigger" onclick="openHelp()"><i class="bi bi-magic"></i></div>
 
-{{-- ASISTENTE INTELIGENTE ARTI (VENTANA FLOTANTE) --}}
-<div id="arti-window" class="arti-window shadow-lg animate__animated animate__fadeInUp d-none">
-    <div id="arti-header" class="arti-header d-flex justify-content-between align-items-center">
+{{-- ASISTENTE INTELIGENTE ARTI (VENTANA MAESTRA ARRSTRABLE Y REDIMENSIONABLE) --}}
+<div id="helpPanel" class="arti-window-pro shadow-lg animate__animated animate__fadeInUp" style="display:none;">
+    <div class="arti-header-pro d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-2">
-            <span class="arti-status-dot"></span>
-            <span class="fw-800 small tracking-wider text-uppercase">Cerebro de Arti</span>
+            <i class="bi bi-robot text-warning"></i>
+            <h6 class="mb-0 fw-bold small text-uppercase tracking-wider">Cerebro de Arti</h6>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <button class="arti-control-btn edit-btn d-none" onclick="enterEditMode()" title="Editar Manual"><i class="bi bi-pencil-square"></i></button>
-            <button class="arti-control-btn close-btn" onclick="closeArti()"><i class="bi bi-x-lg"></i></button>
+        <div class="d-flex align-items-center gap-1">
+            <button class="btn-arti-tool" id="btnEditHelp" title="Editar Manual"><i class="bi bi-pencil-square"></i></button>
+            <button class="btn-arti-tool" onclick="openHelp()" title="Cerrar"><i class="bi bi-x-lg"></i></button>
         </div>
     </div>
     
-    <div class="arti-body">
-        <div id="arti-loader" class="text-center py-5">
-            <div class="spinner-border spinner-border-sm text-primary"></div>
-            <div class="mt-2 x-small opacity-50">Sincronizando...</div>
+    <div class="arti-body-pro" id="helpContentArea">
+        {{-- Aquí se carga el contenido --}}
+    </div>
+
+    {{-- ZONA DE EDICIÓN --}}
+    <div id="helpEditorArea" style="display:none;" class="p-3 bg-white text-dark rounded-bottom-4">
+        <div class="mb-2">
+            <label class="x-small fw-bold text-muted text-uppercase mb-1">Título del Manual</label>
+            <input type="text" id="editHelpTitle" class="form-control form-control-sm border-secondary fw-bold" placeholder="Ej: Guía de Ventas...">
         </div>
-
-        <div id="arti-view-mode">
-            <div id="arti-empty" class="text-center py-4 d-none">
-                <i class="bi bi-cpu fs-2 opacity-20"></i>
-                <h6 class="mt-2 fw-bold">Arti está listo para aprender</h6>
-                <p class="x-small opacity-50">No hay instrucciones cargadas para esta ruta.</p>
-                <button class="btn btn-primary btn-xs rounded-pill px-3 mt-2" onclick="enterEditMode()">CREAR MANUAL</button>
-            </div>
-
-            <div id="arti-display" class="d-none">
-                <h4 id="arti-title" class="fw-bold text-primary mb-3"></h4>
-                <div id="arti-content" class="arti-content-scroll small"></div>
-                <div id="arti-video" class="mt-3 d-none"></div>
-            </div>
+        <div id="summernoteHelp"></div>
+        <div class="mt-3">
+            <label class="x-small fw-bold text-muted text-uppercase mb-1">URL de Video (Youtube)</label>
+            <input type="text" id="editHelpVideo" class="form-control form-control-sm border-secondary x-small" placeholder="https://www.youtube.com/watch?v=...">
         </div>
-
-        <div id="arti-edit-mode" class="d-none">
-            <input type="text" id="edit-arti-title" class="form-control mb-2 bg-dark text-white border-secondary small" placeholder="Título del manual...">
-            <textarea id="edit-arti-content"></textarea>
-            <input type="text" id="edit-arti-video" class="form-control mt-2 mb-2 bg-dark text-white border-secondary x-small" placeholder="URL Video (Opcional)...">
-            <div class="d-flex gap-2 mt-3">
-                <button class="btn btn-success btn-sm w-100 fw-bold" onclick="saveArti()">GUARDAR</button>
-                <button class="btn btn-outline-light btn-sm" onclick="exitEditMode()">CANCELAR</button>
-            </div>
+        <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
+            <button class="btn btn-sm btn-light border fw-bold" onclick="cancelEditHelp()">CANCELAR</button>
+            <button class="btn btn-sm btn-primary fw-bold px-4" onclick="saveHelpContent()">GUARDAR CAMBIOS</button>
         </div>
     </div>
-    <div class="arti-resize-handle"></div>
+
+    <div class="arti-footer-pro">
+        Ruta operativa: <span class="text-white fw-bold">{{ Route::currentRouteName() }}</span>
+    </div>
+    <div class="ui-resizable-handle ui-resizable-se"></div>
 </div>
 
 <style>
-    .arti-window {
+    .arti-window-pro {
         position: fixed;
-        bottom: 90px;
         right: 30px;
-        width: 400px;
-        min-width: 300px;
-        height: 500px;
-        min-height: 250px;
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
+        top: 100px;
+        width: 450px;
+        height: 650px;
+        min-width: 350px;
+        min-height: 300px;
+        background: rgba(10, 12, 14, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 20px;
         z-index: 1000002;
-        display: flex;
+        display: none;
         flex-direction: column;
         color: #fff;
+        overflow: hidden;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.5);
     }
 
-    .arti-header {
-        padding: 15px 20px;
-        background: rgba(255, 255, 255, 0.05);
+    .arti-header-pro {
+        padding: 18px 22px;
+        background: rgba(255, 255, 255, 0.03);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         cursor: move;
         border-radius: 20px 20px 0 0;
     }
 
-    .arti-status-dot {
-        width: 8px;
-        height: 8px;
-        background: var(--color-primario);
-        border-radius: 50%;
-        box-shadow: 0 0 10px var(--color-primario);
-    }
-
-    .arti-control-btn {
-        background: none;
-        border: none;
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 1.1rem;
-        transition: all 0.2s;
-        padding: 0 5px;
-    }
-    .arti-control-btn:hover { color: #fff; transform: scale(1.1); }
-
-    .arti-body {
-        flex: 1;
+    .arti-body-pro {
+        flex-grow: 1;
         overflow-y: auto;
-        padding: 20px;
-    }
-
-    .arti-content-scroll {
-        max-height: 100%;
+        padding: 30px;
         line-height: 1.6;
-        opacity: 0.9;
+        color: #e2e8f0;
     }
 
-    .arti-resize-handle {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 20px;
-        height: 20px;
-        cursor: nwse-resize;
-        background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.2) 50%);
-        border-bottom-right-radius: 20px;
+    .btn-arti-tool {
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.6);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 0 8px;
+        transition: all 0.2s;
+    }
+    .btn-arti-tool:hover { color: #fff; transform: scale(1.1); }
+
+    .arti-footer-pro {
+        padding: 10px 20px;
+        text-align: center;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        font-size: 10px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
-    /* Override Summernote para dark mode */
-    .note-editor.note-frame { border: 1px solid rgba(255,255,255,0.1) !important; background: #fff; color: #333; }
+    .manual-body h1, .manual-body h2, .manual-body h3 { color: var(--color-primario); margin-top: 1.2rem; }
+    .manual-body img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); }
     
-    .tracking-wider { letter-spacing: 1.5px; }
-    .x-small { font-size: 0.75rem; }
-    .btn-xs { padding: 4px 10px; font-size: 0.77rem; }
+    .ui-resizable-se {
+        width: 15px; height: 15px; background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.3) 50%); bottom: 5px; right: 5px; cursor: nwse-resize;
+    }
 </style>
 
-{{-- LIBRERIAS PARA ARRASTRAR --}}
+{{-- LIBRERIAS MASTER --}}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    const currentRoute = "{{ Route::currentRouteName() }}";
+    const currentRoute = '{{ Route::currentRouteName() }}';
     const userRole = "{{ auth()->user()->role }}";
     const isImpersonated = {{ session('impersonator_id') ? 'true' : 'false' }};
 
     $(function() {
-        // Inicializar arrastre y redimensionado
-        $("#arti-window").draggable({ handle: "#arti-header", containment: "window" });
-        $("#arti-window").resizable({
-            handles: { 'se': '.arti-resize-handle' },
-            minWidth: 300, minHeight: 250,
-            containment: "window"
-        });
+        // HABILITAR ARRASTRE Y REDIMENSIONADO MULTI-EJE
+        $("#helpPanel").draggable({ handle: ".arti-header-pro", containment: "window" })
+                       .resizable({ minWidth: 350, minHeight: 300, handles: "all" });
     });
 
     function openHelp() {
-        const win = $("#arti-window");
-        if(!win.hasClass('d-none')) { closeArti(); return; }
-        
-        win.removeClass('d-none').addClass('animate__fadeInUp');
-        $("#arti-loader").show();
-        $("#arti-view-mode, #arti-edit-mode").hide();
-        $(".edit-btn").addClass('d-none');
+        const panel = $("#helpPanel");
+        if (panel.css('display') === 'flex') {
+            panel.hide();
+        } else {
+            panel.css('display', 'flex');
+            fetchHelpContent();
+        }
+    }
 
-        $.get("{{ route('help.fetch') }}", { route: currentRoute }, function(res){
-            $("#arti-loader").hide();
-            $("#arti-view-mode").show();
-            
-            if(userRole === 'owner' || isImpersonated) $(".edit-btn").removeClass('d-none');
+    function fetchHelpContent() {
+        const area = $("#helpContentArea");
+        area.html('<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted x-small">Consultando cerebro...</p></div>');
+        $("#btnEditHelp").addClass('d-none');
 
+        $.get(`/help/fetch?route=${currentRoute}`, function(res) {
             if(res.success && res.data) {
-                $("#arti-empty").addClass('d-none');
-                $("#arti-display").removeClass('d-none');
-                $("#arti-title").text(res.data.title);
-                $("#arti-content").html(res.data.content);
+                if(userRole === 'owner' || isImpersonated) $("#btnEditHelp").removeClass('d-none');
                 
+                let videoHtml = "";
                 if(res.data.video_url) {
                     let embed = res.data.video_url.replace("watch?v=", "embed/");
-                    $("#arti-video").html(`<iframe width="100%" height="200" src="${embed}" frameborder="0" allowfullscreen></iframe>`).removeClass('d-none');
-                } else {
-                    $("#arti-video").addClass('d-none');
+                    videoHtml = `<div class="mt-4 border rounded-4 overflow-hidden shadow-sm"><iframe width="100%" height="220" src="${embed}" frameborder="0" allowfullscreen></iframe></div>`;
                 }
+
+                area.html(`
+                    <h3 class="fw-bold mb-3" style="color:var(--color-primario);">${res.data.title}</h3>
+                    <div class="manual-body small">${res.data.content}</div>
+                    ${videoHtml}
+                `);
             } else {
-                $("#arti-display").addClass('d-none');
-                $("#arti-empty").removeClass('d-none');
+                area.html(`
+                    <div class="text-center py-5 opacity-40">
+                        <i class="bi bi-journal-x fs-1"></i>
+                        <p class="mt-2 mb-0 fw-bold">Arti no tiene datos aquí aún.</p>
+                        ${(userRole === 'owner' || isImpersonated) ? '<button class="btn btn-sm btn-primary rounded-pill px-4 mt-3 mt-1" onclick="activateEditor()">INICIAR MANUAL</button>' : ''}
+                    </div>
+                `);
             }
         });
     }
 
-    function closeArti() {
-        $("#arti-window").addClass('d-none');
+    function activateEditor() {
+        $("#helpContentArea").hide();
+        $("#helpEditorArea").show();
+        const currentTitle = $("#helpContentArea h3").text() || "Guía de " + currentRoute;
+        const currentContent = $("#helpContentArea .manual-body").html() || "";
+        const currentVideo = ""; // Podríamos leerlo de un buffer si hiciese falta
+
+        $("#editHelpTitle").val(currentTitle);
+        $('#summernoteHelp').summernote({ 
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+        $('#summernoteHelp').summernote('code', currentContent);
     }
 
-    function enterEditMode() {
-        $("#arti-view-mode").hide();
-        $("#arti-edit-mode").show();
-        $("#edit-arti-title").val($("#arti-title").text() || "Manual de " + currentRoute);
-        $("#edit-arti-content").summernote({ height: 250 });
-        $("#edit-arti-content").summernote('code', $("#arti-content").html());
-        $("#edit-arti-video").val("");
+    function cancelEditHelp() {
+        $("#helpContentArea").show();
+        $("#helpEditorArea").hide();
+        $('#summernoteHelp').summernote('destroy');
     }
 
-    function exitEditMode() {
-        $("#arti-edit-mode").hide();
-        $("#arti-view-mode").show();
-    }
+    function saveHelpContent() {
+        const title = $("#editHelpTitle").val();
+        const content = $('#summernoteHelp').summernote('code');
+        const video = $("#editHelpVideo").val();
 
-    function saveArti() {
-        const data = {
+        if(!title || !content) {
+            Swal.fire({ icon: 'warning', title: 'Faltan datos', text: 'Arti necesita un título y contenido para guardar.', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+            return;
+        }
+
+        $.post('/help/save', {
             _token: "{{ csrf_token() }}",
             route_name: currentRoute,
-            title: $("#edit-arti-title").val(),
-            content: $("#edit-arti-content").summernote('code'),
-            video_url: $("#edit-arti-video").val()
-        };
-        $.post("{{ route('help.save') }}", data, function(res){
-            if(res.success) { exitEditMode(); openHelp(); }
+            title: title,
+            content: content,
+            video_url: video
+        }, function(res) {
+            if(res.success) {
+                Swal.fire({ icon: 'success', title: '¡Memoria guardada!', text: 'Arti ha memorizado las instrucciones.', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+                cancelEditHelp();
+                fetchHelpContent();
+            }
         });
     }
+
+    $("#btnEditHelp").on('click', activateEditor);
 </script>
 
 @yield('scripts')
