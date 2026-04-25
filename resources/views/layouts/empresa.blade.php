@@ -557,11 +557,32 @@ body {
 </style>
 
 {{-- LIBRERIAS MASTER --}}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    /* FORZAR VISIBILIDAD Y AGARRE DE REDIMENSIONADO */
+    .ui-resizable-handle { 
+        z-index: 1000006 !important; 
+        background: transparent !important;
+    }
+    .ui-resizable-e { width: 10px !important; right: -5px !important; }
+    .ui-resizable-s { height: 10px !important; bottom: -5px !important; }
+    .ui-resizable-w { width: 10px !important; left: -5px !important; }
+    .ui-resizable-n { height: 10px !important; top: -5px !important; }
+    .ui-resizable-se { 
+        width: 20px !important; height: 20px !important; 
+        right: 0 !important; bottom: 0 !important; 
+        background: linear-gradient(135deg, transparent 50%, var(--color-primario) 50%) !important;
+        opacity: 0.5;
+        border-bottom-right-radius: 18px;
+    }
+    .ui-resizable-se:hover { opacity: 1; }
+</style>
 
 <script>
     const currentRoute = '{{ Route::currentRouteName() }}';
