@@ -536,23 +536,25 @@ body {
     
     .ui-resizable-e { width: 10px !important; right: -5px !important; cursor: ew-resize !important; }
     .ui-resizable-s { height: 10px !important; bottom: -5px !important; cursor: ns-resize !important; }
-    .ui-resizable-w { width: 10px !important; left: -5px !important; cursor: ew-resize !important; }
-    .ui-resizable-n { height: 10px !important; top: -5px !important; cursor: ns-resize !important; }
-    .ui-resizable-se { 
-        width: 25px !important; height: 25px !important; 
-        right: 0 !important; bottom: 0 !important; 
-        background: radial-gradient(circle at bottom right, var(--color-primario) 0%, transparent 70%) !important;
-        cursor: nwse-resize !important;
-        border-bottom-right-radius: 20px;
-    }
-
     .arti-header-pro {
         padding: 15px 22px;
-        background: rgba(255, 255, 255, 0.05);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: #d4af37; /* DORADO ORIGINAL */
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         cursor: move;
         border-radius: 20px 20px 0 0;
+        color: #000; /* TEXTO OSCURO SOBRE DORADO */
     }
+
+    .btn-arti-tool {
+        background: transparent;
+        border: none;
+        color: rgba(0,0,0,0.6);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0 8px;
+        transition: all 0.2s;
+    }
+    .btn-arti-tool:hover { color: #000; transform: scale(1.2); }
 
     .arti-body-pro {
         flex-grow: 1;
@@ -566,18 +568,9 @@ body {
         border-radius: 0 0 20px 20px;
         flex-grow: 1;
         overflow-y: auto;
+        background: #fff !important;
+        color: #000 !important;
     }
-
-    .btn-arti-tool {
-        background: transparent;
-        border: none;
-        color: rgba(255,255,255,0.6);
-        font-size: 1.1rem;
-        cursor: pointer;
-        padding: 0 8px;
-        transition: all 0.2s;
-    }
-    .btn-arti-tool:hover { color: #fff; transform: scale(1.1); }
 
     .arti-footer-pro {
         padding: 10px 20px;
@@ -589,7 +582,7 @@ body {
         letter-spacing: 1px;
     }
 
-    .manual-body h1, .manual-body h2, .manual-body h3 { color: var(--color-primario) !important; margin-top: 1.2rem; }
+    .manual-body h1, .manual-body h2, .manual-body h3, .manual-body h4 { color: #d4af37 !important; margin-top: 1.2rem; font-weight: 800; }
     .manual-body img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); }
 </style>
 
