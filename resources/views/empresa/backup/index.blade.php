@@ -157,16 +157,24 @@
                     <div class="mb-4">
                         <span class="fs-1">💾</span>
                     </div>
-                    <h4 class="fw-bold mb-3">Espacio en Disco Local</h4>
-                    <p class="text-danger fw-bold">⚠️ ADVERTENCIA DE ALMACENAMIENTO</p>
+                    <h4 class="fw-bold mb-3">Ubicación de Resguardo</h4>
                     <p class="text-secondary px-4">
-                        El archivo se descargará en <strong>Su Propia Computadora</strong>. <br>
-                        Se estima un volumen de: <span class="badge bg-dark fs-6" id="estimatedSize">Calculando...</span> <br><br>
-                        Asegúrese de contar con espacio suficiente antes de proceder.
+                        Elija la carpeta local donde se guardarán los archivos. Se recordará para futuros resguardos.
                     </p>
-                    <div class="d-flex gap-3 justify-content-center">
+                    
+                    <div class="bg-light p-3 rounded mb-3 text-start mx-auto border shadow-sm" style="max-width: 450px;">
+                        <small class="text-muted text-uppercase fw-bold"><i class="fas fa-folder-open text-warning me-1"></i> CARPETA DESTINO:</small>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span id="dirDisplay" class="fw-bold text-primary text-truncate pe-3">Verificando acceso...</span>
+                            <button class="btn btn-sm btn-outline-primary fw-bold" onclick="selectDirectory()">CAMBIAR</button>
+                        </div>
+                    </div>
+
+                    <p class="text-danger fw-bold small mt-3">Volumen estimado: <span class="badge bg-dark fs-6 ms-1" id="estimatedSize">Calculando...</span></p>
+
+                    <div class="d-flex gap-3 justify-content-center mt-4">
                         <button class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-bold" onclick="nextStep(1)">VOLVER</button>
-                        <button class="btn btn-success px-5 py-3 rounded-pill fw-bold" onclick="nextStep(3)">TENGO ESPACIO</button>
+                        <button class="btn btn-success px-5 py-2 rounded-pill fw-bold" id="btnNextStep3" onclick="nextStep(3)" disabled>CONTINUAR <i class="bi bi-arrow-right ms-1"></i></button>
                     </div>
                 </div>
 
@@ -192,6 +200,82 @@
 <script>
     const wizardModal = new bootstrap.Modal(document.getElementById('backupWizard'));
     let currentType = '';
+    let currentDirHandle = null;
+
+    // --- INDEXED DB LOGIC PARA RECORDAR LA CARPETA ---
+    const dbPromise = new Promise((resolve, reject) => {
+        const req = indexedDB.open('BackupDB', 1);
+        req.onupgradeneeded = (e) => e.target.result.createObjectStore('handles');
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+    });
+
+    async function saveDirHandle(handle) {
+        const db = await dbPromise;
+        db.transaction('handles', 'readwrite').objectStore('handles').put(handle, 'backupDir');
+    }
+
+    async function getDirHandle() {
+        const db = await dbPromise;
+        return new Promise(resolve => {
+            const req = db.transaction('handles', 'readonly').objectStore('handles').get('backupDir');
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve(null);
+        });
+    }
+
+    async function checkSavedDir() {
+        try {
+            currentDirHandle = await getDirHandle();
+            if (currentDirHandle) {
+                // Verify permission silently
+                const perm = await currentDirHandle.queryPermission({mode: 'readwrite'});
+                if (perm === 'granted') {
+                    document.getElementById('dirDisplay').innerText = "📂 " + currentDirHandle.name;
+                    document.getElementById('btnNextStep3').disabled = false;
+                    return;
+                } else {
+                    document.getElementById('dirDisplay').innerText = "Permiso requerido para " + currentDirHandle.name;
+                    document.getElementById('btnNextStep3').disabled = true;
+                    // Alerta o indicación de que debe dar clic en cambiar o seleccionar
+                }
+            } else {
+                document.getElementById('dirDisplay').innerText = 'Ninguna carpeta seleccionada';
+                document.getElementById('btnNextStep3').disabled = true;
+            }
+        } catch(e) {
+            document.getElementById('dirDisplay').innerText = 'No soportado o denegado';
+        }
+    }
+
+    async function selectDirectory() {
+        try {
+            if (!window.showDirectoryPicker) {
+                alert("Tu navegador no soporta la selección de carpetas. Se descargará de forma normal.");
+                document.getElementById('btnNextStep3').disabled = false;
+                return;
+            }
+            
+            // Si ya hay un handle pero requiere permiso
+            if (currentDirHandle && await currentDirHandle.queryPermission({mode:'readwrite'}) !== 'granted') {
+                const reqPerm = await currentDirHandle.requestPermission({mode: 'readwrite'});
+                if (reqPerm === 'granted') {
+                    document.getElementById('dirDisplay').innerText = "📂 " + currentDirHandle.name;
+                    document.getElementById('btnNextStep3').disabled = false;
+                    return;
+                }
+            }
+
+            const handle = await window.showDirectoryPicker({mode: 'readwrite'});
+            await saveDirHandle(handle);
+            currentDirHandle = handle;
+            document.getElementById('dirDisplay').innerText = "📂 " + handle.name;
+            document.getElementById('btnNextStep3').disabled = false;
+        } catch(e) {
+            console.error("Selección cancelada", e);
+        }
+    }
+    // ---------------------------------------------------
 
     function startBackupProcess(type) {
         currentType = type;
@@ -205,6 +289,7 @@
         };
         document.getElementById('estimatedSize').innerText = sizes[type] || '---';
         
+        checkSavedDir(); // Verificar handle previo
         wizardModal.show();
     }
 
@@ -216,9 +301,52 @@
         document.getElementById('step-' + step).style.display = 'block';
 
         if(step === 3) {
-            document.getElementById('finalActionBtn').onclick = function() {
-                window.location.href = "{{ route('empresa.backup.download') }}?type=" + currentType;
-                wizardModal.hide();
+            document.getElementById('finalActionBtn').onclick = async function() {
+                const btn = this;
+                
+                if (!window.showDirectoryPicker || !currentDirHandle) {
+                    // Fallback clásico
+                    window.location.href = "{{ route('empresa.backup.download') }}?type=" + currentType;
+                    wizardModal.hide();
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>CREANDO ARCHIVO...';
+                
+                try {
+                    // Descargar el archivo Blob
+                    const res = await fetch("{{ route('empresa.backup.download') }}?type=" + currentType);
+                    if (!res.ok) throw new Error("Respuesta de red incorrecta");
+                    
+                    const blob = await res.blob();
+                    
+                    let finalName = `Backup_${currentType}_${Date.now()}.csv`;
+                    const disp = res.headers.get('Content-Disposition');
+                    if (disp && disp.indexOf('filename=') !== -1) {
+                        const regex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        const match = regex.exec(disp);
+                        if (match != null && match[1]) {
+                            finalName = match[1].replace(/['"]/g, '');
+                        }
+                    }
+
+                    // Escribir en el disco en la carpeta recordada
+                    const fileHandle = await currentDirHandle.getFileHandle(finalName, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                    
+                    alert("✅ ¡Copia de seguridad guardada con éxito en la carpeta seleccionada!");
+                    
+                    wizardModal.hide();
+                } catch(e) {
+                    alert("❌ Error al guardar el archivo: " + e.message);
+                    console.error(e);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'SÍ, INICIAR DESCARGA';
+                }
             };
         }
     }

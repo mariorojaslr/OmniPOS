@@ -23,6 +23,9 @@
             <button class="btn btn-primary px-4 fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCobro">
                 <i class="fas fa-hand-holding-usd me-1"></i> Registrar Cobro
             </button>
+            <button class="btn btn-outline-success px-4 fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAplicarSaldo">
+                <i class="fas fa-exchange-alt me-1"></i> Aplicar Comprobantes
+            </button>
             <button class="btn btn-outline-primary px-3 fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCuentasBanco">
                 <i class="fas fa-university me-1"></i> Cuentas Banco
             </button>
@@ -453,59 +456,10 @@
                 @csrf
                 <div class="modal-body p-0">
                     <div class="row g-0">
-                        {{-- COLUMNA IZQUIERDA: FACTURAS IMPAGAS --}}
+                        {{-- COLUMNA IZQUIERDA: RECIBOS HUÉRFANOS (SALDO A FAVOR) --}}
                         <div class="col-md-5 p-4 bg-light border-end">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="x-small fw-bold text-uppercase text-muted mb-0"><i class="fas fa-file-invoice text-danger me-1"></i> 1. Facturas Impagas (Debe)</h6>
-                                <span class="badge bg-danger rounded-pill x-small" id="countDeudasSelected">0 seleccionadas</span>
-                            </div>
-                            
-                            <div class="list-group list-group-flush rounded-3 border shadow-sm overflow-auto" style="max-height: 400px;">
-                                @forelse($deudas as $d)
-                                <label class="list-group-item list-group-item-action border-bottom p-3 cursor-pointer">
-                                    <div class="d-flex align-items-center">
-                                        <input class="form-check-input me-3 checkbox-deuda" type="checkbox" name="facturas_aplicar[]" value="{{ $d->id }}" data-monto="{{ $d->pending_amount }}" onchange="recalculateCompensacion()">
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between">
-                                                <span class="fw-bold text-dark small">{{ $d->description }}</span>
-                                                <span class="text-danger fw-bold small">${{ number_format($d->pending_amount, 2, ',', '.') }}</span>
-                                            </div>
-                                            <div class="x-small text-muted">{{ $d->created_at->format('d/m/Y') }} · Antigüedad: {{ $d->created_at->diffInDays(now()) }} días</div>
-                                        </div>
-                                    </div>
-                                </label>
-                                @empty
-                                <div class="p-5 text-center text-muted x-small">No hay facturas pendientes de cobro.</div>
-                                @endforelse
-                            </div>
-                            
-                            <div class="mt-3 text-center">
-                                <span class="x-small text-muted fw-bold">TOTAL DEUDA SELECCIONADA: </span>
-                                <span class="fw-bold text-danger" id="totalDeudaCompensar">$0,00</span>
-                            </div>
-                        </div>
-
-                        {{-- COLUMNA CENTRAL: ACCIÓN --}}
-                        <div class="col-md-2 d-flex flex-column align-items-center justify-content-center bg-white p-3 border-start border-end">
-                            <div class="text-center mb-4">
-                                <div class="x-small fw-bold text-muted text-uppercase mb-2">Diferencia</div>
-                                <h4 class="fw-bold mb-0" id="balanceCompensacion">$0,00</h4>
-                                <div id="balanceStatus" class="x-small mt-1 fw-bold"></div>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm scale-up mb-3" id="btnAplicarCompensacion" disabled>
-                                APLICAR <i class="fas fa-magic ms-1"></i>
-                            </button>
-                            
-                            <div class="alert alert-warning border-0 p-2 x-small text-center rounded-3 mb-0">
-                                <i class="fas fa-info-circle"></i> Los documentos se cancelarán totalmente o quedará saldo parcial.
-                            </div>
-                        </div>
-
-                        {{-- COLUMNA DERECHA: RECIBOS HUÉRFANOS --}}
-                        <div class="col-md-5 p-4 bg-light">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="x-small fw-bold text-uppercase text-muted mb-0"><i class="fas fa-receipt text-success me-1"></i> 2. Saldo a Favor (Haber)</h6>
+                                <h6 class="x-small fw-bold text-uppercase text-muted mb-0"><i class="fas fa-receipt text-success me-1"></i> 1. Saldo a Favor (Recibos)</h6>
                                 <span class="badge bg-success rounded-pill x-small" id="countCreditosSelected">0 seleccionados</span>
                             </div>
 
@@ -533,6 +487,55 @@
                                 <span class="fw-bold text-success" id="totalCreditoCompensar">$0,00</span>
                             </div>
                         </div>
+
+                        {{-- COLUMNA CENTRAL: ACCIÓN --}}
+                        <div class="col-md-2 d-flex flex-column align-items-center justify-content-center bg-white p-3 border-start border-end">
+                            <div class="text-center mb-4">
+                                <div class="x-small fw-bold text-muted text-uppercase mb-2">Diferencia</div>
+                                <h4 class="fw-bold mb-0" id="balanceCompensacion">$0,00</h4>
+                                <div id="balanceStatus" class="x-small mt-1 fw-bold"></div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm scale-up mb-3" id="btnAplicarCompensacion" disabled>
+                                APLICAR <i class="fas fa-magic ms-1"></i>
+                            </button>
+                            
+                            <div class="alert alert-warning border-0 p-2 x-small text-center rounded-3 mb-0">
+                                <i class="fas fa-info-circle"></i> Los documentos se cancelarán totalmente o quedará saldo parcial.
+                            </div>
+                        </div>
+
+                        {{-- COLUMNA DERECHA: FACTURAS IMPAGAS --}}
+                        <div class="col-md-5 p-4 bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="x-small fw-bold text-uppercase text-muted mb-0"><i class="fas fa-file-invoice text-danger me-1"></i> 2. Facturas Impagas (Debe)</h6>
+                                <span class="badge bg-danger rounded-pill x-small" id="countDeudasSelected">0 seleccionadas</span>
+                            </div>
+                            
+                            <div class="list-group list-group-flush rounded-3 border shadow-sm overflow-auto" style="max-height: 400px;">
+                                @forelse($deudas as $d)
+                                <label class="list-group-item list-group-item-action border-bottom p-3 cursor-pointer">
+                                    <div class="d-flex align-items-center">
+                                        <input class="form-check-input me-3 checkbox-deuda" type="checkbox" name="facturas_aplicar[]" value="{{ $d->id }}" data-monto="{{ $d->pending_amount }}" onchange="recalculateCompensacion()">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="fw-bold text-dark small">{{ $d->description }}</span>
+                                                <span class="text-danger fw-bold small">${{ number_format($d->pending_amount, 2, ',', '.') }}</span>
+                                            </div>
+                                            <div class="x-small text-muted">{{ $d->created_at->format('d/m/Y') }} · Antigüedad: {{ $d->created_at->diffInDays(now()) }} días</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                @empty
+                                <div class="p-5 text-center text-muted x-small">No hay facturas pendientes de cobro.</div>
+                                @endforelse
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <span class="x-small text-muted fw-bold">TOTAL DEUDA SELECCIONADA: </span>
+                                <span class="fw-bold text-danger" id="totalDeudaCompensar">$0,00</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -549,6 +552,78 @@
     .shadow-inner { box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); }
     .no-arrows::-webkit-outer-spin-button, .no-arrows::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 </style>
+
+{{-- MODAL GESTIÓN DE CUENTAS BANCARIAS DEL CLIENTE --}}
+<div class="modal fade" id="modalCuentasBanco" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white p-4 border-0">
+                <h5 class="modal-title fw-bold">Cuentas Bancarias: {{ $client->name }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <!-- Listado de Cuentas Existentes -->
+                    <div class="col-md-7">
+                        <h6 class="text-uppercase x-small fw-bold text-muted mb-3">Cuentas Registradas</h6>
+                        <div class="list-group list-group-flush rounded-3 border overflow-auto" style="max-height: 400px;">
+                            @forelse($client->bankAccounts as $acc)
+                                <div class="list-group-item p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">{{ $acc->bank_name }}</h6>
+                                            <span class="x-small text-muted">{{ $acc->account_type ?: 'Cuenta' }} · {{ $acc->account_number }}</span>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-light text-dark rounded-pill x-small px-3 border">CBU: {{ $acc->cbu_cvu }}</span>
+                                            <div class="x-small text-primary fw-bold mt-1">Alias: {{ $acc->alias }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-5 text-center text-muted small">
+                                    <i class="fas fa-university fa-3x mb-3 opacity-25"></i>
+                                    <p>No hay cuentas bancarias registradas para este cliente.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Formulario Nueva Cuenta -->
+                    <div class="col-md-5 bg-light p-4 rounded-4">
+                        <h6 class="text-uppercase x-small fw-bold text-muted mb-3">Registrar Nueva Cuenta</h6>
+                        <form action="{{ route('empresa.tesoreria.bank-accounts.store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="holder_type" value="{{ get_class($client) }}">
+                            <input type="hidden" name="holder_id" value="{{ $client->id }}">
+                            
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-1">Banco</label>
+                                <input type="text" name="bank_name" class="form-control form-control-sm border-0 bg-white rounded-pill px-3 shadow-sm" placeholder="Ej: Galicia, BBVA..." required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-1">CBU / CVU</label>
+                                <input type="text" name="cbu_cvu" class="form-control form-control-sm border-0 bg-white rounded-pill px-3 shadow-sm" placeholder="22 dígitos">
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-1">Alias</label>
+                                <input type="text" name="alias" class="form-control form-control-sm border-0 bg-white rounded-pill px-3 shadow-sm" placeholder="Ej: CASA.PERRO.GATO">
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-1">Tipo de Cuenta</label>
+                                <select name="account_type" class="form-select form-select-sm border-0 bg-white rounded-pill px-3 shadow-sm">
+                                    <option value="Cta. Corriente">Cta. Corriente</option>
+                                    <option value="Caja de Ahorro">Caja de Ahorro</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm">GUARDAR CUENTA</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 
@@ -663,77 +738,7 @@
             badge.className = "d-none";
         }
     }
-{{-- MODAL GESTIÓN DE CUENTAS BANCARIAS DEL CLIENTE --}}
-<div class="modal fade" id="modalCuentasBanco" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
-            <div class="modal-header bg-dark text-white p-4 border-0">
-                <h5 class="modal-title fw-bold">Cuentas Bancarias: {{ $client->name }}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div class="row g-4">
-                    <!-- Listado de Cuentas Existentes -->
-                    <div class="col-md-7">
-                        <h6 class="text-uppercase x-small fw-bold text-muted mb-3">Cuentas Registradas</h6>
-                        <div class="list-group list-group-flush rounded-3 border overflow-auto" style="max-height: 400px;">
-                            @forelse($client->bankAccounts as $acc)
-                                <div class="list-group-item p-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="fw-bold mb-0 text-dark">{{ $acc->bank_name }}</h6>
-                                            <span class="x-small text-muted">{{ $acc->account_type ?: 'Cuenta' }} · {{ $acc->account_number }}</span>
-                                        </div>
-                                        <div class="text-end">
-                                            <span class="badge bg-light text-dark rounded-pill x-small px-3 border">CBU: {{ $acc->cbu_cvu }}</span>
-                                            <div class="x-small text-primary fw-bold mt-1">Alias: {{ $acc->alias }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="p-5 text-center text-muted small">
-                                    <i class="fas fa-university fa-3x mb-3 opacity-25"></i>
-                                    <p>No hay cuentas bancarias registradas para este cliente.</p>
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
 
-                    <!-- Formulario Nueva Cuenta -->
-                    <div class="col-md-5 bg-light p-4 rounded-4">
-                        <h6 class="text-uppercase x-small fw-bold text-muted mb-3">Registrar Nueva Cuenta</h6>
-                        <form action="{{ route('empresa.tesoreria.bank-accounts.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="holder_type" value="{{ get_class($client) }}">
-                            <input type="hidden" name="holder_id" value="{{ $client->id }}">
-                            
-                            <div class="mb-3">
-                                <label class="small fw-bold text-muted mb-1">Banco</label>
-                                <input type="text" name="bank_name" class="form-control form-control-sm border-0 bg-white rounded-pill px-3 shadow-sm" placeholder="Ej: Galicia, BBVA..." required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="small fw-bold text-muted mb-1">CBU / CVU</label>
-                                <input type="text" name="cbu_cvu" class="form-control form-control-sm border-0 bg-white rounded-pill px-3 shadow-sm" placeholder="22 dígitos">
-                            </div>
-                            <div class="mb-3">
-                                <label class="small fw-bold text-muted mb-1">Alias</label>
-                                <input type="text" name="alias" class="form-control form-control-sm border-0 bg-white rounded-pill px-3 shadow-sm" placeholder="Ej: CASA.PERRO.GATO">
-                            </div>
-                            <div class="mb-3">
-                                <label class="small fw-bold text-muted mb-1">Tipo de Cuenta</label>
-                                <select name="account_type" class="form-select form-select-sm border-0 bg-white rounded-pill px-3 shadow-sm">
-                                    <option value="Cta. Corriente">Cta. Corriente</option>
-                                    <option value="Caja de Ahorro">Caja de Ahorro</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm">GUARDAR CUENTA</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
     function recalculateCompensacion() {
         let totalDeuda = 0;
         let countDeuda = 0;

@@ -40,7 +40,7 @@ class BackupController extends Controller
         ];
 
         // Por simplicidad en este entorno, generaremos un CSV consolidado o redireccionaremos al tipo
-        if ($type === 'sql' || $type === 'media') {
+        if ($type === 'sql' || $type === 'media' || $type === 'tokens') {
             return $this->exportToCsv($empresa, $tables);
         }
 

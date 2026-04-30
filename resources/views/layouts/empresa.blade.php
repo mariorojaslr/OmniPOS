@@ -61,7 +61,17 @@ body {
     display: flex;
     flex-direction: column;
     padding: 15px 0;
-    overflow: visible !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Custom Scrollbar for sidebar */
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
 }
 
 .nav-link-item {
@@ -90,9 +100,9 @@ body {
 
 /* GLOBO FLOTANTE POSICIÓN FIJA (FIX PARA EL SCROLL) */
 .floating-balloon {
-    position: absolute;
+    position: fixed;
     left: var(--sidebar-width);
-    top: 50%;
+    /* top is set via Javascript on hover */
     transform: translateY(-50%) translateX(10px);
     background: #0f172a;
     border: 1px solid rgba(255,255,255,0.15);
@@ -198,56 +208,183 @@ body {
     </div>
 
     <div class="sidebar-nav">
-        {{-- ITEMS DEL MENÚ ORIGINALES --}}
+        {{-- INICIO --}}
         <a href="{{ route('empresa.dashboard') }}" class="nav-link-item {{ Route::is('empresa.dashboard') ? 'active' : '' }}">
             <i class="bi bi-speedometer2"></i>
             <span class="nav-icon-label">Inicio</span>
         </a>
 
-        <a href="{{ route('empresa.products.index') }}" class="nav-link-item {{ Route::is('empresa.products.*') ? 'active' : '' }}">
-            <i class="bi bi-box-seam" style="color: #00d2ff;"></i>
-            <span class="nav-icon-label text-center">Stock & Art.</span>
-        </a>
+        {{-- ARTICULOS --}}
+        <div class="nav-link-item">
+            <i class="bi bi-tags" style="color: #00d2ff;"></i>
+            <span class="nav-icon-label text-center">Artículos</span>
+            <div class="floating-balloon">
+                <h6>📦 GESTIÓN DE ARTÍCULOS</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.products.index') }}" class="submenu-link">📄 Mis Artículos</a>
+                    <a href="{{ route('empresa.rubros.index') }}" class="submenu-link">🏷️ Rubros / Categorías</a>
+                    <a href="{{ route('empresa.listados.articulos') }}" class="submenu-link text-success">🖨️ Catálogo / Imprimir</a>
+                </div>
+            </div>
+        </div>
 
-        <a href="{{ route('empresa.ventas.index') }}" class="nav-link-item {{ Route::is('empresa.ventas.*') ? 'active' : '' }}">
+        {{-- STOCK --}}
+        <div class="nav-link-item">
+            <i class="bi bi-boxes" style="color: #20c997;"></i>
+            <span class="nav-icon-label text-center">Stock</span>
+            <div class="floating-balloon">
+                <h6>📊 CONTROL DE STOCK</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.stock.index') }}" class="submenu-link">🔄 Movimientos Stock</a>
+                    <a href="{{ route('empresa.stock.valuation') }}" class="submenu-link">💰 Valuación de Stock</a>
+                    <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-link text-warning">⚠️ Reposición</a>
+                    <hr class="my-1 opacity-10">
+                    <a href="{{ route('empresa.recipes.index') }}" class="submenu-link text-info">🧪 Recetas (BOM)</a>
+                    <a href="{{ route('empresa.production_orders.index') }}" class="submenu-link text-info">🏭 Producción</a>
+                </div>
+            </div>
+        </div>
+
+        {{-- VENTAS --}}
+        <div class="nav-link-item">
             <i class="bi bi-shop" style="color: #ffc107;"></i>
             <span class="nav-icon-label">Ventas</span>
-        </a>
+            <div class="floating-balloon">
+                <h6>📑 ÁREA DE VENTAS</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.pos.index') }}" class="submenu-link text-success fw-bold">🟢 Punto de Venta (POS)</a>
+                    <a href="{{ route('empresa.orders.index') }}" class="submenu-link text-info">🛒 Pedidos Catálogo</a>
+                    <a href="{{ route('empresa.ventas.index') }}" class="submenu-link">📋 Historial Ventas</a>
+                    <a href="{{ route('empresa.ventas.manual') }}" class="submenu-link">✍️ Venta Manual</a>
+                    <a href="{{ route('empresa.presupuestos.index') }}" class="submenu-link">📜 Presupuestos</a>
+                </div>
+            </div>
+        </div>
 
-        <a href="{{ route('empresa.gps.index') }}" class="nav-link-item {{ Route::is('empresa.gps.*') ? 'active' : '' }}">
-            <i class="bi bi-truck-flatbed"></i>
+        {{-- LOGÍSTICA --}}
+        <div onclick="window.location='{{ route('empresa.gps.index') }}'" class="nav-link-item" style="cursor: pointer;">
+            <i class="bi bi-truck-flatbed" style="color: #fff;"></i>
             <span class="nav-icon-label">Logística</span>
-        </a>
+            <div class="floating-balloon" onclick="event.stopPropagation()">
+                <h6>🚚 GPS & ENTREGAS</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.gps.index') }}" class="submenu-link text-primary fw-bold">🗺️ Centro de Control GPS</a>
+                    <a href="{{ route('empresa.gps.rutas') }}" class="submenu-link">🚛 Smart Delivery</a>
+                    <a href="{{ route('empresa.gps.zonas_calientes') }}" class="submenu-link">🔥 Mapa de Calor</a>
+                    <a href="{{ route('empresa.gps.retiros_inteligentes') }}" class="submenu-link">📦 Retiros CRM</a>
+                    <hr class="my-1 opacity-10">
+                    <a href="{{ route('empresa.logistica.reporte') }}" class="submenu-link">📦 Stock en Guarda</a>
+                    <a href="{{ route('empresa.remitos.index') }}" class="submenu-link">📜 Historial Remitos</a>
+                </div>
+            </div>
+        </div>
 
-        <a href="{{ route('empresa.tesoreria.index') }}" class="nav-link-item {{ Route::is('empresa.tesoreria.*') ? 'active' : '' }}">
+        {{-- FINANZAS --}}
+        <div onclick="window.location='{{ route('empresa.tesoreria.index') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-bank" style="color: #4da3ff;"></i>
             <span class="nav-icon-label">Finanzas</span>
-        </a>
+            <div class="floating-balloon" onclick="event.stopPropagation()">
+                <h6>🏦 CAJA & FINANZAS</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.tesoreria.index') }}" class="submenu-link">🏦 Cuentas & Billeteras</a>
+                    <a href="{{ route('empresa.tesoreria.proyeccion') }}" class="submenu-link">📈 Proyección de Caja</a>
+                    <a href="{{ route('empresa.tesoreria.cheques.index') }}" class="submenu-link">✍️ Cheques de Terceros</a>
+                    <a href="{{ route('empresa.tesoreria.chequeras.index') }}" class="submenu-link">📖 Chequeras Propias</a>
+                    <hr class="my-1 opacity-10">
+                    <a href="{{ route('empresa.gastos.index') }}" class="submenu-link text-danger">💸 Gestión de Gastos</a>
+                </div>
+            </div>
+        </div>
 
-        <a href="{{ route('empresa.compras.index') }}" class="nav-link-item {{ Route::is('empresa.compras.*') ? 'active' : '' }}">
+        {{-- ABASTO --}}
+        <div onclick="window.location='{{ route('empresa.compras.index') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-cart-check" style="color: #ff4d4d;"></i>
             <span class="nav-icon-label">Abasto</span>
-        </a>
+            <div class="floating-balloon" onclick="event.stopPropagation()">
+                <h6>🛒 ABASTECIMIENTO</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.compras.create') }}" class="submenu-link text-success">🟢 Nueva Compra</a>
+                    <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Historial Compras</a>
+                    <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-link text-warning">📋 Plan de Reposición</a>
+                </div>
+            </div>
+        </div>
 
-        <a href="{{ route('empresa.clientes.index') }}" class="nav-link-item {{ Route::is('empresa.clientes.*') ? 'active' : '' }}">
+        {{-- CLIENTES --}}
+        <div onclick="window.location='{{ route('empresa.clientes.index') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-people" style="color: #00d2ff;"></i>
             <span class="nav-icon-label">Clientes</span>
-        </a>
+            <div class="floating-balloon" onclick="event.stopPropagation()">
+                <h6>👥 CARTERA</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.clientes.index') }}" class="submenu-link">📄 Listado de Clientes</a>
+                    <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">💰 Cta. Cte. Clientes</a>
+                    <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">🧾 Recibos de Cobro</a>
+                    <a href="{{ route('empresa.listados.clientes') }}" class="submenu-link">📋 Padrones</a>
+                </div>
+            </div>
+        </div>
 
-        <a href="{{ route('empresa.proveedores.index') }}" class="nav-link-item {{ Route::is('empresa.proveedores.*') ? 'active' : '' }}">
+        {{-- PROVEEDORES --}}
+        <div onclick="window.location='{{ route('empresa.proveedores.index') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-truck" style="color: #28a745;"></i>
             <span class="nav-icon-label text-center">Proveedores</span>
-        </a>
+            <div class="floating-balloon" onclick="event.stopPropagation()">
+                <h6>🚛 GESTIÓN PROVEEDORES</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🚚 Mis Proveedores</a>
+                    <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Facturas de Compra</a>
+                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">💳 Cta. Cte. Proveedores</a>
+                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🧾 Recibos de Pago</a>
+                </div>
+            </div>
+        </div>
 
-        <a href="{{ route('empresa.reportes.panel') }}" class="nav-link-item {{ Route::is('empresa.reportes.*') ? 'active' : '' }}">
+        {{-- PERSONAL --}}
+        <div class="nav-link-item">
+            <i class="bi bi-person-badge" style="color: #ff8c00;"></i>
+            <span class="nav-icon-label text-center">Personal</span>
+            <div class="floating-balloon">
+                <h6>👥 GESTIÓN DE EQUIPO</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.usuarios.index') }}" class="submenu-link">👥 Lista de Personal</a>
+                    <a href="{{ route('empresa.personal.rendimiento') }}" class="submenu-link">📊 Rendimiento Operativo</a>
+                    <a href="{{ route('empresa.personal.cajas.index') }}" class="submenu-link">💵 Auditoría de Cajas</a>
+                    <a href="{{ route('empresa.personal.asistencia.qr') }}" class="submenu-link">📱 Fichaje QR</a>
+                </div>
+            </div>
+        </div>
+
+        {{-- REPORTES --}}
+        <div onclick="window.location='{{ route('empresa.reportes.panel') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-bar-chart-line" style="color: #adb5bd;"></i>
             <span class="nav-icon-label">Reportes</span>
-        </a>
+            <div class="floating-balloon" onclick="event.stopPropagation()">
+                <h6>📊 INTELIGENCIA</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.reportes.panel') }}" class="submenu-link">📈 Dashboard Global</a>
+                    <a href="{{ route('empresa.reportes.caja_diaria') }}" class="submenu-link">💵 Auditoría de Caja</a>
+                    <a href="{{ route('empresa.reportes.vendedores') }}" class="submenu-link">👨‍💼 Ventas por Vendedor</a>
+                    <a href="{{ route('empresa.reportes.rentabilidad') }}" class="submenu-link">💎 Rentabilidad</a>
+                    <hr class="my-1 opacity-10">
+                    <a href="{{ route('empresa.gps.index') }}" class="submenu-link">📍 GPS (Beta)</a>
+                </div>
+            </div>
+        </div>
 
-        <a href="{{ route('empresa.configuracion.index') }}" class="nav-link-item {{ Route::is('empresa.configuracion.*') ? 'active' : '' }}">
+        {{-- AJUSTES --}}
+        <div onclick="window.location='{{ route('empresa.configuracion.index') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-gear" style="color: #f1f5f9;"></i>
             <span class="nav-icon-label">Ajustes</span>
-        </a>
+            <div class="floating-balloon" onclick="event.stopPropagation()">
+                <h6>⚙️ SISTEMA</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.configuracion.index') }}" class="submenu-link">🛠️ Configurar App</a>
+                    <a href="{{ route('empresa.backup.index') }}" class="submenu-link">🛡️ Bóveda de Backups</a>
+                    <a href="{{ route('empresa.suscripcion.index') }}" class="submenu-link text-primary">⭐ Mi Suscripción</a>
+                </div>
+            </div>
+        </div>
 
         <div class="mt-auto px-2 pb-3">
              <a href="{{ route('logout.get') }}" class="text-danger d-flex flex-column align-items-center text-decoration-none py-2" style="border: 1px solid rgba(220,53,69,0.3); border-radius: 12px;">
@@ -652,6 +789,17 @@ body {
     }
 
     $("#btnEditHelp").on('click', activateEditor);
+
+    // JS para posicionar los globos flotantes (FIX PARA SCROLL)
+    document.querySelectorAll('.nav-link-item').forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            const balloon = this.querySelector('.floating-balloon');
+            if(balloon) {
+                const rect = this.getBoundingClientRect();
+                balloon.style.top = (rect.top + (rect.height / 2)) + 'px';
+            }
+        });
+    });
 </script>
 
 @yield('scripts')

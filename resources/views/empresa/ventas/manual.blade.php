@@ -107,7 +107,6 @@
                                 <th class="ps-4">Artículo / Producto</th>
                                 <th width="100" class="text-center">Stock</th>
                                 <th width="120" class="text-center">Cantidad</th>
-                                <th width="100" class="text-center bg-light text-primary">📦 Retira</th>
                                 <th width="180" class="text-end">Precio Unit. (IVA Inc.)</th>
                                 <th width="180" class="text-end pe-4">Subtotal</th>
                                 <th width="50"></th>
@@ -195,8 +194,15 @@
                         <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" name="hacer_remito" id="hacerRemito">
                             <label class="form-check-label fw-bold small" for="hacerRemito">
-                                📦 Generar Remito / Entrega
+                                📦 Generar Remito (Entrega Inmediata)
                             </label>
+                        </div>
+                        
+                        <div id="remitoDetails" class="mt-3 p-3 bg-white border rounded shadow-sm" style="display: none;">
+                            <h6 class="fw-bold small text-primary mb-2 border-bottom pb-2"><i class="fas fa-box-open"></i> Detalle de Entrega Parcial</h6>
+                            <p class="text-muted small mb-2" style="font-size: 0.75rem;">Ajuste las cantidades si el cliente no retira el total de los productos comprados. El saldo quedará "En Guarda".</p>
+                            <div id="remitoItemsList" class="mb-2"></div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 fw-bold" onclick="setEntregaTotal()">ENTREGAR TOTALIDAD</button>
                         </div>
                         
                         <div class="form-check form-switch">
@@ -356,7 +362,6 @@ function agregarFila(prodId = null, qty = 1, price = null, variantId = null) {
         </td>
         <td class="text-center fw-bold stk-disp text-muted">-</td>
         <td><input type="number" name="items[${idx}][quantity]" class="form-control qty-in text-center" value="${qty}" step="0.01"></td>
-        <td><input type="number" name="items[${idx}][quantity_delivery]" class="form-control del-in text-center border-primary border-opacity-25" value="${qty}" step="0.01" title="Cuanto retira ahora"></td>
         <td><input type="number" name="items[${idx}][price]" class="form-control prc-in text-end fw-bold text-primary" value="${price || ''}" step="0.01"></td>
         <td class="text-end pe-4 fw-bold sub-disp">$ 0,00</td>
         <td class="text-center"><button type="button" class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove(); recalcularTotales();"><i class="bi bi-trash3 fs-5"></i></button></td>
@@ -417,9 +422,6 @@ function agregarFila(prodId = null, qty = 1, price = null, variantId = null) {
     });
 
     $(tr).find('input').on('input', recalcularTotales);
-    $(tr).find('.qty-in').on('input', function() {
-        $(tr).find('.del-in').val($(this).val());
-    });
     recalcularTotales();
     idx++;
 }
@@ -442,6 +444,66 @@ function recalcularTotales() {
     document.getElementById("lblTotal").innerText = "$ " + total.toLocaleString('es-AR', {minimumFractionDigits:2});
 }
 
+// LOGICA REMITO PARCIAL
+document.getElementById('hacerRemito').onchange = (e) => {
+    document.getElementById('remitoDetails').style.display = e.target.checked ? 'block' : 'none';
+    if(e.target.checked) renderRemitoItems();
+};
+
+function renderRemitoItems() {
+    const list = document.getElementById('remitoItemsList');
+    list.innerHTML = '';
+    
+    document.querySelectorAll("#tablaVentaManual tbody tr").forEach(tr => {
+        const sel = tr.querySelector(".prod-sel");
+        if(!sel.value) return;
+        
+        const name = sel.options[sel.selectedIndex].text;
+        const q = tr.querySelector(".qty-in").value;
+        const pId = sel.value;
+        const vId = tr.querySelector(".var-sel") ? tr.querySelector(".var-sel").value : null;
+
+        const div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center mb-2 pb-2 border-bottom';
+        div.innerHTML = `
+            <div style="flex:1;">
+                <div class="fw-bold text-truncate" style="max-width: 150px;">${name}</div>
+                <small class="text-muted">Total: ${q}</small>
+            </div>
+            <div style="width: 70px;">
+                <input type="number" 
+                       class="form-control form-control-sm text-center fw-bold item-entrega" 
+                       data-id="${pId}" 
+                       data-variant="${vId || ''}"
+                       value="${q}" 
+                       min="0" 
+                       max="${q}" 
+                       step="0.01">
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function getItemsEntregar() {
+    if(!document.getElementById('hacerRemito').checked) return null;
+    let items = [];
+    document.querySelectorAll('.item-entrega').forEach(input => {
+        items.push({
+            id: input.dataset.id,
+            variant_id: input.dataset.variant || null,
+            quantity_delivery: parseFloat(input.value) || 0
+        });
+    });
+    return items;
+}
+
+function setEntregaTotal() {
+    document.querySelectorAll('.item-entrega').forEach(input => {
+        input.value = input.max;
+    });
+}
+
 document.getElementById('formVentaManual').onsubmit = async function(e) {
     e.preventDefault();
     const btn = this.querySelector('button[type="submit"]');
@@ -449,14 +511,12 @@ document.getElementById('formVentaManual').onsubmit = async function(e) {
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>PROCESANDO...';
 
     let items = [];
-    let itemsEntregados = [];
     const hacerRemito = document.getElementById('hacerRemito').checked;
 
     document.querySelectorAll("#tablaVentaManual tbody tr").forEach((tr) => {
         const prodId = tr.querySelector(".prod-sel").value;
         const variantId = tr.querySelector(".var-sel") ? tr.querySelector(".var-sel").value : null;
         const qty = tr.querySelector(".qty-in").value;
-        const qtyDel = tr.querySelector(".del-in").value;
 
         if(prodId) {
             items.push({
@@ -465,14 +525,6 @@ document.getElementById('formVentaManual').onsubmit = async function(e) {
                 quantity: qty,
                 price: tr.querySelector(".prc-in").value
             });
-
-            if (hacerRemito) {
-                itemsEntregados.push({
-                    id: prodId,
-                    variant_id: variantId,
-                    quantity_delivery: qtyDel
-                });
-            }
         }
     });
 
@@ -486,7 +538,7 @@ document.getElementById('formVentaManual').onsubmit = async function(e) {
     const data = Object.fromEntries(formData);
     data.items = items;
     data.hacer_remito = hacerRemito;
-    data.items_entregar = itemsEntregados;
+    data.items_entregar = getItemsEntregar();
     data.finanza_cuenta_id = document.getElementById('finanza_cuenta_id').value;
 
     // Agregar parcialidad si está activa
