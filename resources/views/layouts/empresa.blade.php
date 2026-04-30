@@ -203,6 +203,8 @@ body {
 }
 
 </style>
+@yield('styles')
+@stack('styles')
 </head>
 
 <body>
