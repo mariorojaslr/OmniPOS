@@ -507,8 +507,8 @@ body {
 <div id="helpPanel" class="arti-window-pro shadow-lg" style="display:none; position:fixed; right:30px; top:90px; z-index:1000005;">
     <div class="arti-header-pro d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-robot text-warning"></i>
-            <h6 class="mb-0 fw-bold small text-uppercase tracking-wider">Cerebro de Arti</h6>
+            <i class="bi bi-robot text-white"></i>
+            <h6 class="mb-0 fw-bold small text-uppercase tracking-wider text-white">Centro de Ayuda Inteligente</h6>
         </div>
         <div class="d-flex align-items-center gap-1">
             <button class="btn-arti-tool" id="btnEditHelp" title="Editar Manual"><i class="bi bi-pencil-square"></i></button>
@@ -538,7 +538,7 @@ body {
     </div>
 
     <div class="arti-footer-pro">
-        Ruta operativa: <span class="text-white fw-bold">{{ Route::currentRouteName() }}</span>
+        Ruta operativa: <span class="fw-bold" style="color: var(--color-primario);">{{ Route::currentRouteName() }}</span>
     </div>
 </div>
 
@@ -554,16 +554,16 @@ body {
         height: 650px;
         min-width: 300px;
         min-height: 200px;
-        background: rgba(10, 12, 14, 0.98);
+        background: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(25px);
         -webkit-backdrop-filter: blur(25px);
-        border: 2px solid rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 20px;
         z-index: 1000005;
         display: none;
         flex-direction: column;
-        color: #fff;
-        box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+        color: #333;
+        box-shadow: 0 25px 80px rgba(0,0,0,0.15);
     }
 
     /* TIRADORES DE REDIMENSIONADO */
@@ -579,52 +579,52 @@ body {
     .ui-resizable-s { height: 10px !important; bottom: -5px !important; cursor: ns-resize !important; }
     .arti-header-pro {
         padding: 15px 22px;
-        background: #d4af37; /* DORADO ORIGINAL */
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        background: var(--color-primario);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         cursor: move;
         border-radius: 20px 20px 0 0;
-        color: #000; /* TEXTO OSCURO SOBRE DORADO */
+        color: #fff;
     }
 
     .btn-arti-tool {
         background: transparent;
         border: none;
-        color: rgba(0,0,0,0.6);
+        color: rgba(255,255,255,0.8);
         font-size: 1.2rem;
         cursor: pointer;
         padding: 0 8px;
         transition: all 0.2s;
     }
-    .btn-arti-tool:hover { color: #000; transform: scale(1.2); }
+    .btn-arti-tool:hover { color: #fff; transform: scale(1.2); }
 
     .arti-body-pro {
         flex-grow: 1;
         overflow-y: auto;
         padding: 25px;
         line-height: 1.6;
-        color: #e2e8f0;
+        color: #475569;
     }
 
     #helpEditorArea {
         border-radius: 0 0 20px 20px;
         flex-grow: 1;
         overflow-y: auto;
-        background: #fff !important;
+        background: #f8fafc !important;
         color: #000 !important;
     }
 
     .arti-footer-pro {
         padding: 10px 20px;
         text-align: center;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        border-top: 1px solid rgba(0,0,0,0.05);
         font-size: 10px;
-        color: #64748b;
+        color: #94a3b8;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
 
-    .manual-body h1, .manual-body h2, .manual-body h3, .manual-body h4 { color: #d4af37 !important; margin-top: 1.2rem; font-weight: 800; }
-    .manual-body img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); }
+    .manual-body h1, .manual-body h2, .manual-body h3, .manual-body h4 { color: var(--color-primario) !important; margin-top: 1.2rem; font-weight: 800; }
+    .manual-body img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid rgba(0,0,0,0.1); }
 </style>
 
 {{-- LIBRERIAS MASTER --}}
