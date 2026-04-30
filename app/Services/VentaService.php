@@ -214,7 +214,7 @@ class VentaService
                 |--------------------------------------------------------------------------
                 */
 
-                VentaItem::create([
+                $ventaItem = VentaItem::create([
                     'venta_id'                => $venta->id,
                     'product_id'              => $product->id,
                     'variant_id'              => $variantId,
@@ -223,6 +223,7 @@ class VentaService
                     'subtotal_item_sin_iva'   => $subtotalItemSinIva,
                     'iva_item'                => $ivaItem,
                     'total_item_con_iva'      => $totalItemConIva,
+                    'cantidad_entregada'      => $hacerRemito ? 0 : $cantidad, // Si NO hace remito, asume entrega inmediata al 100%
                 ]);
 
 
