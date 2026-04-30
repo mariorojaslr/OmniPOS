@@ -34,6 +34,12 @@ body {
     overflow-x: hidden;
 }
 
+/* FIX LEAFLET PUZZLE EFFECT caused by Bootstrap img max-width */
+.leaflet-container img {
+    max-width: none !important;
+    max-height: none !important;
+}
+
 /* SIDEBAR SLIM MEJORADO */
 #sidebar {
     width: var(--sidebar-width);
