@@ -222,6 +222,12 @@ body {
             <span class="nav-icon-label">Inicio</span>
         </a>
 
+        {{-- CATÁLOGO PÚBLICO --}}
+        <a href="{{ route('catalog.index', $empresa->slug ?? $empresa->id) }}" target="_blank" class="nav-link-item" title="Ver mi tienda online">
+            <i class="bi bi-shop-window" style="color: #ffc107;"></i>
+            <span class="nav-icon-label text-center lh-sm mt-1">Mi Catálogo<br>(Store)</span>
+        </a>
+
         {{-- ARTICULOS --}}
         <div class="nav-link-item">
             <i class="bi bi-tags" style="color: #00d2ff;"></i>
