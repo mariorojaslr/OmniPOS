@@ -546,6 +546,31 @@ body {
 <div id="help-trigger-fixed" onclick="openHelp()" style="cursor:pointer;"><i class="bi bi-magic"></i></div>
 
 <style>
+    #help-trigger-fixed {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--color-primario), #333);
+        color: white;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        cursor: pointer;
+        z-index: 1000001;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+    }
+    #help-trigger-fixed:hover {
+        transform: scale(1.1) rotate(15deg);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
     .arti-window-pro {
         position: fixed;
         right: 30px;
