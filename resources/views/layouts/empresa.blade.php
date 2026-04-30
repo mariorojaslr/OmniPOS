@@ -260,7 +260,6 @@ body {
             <div class="floating-balloon">
                 <h6>📑 ÁREA DE VENTAS</h6>
                 <div class="submenu-list">
-                    <a href="{{ route('empresa.pos.index') }}" class="submenu-link text-success fw-bold">🟢 Punto de Venta (POS)</a>
                     <a href="{{ route('empresa.orders.index') }}" class="submenu-link text-info">🛒 Pedidos Catálogo</a>
                     <a href="{{ route('empresa.ventas.index') }}" class="submenu-link">📋 Historial Ventas</a>
                     <a href="{{ route('empresa.ventas.manual') }}" class="submenu-link">✍️ Venta Manual</a>
@@ -423,6 +422,13 @@ body {
         </div>
 
         <div class="d-flex align-items-center gap-3">
+            @if(!isset($posMode))
+                <a href="{{ route('empresa.pos.index') }}" class="btn btn-success btn-sm fw-bold px-3 shadow-sm d-none d-md-flex align-items-center gap-2" title="Abrir Punto de Venta">
+                    <i class="bi bi-pc-display"></i>
+                    PUNTO DE VENTA (POS)
+                </a>
+            @endif
+
             {{-- BOTÓN REGRESAR A OWNER (MIMETIZACIÓN) --}}
             @if(session()->has('impersonator_id'))
                 <a href="{{ route('owner.return-to-owner') }}" class="btn btn-warning btn-sm fw-bold px-3 shadow-sm d-flex align-items-center gap-2 animate__animated animate__pulse animate__infinite">
