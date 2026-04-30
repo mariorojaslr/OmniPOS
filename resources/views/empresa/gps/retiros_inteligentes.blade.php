@@ -54,7 +54,14 @@
         
         // CASCADA DE REFRESCO NUCLEAR
         [100, 500, 1000, 1500, 3000].forEach(ms => {
-            setTimeout(() => { if(map) map.invalidateSize(true); }, ms);
+            setTimeout(() => { 
+                if(map) {
+                    map.invalidateSize(true); 
+                    map.eachLayer(function(layer) {
+                        if (layer instanceof L.TileLayer) layer.redraw();
+                    });
+                }
+            }, ms);
         });
 
         fetch('{{ route("empresa.gps.proveedores_data") }}')
@@ -91,12 +98,16 @@
         setTimeout(initMap, 200);
         
         const mapContainer = document.getElementById('supplierMap');
-        new ResizeObserver(() => {
-            if (map) {
-                map.invalidateSize();
-                setTimeout(() => map.invalidateSize(), 300);
-            }
-        }).observe(mapContainer);
+        if (mapContainer) {
+            new ResizeObserver(() => {
+                if (map) {
+                    map.invalidateSize();
+                    map.eachLayer(function(layer) {
+                        if (layer instanceof L.TileLayer) layer.redraw();
+                    });
+                }
+            }).observe(mapContainer);
+        }
     });
 </script>
 @endpush

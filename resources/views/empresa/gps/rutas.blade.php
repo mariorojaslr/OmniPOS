@@ -205,15 +205,33 @@
     // Vinculamos el botón
     document.querySelector('.btn-calculate').addEventListener('click', calculateOptimalRoute);
 
-    // Inicializar con Doble Seguro
+    // Inicializar con Doble Seguro y Cascada de Redibujado Profundo
     window.addEventListener('load', () => {
         setTimeout(initMap, 200);
+
+        [500, 1000, 2500].forEach(ms => {
+            setTimeout(() => { 
+                if(map) {
+                    map.invalidateSize();
+                    map.eachLayer(function(layer) {
+                        if (layer instanceof L.TileLayer) layer.redraw();
+                    });
+                }
+            }, ms);
+        });
     });
 
     // Observador de Redimensionamiento
     const mapContainer = document.getElementById('routeMap');
-    new ResizeObserver(() => {
-        if(map) map.invalidateSize();
-    }).observe(mapContainer);
+    if (mapContainer) {
+        new ResizeObserver(() => {
+            if(map) {
+                map.invalidateSize();
+                map.eachLayer(function(layer) {
+                    if (layer instanceof L.TileLayer) layer.redraw();
+                });
+            }
+        }).observe(mapContainer);
+    }
 </script>
 @endpush

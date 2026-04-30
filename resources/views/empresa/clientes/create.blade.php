@@ -243,7 +243,16 @@ document.getElementById('btnSearchCuit').addEventListener('click', function() {
         document.querySelector('input[name="lng"]').value = lng.toFixed(7);
     }
 
-    // Geocodificación inversa (Opcional si se quiere autocompletar dirección desde mapa)
-    // Pero aquí el usuario prefiere AFIP -> Coords.
+    // CASCADA DE REFRESCO NUCLEAR
+    [100, 500, 1000, 1500, 3000].forEach(ms => {
+        setTimeout(() => { 
+            if(map) {
+                map.invalidateSize(true); 
+                map.eachLayer(function(layer) {
+                    if (layer instanceof L.TileLayer) layer.redraw();
+                });
+            }
+        }, ms);
+    });
 </script>
 @endsection

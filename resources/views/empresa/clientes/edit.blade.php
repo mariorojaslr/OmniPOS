@@ -190,10 +190,17 @@
             updateInputs(e.latlng.lat, e.latlng.lng);
         });
 
-        // Corrección para renderizado en contenedores dinámicos
-        setTimeout(() => {
-            map.invalidateSize();
-        }, 500);
+        // CASCADA DE REFRESCO NUCLEAR (Evita teselas movidas por animaciones CSS o colapsos)
+        [100, 500, 1000, 1500, 3000].forEach(ms => {
+            setTimeout(() => { 
+                if(map) {
+                    map.invalidateSize(true); 
+                    map.eachLayer(function(layer) {
+                        if (layer instanceof L.TileLayer) layer.redraw();
+                    });
+                }
+            }, ms);
+        });
     }
 
     function updateInputs(lat, lng) {
