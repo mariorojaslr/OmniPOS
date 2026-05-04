@@ -157,12 +157,12 @@
                             </td>
                             <td class="text-end pe-4 no-print">
                                 <div class="d-flex justify-content-end gap-1">
-                                    @if(!$m->paid)
-                                    <button class="btn btn-success btn-mini">
-                                        PAGAR
-                                    </button>
-                                    @endif
                                     <button class="btn btn-outline-secondary btn-mini" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">RECIBOS</button>
+                                    @if(!$m->paid && $m->reference_type == 'App\Models\Venta')
+                                    <a href="{{ route('client.portal.invoice.pay', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-success btn-mini" target="_blank">
+                                        PAGAR
+                                    </a>
+                                    @endif
                                     @if($m->reference_type == 'App\Models\Venta')
                                     <a href="{{ route('client.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">VER FACTURA</a>
                                     @endif
