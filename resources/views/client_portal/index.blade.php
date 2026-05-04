@@ -123,8 +123,8 @@
                             <th class="text-end" style="width: 120px;">Total</th>
                             <th class="text-end" style="width: 120px;">Abonado</th>
                             <th class="text-end" style="width: 120px;">Pendiente</th>
-                            <th class="text-center" style="width: 100px;">Estado</th>
-                            <th class="text-end pe-4 no-print" style="width: 150px;">Acciones</th>
+                            <th class="text-center" style="width: 80px;">Estado</th>
+                            <th class="text-end pe-4 no-print" style="width: 250px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -157,9 +157,14 @@
                             </td>
                             <td class="text-end pe-4 no-print">
                                 <div class="d-flex justify-content-end gap-1">
+                                    @if(!$m->paid)
+                                    <button class="btn btn-success btn-mini">
+                                        PAGAR
+                                    </button>
+                                    @endif
                                     <button class="btn btn-outline-secondary btn-mini" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">RECIBOS</button>
                                     @if($m->reference_type == 'App\Models\Venta')
-                                    <a href="{{ route('client.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">FACTURA</a>
+                                    <a href="{{ route('client.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">VER FACTURA</a>
                                     @endif
                                 </div>
                             </td>
