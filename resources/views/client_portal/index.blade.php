@@ -159,12 +159,12 @@
                             <td class="text-end pe-4 no-print">
                                 <div class="d-flex justify-content-end gap-1">
                                     <button class="btn btn-outline-secondary btn-mini" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">RECIBOS</button>
-                                    @if(!$m->paid && $m->reference_type == 'App\Models\Venta')
+                                    @if(!$m->paid && $m->reference_type == 'App\Models\Venta' && $m->reference_id)
                                     <a href="{{ route('client.portal.invoice.pay', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-success btn-mini" target="_blank">
                                         PAGAR
                                     </a>
                                     @endif
-                                    @if($m->reference_type == 'App\Models\Venta')
+                                    @if($m->reference_type == 'App\Models\Venta' && $m->reference_id)
                                     <a href="{{ route('client.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">VER FACTURA</a>
                                     @endif
                                 </div>
@@ -178,7 +178,7 @@
                                             <div class="x-small fw-bold text-muted text-uppercase mb-2">Composición de pagos:</div>
                                             @forelse($m->imputaciones as $imp)
                                                 <div class="d-flex justify-content-between align-items-center py-1 border-bottom x-small">
-                                                    <span>Recibo #{{ optional($imp->recibo)->numero_recibo ? str_pad($imp->recibo->numero_recibo, 6, '0', STR_PAD_LEFT) : '???' }} ({{ optional($imp->recibo)->created_at ? $imp->recibo->created_at->format('d/m/Y') : '-' }})</span>
+                                                    <span>Recibo #{{ (optional($imp->recibo)->numero_recibo) ? str_pad($imp->recibo->numero_recibo, 6, '0', STR_PAD_LEFT) : '???' }} ({{ (optional($imp->recibo)->created_at) instanceof \Carbon\Carbon ? $imp->recibo->created_at->format('d/m/Y') : (is_string(optional($imp->recibo)->created_at) ? date('d/m/Y', strtotime($imp->recibo->created_at)) : '-') }})</span>
                                                     <div class="d-flex align-items-center gap-2">
                                                         <span class="fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
                                                         @if($imp->recibo_id)
