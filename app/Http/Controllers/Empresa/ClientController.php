@@ -449,4 +449,44 @@ class ClientController extends Controller
 
         return back()->with('success', "Proceso terminado: {$countCreated} creados, {$countUpdated} actualizados.");
     }
+
+    /**
+     * Obtiene o genera el enlace al Portal del Cliente
+     */
+    public function getPortalLink(Client $client)
+    {
+        $token = $client->portalToken;
+
+        if (!$token) {
+            $token = \App\Models\ClientPortalToken::create([
+                'empresa_id' => $client->empresa_id,
+                'client_id' => $client->id,
+                'token' => \Illuminate\Support\Str::random(40),
+            ]);
+        }
+
+        return response()->json([
+            'url' => route('client.portal', $token->token)
+        ]);
+    }
+
+    /**
+     * Listado de clientes para gestión de portales
+     */
+    public function portalList(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $q = $request->get('q');
+
+        $clientes = Client::where('empresa_id', $empresaId)
+            ->when($q, function($query) use ($q) {
+                $query->where('name', 'like', "%$q%")
+                      ->orWhere('document', 'like', "%$q%");
+            })
+            ->with('portalToken')
+            ->orderBy('name')
+            ->paginate(50);
+
+        return view('empresa.clientes.portal_list', compact('clientes'));
+    }
 }

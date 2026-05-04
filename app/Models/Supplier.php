@@ -49,6 +49,11 @@ class Supplier extends Model
         return $this->morphMany(BankAccount::class, 'holder');
     }
 
+    public function portalToken()
+    {
+        return $this->hasOne(SupplierPortalToken::class);
+    }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -144,5 +149,17 @@ class Supplier extends Model
         ]);
 
         $this->recalcularSaldo();
+    }
+
+    /**
+     * SALDO ACTUAL (DEUDA REAL)
+     * = Débitos - Créditos
+     */
+    public function saldo()
+    {
+        $debitos  = $this->ledger()->where('type', 'debit')->sum('amount');
+        $creditos = $this->ledger()->where('type', 'credit')->sum('amount');
+
+        return $debitos - $creditos;
     }
 }

@@ -342,6 +342,7 @@ body {
                 <h6>👥 CARTERA</h6>
                 <div class="submenu-list">
                     <a href="{{ route('empresa.clientes.index') }}" class="submenu-link">📄 Listado de Clientes</a>
+                    <a href="{{ route('empresa.clientes.portal_list') }}" class="submenu-link">🌐 Portal del Cliente</a>
                     <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">💰 Cta. Cte. Clientes</a>
                     <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">🧾 Recibos de Cobro</a>
                     <a href="{{ route('empresa.listados.clientes') }}" class="submenu-link">📋 Padrones</a>
@@ -357,6 +358,7 @@ body {
                 <h6>🚛 GESTIÓN PROVEEDORES</h6>
                 <div class="submenu-list">
                     <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🚚 Mis Proveedores</a>
+                    <a href="{{ route('empresa.proveedores.portal_list') }}" class="submenu-link">🌐 Portal de Proveedores</a>
                     <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Facturas de Compra</a>
                     <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">💳 Cta. Cte. Proveedores</a>
                     <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🧾 Recibos de Pago</a>

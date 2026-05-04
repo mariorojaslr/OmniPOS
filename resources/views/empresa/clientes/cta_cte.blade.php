@@ -1,7 +1,7 @@
 @extends('layouts.empresa')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 mt-5">
 
     {{-- CABECERA PROFESIONAL --}}
     <div class="d-flex justify-content-between align-items-start mb-4">
@@ -28,6 +28,9 @@
             </button>
             <button class="btn btn-outline-primary px-3 fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCuentasBanco">
                 <i class="fas fa-university me-1"></i> Cuentas Banco
+            </button>
+            <button class="btn btn-primary px-3 fw-bold rounded-pill shadow-sm" onclick="getPortalLink()" id="btnPortal">
+                <i class="fas fa-globe me-1"></i> PORTAL CLIENTE
             </button>
             <a href="{{ route('empresa.ventas.manual', ['client_id' => $client->id]) }}" class="btn btn-dark px-4 fw-bold rounded-pill shadow-sm">
                 <i class="fas fa-plus me-1"></i> Nueva Venta
@@ -814,6 +817,65 @@
             statusElement.innerText = "SELECCIONE DOCUMENTOS";
             statusElement.className = "x-small mt-1 fw-bold text-muted";
         }
+    }
+
+    /**
+     * Genera y copia el enlace al Portal del Cliente
+     */
+    function getPortalLink() {
+        const btn = document.getElementById('btnPortal');
+        const originalHtml = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Generando...';
+        btn.disabled = true;
+
+        fetch("{{ route('empresa.clientes.portal-link', $client->id) }}")
+            .then(response => response.json())
+            .then(data => {
+                const url = data.url;
+                
+                // Intentar copiar al portapapeles
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(url).then(() => {
+                        btn.innerHTML = '<i class="fas fa-check me-1"></i> ¡Enlace Copiado!';
+                        btn.classList.add('bg-success', 'text-white');
+                        btn.classList.remove('text-info');
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalHtml;
+                            btn.classList.remove('bg-success', 'text-white');
+                            btn.classList.add('text-info');
+                            btn.disabled = false;
+                        }, 3000);
+                    }).catch(err => {
+                        window.open(url, '_blank');
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                    });
+                } else {
+                    // Fallback para entornos no seguros o navegadores viejos
+                    const textArea = document.createElement("textarea");
+                    textArea.value = url;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        btn.innerHTML = '<i class="fas fa-check me-1"></i> ¡Enlace Copiado!';
+                    } catch (err) {
+                        window.open(url, '_blank');
+                    }
+                    document.body.removeChild(textArea);
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btn.innerHTML = 'Error al generar';
+                btn.disabled = false;
+            });
     }
 </script>
 @endsection

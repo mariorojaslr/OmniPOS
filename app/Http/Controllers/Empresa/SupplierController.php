@@ -293,4 +293,41 @@ class SupplierController extends Controller
 
         return back()->with('success', 'Pago registrado correctamente en la cuenta corriente.');
     }
+
+    public function getPortalLink(\App\Models\Supplier $supplier)
+    {
+        $token = \App\Models\SupplierPortalToken::where('supplier_id', $supplier->id)->first();
+
+        if (!$token) {
+            $token = \App\Models\SupplierPortalToken::create([
+                'empresa_id' => $supplier->empresa_id,
+                'supplier_id' => $supplier->id,
+                'token' => \Illuminate\Support\Str::random(40),
+            ]);
+        }
+
+        return response()->json([
+            'url' => route('supplier.portal', $token->token)
+        ]);
+    }
+
+    /**
+     * Listado de proveedores para gestión de portales
+     */
+    public function portalList(Request $request)
+    {
+        $empresaId = auth()->user()->empresa_id;
+        $q = $request->get('q');
+
+        $suppliers = \App\Models\Supplier::where('empresa_id', $empresaId)
+            ->when($q, function($query) use ($q) {
+                $query->where('name', 'like', "%$q%")
+                      ->orWhere('cuit', 'like', "%$q%");
+            })
+            ->with('portalToken')
+            ->orderBy('name')
+            ->paginate(50);
+
+        return view('empresa.proveedores.portal_list', compact('suppliers'));
+    }
 }

@@ -44,6 +44,8 @@ use App\Http\Controllers\Empresa\BulkPriceUpdateController;
 use App\Http\Controllers\Empresa\ExpenseController;
 use App\Http\Controllers\Empresa\ExpenseCategoryController;
 use App\Http\Controllers\Empresa\ListadoController;
+use App\Http\Controllers\ClientPortalController;
+use App\Http\Controllers\SupplierPortalController;
 
 // ================= AUTH =================
 use App\Http\Controllers\Auth\PasswordController;
@@ -55,6 +57,8 @@ use App\Http\Controllers\CatalogController;
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/c/{empresa}', [CatalogController::class , 'index'])->name('catalog.index');
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class , 'show'])->name('catalog.show');
+Route::get('/portal-cliente/{token}', [ClientPortalController::class, 'index'])->name('client.portal');
+Route::get('/portal-proveedor/{token}', [SupplierPortalController::class, 'index'])->name('supplier.portal');
 
 // MODO DEMO (PUESTA EN MARCHA RÁPIDA - REEMPLAZADO POR DEMO EXPERIENCE)
 // Route::get('/demo-mode', [DemoController::class, 'enter'])->name('demo.mode');
@@ -221,6 +225,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('clientes/export', [ClientController::class , 'export'])->name('clientes.export');
         Route::post('clientes/import', [ClientController::class , 'import'])->name('clientes.import');
         Route::resource('clientes', ClientController::class)->except(['destroy', 'show']);
+        Route::get('clientes/{client}/portal-link', [ClientController::class, 'getPortalLink'])->name('clientes.portal-link');
+        Route::get('clientes-portal', [ClientController::class, 'portalList'])->name('clientes.portal_list');
         Route::get('clientes/{client}', [App\Http\Controllers\Empresa\ClientAccountController::class, 'show'])->name('clientes.show');
         Route::post('clientes/{client}/recibos', [App\Http\Controllers\Empresa\ClientAccountController::class, 'storeReceipt'])->name('clientes.recibos.store');
         Route::post('clientes/{client}/aplicar-saldo', [App\Http\Controllers\Empresa\ClientAccountController::class, 'aplicarSaldoAFavor'])->name('clientes.aplicar_saldo');
@@ -247,6 +253,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('proveedores/{supplier}/cta_cte', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'show'])->name('proveedores.show');
         Route::post('proveedores/{supplier}/pagos', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'storePayment'])->name('proveedores.pagos.store');
         Route::resource('proveedores', SupplierController::class)->except(['destroy', 'show']);
+        Route::get('proveedores/{supplier}/portal-link', [SupplierController::class, 'getPortalLink'])->name('proveedores.portal-link');
+        Route::get('proveedores-portal', [SupplierController::class, 'portalList'])->name('proveedores.portal_list');
 
         /*
       |--------------------------------------------------------------------------
