@@ -96,8 +96,11 @@
 
     <div class="container">
         <div class="header">
-            <div class="company-name">{{ $recibo->empresa->nombre_comercial ?? 'Nuestra Empresa' }}</div>
-            <div>{{ $recibo->empresa->cuit ?? '' }} | {{ $recibo->empresa->condicion_iva ?? '' }}</div>
+            @if(isset($logoBase64) && $logoBase64)
+                <img src="{{ $logoBase64 }}" alt="Logo" style="max-height: 80px; margin-bottom: 10px;">
+            @endif
+            <div class="company-name">{{ $empresa->nombre_comercial ?? 'Nuestra Empresa' }}</div>
+            <div>{{ $empresa->cuit ?? '' }} | {{ $empresa->condicion_iva ?? '' }}</div>
             <div class="receipt-title">RECIBO OFICIAL X</div>
             <div>Nº: {{ str_pad($recibo->numero_recibo, 8, '0', STR_PAD_LEFT) }}</div>
         </div>
