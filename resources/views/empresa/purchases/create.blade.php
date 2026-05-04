@@ -157,13 +157,31 @@
 <script>
 
 const products = {!! $products->toJson() !!};
+const prefill  = @json($prefill ?? null);
 let index = 0;
 const ivaRate = 0.21;
 
 /* =========================================================
-   FORMATEO COMPROBANTE (SE MANTIENE)
+   FORMATEO COMPROBANTE Y PREFILL
 ========================================================= */
 document.addEventListener("DOMContentLoaded", function(){
+    if (prefill) {
+        if (prefill.supplier_id) {
+            document.querySelector('select[name="supplier_id"]').value = prefill.supplier_id;
+        }
+        if (prefill.invoice_type) {
+            document.querySelector('select[name="invoice_type"]').value = prefill.invoice_type;
+        }
+        if (prefill.items && prefill.items.length > 0) {
+            prefill.items.forEach(item => {
+                agregarFila(item);
+            });
+        } else {
+            agregarFila();
+        }
+    } else {
+        agregarFila();
+    }
 
     const input = document.getElementById("invoice_number");
     if(!input) return;
@@ -209,7 +227,7 @@ function formatNumero(valor){
     }).format(valor);
 }
 
-function agregarFila(){
+function agregarFila(itemData = null){
 
     const tbody = document.querySelector("#tablaItems tbody");
     const row = document.createElement("tr");
@@ -288,8 +306,39 @@ function agregarFila(){
     });
     row.querySelector(".cantidad").addEventListener("input",()=>recalcularFila(row));
 
+    // Prefill data
+    if (itemData) {
+        const pSelect = row.querySelector(".product-select");
+        pSelect.value = itemData.product_id;
+        handleProductChange(pSelect, currentIndex);
+        
+        if (itemData.variant_id) {
+            const vSelect = row.querySelector(".variant-select");
+            // Wait for handleProductChange to populate variants
+            setTimeout(() => {
+                vSelect.value = itemData.variant_id;
+            }, 50);
+        }
+
+        row.querySelector(".cantidad").value = itemData.qty;
+        row.querySelector(".precioSinIva").value = itemData.price_sin_iva;
+        row.querySelector(".precioConIva").value = itemData.price_con_iva;
+        calcularDesdeFinal(row, currentIndex);
+    }
+
     index++;
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (prefill && prefill.parent_id) {
+        const form = document.querySelector('form');
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'parent_id';
+        hiddenInput.value = prefill.parent_id;
+        form.appendChild(hiddenInput);
+    }
+});
 
 async function updateLastPrice(idx){
     const row = document.querySelector(`#tablaItems tbody tr:nth-child(${(idx+1)})`); // Cuidado si borran filas, esto es frágil.

@@ -88,6 +88,7 @@
                     <option value="A"   @selected(request('tipo')=='A')>Factura A</option>
                     <option value="B"   @selected(request('tipo')=='B')>Factura B</option>
                     <option value="C"   @selected(request('tipo')=='C')>Factura C</option>
+                    <option value="NC"  @selected(request('tipo')=='NC')>Nota de Crédito</option>
                     <option value="T"   @selected(request('tipo')=='T')>Ticket</option>
                 </select>
             </div>
@@ -187,6 +188,9 @@
                             @else
                                 <span class="badge bg-secondary-subtle text-secondary py-1 border border-secondary">Ticket</span>
                             @endif
+                            @if($venta->credit_notes_count > 0)
+                                <div class="mt-1"><span class="badge bg-danger">ANULADA (NC)</span></div>
+                            @endif
                         </td>
 
                         <td class="align-middle text-center">
@@ -209,6 +213,8 @@
                                     <li><h6 class="dropdown-header">Exportar</h6></li>
                                     <li><a class="dropdown-item py-2" target="_blank" href="{{ route('empresa.ventas.pdf', $venta->id) }}"><i class="fas fa-file-pdf text-danger me-2"></i> Factura A4</a></li>
                                     <li><a class="dropdown-item py-2" target="_blank" href="{{ route('empresa.ventas.pdf', [$venta->id, 'format' => 'ticket']) }}"><i class="fas fa-receipt text-secondary me-2"></i> Formato Ticket</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item py-2 fw-bold text-danger" href="{{ route('empresa.ventas.credit_note', $venta->id) }}"><i class="fas fa-undo me-2"></i> Hacer Nota de Crédito</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><h6 class="dropdown-header">Logística</h6></li>
                                     @if($venta->es_guarda_pendiente)

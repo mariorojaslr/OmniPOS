@@ -287,6 +287,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::put('/compras/{purchase}', [PurchaseController::class , 'update'])->name('compras.update');
         Route::delete('/compras/{purchase}', [PurchaseController::class , 'destroy'])->name('compras.destroy');
         Route::get('/compras/ultimo-precio/{product}/{variant?}', [PurchaseController::class, 'getLastPrice'])->name('compras.ultimo_precio');
+        Route::get('/compras/{purchase}/credit-note', [PurchaseController::class, 'creditNote'])->name('compras.credit_note');
 
 
 
@@ -427,6 +428,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('/ventas/manual', [VentaController::class, 'storeManual'])->name('ventas.manual.store');
         Route::get('/ventas/{venta}', [VentaController::class, 'show'])->name('ventas.show'); // Centro de Control
         Route::get('/ventas/{venta}/pdf', [VentaController::class, 'pdf'])->name('ventas.pdf');
+        Route::get('/ventas/{venta}/credit-note', [VentaController::class, 'creditNote'])->name('ventas.credit_note');
 
         /*
      |--------------------------------------------------------------------------

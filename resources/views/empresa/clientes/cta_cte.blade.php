@@ -200,6 +200,13 @@
                                                             </div>
                                                         @endif
                                                     </div>
+                                                    @if($m->reference_id && str_contains($m->reference_type ?? '', 'Venta'))
+                                                    <div class="mt-2">
+                                                        <a href="{{ route('empresa.ventas.credit_note', $m->reference_id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm fw-bold" title="Hacer Nota de Crédito de esta Factura">
+                                                            <i class="fas fa-undo me-1"></i> Nota de Crédito
+                                                        </a>
+                                                    </div>
+                                                    @endif
                                                 </div>
                                             @else
                                                 <div class="col-md-6">

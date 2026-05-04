@@ -45,7 +45,8 @@ class PurchaseController extends Controller
 
         $query = Purchase::where('empresa_id', $empresaId)
             ->whereNotNull('purchase_date')
-            ->with('supplier');
+            ->with('supplier')
+            ->withCount('creditNotes');
 
         if ($request->search) {
             $query->where(function ($q) use ($request) {
@@ -113,8 +114,9 @@ class PurchaseController extends Controller
 
         $suppliers = Supplier::where('empresa_id', $empresaId)->get();
         $products  = Product::where('empresa_id', $empresaId)->with('variants')->get();
+        $prefill   = session()->pull('prefill_compra', null);
 
-        return view('empresa.purchases.create', compact('suppliers','products'));
+        return view('empresa.purchases.create', compact('suppliers','products', 'prefill'));
     }
 
 
@@ -158,6 +160,7 @@ class PurchaseController extends Controller
             $purchase = Purchase::create([
                 'empresa_id'     => $empresaId,
                 'supplier_id'    => $request->supplier_id,
+                'parent_id'      => $request->parent_id,
                 'purchase_date'  => $request->purchase_date ?: Carbon::today(),
                 'invoice_type'   => $request->invoice_type,
                 'invoice_number' => $request->invoice_number,
@@ -443,5 +446,42 @@ class PurchaseController extends Controller
         return response()->json([
             'cost' => $lastItem ? (float) $lastItem->cost : 0
         ]);
+    }
+
+    /* =========================================================
+       PREPARAR NOTA DE CRÉDITO (REVERSA)
+    ========================================================= */
+    public function creditNote(Purchase $purchase)
+    {
+        $empresaId = auth()->user()->empresa_id;
+
+        if ($purchase->empresa_id !== $empresaId) {
+            abort(403);
+        }
+
+        $purchase->load(['items.product', 'items.variant']);
+        
+        $prefill = [
+            'supplier_id' => $purchase->supplier_id,
+            'parent_id' => $purchase->id,
+            'invoice_type' => 'NC',
+            'items' => []
+        ];
+
+        foreach($purchase->items as $item) {
+            $prefill['items'][] = [
+                'product_id' => $item->product_id,
+                'variant_id' => $item->variant_id,
+                'qty' => $item->quantity,
+                // Utilizamos cost y subtotal para llenar precio original sin iva / con iva
+                'price_con_iva' => $item->quantity > 0 ? ($item->subtotal / $item->quantity) : 0,
+                'price_sin_iva' => $item->cost,
+                'iva' => $item->iva,
+            ];
+        }
+
+        session()->put('prefill_compra', $prefill);
+        
+        return redirect()->route('empresa.compras.create')->with('info', "Se pre-cargaron los datos de la Compra #{$purchase->invoice_number} para emitir la Nota de Crédito al proveedor.");
     }
 }

@@ -37,6 +37,7 @@
 
     <form method="POST" action="{{ route('empresa.ventas.manual.store') }}" id="formVentaManual">
     @csrf
+    <input type="hidden" name="parent_id" id="hidden_parent_id" value="">
 
     <div class="row g-4">
         <div class="col-md-9">
@@ -72,6 +73,7 @@
                                 <option value="A">Factura A</option>
                                 <option value="B">Factura B</option>
                                 <option value="C" selected>Factura C</option>
+                                <option value="NC">Nota de Crédito</option>
                                 <option value="X">Presupuesto</option>
                             </select>
                         </div>
@@ -237,8 +239,15 @@ $(document).ready(function() {
     // Cargar pre-llenado si existe
     if (prefill && prefill.items && prefill.items.length > 0) {
         prefill.items.forEach(item => {
-            agregarFila(item.product_id, item.qty, item.price);
+            agregarFila(item.product_id, item.qty, item.price, item.variant_id);
         });
+        
+        if (prefill.tipo_comprobante) {
+            $('#tipoComprobante').val(prefill.tipo_comprobante).trigger('change');
+        }
+        if (prefill.parent_id) {
+            $('#hidden_parent_id').val(prefill.parent_id);
+        }
     } else {
         agregarFila();
     }

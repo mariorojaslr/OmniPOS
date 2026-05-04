@@ -19,6 +19,7 @@ class Purchase extends Model
     protected $fillable = [
         'empresa_id',
         'supplier_id',
+        'parent_id',
         'purchase_date',
         'invoice_type',
         'invoice_number',
@@ -46,5 +47,13 @@ class Purchase extends Model
     public function ledgerRecord()
     {
         return $this->morphOne(SupplierLedger::class, 'reference');
+    }
+
+    /**
+     * 🔄 Notas de Crédito asociadas a esta compra
+     */
+    public function creditNotes()
+    {
+        return $this->hasMany(Purchase::class, 'parent_id');
     }
 }

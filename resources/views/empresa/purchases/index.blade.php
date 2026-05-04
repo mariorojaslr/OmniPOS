@@ -214,6 +214,12 @@
                            class="btn btn-sm btn-outline-secondary shadow-sm">
                            Editar
                         </a>
+
+                        <a href="{{ route('empresa.compras.credit_note', $purchase->id) }}"
+                           class="btn btn-sm btn-outline-danger shadow-sm fw-bold"
+                           title="Hacer Nota de Crédito">
+                           <i class="bi bi-arrow-counterclockwise"></i> NC
+                        </a>
                     </td>
 
                 </tr>

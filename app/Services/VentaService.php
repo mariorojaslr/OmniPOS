@@ -34,7 +34,7 @@ class VentaService
     |--------------------------------------------------------------------------
     */
 
-    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo', $montoEntrega = null, $pagosDiferenciados = [], $finanza_cuenta_id = null): Venta
+    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo', $montoEntrega = null, $pagosDiferenciados = [], $finanza_cuenta_id = null, $parent_id = null): Venta
     {
         $empresa = $user->empresa;
 
@@ -64,7 +64,7 @@ class VentaService
         |--------------------------------------------------------------------------
         */
 
-        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago, $montoEntrega, $pagosDiferenciados, $finanza_cuenta_id) {
+        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago, $montoEntrega, $pagosDiferenciados, $finanza_cuenta_id, $parent_id) {
 
             // Re-obtener empresa con bloqueo para asegurar número correlativo único
             $empresaActual = \App\Models\Empresa::where('id', $user->empresa_id)->lockForUpdate()->first();
@@ -135,6 +135,7 @@ class VentaService
                 'empresa_id'         => $empresaActual->id,
                 'user_id'            => $user->id,
                 'client_id'          => $clienteId,
+                'parent_id'          => $parent_id,
                 'tipo_comprobante'   => $tipoComprobante,
                 'numero_comprobante' => $numeroComprobante,
                 'cae'                => $cae,

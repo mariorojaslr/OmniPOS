@@ -94,7 +94,8 @@ class VentaController extends Controller
                 $request->metodo_pago ?: 'efectivo',
                 $request->input('montoEntrega'),
                 $request->input('pagosDiferenciados') ?: [],
-                $request->input('finanza_cuenta_id')
+                $request->input('finanza_cuenta_id'),
+                $request->input('parent_id')
             );
 
             if ($request->wantsJson() || $request->ajax()) {
@@ -126,6 +127,7 @@ class VentaController extends Controller
 
         $q = Venta::where('empresa_id', $empresa->id)
             ->with(['cliente', 'user', 'items.product', 'items.variant', 'ledger.imputaciones.recibo'])
+            ->withCount('creditNotes')
             ->orderByDesc('created_at');
 
         // Filtros
@@ -268,5 +270,40 @@ class VentaController extends Controller
 
         $filename = ($venta->numero_comprobante ?: 'Venta_'.$venta->id) . '.pdf';
         return $pdfContent->stream($filename);
+    }
+
+    /**
+     * 🔄 Preparar Nota de Crédito (Reversa)
+     */
+    public function creditNote(Venta $venta)
+    {
+        $empresa = auth()->user()->empresa;
+
+        if ($venta->empresa_id !== $empresa->id) {
+            abort(403);
+        }
+
+        $venta->load(['items.product', 'items.variant']);
+        
+        $prefill = [
+            'client_id' => $venta->client_id,
+            'parent_id' => $venta->id,
+            'tipo_comprobante' => 'NC',
+            'items' => []
+        ];
+
+        foreach($venta->items as $item) {
+            $prefill['items'][] = [
+                'product_id' => $item->product_id,
+                'variant_id' => $item->variant_id,
+                'qty' => $item->cantidad,
+                // Calculamos el precio unitario exacto original
+                'price' => $item->cantidad > 0 ? ($item->total_item_con_iva / $item->cantidad) : 0,
+            ];
+        }
+
+        session()->put('prefill_factura', $prefill);
+        
+        return redirect()->route('empresa.ventas.manual')->with('info', "Se pre-cargaron los datos de la Venta #{$venta->numero_comprobante} para emitir la Nota de Crédito.");
     }
 }

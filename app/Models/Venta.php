@@ -13,6 +13,7 @@ class Venta extends Model
         'empresa_id',
         'user_id',
         'client_id',
+        'parent_id',
         'tipo_comprobante',
         'numero_comprobante',
         'total_sin_iva',
@@ -77,5 +78,13 @@ class Venta extends Model
     public function ledger()
     {
         return $this->morphOne(\App\Models\ClientLedger::class, 'reference');
+    }
+
+    /**
+     * 🔄 Notas de Crédito asociadas a esta venta
+     */
+    public function creditNotes()
+    {
+        return $this->hasMany(Venta::class, 'parent_id');
     }
 }

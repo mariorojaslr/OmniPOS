@@ -271,9 +271,14 @@
                                         @if($m->type == 'debit')
                                             <p class="mb-2 small"><strong>Tipo:</strong> {{ $m->reference_type ? class_basename($m->reference_type) : 'Carga Manual' }}</p>
                                             @if($m->reference_type == 'App\Models\Purchase')
-                                                <a href="{{ route('empresa.compras.show', $m->reference_id) }}" class="btn btn-sm btn-outline-dark rounded-pill px-3 mb-3">
-                                                    <i class="fas fa-external-link-alt me-1"></i> Ver Compra Original
-                                                </a>
+                                                <div class="d-flex gap-2 mb-3">
+                                                    <a href="{{ route('empresa.compras.show', $m->reference_id) }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                                                        <i class="fas fa-external-link-alt me-1"></i> Ver Compra Original
+                                                    </a>
+                                                    <a href="{{ route('empresa.compras.credit_note', $m->reference_id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm fw-bold" title="Hacer Nota de Crédito de esta Compra">
+                                                        <i class="fas fa-undo me-1"></i> Nota de Crédito
+                                                    </a>
+                                                </div>
                                             @endif
                                             
                                             <div class="mt-3">
