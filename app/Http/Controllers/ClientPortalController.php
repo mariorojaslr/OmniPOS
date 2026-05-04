@@ -16,24 +16,21 @@ class ClientPortalController extends Controller
      */
     public function index($token)
     {
-        $portalToken = ClientPortalToken::where('token', $token)->first();
+        $portalToken = ClientPortalToken::with(['client.empresa.config'])->where('token', $token)->first();
 
         if (!$portalToken) {
-            abort(404, 'Portal no encontrado o enlace caducado.');
+            abort(404, 'Portal no encontrado.');
         }
 
         $client = $portalToken->client;
         $empresa = $client->empresa;
-        $empresa->load('config');
 
-        // Listado principal: Solo Facturas (debits)
         $movimientos = ClientLedger::where('client_id', $client->id)
             ->where('type', 'debit')
-            ->with(['reference', 'imputaciones.recibo'])
+            ->with(['imputaciones.recibo'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        // El saldo total sigue siendo el mismo (deuda real)
         $saldo = $client->saldo();
 
         return view('client_portal.index', compact('client', 'empresa', 'movimientos', 'saldo'));

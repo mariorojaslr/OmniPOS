@@ -133,17 +133,18 @@
                         @endphp
                         @foreach($movimientos as $m)
                         @php 
-                            $pagado = $m->amount - $m->pending_amount;
+                            $montoPendiente = $m->paid ? 0 : $m->amount;
+                            $pagado = $m->amount - $montoPendiente;
                             $sumTotal += (float)$m->amount;
                             $sumPagado += (float)$pagado;
-                            $sumSaldo += (float)$m->pending_amount;
+                            $sumSaldo += (float)$montoPendiente;
                         @endphp
                         <tr>
                             <td>{{ $m->created_at ? $m->created_at->format('d/m/Y') : '-' }}</td>
                             <td><span class="fw-bold">{{ $m->description }}</span></td>
                             <td class="text-end fw-bold text-secondary">${{ number_format($m->amount, 2, ',', '.') }}</td>
                             <td class="text-end text-success fw-bold">${{ number_format($pagado, 2, ',', '.') }}</td>
-                            <td class="text-end text-danger fw-bold">${{ number_format($m->pending_amount, 2, ',', '.') }}</td>
+                            <td class="text-end text-danger fw-bold">${{ number_format($montoPendiente, 2, ',', '.') }}</td>
                             <td class="text-center">
                                 @if($m->paid)
                                     <span class="badge-status bg-success-subtle text-success border">CUBIERTO</span>

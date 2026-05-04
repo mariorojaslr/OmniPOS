@@ -37,7 +37,7 @@
             <hr>
             <div class="text-center">
                 <span class="text-muted small d-block">TOTAL A PAGAR</span>
-                <div class="amount-display">${{ number_format($venta->pending_amount, 2, ',', '.') }}</div>
+                <div class="amount-display">${{ number_format($venta->paid ? 0 : $venta->total, 2, ',', '.') }}</div>
             </div>
         </div>
 

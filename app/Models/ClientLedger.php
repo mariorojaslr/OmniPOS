@@ -21,7 +21,6 @@ class ClientLedger extends Model
         'reference_id',
         'type',
         'amount',
-        'pending_amount',
         'description',
         'paid',
         'created_at',
@@ -31,7 +30,6 @@ class ClientLedger extends Model
         'paid' => 'boolean',
         'created_at' => 'datetime',
         'amount' => 'decimal:2',
-        'pending_amount' => 'decimal:2',
     ];
 
     /**
@@ -44,12 +42,7 @@ class ClientLedger extends Model
     {
         parent::boot();
 
-        // Al crear cualquier movimiento, inicializamos el pending_amount al total
-        static::creating(function ($model) {
-            $model->pending_amount = $model->amount;
-        });
-
-        // BLOQUEAR EDICION (Excepto pending_amount y paid que son operativos)
+        // BLOQUEAR EDICION (Excepto paid que es operativo)
         static::updating(function ($model) {
             if ($model->isDirty(['amount', 'type', 'client_id', 'empresa_id'])) {
                  throw new \Exception("No se permite modificar los valores base de movimientos contables. Debe generar un movimiento compensatorio.");
