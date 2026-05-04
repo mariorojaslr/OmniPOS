@@ -125,7 +125,9 @@
                     <form method="GET" class="d-flex gap-2">
                         <input type="date" name="desde" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" value="{{ request('desde') }}">
                         <input type="date" name="hasta" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" value="{{ request('hasta') }}">
-                        <button type="submit" class="btn btn-sm btn-dark rounded-circle p-1" style="width: 32px; height: 32px;"><i class="fas fa-search"></i></button>
+                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm d-flex align-items-center gap-1">
+                            <i class="fas fa-search"></i> Filtrar
+                        </button>
                     </form>
                 </div>
                 <div class="table-responsive">

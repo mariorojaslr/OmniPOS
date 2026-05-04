@@ -123,6 +123,17 @@ body {
     pointer-events: none;
 }
 
+/* Puente invisible para no perder el hover al mover el mouse al globo */
+.floating-balloon::before {
+    content: '';
+    position: absolute;
+    left: -25px; /* Cubre el espacio vacío entre el sidebar y el globo */
+    top: -20px;  /* Margen extra arriba para movimientos diagonales */
+    bottom: -20px; /* Margen extra abajo para movimientos diagonales */
+    width: 25px;
+    background: transparent;
+}
+
 .nav-link-item:hover .floating-balloon {
     opacity: 1;
     visibility: visible;

@@ -69,7 +69,8 @@ class ListadoController extends Controller
     {
         $empresaId = auth()->user()->empresa_id;
         $items = Cheque::where('empresa_id', $empresaId)
-            ->orderBy('fecha_vencimiento')
+            ->with('client')
+            ->orderBy('fecha_pago')
             ->get();
         return view('empresa.listados.cheques', compact('items'));
     }

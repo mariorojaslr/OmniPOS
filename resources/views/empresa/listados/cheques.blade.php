@@ -34,18 +34,18 @@
                             <div class="check-box border rounded d-inline-block" style="width: 18px; height: 18px;"></div>
                         </td>
                         <td>
-                            <div class="small fw-bold {{ $i->fecha_vencimiento < now() ? 'text-danger' : 'text-dark' }}">
-                                {{ $i->fecha_vencimiento->format('d/m/Y') }}
+                            <div class="small fw-bold {{ $i->fecha_pago < now() ? 'text-danger' : 'text-dark' }}">
+                                {{ $i->fecha_pago->format('d/m/Y') }}
                             </div>
-                            <div class="x-small text-muted">{{ $i->fecha_cobro ? 'Cobrado' : 'Pendiente' }}</div>
+                            <div class="x-small text-muted">{{ $i->estado == 'depositado' ? 'Depositado' : ucfirst(str_replace('_', ' ', $i->estado)) }}</div>
                         </td>
                         <td>
-                            <div class="small fw-bold text-dark">{{ $i->banco_nombre ?? '---' }}</div>
+                            <div class="small fw-bold text-dark">{{ $i->banco ?? '---' }}</div>
                             <div class="x-small text-muted font-monospace">N° {{ $i->numero }}</div>
                         </td>
                         <td>
-                            <div class="small fw-medium text-dark">{{ $i->emisor_nombre ?? '---' }}</div>
-                            <div class="x-small text-muted">Recibido de: {{ $i->cliente->name ?? '---' }}</div>
+                            <div class="small fw-medium text-dark">{{ $i->emisor ?? '---' }}</div>
+                            <div class="x-small text-muted">Recibido de: {{ $i->client->name ?? '---' }}</div>
                         </td>
                         <td class="text-end px-3">
                             <h6 class="fw-bold mb-0 text-dark">${{ number_format($i->monto, 2, ',', '.') }}</h6>
