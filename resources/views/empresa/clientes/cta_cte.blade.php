@@ -156,6 +156,11 @@
                                         <i class="fas fa-check-circle text-success me-2 opacity-75"></i>
                                     @endif
                                     <span class="fw-semibold text-dark">{{ $m->description }}</span>
+                                    @if($m->type == 'debit' && $m->imputaciones->count() > 0)
+                                        <span class="badge bg-success-subtle text-success border border-success border-opacity-25 x-small ms-2">
+                                            <i class="fas fa-check-double me-1"></i>Con Aplicaciones
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="text-end fw-bold {{ $m->type == 'debit' ? 'text-danger' : 'text-muted opacity-25' }}">
                                     {{ $m->type == 'debit' ? '$' . number_format($m->amount, 2, ',', '.') : '-' }}
@@ -164,7 +169,9 @@
                                     {{ $m->type == 'credit' ? '$' . number_format($m->amount, 2, ',', '.') : '-' }}
                                 </td>
                                 <td class="text-end pe-4">
-                                    <span class="btn btn-sm btn-light rounded-circle shadow-none"><i class="fas fa-chevron-down x-small text-muted"></i></span>
+                                    <button class="btn btn-sm btn-primary rounded-pill px-3 py-1 shadow-sm fw-bold d-flex align-items-center justify-content-center gap-1 mx-auto" style="font-size: 0.65rem; min-width: 65px;">
+                                        <i class="fas fa-eye"></i> VER
+                                    </button>
                                 </td>
                             </tr>
                             {{-- DETALLE COLAPSABLE --}}
@@ -177,9 +184,15 @@
                                                     <h6 class="x-small fw-bold text-uppercase text-muted mb-3">Imputaciones de Cobro</h6>
                                                     @if($m->imputaciones->count() > 0)
                                                         @foreach($m->imputaciones as $imp)
-                                                            <div class="d-flex justify-content-between bg-white p-2 rounded-3 border mb-2">
-                                                                <span class="small fw-semibold">Recibo #{{ str_pad($imp->recibo->numero_recibo ?? 0, 8, '0', STR_PAD_LEFT) }}</span>
-                                                                <span class="small fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
+                                                            <div class="d-flex justify-content-between align-items-center bg-white p-2 px-3 rounded-3 border mb-2 shadow-sm border-start border-4 border-success">
+                                                                <div>
+                                                                    <div class="small fw-bold text-dark">Recibo #{{ str_pad($imp->recibo->numero_recibo ?? 0, 8, '0', STR_PAD_LEFT) }}</div>
+                                                                    <div class="x-small text-muted">{{ $imp->recibo->created_at->format('d/m/Y') }}</div>
+                                                                </div>
+                                                                <div class="text-end">
+                                                                    <div class="small fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</div>
+                                                                    <a href="{{ route('empresa.pagos.show', $imp->recibo_id) }}" class="x-small fw-bold text-primary text-decoration-none"><i class="fas fa-eye me-1"></i>Ver Recibo</a>
+                                                                </div>
                                                             </div>
                                                         @endforeach
                                                     @else
@@ -284,10 +297,13 @@
                                             {{ $dias == 0 ? 'Hoy' : ($dias == 1 ? 'Hace 1 día' : "Hace $dias días") }}
                                         </div>
                                     </td>
-                                    <td class="text-end fw-bold text-danger">${{ number_format($d->pending_amount, 2, ',', '.') }}</td>
+                                    <td class="text-end fw-bold text-danger">
+                                        <div class="mb-0">${{ number_format($d->pending_amount, 2, ',', '.') }}</div>
+                                        <div class="x-small text-muted fw-normal">Total: ${{ number_format($d->amount, 2, ',', '.') }}</div>
+                                    </td>
                                     <td class="text-end pe-4">
-                                        <button class="btn btn-sm btn-light rounded-pill px-2" data-bs-toggle="modal" data-bs-target="#modalCobro" onclick="preselectFactura({{ $d->id }}, {{ $d->pending_amount }})">
-                                            <i class="fas fa-plus text-success"></i>
+                                        <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm fw-bold border-0" data-bs-toggle="modal" data-bs-target="#modalCobro" onclick="preselectFactura({{ $d->id }}, {{ $d->pending_amount }})">
+                                            <i class="fas fa-hand-holding-usd me-1"></i> Cobrar
                                         </button>
                                     </td>
                                 </tr>
