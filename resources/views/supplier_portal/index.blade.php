@@ -11,130 +11,175 @@
             --primary-color: {{ $empresa->config->color_primario ?? '#3563E9' }};
             --secondary-color: {{ $empresa->config->color_secundario ?? '#2F55D4' }};
         }
-        body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
+        body { background: #fdfdfd; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; font-size: 0.85rem; }
+        
         .portal-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 3rem 1rem;
-            border-bottom-left-radius: 2rem;
-            border-bottom-right-radius: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: #fff;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            border-bottom: 2px solid #f1f5f9;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+        .header-logo { max-height: 30px; margin-right: 1rem; }
+        .header-info { border-left: 1px solid #e2e8f0; padding-left: 1rem; }
+        .header-title { font-size: 0.9rem; font-weight: 800; margin: 0; color: #000; }
+        .header-subtitle { font-size: 0.7rem; color: #64748b; margin: 0; font-weight: 600; }
+
         .card-stats {
-            border: none;
-            border-radius: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.6rem 1rem !important;
+            background: #fff;
         }
-        .table-premium { border-radius: 1rem; overflow: hidden; background: white; box-shadow: 0 5px 20px rgba(0,0,0,0.03); }
-        .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); border-radius: 50px; font-weight: 700; padding: 0.6rem 1.5rem; }
-        .badge-status { font-size: 0.75rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 50px; }
+        .stat-label { font-size: 0.6rem; text-transform: uppercase; font-weight: 700; color: #64748b; display: block; }
+        .stat-value { font-size: 1.1rem; font-weight: 800; margin: 0; }
+        
+        .table-report { width: 100%; border-collapse: collapse; background: white; }
+        .table-report thead th { 
+            background: #f8fafc; 
+            color: #475569; 
+            font-size: 0.65rem; 
+            font-weight: 800; 
+            padding: 0.5rem 0.75rem; 
+            border: 1px solid #e2e8f0;
+            text-transform: uppercase;
+        }
+        .table-report tbody td { 
+            padding: 0.4rem 0.75rem; 
+            border: 1px solid #f1f5f9;
+            font-size: 0.8rem;
+        }
+        .table-report tfoot td {
+            background: #f8fafc;
+            font-weight: 800;
+            padding: 0.6rem 0.75rem;
+            border-top: 2px solid #cbd5e1;
+        }
+        
+        .btn-mini { font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 700; }
+        .badge-status { font-size: 0.6rem; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 3px; }
+
         @media print {
             .no-print { display: none !important; }
-            .portal-header { border-radius: 0; padding: 1rem; background: white !important; color: black !important; }
+            body { background: white; }
+            .table-report { border: 1px solid #000; }
+            .table-report th, .table-report td { border: 1px solid #000; }
         }
     </style>
 </head>
 <body>
 
-    <div class="portal-header mb-5 no-print">
-        <div class="container text-center">
+    <div class="portal-header no-print">
+        <div class="d-flex align-items-center w-100">
             @if($empresa->config->logo)
-                <img src="{{ asset('storage/' . $empresa->config->logo) }}" alt="Logo" class="mb-3" style="max-height: 80px; filter: brightness(0) invert(1);">
+                <img src="{{ asset('storage/' . $empresa->config->logo) }}" alt="Logo" class="header-logo">
             @endif
-            <h1 class="fw-bold mb-1">{{ $empresa->nombre_comercial }}</h1>
-            <p class="opacity-75 mb-0">Portal para Proveedores</p>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="row g-4 mb-5">
-            <div class="col-md-6 col-lg-4">
-                <div class="card card-stats p-4 text-center h-100">
-                    <span class="text-muted text-uppercase x-small fw-bold mb-2">Le debemos al día de hoy</span>
-                    <h2 class="fw-bold {{ $saldo > 0 ? 'text-danger' : 'text-success' }}">
-                        ${{ number_format(abs($saldo), 2, ',', '.') }}
-                    </h2>
-                    @if($saldo > 0)
-                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill py-1 px-3 mt-2 mx-auto" style="width: fit-content;">DEUDA PENDIENTE</span>
-                    @else
-                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill py-1 px-3 mt-2 mx-auto" style="width: fit-content;">AL DÍA</span>
-                    @endif
-                </div>
+            <div class="header-info me-auto">
+                <h1 class="header-title">{{ $empresa->nombre_comercial }}</h1>
+                <p class="header-subtitle text-uppercase">Portal del Proveedor: <span class="text-dark fw-bold">{{ $supplier->name }}</span></p>
             </div>
-            <div class="col-md-12 col-lg-8 d-flex align-items-center justify-content-end no-print">
-                <button class="btn btn-primary shadow-sm px-5" onclick="window.print()">
-                    <i class="fas fa-print me-2"></i> IMPRIMIR ESTADO
+            <div class="no-print">
+                <button class="btn btn-sm btn-dark fw-bold px-3" onclick="window.print()" style="font-size: 0.7rem;">
+                    <i class="fas fa-print me-1"></i> IMPRIMIR ESTADO
                 </button>
             </div>
         </div>
+    </div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
-            <div class="card-header bg-white p-4 border-0">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-list-alt me-2 text-primary"></i> Historial de Movimientos</h5>
+    <div class="container-fluid py-3 px-lg-4">
+        <div class="row g-2 mb-3">
+            <div class="col-md-2">
+                <div class="card card-stats">
+                    <span class="stat-label">Le Debemos</span>
+                    <div class="stat-value {{ $saldo > 0 ? 'text-danger' : 'text-success' }}">
+                        ${{ number_format(abs($saldo), 2, ',', '.') }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card card-stats">
+                    <span class="stat-label">Comprobantes</span>
+                    <div class="stat-value text-dark">{{ $movimientos->total() }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border rounded-2 overflow-hidden shadow-sm bg-white">
+            <div class="bg-light p-2 border-bottom px-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0" style="font-size: 0.75rem;">DETALLE DE COMPRAS Y COMPOSICIÓN DE PAGOS</h6>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
-                        <tr class="x-small fw-bold text-muted text-uppercase">
-                            <th class="ps-4">Fecha</th>
-                            <th>Concepto</th>
-                            <th class="text-end">Debe (+)</th>
-                            <th class="text-end">Haber (-)</th>
-                            <th class="text-center">Estado</th>
-                            <th class="text-end pe-4 no-print">Acción</th>
+                <table class="table-report align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Fecha</th>
+                            <th>Descripción</th>
+                            <th class="text-end" style="width: 120px;">Total</th>
+                            <th class="text-end" style="width: 120px;">Pagado</th>
+                            <th class="text-end" style="width: 120px;">Saldo</th>
+                            <th class="text-center" style="width: 100px;">Estado</th>
+                            <th class="text-end pe-4 no-print" style="width: 150px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php 
+                            $sumTotal = 0;
+                            $sumPagado = 0;
+                            $sumSaldo = 0;
+                        @endphp
                         @foreach($movimientos as $m)
-                        <tr class="border-bottom">
-                            <td class="ps-4">
-                                <div class="fw-bold text-dark">{{ $m->created_at->format('d/m/Y') }}</div>
-                                <div class="x-small text-muted">{{ $m->created_at->format('H:i') }} hs</div>
-                            </td>
-                            <td>
-                                <span class="fw-semibold text-dark">{{ $m->description }}</span>
-                            </td>
-                            <td class="text-end fw-bold text-danger">
-                                {{ $m->type == 'debit' ? '$' . number_format($m->amount, 2, ',', '.') : '-' }}
-                            </td>
-                            <td class="text-end fw-bold text-success">
-                                {{ $m->type == 'credit' ? '$' . number_format($m->amount, 2, ',', '.') : '-' }}
-                            </td>
+                        @php 
+                            $pagado = $m->amount - $m->pending_amount;
+                            $sumTotal += (float)$m->amount;
+                            $sumPagado += (float)$pagado;
+                            $sumSaldo += (float)$m->pending_amount;
+                        @endphp
+                        <tr>
+                            <td>{{ $m->created_at ? $m->created_at->format('d/m/Y') : '-' }}</td>
+                            <td><span class="fw-bold">{{ $m->description }}</span></td>
+                            <td class="text-end fw-bold text-secondary">${{ number_format($m->amount, 2, ',', '.') }}</td>
+                            <td class="text-end text-success fw-bold">${{ number_format($pagado, 2, ',', '.') }}</td>
+                            <td class="text-end text-danger fw-bold">${{ number_format($m->pending_amount, 2, ',', '.') }}</td>
                             <td class="text-center">
-                                @if($m->type == 'debit')
-                                    @if($m->paid)
-                                        <span class="badge-status bg-success bg-opacity-10 text-success">PAGADO</span>
-                                    @else
-                                        <span class="badge-status bg-danger bg-opacity-10 text-danger">PENDIENTE</span>
-                                    @endif
+                                @if($m->paid)
+                                    <span class="badge-status bg-success-subtle text-success border">CUBIERTO</span>
+                                @elseif($pagado > 0)
+                                    <span class="badge-status bg-warning-subtle text-warning border">PARCIAL</span>
                                 @else
-                                    <span class="badge-status bg-info bg-opacity-10 text-info">ORDEN PAGO</span>
+                                    <span class="badge-status bg-danger-subtle text-danger border">PENDIENTE</span>
                                 @endif
                             </td>
                             <td class="text-end pe-4 no-print">
-                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">
-                                    VER <i class="fas fa-chevron-down ms-1 small"></i>
-                                </button>
+                                <div class="d-flex justify-content-end gap-1">
+                                    <button class="btn btn-outline-secondary btn-mini" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">PAGOS</button>
+                                    @if($m->reference_type == 'App\Models\Purchase')
+                                    <a href="{{ route('supplier.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">FACTURA</a>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         <tr class="collapse" id="collapse-{{ $m->id }}">
-                            <td colspan="6" class="p-0 border-0">
-                                <div class="bg-light p-4 shadow-inner">
+                            <td colspan="7" class="p-0 bg-light">
+                                <div class="p-3">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <h6 class="x-small fw-bold text-uppercase text-muted mb-3">Vínculos de Pago</h6>
+                                            <div class="x-small fw-bold text-muted text-uppercase mb-2">Órdenes de Pago vinculadas:</div>
                                             @forelse($m->imputaciones as $imp)
-                                                <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-3 border mb-2 shadow-sm border-start border-4 border-success">
-                                                    <div>
-                                                        <div class="small fw-bold text-dark">OP #{{ $imp->ordenPago->numero_orden ?? '?' }}</div>
-                                                        <div class="x-small text-muted">{{ $imp->created_at->format('d/m/Y') }}</div>
-                                                    </div>
-                                                    <div class="text-end">
-                                                        <div class="small fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</div>
+                                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom x-small">
+                                                    <span>OP #{{ optional($imp->ordenPago)->numero_orden ? str_pad($imp->ordenPago->numero_orden, 6, '0', STR_PAD_LEFT) : '???' }} ({{ $imp->created_at ? $imp->created_at->format('d/m/Y') : '-' }})</span>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
+                                                        @if($imp->orden_pago_id)
+                                                        <a href="{{ route('supplier.portal.payment.pdf', ['token' => request()->route('token'), 'id' => $imp->orden_pago_id]) }}" target="_blank" class="text-dark no-print"><i class="fas fa-print"></i></a>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             @empty
-                                                <p class="text-muted small">No hay pagos aplicados aún.</p>
+                                                <div class="text-muted x-small italic">Sin pagos vinculados aún.</div>
                                             @endforelse
                                         </div>
                                     </div>
@@ -143,20 +188,23 @@
                         </tr>
                         @endforeach
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="text-end">TOTALES DEL REPORTE:</td>
+                            <td class="text-end">${{ number_format($sumTotal, 2, ',', '.') }}</td>
+                            <td class="text-end text-success">${{ number_format($sumPagado, 2, ',', '.') }}</td>
+                            <td class="text-end text-danger">${{ number_format($sumSaldo, 2, ',', '.') }}</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
             @if($movimientos->hasPages())
-                <div class="card-footer bg-white p-4 no-print">
-                    {{ $movimientos->links() }}
-                </div>
+                <div class="p-2 no-print border-top">{{ $movimientos->links() }}</div>
             @endif
         </div>
-
-        <div class="text-center text-muted small pb-5 no-print">
-            &copy; {{ date('Y') }} {{ $empresa->nombre_comercial }} | MultiPOS
-        </div>
+        <div class="text-center text-muted x-small py-4 no-print">&copy; {{ date('Y') }} {{ $empresa->nombre_comercial }} | MultiPOS</div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

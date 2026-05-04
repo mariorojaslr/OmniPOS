@@ -57,8 +57,15 @@ use App\Http\Controllers\CatalogController;
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/c/{empresa}', [CatalogController::class , 'index'])->name('catalog.index');
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class , 'show'])->name('catalog.show');
+// --- PORTAL CLIENTE (Público) ---
 Route::get('/portal-cliente/{token}', [ClientPortalController::class, 'index'])->name('client.portal');
+Route::get('/portal-cliente/{token}/factura/{id}', [ClientPortalController::class, 'downloadInvoice'])->name('client.portal.invoice.pdf');
+Route::get('/portal-cliente/{token}/recibo/{id}', [ClientPortalController::class, 'downloadReceipt'])->name('client.portal.receipt.pdf');
+
+// --- PORTAL PROVEEDOR (Público) ---
 Route::get('/portal-proveedor/{token}', [SupplierPortalController::class, 'index'])->name('supplier.portal');
+Route::get('/portal-proveedor/{token}/compra/{id}', [SupplierPortalController::class, 'downloadInvoice'])->name('supplier.portal.invoice.pdf');
+Route::get('/portal-proveedor/{token}/orden-pago/{id}', [SupplierPortalController::class, 'downloadPayment'])->name('supplier.portal.payment.pdf');
 
 // MODO DEMO (PUESTA EN MARCHA RÁPIDA - REEMPLAZADO POR DEMO EXPERIENCE)
 // Route::get('/demo-mode', [DemoController::class, 'enter'])->name('demo.mode');

@@ -21,6 +21,7 @@ class SupplierPortalController extends Controller
         $empresa->load('config');
 
         $movimientos = SupplierLedger::where('supplier_id', $supplier->id)
+            ->where('type', 'debit')
             ->with(['imputaciones.ordenPago'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);

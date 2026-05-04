@@ -11,167 +11,178 @@
             --primary-color: {{ $empresa->config->color_primario ?? '#3563E9' }};
             --secondary-color: {{ $empresa->config->color_secundario ?? '#2F55D4' }};
         }
-        body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
+        body { background: #fdfdfd; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; font-size: 0.85rem; }
+        
+        /* Encabezado ultra-compacto */
         .portal-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 3rem 1rem;
-            border-bottom-left-radius: 2rem;
-            border-bottom-right-radius: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: #fff;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            border-bottom: 2px solid #f1f5f9;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+        .header-logo { max-height: 30px; margin-right: 1rem; }
+        .header-info { border-left: 1px solid #e2e8f0; padding-left: 1rem; }
+        .header-title { font-size: 0.9rem; font-weight: 800; margin: 0; color: #000; }
+        .header-subtitle { font-size: 0.7rem; color: #64748b; margin: 0; font-weight: 600; }
+
         .card-stats {
-            border: none;
-            border-radius: 1.5rem;
-            transition: transform 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.6rem 1rem !important;
+            background: #fff;
         }
-        .card-stats:hover { transform: translateY(-5px); }
-        .table-premium { border-radius: 1rem; overflow: hidden; background: white; box-shadow: 0 5px 20px rgba(0,0,0,0.03); }
-        .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); border-radius: 50px; font-weight: 700; padding: 0.6rem 1.5rem; }
-        .btn-primary:hover { background-color: var(--secondary-color); border-color: var(--secondary-color); }
-        .badge-status { font-size: 0.75rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 50px; }
-        .imputation-card { border-left: 4px solid #198754; background: #fdfdfd; margin-bottom: 0.5rem; }
+        .stat-label { font-size: 0.6rem; text-transform: uppercase; font-weight: 700; color: #64748b; display: block; }
+        .stat-value { font-size: 1.1rem; font-weight: 800; margin: 0; }
+        
+        /* Tabla estilo informe antiguo */
+        .table-report { width: 100%; border-collapse: collapse; background: white; }
+        .table-report thead th { 
+            background: #f8fafc; 
+            color: #475569; 
+            font-size: 0.65rem; 
+            font-weight: 800; 
+            padding: 0.5rem 0.75rem; 
+            border: 1px solid #e2e8f0;
+            text-transform: uppercase;
+        }
+        .table-report tbody td { 
+            padding: 0.4rem 0.75rem; 
+            border: 1px solid #f1f5f9;
+            font-size: 0.8rem;
+        }
+        .table-report tfoot td {
+            background: #f8fafc;
+            font-weight: 800;
+            padding: 0.6rem 0.75rem;
+            border-top: 2px solid #cbd5e1;
+        }
+        
+        .btn-mini { font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 700; }
+        .badge-status { font-size: 0.6rem; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 3px; }
+
         @media print {
             .no-print { display: none !important; }
-            .portal-header { border-radius: 0; padding: 1rem; background: white !important; color: black !important; }
+            body { background: white; }
+            .table-report { border: 1px solid #000; }
+            .table-report th, .table-report td { border: 1px solid #000; }
         }
     </style>
 </head>
 <body>
 
-    <div class="portal-header mb-5 no-print">
-        <div class="container text-center">
+    <div class="portal-header no-print">
+        <div class="d-flex align-items-center w-100">
             @if($empresa->config->logo)
-                <img src="{{ asset('storage/' . $empresa->config->logo) }}" alt="Logo" class="mb-3" style="max-height: 80px; filter: brightness(0) invert(1);">
+                <img src="{{ asset('storage/' . $empresa->config->logo) }}" alt="Logo" class="header-logo">
             @endif
-            <h1 class="fw-bold mb-1">{{ $empresa->nombre_comercial }}</h1>
-            <p class="opacity-75 mb-0">Portal de Autogestión para Clientes</p>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="row g-4 mb-5">
-            <div class="col-md-6 col-lg-4">
-                <div class="card card-stats p-4 text-center h-100">
-                    <span class="text-muted text-uppercase x-small fw-bold mb-2">Mi Saldo Actual</span>
-                    <h2 class="fw-bold {{ $saldo > 0 ? 'text-danger' : 'text-success' }}">
-                        ${{ number_format(abs($saldo), 2, ',', '.') }}
-                    </h2>
-                    @if($saldo > 0)
-                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill py-1 px-3 mt-2 mx-auto" style="width: fit-content;">PENDIENTE DE PAGO</span>
-                    @else
-                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill py-1 px-3 mt-2 mx-auto" style="width: fit-content;">AL DÍA</span>
-                    @endif
-                </div>
+            <div class="header-info me-auto">
+                <h1 class="header-title">{{ $empresa->nombre_comercial }}</h1>
+                <p class="header-subtitle text-uppercase">Portal del Cliente: <span class="text-dark fw-bold">{{ $client->name }}</span></p>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card card-stats p-4 text-center h-100">
-                    <span class="text-muted text-uppercase x-small fw-bold mb-2">Comprobantes Pendientes</span>
-                    <h2 class="fw-bold text-dark">{{ $deudas->count() }}</h2>
-                    <p class="text-muted small mb-0">Facturas que registran deuda parcial o total</p>
-                </div>
-            </div>
-            <div class="col-md-12 col-lg-4 d-flex align-items-center justify-content-center no-print">
-                <button class="btn btn-primary shadow-sm px-5" onclick="window.print()">
-                    <i class="fas fa-print me-2"></i> IMPRIMIR ESTADO
+            <div class="no-print">
+                <button class="btn btn-sm btn-dark fw-bold px-3" onclick="window.print()" style="font-size: 0.7rem;">
+                    <i class="fas fa-print me-1"></i> IMPRIMIR ESTADO
                 </button>
             </div>
         </div>
+    </div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
-            <div class="card-header bg-white p-4 border-0">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-history me-2 text-primary"></i> Mis Movimientos Recientes</h5>
+    <div class="container-fluid py-3 px-lg-4">
+        <div class="row g-2 mb-3">
+            <div class="col-md-2">
+                <div class="card card-stats">
+                    <span class="stat-label">Saldo Actual</span>
+                    <div class="stat-value {{ $saldo > 0 ? 'text-danger' : 'text-success' }}">
+                        ${{ number_format(abs($saldo), 2, ',', '.') }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card card-stats">
+                    <span class="stat-label">Comprobantes</span>
+                    <div class="stat-value text-dark">{{ $movimientos->total() }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border rounded-2 overflow-hidden shadow-sm bg-white">
+            <div class="bg-light p-2 border-bottom px-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0" style="font-size: 0.75rem;">DETALLE DE COMPROBANTES Y COMPOSICIÓN DE SALDO</h6>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
-                        <tr class="x-small fw-bold text-muted text-uppercase">
-                            <th class="ps-4">Fecha</th>
-                            <th>Concepto</th>
-                            <th class="text-end">Importe</th>
-                            <th class="text-center">Estado</th>
-                            <th class="text-end pe-4 no-print">Detalle</th>
+                <table class="table-report align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Fecha</th>
+                            <th>Descripción</th>
+                            <th class="text-end" style="width: 120px;">Total</th>
+                            <th class="text-end" style="width: 120px;">Abonado</th>
+                            <th class="text-end" style="width: 120px;">Pendiente</th>
+                            <th class="text-center" style="width: 100px;">Estado</th>
+                            <th class="text-end pe-4 no-print" style="width: 150px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php 
+                            $sumTotal = 0;
+                            $sumAbonado = 0;
+                            $sumPendiente = 0;
+                        @endphp
                         @foreach($movimientos as $m)
-                        <tr class="border-bottom">
-                            <td class="ps-4">
-                                <div class="fw-bold text-dark">{{ $m->created_at->format('d/m/Y') }}</div>
-                                <div class="x-small text-muted">{{ $m->created_at->format('H:i') }} hs</div>
-                            </td>
-                            <td>
-                                <span class="fw-semibold text-dark">{{ $m->description }}</span>
-                                @if($m->type == 'debit' && $m->imputaciones->count() > 0)
-                                    <span class="badge bg-success-subtle text-success border border-success border-opacity-25 x-small ms-2">
-                                        <i class="fas fa-check-double me-1"></i>Con Aplicaciones
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="text-end fw-bold {{ $m->type == 'debit' ? 'text-danger' : 'text-success' }}">
-                                {{ $m->type == 'debit' ? '+' : '-' }} ${{ number_format($m->amount, 2, ',', '.') }}
-                            </td>
+                        @php 
+                            $abonado = $m->amount - $m->pending_amount;
+                            $sumTotal += (float)$m->amount;
+                            $sumAbonado += (float)$abonado;
+                            $sumPendiente += (float)$m->pending_amount;
+                        @endphp
+                        <tr>
+                            <td>{{ $m->created_at ? $m->created_at->format('d/m/Y') : '-' }}</td>
+                            <td><span class="fw-bold">{{ $m->description }}</span></td>
+                            <td class="text-end fw-bold text-secondary">${{ number_format($m->amount, 2, ',', '.') }}</td>
+                            <td class="text-end text-success fw-bold">${{ number_format($abonado, 2, ',', '.') }}</td>
+                            <td class="text-end text-danger fw-bold">${{ number_format($m->pending_amount, 2, ',', '.') }}</td>
                             <td class="text-center">
-                                @if($m->type == 'debit')
-                                    @if($m->paid)
-                                        <span class="badge-status bg-success bg-opacity-10 text-success border border-success border-opacity-25">PAGADA</span>
-                                    @elseif($m->pending_amount < $m->amount && $m->pending_amount > 0)
-                                        <span class="badge-status bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">PAGO PARCIAL</span>
-                                    @else
-                                        <span class="badge-status bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">IMPAGA</span>
-                                    @endif
+                                @if($m->paid)
+                                    <span class="badge-status bg-success-subtle text-success border">PAGADA</span>
+                                @elseif($abonado > 0)
+                                    <span class="badge-status bg-warning-subtle text-warning border">PARCIAL</span>
                                 @else
-                                    <span class="badge-status bg-info bg-opacity-10 text-info border border-info border-opacity-25">COBRO / RECIBO</span>
+                                    <span class="badge-status bg-danger-subtle text-danger border">IMPAGA</span>
                                 @endif
                             </td>
                             <td class="text-end pe-4 no-print">
-                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">
-                                    VER <i class="fas fa-chevron-down ms-1 small"></i>
-                                </button>
+                                <div class="d-flex justify-content-end gap-1">
+                                    <button class="btn btn-outline-secondary btn-mini" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">RECIBOS</button>
+                                    @if($m->reference_type == 'App\Models\Venta')
+                                    <a href="{{ route('client.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">FACTURA</a>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         <tr class="collapse" id="collapse-{{ $m->id }}">
-                            <td colspan="5" class="p-0 border-0">
-                                <div class="bg-light p-4 shadow-inner">
+                            <td colspan="7" class="p-0 bg-light">
+                                <div class="p-3">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <h6 class="x-small fw-bold text-uppercase text-muted mb-3">
-                                                {{ $m->type == 'debit' ? 'Detalle de Pagos Aplicados' : 'Facturas que cubrió este cobro' }}
-                                            </h6>
-                                            @if($m->type == 'debit')
-                                                @forelse($m->imputaciones as $imp)
-                                                    <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-3 border mb-2 imputation-card shadow-sm">
-                                                        <div>
-                                                            <div class="small fw-bold text-dark">Recibo #{{ str_pad($imp->recibo->numero_recibo ?? 0, 8, '0', STR_PAD_LEFT) }}</div>
-                                                            <div class="x-small text-muted">{{ $imp->recibo->created_at->format('d/m/Y') }}</div>
-                                                        </div>
-                                                        <div class="text-end">
-                                                            <div class="small fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</div>
-                                                        </div>
+                                            <div class="x-small fw-bold text-muted text-uppercase mb-2">Composición de pagos:</div>
+                                            @forelse($m->imputaciones as $imp)
+                                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom x-small">
+                                                    <span>Recibo #{{ optional($imp->recibo)->numero_recibo ? str_pad($imp->recibo->numero_recibo, 6, '0', STR_PAD_LEFT) : '???' }} ({{ optional($imp->recibo)->created_at ? $imp->recibo->created_at->format('d/m/Y') : '-' }})</span>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
+                                                        @if($imp->recibo_id)
+                                                        <a href="{{ route('client.portal.receipt.pdf', ['token' => request()->route('token'), 'id' => $imp->recibo_id]) }}" target="_blank" class="text-dark no-print"><i class="fas fa-print"></i></a>
+                                                        @endif
                                                     </div>
-                                                @empty
-                                                    <p class="text-muted small">No hay pagos aplicados aún a este comprobante.</p>
-                                                @endforelse
-                                            @else
-                                                @php $imputacionesRecibo = $m->reference ? $m->reference->imputaciones : collect([]); @endphp
-                                                @forelse($imputacionesRecibo as $imp)
-                                                    <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-3 border mb-2 shadow-sm">
-                                                        <span class="small fw-semibold">{{ $imp->ledger->description }}</span>
-                                                        <span class="small fw-bold text-danger">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
-                                                    </div>
-                                                @empty
-                                                    <p class="text-muted small">Este pago aún no ha sido imputado a ninguna factura específica.</p>
-                                                @endforelse
-                                            @endif
-                                        </div>
-                                        <div class="col-md-6 text-end">
-                                            @if($m->type == 'debit' && !$m->paid)
-                                                <div class="alert alert-warning border-0 rounded-4 p-4 text-start shadow-sm mb-0">
-                                                    <h6 class="fw-bold mb-2">¿Cómo pagar este saldo?</h6>
-                                                    <p class="small mb-0">Comuníquese con nosotros para informarnos su pago o solicitar los datos de transferencia. Saldo pendiente: <strong>${{ number_format($m->pending_amount, 2, ',', '.') }}</strong></p>
                                                 </div>
-                                            @endif
+                                            @empty
+                                                <div class="text-muted x-small italic">Sin pagos aplicados.</div>
+                                            @endforelse
                                         </div>
                                     </div>
                                 </div>
@@ -179,20 +190,23 @@
                         </tr>
                         @endforeach
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="text-end">TOTALES DE ESTA PÁGINA:</td>
+                            <td class="text-end">${{ number_format($sumTotal, 2, ',', '.') }}</td>
+                            <td class="text-end text-success">${{ number_format($sumAbonado, 2, ',', '.') }}</td>
+                            <td class="text-end text-danger">${{ number_format($sumPendiente, 2, ',', '.') }}</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
             @if($movimientos->hasPages())
-                <div class="card-footer bg-white p-4 no-print">
-                    {{ $movimientos->links() }}
-                </div>
+                <div class="p-2 no-print border-top">{{ $movimientos->links() }}</div>
             @endif
         </div>
-
-        <div class="text-center text-muted small pb-5 no-print">
-            &copy; {{ date('Y') }} {{ $empresa->nombre_comercial }} | Desarrollado por MultiPOS
-        </div>
+        <div class="text-center text-muted x-small py-4 no-print">&copy; {{ date('Y') }} {{ $empresa->nombre_comercial }} | MultiPOS</div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
