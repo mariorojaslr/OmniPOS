@@ -122,4 +122,26 @@ class ClientPortalController extends Controller
 
         return $pdf->download("Recibo_{$recibo->numero_recibo}.pdf");
     }
+
+    /**
+     * Procesar el inicio del pago (Simulador o Pasarela)
+     */
+    public function payInvoice($token, $id)
+    {
+        $portalToken = ClientPortalToken::where('token', $token)->firstOrFail();
+        $venta = Venta::where('id', $id)
+            ->where('client_id', $portalToken->client_id)
+            ->firstOrFail();
+
+        if ($venta->paid) {
+            return back()->with('info', 'Esta factura ya se encuentra pagada.');
+        }
+
+        $empresa = $venta->empresa;
+        $client = $venta->cliente;
+
+        // Aquí es donde iría la lógica de Mercado Pago o Stripe
+        // Por ahora, devolvemos una vista de simulador para verificar que todo está ok
+        return view('client_portal.pay_simulator', compact('venta', 'empresa', 'client', 'token'));
+    }
 }
