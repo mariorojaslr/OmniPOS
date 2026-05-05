@@ -64,7 +64,7 @@ Route::get('/portal-cliente/{token}/recibo/{id}', [ClientPortalController::class
 Route::get('/portal-cliente/{token}/pagar/{id}', [ClientPortalController::class, 'payInvoice'])->name('client.portal.invoice.pay');
 
 // --- PORTAL PROVEEDOR (Público) ---
-Route::get('/portal-proveedor/{token}', [SupplierPortalController::class, 'index'])->name('supplier.portal');
+Route::get('/portal-proveedor/{token}', [SupplierPortalController::class, 'index'])->name('supplier.portal.index');
 Route::get('/portal-proveedor/{token}/compra/{id}', [SupplierPortalController::class, 'downloadInvoice'])->name('supplier.portal.invoice.pdf');
 Route::get('/portal-proveedor/{token}/orden-pago/{id}', [SupplierPortalController::class, 'downloadPayment'])->name('supplier.portal.payment.pdf');
 
