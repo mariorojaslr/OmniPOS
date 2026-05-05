@@ -46,7 +46,7 @@
                                         ->where('reference_type', 'like', '%Venta')
                                         ->first();
                                         
-                            $montoPendiente = $ledger ? ($ledger->amount - ($ledger->imputaciones->sum('amount') ?? 0)) : $venta->total_con_iva;
+                            $montoPendiente = $ledger ? ($ledger->amount - ($ledger->imputaciones->sum('monto_aplicado') ?? 0)) : $venta->total_con_iva;
                         @endphp
                         <input type="number" step="0.01" class="form-control border-start-0 fw-bold text-center" 
                                name="amount" id="pay_amount" 

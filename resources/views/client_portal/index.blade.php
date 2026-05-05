@@ -62,7 +62,17 @@
             border-top: 2px solid #cbd5e1;
         }
         
-        .btn-mini { font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 700; }
+        .btn-mini {
+            width: 85px;
+            height: 26px;
+            padding: 0;
+            font-size: 0.62rem;
+            font-weight: 800;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
         .badge-status { font-size: 0.6rem; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 3px; }
 
         @media print {
@@ -135,8 +145,9 @@
                         @endphp
                         @foreach($movimientos as $m)
                         @php 
-                            $montoPendiente = $m->paid ? 0 : $m->amount;
-                            $abonado = $m->amount - $montoPendiente;
+                            $totalImputado = $m->imputaciones->sum('monto_aplicado') ?? 0;
+                            $montoPendiente = $m->amount - $totalImputado;
+                            $abonado = $totalImputado;
                             $sumTotal += (float)$m->amount;
                             $sumAbonado += (float)$abonado;
                             $sumPendiente += (float)$montoPendiente;
