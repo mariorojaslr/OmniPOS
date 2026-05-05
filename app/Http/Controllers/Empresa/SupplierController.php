@@ -296,19 +296,24 @@ class SupplierController extends Controller
 
     public function getPortalLink(\App\Models\Supplier $supplier)
     {
-        $token = \App\Models\SupplierPortalToken::where('supplier_id', $supplier->id)->first();
+        try {
+            $token = \App\Models\SupplierPortalToken::where('supplier_id', $supplier->id)->first();
 
-        if (!$token) {
-            $token = \App\Models\SupplierPortalToken::create([
-                'empresa_id' => $supplier->empresa_id,
-                'supplier_id' => $supplier->id,
-                'token' => \Illuminate\Support\Str::random(40),
+            if (!$token) {
+                $token = \App\Models\SupplierPortalToken::create([
+                    'empresa_id' => $supplier->empresa_id,
+                    'supplier_id' => $supplier->id,
+                    'token' => \Illuminate\Support\Str::random(40),
+                ]);
+            }
+
+            return response()->json([
+                'url' => route('supplier.portal.index', ['token' => $token->token])
             ]);
+        } catch (\Exception $e) {
+            \Log::error("Error generando link de portal para proveedor {$supplier->id}: " . $e->getMessage());
+            return response()->json(['error' => 'No se pudo generar el enlace'], 500);
         }
-
-        return response()->json([
-            'url' => route('supplier.portal.index', ['token' => $token->token])
-        ]);
     }
 
     /**
