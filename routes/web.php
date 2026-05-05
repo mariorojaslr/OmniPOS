@@ -58,9 +58,10 @@ Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/c/{empresa}', [CatalogController::class , 'index'])->name('catalog.index');
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class , 'show'])->name('catalog.show');
 // --- PORTAL CLIENTE (Público) ---
-Route::get('/portal-cliente/{token}', [ClientPortalController::class, 'index'])->name('client.portal');
+Route::get('/portal-cliente/{token}', [ClientPortalController::class, 'index'])->name('client.portal.index');
 Route::get('/portal-cliente/{token}/factura/{id}', [ClientPortalController::class, 'downloadInvoice'])->name('client.portal.invoice.pdf');
 Route::get('/portal-cliente/{token}/recibo/{id}', [ClientPortalController::class, 'downloadReceipt'])->name('client.portal.receipt.pdf');
+Route::get('/portal-cliente/{token}/pagar/{id}', [ClientPortalController::class, 'payInvoice'])->name('client.portal.invoice.pay');
 
 // --- PORTAL PROVEEDOR (Público) ---
 Route::get('/portal-proveedor/{token}', [SupplierPortalController::class, 'index'])->name('supplier.portal');
@@ -623,3 +624,4 @@ Route::get('/reparar-rutas', function() {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
     return "✅ Rutas y Caché de Producción actualizadas con éxito. Ya podés entrar al sistema.";
 });
+

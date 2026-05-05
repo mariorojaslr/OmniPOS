@@ -307,7 +307,7 @@ class SupplierController extends Controller
         }
 
         return response()->json([
-            'url' => route('supplier.portal', $token->token)
+            'url' => route('supplier.portal.index', ['token' => $token->token])
         ]);
     }
 

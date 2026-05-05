@@ -25,27 +25,34 @@
         <h5 class="fw-bold mb-1">Finalizar Pago</h5>
         <p class="text-muted small mb-4">Estás por pagar a <strong>{{ $empresa->nombre_comercial }}</strong></p>
 
-        <div class="bg-light p-4 rounded-4 mb-3 text-start">
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted small">Concepto:</span>
-                <span class="fw-bold small">{{ $venta->description }}</span>
-            </div>
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted small">Cliente:</span>
-                <span class="fw-bold small">{{ $client->name }}</span>
-            </div>
-            <hr>
-            <div class="text-center">
-                <span class="text-muted small d-block">TOTAL A PAGAR</span>
-                <div class="amount-display">${{ number_format($venta->paid ? 0 : $venta->total, 2, ',', '.') }}</div>
-            </div>
-        </div>
-
-        <p class="x-small text-muted mb-0" style="font-size: 0.7rem;">
-            * Este es un simulador de pasarela de pago para validar la infraestructura del portal MultiPOS.
-        </p>
-
         <form action="{{ route('client.portal.index', ['token' => $token]) }}" method="GET">
+            <div class="bg-light p-4 rounded-4 mb-3 text-start">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">Concepto:</span>
+                    <span class="fw-bold small">{{ $venta->numero_comprobante ?? 'Venta #'.$venta->id }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">Cliente:</span>
+                    <span class="fw-bold small">{{ $client->name }}</span>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <span class="text-muted small d-block mb-2">IMPORTE A PAGAR</span>
+                    <div class="input-group input-group-lg mb-2">
+                        <span class="input-group-text bg-white border-end-0 text-muted">$</span>
+                        <input type="number" step="0.01" class="form-control border-start-0 fw-bold text-center" 
+                               name="amount" id="pay_amount" 
+                               value="{{ $venta->total_con_iva }}" 
+                               style="font-size: 2rem; color: #1e293b;">
+                    </div>
+                    <p class="x-small text-muted mb-0">Puedes editar el monto para realizar un pago parcial.</p>
+                </div>
+            </div>
+
+            <p class="x-small text-muted mb-0" style="font-size: 0.7rem;">
+                * Este es un simulador de pasarela de pago para validar la infraestructura del portal MultiPOS.
+            </p>
+
             <button type="submit" class="btn-confirm">
                 SIMULAR PAGO EXITOSO
             </button>

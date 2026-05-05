@@ -466,7 +466,7 @@ class ClientController extends Controller
         }
 
         return response()->json([
-            'url' => route('client.portal', $token->token)
+            'url' => route('client.portal.index', ['token' => $token->token])
         ]);
     }
 

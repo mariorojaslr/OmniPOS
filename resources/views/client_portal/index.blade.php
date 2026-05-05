@@ -118,13 +118,13 @@
                 <table class="table-report align-middle">
                     <thead>
                         <tr>
-                            <th style="width: 100px;">Fecha</th>
-                            <th>Descripción</th>
-                            <th class="text-end" style="width: 120px;">Total</th>
-                            <th class="text-end" style="width: 120px;">Abonado</th>
-                            <th class="text-end" style="width: 120px;">Pendiente</th>
-                            <th class="text-center" style="width: 80px;">Estado</th>
-                            <th class="text-end pe-4 no-print" style="width: 250px;">Acciones</th>
+                            <th style="width: 100px;">FECHA</th>
+                            <th>DESCRIPCIÓN</th>
+                            <th class="text-end" style="width: 120px;">TOTAL</th>
+                            <th class="text-end" style="width: 120px;">ABONADO</th>
+                            <th class="text-end" style="width: 120px;">PENDIENTE</th>
+                            <th class="text-center" style="width: 80px;">ESTADO</th>
+                            <th class="text-end pe-4 no-print" style="width: 250px;">ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -158,14 +158,16 @@
                             </td>
                             <td class="text-end pe-4 no-print">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <button class="btn btn-outline-secondary btn-mini" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">RECIBOS</button>
                                     @if(!$m->paid && $m->reference_type == 'App\Models\Venta' && $m->reference_id)
-                                    <a href="{{ route('client.portal.invoice.pay', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-success btn-mini" target="_blank">
+                                    <a href="{{ route('client.portal.invoice.pay', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-success btn-mini" style="width: 75px;" target="_blank">
                                         PAGAR
                                     </a>
                                     @endif
+
+                                    <button class="btn btn-outline-secondary btn-mini" style="width: 75px;" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">RECIBOS</button>
+                                    
                                     @if($m->reference_type == 'App\Models\Venta' && $m->reference_id)
-                                    <a href="{{ route('client.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">VER FACTURA</a>
+                                    <a href="{{ route('client.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" style="width: 90px;" target="_blank">VER FACTURA</a>
                                     @endif
                                 </div>
                             </td>
