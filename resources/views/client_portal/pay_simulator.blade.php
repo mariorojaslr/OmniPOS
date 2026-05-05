@@ -41,7 +41,11 @@
                     <div class="input-group input-group-lg mb-2">
                         <span class="input-group-text bg-white border-end-0 text-muted">$</span>
                         @php 
-                            $ledger = $venta->ledger;
+                            // Buscamos el registro contable de forma manual para evitar fallos de relación
+                            $ledger = \App\Models\ClientLedger::where('reference_id', $venta->id)
+                                        ->where('reference_type', 'like', '%Venta')
+                                        ->first();
+                                        
                             $montoPendiente = $ledger ? ($ledger->amount - ($ledger->imputaciones->sum('amount') ?? 0)) : $venta->total_con_iva;
                         @endphp
                         <input type="number" step="0.01" class="form-control border-start-0 fw-bold text-center" 
