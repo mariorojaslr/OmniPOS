@@ -27,7 +27,7 @@ class ClientPortalController extends Controller
 
         $movimientos = ClientLedger::where('client_id', $client->id)
             ->where('type', 'debit')
-            ->with(['reference', 'imputaciones.recibo'])
+            ->with(['imputaciones.recibo'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 

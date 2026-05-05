@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\ReciboImputacion;
 
 class ClientLedger extends Model
 {
