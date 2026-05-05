@@ -40,9 +40,13 @@
                     <span class="text-muted small d-block mb-2">IMPORTE A PAGAR</span>
                     <div class="input-group input-group-lg mb-2">
                         <span class="input-group-text bg-white border-end-0 text-muted">$</span>
+                        @php 
+                            $ledger = $venta->ledger;
+                            $montoPendiente = $ledger ? ($ledger->amount - ($ledger->imputaciones->sum('amount') ?? 0)) : $venta->total_con_iva;
+                        @endphp
                         <input type="number" step="0.01" class="form-control border-start-0 fw-bold text-center" 
                                name="amount" id="pay_amount" 
-                               value="{{ $venta->total_con_iva }}" 
+                               value="{{ $montoPendiente }}" 
                                style="font-size: 2rem; color: #1e293b;">
                     </div>
                     <p class="x-small text-muted mb-0">Puedes editar el monto para realizar un pago parcial.</p>
