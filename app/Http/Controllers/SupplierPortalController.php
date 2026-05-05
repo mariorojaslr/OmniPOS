@@ -22,7 +22,7 @@ class SupplierPortalController extends Controller
 
         $movimientos = SupplierLedger::where('supplier_id', $supplier->id)
             ->where('type', 'debit')
-            ->with(['imputaciones.ordenPago'])
+            ->with(['imputaciones.ordenPago.pagos.cheque'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 

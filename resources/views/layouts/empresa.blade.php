@@ -407,6 +407,7 @@ body {
                 <div class="submenu-list">
                     <a href="{{ route('empresa.configuracion.index') }}" class="submenu-link">🛠️ Configurar App</a>
                     <a href="{{ route('empresa.backup.index') }}" class="submenu-link">🛡️ Bóveda de Backups</a>
+                    <a href="{{ route('empresa.units.index') }}" class="submenu-link">⚖️ Unidades de Medida</a>
                     <a href="{{ route('empresa.suscripcion.index') }}" class="submenu-link text-primary">⭐ Mi Suscripción</a>
                 </div>
             </div>

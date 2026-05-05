@@ -133,8 +133,8 @@
                         @endphp
                         @foreach($movimientos as $m)
                         @php 
-                            $montoPendiente = $m->paid ? 0 : $m->amount;
-                            $pagado = $m->amount - $montoPendiente;
+                            $montoPendiente = (float)$m->pending_amount;
+                            $pagado = (float)$m->amount - $montoPendiente;
                             $sumTotal += (float)$m->amount;
                             $sumPagado += (float)$pagado;
                             $sumSaldo += (float)$montoPendiente;
@@ -146,7 +146,7 @@
                             <td class="text-end text-success fw-bold">${{ number_format($pagado, 2, ',', '.') }}</td>
                             <td class="text-end text-danger fw-bold">${{ number_format($montoPendiente, 2, ',', '.') }}</td>
                             <td class="text-center">
-                                @if($m->paid)
+                                @if($montoPendiente <= 0)
                                     <span class="badge-status bg-success-subtle text-success border">CUBIERTO</span>
                                 @elseif($pagado > 0)
                                     <span class="badge-status bg-warning-subtle text-warning border">PARCIAL</span>
@@ -156,7 +156,9 @@
                             </td>
                             <td class="text-end pe-4 no-print">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <button class="btn btn-outline-secondary btn-mini" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">PAGOS</button>
+                                    <button class="btn btn-outline-secondary btn-mini" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">
+                                        <i class="fas fa-list-ul me-1"></i> VER PAGOS
+                                    </button>
                                     @if($m->reference_type == 'App\Models\Purchase')
                                     <a href="{{ route('supplier.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">FACTURA</a>
                                     @endif
@@ -167,20 +169,53 @@
                             <td colspan="7" class="p-0 bg-light">
                                 <div class="p-3">
                                     <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="x-small fw-bold text-muted text-uppercase mb-2">Órdenes de Pago vinculadas:</div>
+                                        <div class="col-md-8">
+                                            <div class="fw-bold text-muted text-uppercase mb-2" style="font-size: 0.65rem;">Composición y Métodos de Pago:</div>
                                             @forelse($m->imputaciones as $imp)
-                                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom x-small">
-                                                    <span>OP #{{ optional($imp->ordenPago)->numero_orden ? str_pad($imp->ordenPago->numero_orden, 6, '0', STR_PAD_LEFT) : '???' }} ({{ $imp->created_at ? $imp->created_at->format('d/m/Y') : '-' }})</span>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <span class="fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
-                                                        @if($imp->orden_pago_id)
-                                                        <a href="{{ route('supplier.portal.payment.pdf', ['token' => request()->route('token'), 'id' => $imp->orden_pago_id]) }}" target="_blank" class="text-dark no-print"><i class="fas fa-print"></i></a>
-                                                        @endif
+                                                @php $op = $imp->ordenPago; @endphp
+                                                <div class="mb-3 border rounded bg-white p-2 shadow-sm">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-1">
+                                                        <span class="fw-bold text-dark" style="font-size: 0.75rem;">
+                                                            ORDEN DE PAGO #{{ $op ? str_pad($op->numero_orden, 6, '0', STR_PAD_LEFT) : '???' }}
+                                                            <small class="text-muted fw-normal ms-1">({{ $imp->created_at->format('d/m/Y') }})</small>
+                                                        </span>
+                                                        <div class="d-flex align-items-center gap-3">
+                                                            <span class="fw-bold text-success" style="font-size: 0.8rem;">Imputado: ${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
+                                                            @if($op)
+                                                            <a href="{{ route('supplier.portal.payment.pdf', ['token' => request()->route('token'), 'id' => $op->id]) }}" target="_blank" class="btn btn-link p-0 text-dark no-print" title="Imprimir Recibo">
+                                                                <i class="fas fa-print"></i>
+                                                            </a>
+                                                            @endif
+                                                        </div>
                                                     </div>
+
+                                                    {{-- Detalle de los métodos de pago dentro de esa Orden de Pago --}}
+                                                    @if($op && $op->pagos->count() > 0)
+                                                        <div class="ms-1">
+                                                            @foreach($op->pagos as $pago)
+                                                                <div class="d-flex justify-content-between align-items-center py-1 x-small">
+                                                                    <div class="text-muted">
+                                                                        <i class="fas fa-caret-right me-1"></i>
+                                                                        <span class="text-uppercase fw-bold text-dark">{{ str_replace('_', ' ', $pago->metodo_pago) }}</span>
+                                                                        @if($pago->referencia)
+                                                                            <span class="ms-1"> - Ref: {{ $pago->referencia }}</span>
+                                                                        @endif
+                                                                        @if($pago->metodo_pago == 'cheque' && $pago->cheque)
+                                                                            <span class="ms-1">(Ch#{{ $pago->cheque->numero }} - Vence: {{ $pago->cheque->fecha_pago->format('d/m/Y') }})</span>
+                                                                        @endif
+                                                                    </div>
+                                                                    <div class="fw-bold text-secondary">${{ number_format($pago->monto, 2, ',', '.') }}</div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <div class="text-muted x-small ps-1">Sin detalles de pago disponibles.</div>
+                                                    @endif
                                                 </div>
                                             @empty
-                                                <div class="text-muted x-small italic">Sin pagos vinculados aún.</div>
+                                                <div class="text-muted x-small italic p-2 border rounded border-dashed text-center">
+                                                    No se han registrado pagos vinculados a este comprobante todavía.
+                                                </div>
                                             @endforelse
                                         </div>
                                     </div>

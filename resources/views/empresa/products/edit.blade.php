@@ -93,7 +93,10 @@
 
                     {{-- UNIDAD --}}
                     <div class="col-md-2">
-                        <label class="form-label fw-semibold">Unidad</label>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label class="form-label fw-semibold">Unidad</label>
+                            <a href="{{ route('empresa.units.index') }}" class="x-small text-primary text-decoration-none fw-bold" target="_blank" style="font-size: 0.7rem;">+ Nueva</a>
+                        </div>
                         <select name="unit_id" class="form-select @error('unit_id') is-invalid @enderror">
                             <option value="">-- Unidad --</option>
                             @foreach($units as $unit)
