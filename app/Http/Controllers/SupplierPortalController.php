@@ -86,4 +86,3 @@ class SupplierPortalController extends Controller
         return $pdf->download("OrdenPago_{$orden->numero_orden}.pdf");
     }
 }
-}
