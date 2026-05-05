@@ -72,9 +72,14 @@
         const route = type === 'cliente' ? `/empresa/clientes/${id}/portal-link` : `/empresa/proveedores/${id}/portal-link`;
 
         fetch(route)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Error en el servidor');
+                return response.json();
+            })
             .then(data => {
                 const url = data.url;
+                if (!url) throw new Error('URL no definida');
+
                 if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(url).then(() => {
                         showSuccess(btn, originalHtml);
@@ -98,8 +103,13 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                btn.innerHTML = 'Error';
-                setTimeout(() => resetBtn(btn, originalHtml), 2000);
+                btn.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Error';
+                btn.classList.replace('btn-primary', 'btn-danger');
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.replace('btn-danger', 'btn-primary');
+                    btn.disabled = false;
+                }, 2000);
             });
     }
 

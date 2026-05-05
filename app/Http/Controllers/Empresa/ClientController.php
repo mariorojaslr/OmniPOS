@@ -455,19 +455,24 @@ class ClientController extends Controller
      */
     public function getPortalLink(Client $client)
     {
-        $token = $client->portalToken;
+        try {
+            $token = $client->portalToken;
 
-        if (!$token) {
-            $token = \App\Models\ClientPortalToken::create([
-                'empresa_id' => $client->empresa_id,
-                'client_id' => $client->id,
-                'token' => \Illuminate\Support\Str::random(40),
+            if (!$token) {
+                $token = \App\Models\ClientPortalToken::create([
+                    'empresa_id' => $client->empresa_id,
+                    'client_id' => $client->id,
+                    'token' => \Illuminate\Support\Str::random(40),
+                ]);
+            }
+
+            return response()->json([
+                'url' => route('client.portal.index', ['token' => $token->token])
             ]);
+        } catch (\Exception $e) {
+            \Log::error("Error generando link de portal para cliente {$client->id}: " . $e->getMessage());
+            return response()->json(['error' => 'No se pudo generar el enlace'], 500);
         }
-
-        return response()->json([
-            'url' => route('client.portal.index', ['token' => $token->token])
-        ]);
     }
 
     /**
