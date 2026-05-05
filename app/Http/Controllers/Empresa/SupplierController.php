@@ -296,7 +296,6 @@ class SupplierController extends Controller
 
     public function getPortalLink(\App\Models\Supplier $supplier)
     {
-        \Log::info("Solicitando link de portal para proveedor ID: {$supplier->id}");
         try {
             $token = \App\Models\SupplierPortalToken::where('supplier_id', $supplier->id)->first();
 
