@@ -55,6 +55,7 @@ class ConfiguracionEmpresaController extends Controller
                 'theme'           => 'nullable|in:light,dark',
                 'logo'            => 'nullable|image|max:2048',
                 'dias_nuevo'      => 'nullable|integer|min:1|max:365',
+                'mod_orden_pedido' => 'nullable|boolean',
                 
                 // Fiscales / ARCA
                 'arca_cuit'            => 'nullable|string|max:20',
@@ -133,6 +134,7 @@ class ConfiguracionEmpresaController extends Controller
                 'color_secondary' => $request->color_secondary ?? '#0d1117',
                 'theme'           => $request->theme ?? 'light',
                 'dias_nuevo'      => $request->dias_nuevo ?? 7,
+                'mod_orden_pedido' => $request->has('mod_orden_pedido'),
             ];
 
             if ($logoPath) {
