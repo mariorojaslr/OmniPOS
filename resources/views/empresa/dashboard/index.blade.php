@@ -10,8 +10,8 @@
 */
 $config = $empresa->config ?? null;
 
-$primary   = $config?->color_primary   ?? '#2563eb';
-$secondary = $config?->color_secondary ?? '#16a34a';
+$primary   = optional($config)->color_primary   ?? '#2563eb';
+$secondary = optional($config)->color_secondary ?? '#16a34a';
 @endphp
 
 <style>
@@ -411,7 +411,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
                 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted fw-bold">Vencimiento:</span>
-                    <span class="fw-bold">{{ optional($empresa->fecha_vencimiento)->format('d/m/Y') ?? 'N/A' }}</span>
+                    <span class="fw-bold">{{ is_object($empresa->fecha_vencimiento) ? $empresa->fecha_vencimiento->format('d/m/Y') : ($empresa->fecha_vencimiento ?? 'N/A') }}</span>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center">
