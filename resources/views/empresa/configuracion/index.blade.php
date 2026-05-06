@@ -81,7 +81,7 @@
 
                                     <label class="form-label fw-bold mt-4 d-block">Módulos Especiales</label>
                                     <div class="form-check form-switch p-3 border rounded-3 bg-light text-center">
-                                        <input class="form-check-input float-none ms-0 mb-2" type="checkbox" id="modOP" name="mod_orden_pedido" value="1" {{ ($config->mod_orden_pedido ?? false) ? 'checked' : '' }}>
+                                        <input class="form-check-input float-none ms-0 mb-2" type="checkbox" id="modOP" name="mod_orden_pedido" value="1" {{ (optional($config)->mod_orden_pedido ?? false) ? 'checked' : '' }}>
                                         <label class="form-check-label d-block small" for="modOP">Módulo "Orden de Pedido" (OP)</label>
                                     </div>
                                 </div>

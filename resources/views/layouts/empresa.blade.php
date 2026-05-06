@@ -362,7 +362,7 @@ body {
                     <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Facturas de Compra</a>
                     <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">💳 Cta. Cte. Proveedores</a>
                     <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🧾 Recibos de Pago</a>
-                    @if($empresa->config->mod_orden_pedido)
+                    @if(optional($empresa->config)->mod_orden_pedido)
                         <a href="{{ route('empresa.ordenes-pedido.index') }}" class="submenu-link text-warning">📝 Orden de Pedido</a>
                     @endif
                 </div>
