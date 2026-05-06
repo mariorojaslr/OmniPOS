@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('purchases', function (Blueprint $table) {
-            $table->foreignId('orden_pedido_id')->nullable()->constrained('ordenes_pedido')->onDelete('set null');
-        });
+        if (!Schema::hasColumn('purchases', 'orden_pedido_id')) {
+            Schema::table('purchases', function (Blueprint $table) {
+                $table->foreignId('orden_pedido_id')->nullable()->constrained('ordenes_pedido')->onDelete('set null');
+            });
+        }
 
-        Schema::table('purchase_items', function (Blueprint $table) {
-            $table->text('instrucciones')->nullable();
-        });
+        if (!Schema::hasColumn('purchase_items', 'instrucciones')) {
+            Schema::table('purchase_items', function (Blueprint $table) {
+                $table->text('instrucciones')->nullable();
+            });
+        }
     }
 
     /**
