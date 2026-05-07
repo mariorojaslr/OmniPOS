@@ -89,14 +89,16 @@ Route::get('/hola-mundo', function () {
     return "✅ EL SERVIDOR ESTÁ VIVO Y RESPONDIENDO TEXTO PLANO.";
 });
 
-// VISUALIZADOR DE LOGS (VERSION PHP PURA PARA HOSTINGER)
+// VISUALIZADOR DE LOGS (VERSION AMPLIADA)
 Route::get('/ver-logs', function() {
     $path = storage_path('logs/laravel.log');
     if (!file_exists($path)) return "No hay logs disponibles en: " . $path;
 
     $file = fopen($path, 'r');
-    fseek($file, -5000, SEEK_END); // Leer solo los últimos 5000 caracteres
-    $data = fread($file, 5000);
+    $size = filesize($path);
+    $read = min($size, 30000); // Leer los últimos 30.000 caracteres
+    fseek($file, -$read, SEEK_END);
+    $data = fread($file, $read);
     fclose($file);
 
     return "<pre>" . htmlspecialchars($data) . "</pre>";
