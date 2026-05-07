@@ -64,16 +64,16 @@ Route::post('login', [AuthenticatedSessionController::class, 'store']);
 Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout.get');
 Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-// Despachador central de Dashboard (Usado por el Layout)
-Route::get('/dashboard', function() {
-    $user = auth()->user();
-    if ($user->role === 'owner') return redirect()->route('owner.dashboard');
-    if ($user->role === 'empresa') return redirect()->route('empresa.dashboard');
-    return redirect('/');
-})->middleware(['auth'])->name('dashboard');
+// --- RUTAS GLOBALES PARA EL LAYOUT ---
+Route::get('/dashboard', function () {
+    if (auth()->user()->role === 'owner') return redirect()->route('owner.dashboard');
+    return redirect()->route('empresa.dashboard');
+})->name('dashboard');
 
-// Rutas adicionales requeridas
-Route::get('demo-mode', function() { return "Próximamente Modo Demo"; })->name('demo.mode');
+Route::get('/profile/edit', function() { return back()->with('info', 'Módulo de perfil en desarrollo'); })->name('profile.edit');
+Route::get('/password/edit', function() { return back()->with('info', 'Módulo de contraseña en desarrollo'); })->name('password.edit');
+Route::get('/help/fetch', [App\Http\Controllers\HelpController::class, 'fetch'])->name('help.fetch');
+Route::post('/help/save', [App\Http\Controllers\HelpController::class, 'save'])->name('help.save');
 Route::get('forgot-password', [App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
 
 // =========================================================
