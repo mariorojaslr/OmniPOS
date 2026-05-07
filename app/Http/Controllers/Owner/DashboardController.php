@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Models\SystemSetting;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
@@ -17,18 +18,49 @@ class DashboardController extends Controller
         try {
             $today = now()->toDateString();
             
+            // Recopilación de métricas reales
+            $empresasCount = Empresa::count();
+            $empresasActivas = Empresa::where('activo', true)->count();
+            $usuariosCount = User::count();
+            $articulosCount = Schema::hasTable('products') ? \App\Models\Product::count() : 0;
+            $clientesCount = Schema::hasTable('clients') ? \App\Models\Client::count() : 0;
+            $facturacionMes = Schema::hasTable('ventas') ? \App\Models\Venta::whereMonth('created_at', now()->month)->sum('total') : 0;
+            
             $data = [
-                'empresasCount'     => Empresa::count(),
-                'empresasActivas'   => Empresa::where('activo', true)->count(),
-                'usuariosCount'     => User::count(),
-                'articulosCount'    => \App\Models\Product::count(),
-                'clientesCount'     => \App\Models\Client::count(),
-                'facturacionMes'    => \Schema::hasTable('ventas') ? number_format(\App\Models\Venta::whereMonth('created_at', now()->month)->sum('total'), 0, ',', '.') : 0,
-                'mrr'               => number_format(Empresa::count() * 25000, 0, ',', '.'),
+                // KPIs Principales
+                'empresasCount'     => $empresasCount,
+                'empresasActivas'   => $empresasActivas,
+                'usuariosCount'     => $usuariosCount,
+                'articulosCount'    => $articulosCount,
+                'clientesCount'     => $clientesCount,
+                'facturacionMes'    => '$ ' . number_format($facturacionMes, 0, ',', '.'),
+                'mrr'               => '$ ' . number_format($empresasCount * 25000, 0, ',', '.'),
+                
+                // Salud y Gráficos
                 'saludVentas'       => 94.2,
+                'saludGastos'       => 12.5,
+                'saludGlobal'       => 88.5,
                 'growth'            => 12.5,
+                
+                // Radar CRM (Placeholders realistas)
+                'landingVisits'     => 1240,
+                'demoEntries'       => 85,
+                'conversionRate'    => 12.4,
+                
+                // Listados
                 'empresas'          => Empresa::with('plan')->get(),
-                'globalActivities'  => [],
+                'ultimasEmpresas'   => Empresa::with('plan')->latest()->take(5)->get(),
+                'globalActivities'  => Schema::hasTable('activity_logs') ? \App\Models\ActivityLog::with(['empresa', 'user'])->latest()->take(10)->get() : [],
+                'crmActivities'     => Schema::hasTable('crm_activities') ? \App\Models\CrmActivity::latest()->take(5)->get() : [],
+                'ultimosTickets'    => Schema::hasTable('support_tickets') ? \App\Models\SupportTicket::with('empresa')->latest()->take(5)->get() : [],
+                
+                // Infraestructura (Placeholders)
+                'costoProyectado'   => '$ 45.20',
+                'dbSize'            => '128 MB',
+                'consumoStorage'    => '4.2 GB',
+                'archivosSubidos'   => '1.250',
+                
+                // Agente Social
                 'agent_data'        => [
                     'facebook' => ['scanned' => 842, 'hunted' => 12],
                     'instagram' => ['scanned' => 1205, 'hunted' => 28],
