@@ -19,11 +19,16 @@ class DashboardController extends Controller
             
             $data = [
                 'empresasCount'     => Empresa::count(),
-                'mrr'               => 25000 * Empresa::count(), // Cálculo simple de ejemplo
+                'empresasActivas'   => Empresa::where('estado', 'activa')->count(),
+                'usuariosCount'     => User::count(),
+                'articulosCount'    => \App\Models\Product::count(),
+                'clientesCount'     => \App\Models\Client::count(),
+                'facturacionMes'    => number_format(\App\Models\Venta::whereMonth('created_at', now()->month)->sum('total'), 0, ',', '.'),
+                'mrr'               => number_format(Empresa::count() * 25000, 0, ',', '.'),
                 'saludVentas'       => 94.2,
                 'growth'            => 12.5,
                 'empresas'          => Empresa::with('plan')->get(),
-                'globalActivities'  => [], // Placeholder
+                'globalActivities'  => [],
                 'agent_data'        => [
                     'facebook' => ['scanned' => 842, 'hunted' => 12],
                     'instagram' => ['scanned' => 1205, 'hunted' => 28],
