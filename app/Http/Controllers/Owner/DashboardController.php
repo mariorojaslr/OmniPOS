@@ -113,17 +113,10 @@ class DashboardController extends Controller
                 'settings'          => SystemSetting::pluck('value', 'key')->toArray(),
             ];
 
-            // Forzamos el renderizado para atrapar errores de Blade aquí mismo
-            $html = view('owner.dashboard', $data)->render();
-            return $html;
-
+            return view('owner.dashboard', $data);
         } catch (\Throwable $e) {
-            die("<div style='background:black;color:red;padding:20px;font-family:monospace;'>
-                <h1>❌ ERROR EN DASHBOARD OWNER</h1>
-                <p><b>Mensaje:</b> " . $e->getMessage() . "</p>
-                <p><b>Archivo:</b> " . $e->getFile() . ":" . $e->getLine() . "</p>
-                <pre>" . $e->getTraceAsString() . "</pre>
-            </div>");
+            \Log::error("Error en Dashboard Owner: " . $e->getMessage());
+            return back()->with('error', 'Error al cargar el dashboard central.');
         }
     }
 

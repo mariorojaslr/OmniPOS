@@ -55,13 +55,24 @@ Route::get('/test-escritura-manual', function() {
 // =========================================================
 // 🔐 AUTENTICACIÓN Y EMPRESA
 // =========================================================
+// =========================================================
+// 🔐 AUTENTICACIÓN Y REDIRECCIÓN CENTRAL
+// =========================================================
 Route::get('/', function () { return view('welcome'); });
 Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout.get');
 Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-// Rutas faltantes que causan error 500 en la vista de login
+// Despachador central de Dashboard (Usado por el Layout)
+Route::get('/dashboard', function() {
+    $user = auth()->user();
+    if ($user->role === 'owner') return redirect()->route('owner.dashboard');
+    if ($user->role === 'empresa') return redirect()->route('empresa.dashboard');
+    return redirect('/');
+})->middleware(['auth'])->name('dashboard');
+
+// Rutas adicionales requeridas
 Route::get('demo-mode', function() { return "Próximamente Modo Demo"; })->name('demo.mode');
 Route::get('forgot-password', [App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
 
