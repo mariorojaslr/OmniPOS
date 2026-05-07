@@ -18,9 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // FORZAR DEBUG TOTAL
-        config(['app.debug' => true]);
-
         $middleware->alias([
             'owner'   => \App\Http\Middleware\OwnerMiddleware::class,
             'empresa' => \App\Http\Middleware\EmpresaMiddleware::class,
