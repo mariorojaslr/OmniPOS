@@ -4,6 +4,10 @@
 
 @php
     $user = auth()->user();
+    $empresa = $user?->empresa;
+    $config = $empresa?->configuracion;
+    $primary = $config?->color_primary ?? '#0d6efd';
+    $secondary = $config?->color_secondary ?? '#6c757d';
 @endphp
 
 <style>
