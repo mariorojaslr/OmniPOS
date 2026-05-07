@@ -20,7 +20,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        die("<h1>🛰️ SEÑAL RECIBIDA: LLEGUÉ AL CONTROLADOR DEL OWNER</h1>");
         try {
             $today = now()->toDateString();
             
@@ -120,7 +119,12 @@ class DashboardController extends Controller
             return view('owner.dashboard', $data);
 
         } catch (\Throwable $e) {
-            return "❌ ERROR DETECTADO: " . $e->getMessage() . " en " . $e->getFile() . " línea " . $e->getLine();
+            die("<div style='background:black;color:red;padding:20px;font-family:monospace;'>
+                <h1>❌ ERROR EN DASHBOARD OWNER</h1>
+                <p><b>Mensaje:</b> " . $e->getMessage() . "</p>
+                <p><b>Archivo:</b> " . $e->getFile() . ":" . $e->getLine() . "</p>
+                <pre>" . $e->getTraceAsString() . "</pre>
+            </div>");
         }
     }
 
