@@ -79,6 +79,24 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])->prefix('empresa')->nam
 // =========================================================
 Route::middleware(['auth'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Owner\DashboardController::class, 'index'])->name('dashboard');
+    
+    // Placeholders para que el dashboard no explote
+    Route::get('/empresas', function() { return "Listado de Empresas"; })->name('empresas.index');
+    Route::get('/empresas/create', function() { return "Crear Empresa"; })->name('empresas.create');
+    Route::get('/empresas/{id}/edit', function($id) { return "Editar Empresa $id"; })->name('empresas.edit');
+    
+    Route::get('/crm', function() { return "CRM"; })->name('crm.index');
+    Route::get('/facturacion', function() { return "Facturación"; })->name('facturacion.index');
+    Route::get('/soporte', function() { return "Soporte"; })->name('soporte.index');
+    Route::get('/planes', function() { return "Planes"; })->name('planes.index');
+    Route::get('/updates', function() { return "Actualizaciones"; })->name('updates.index');
+    
+    Route::post('/settings/update', [App\Http\Controllers\Owner\DashboardController::class, 'updateSettings'])->name('settings.update');
+    
+    // Mimetización (Entrar como usuario)
+    Route::get('/mimetizar/empresa/{empresa}/usuario/{usuario}', function($empresa, $usuario) {
+        return "Mimetizando en Empresa $empresa con Usuario $usuario";
+    })->name('mimetizar');
 });
 
 // 🌐 CATÁLOGO PÚBLICO

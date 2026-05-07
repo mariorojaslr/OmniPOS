@@ -113,9 +113,6 @@ class DashboardController extends Controller
                 'settings'          => SystemSetting::pluck('value', 'key')->toArray(),
             ];
 
-            // DEBUG: Ver si los datos están bien antes de la vista
-            dd($data); 
-
             return view('owner.dashboard', $data);
 
         } catch (\Throwable $e) {
