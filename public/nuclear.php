@@ -1,60 +1,49 @@
 <?php
 /**
- * NUCLEAR 3.0 - Simulador de Vuelo
+ * NUCLEAR 3.1 - Arranque Forzado
  */
 header('Content-Type: text/html; charset=utf-8');
 echo "<body style='background:#050505; color:#0f0; font-family:monospace; padding:30px;'>";
-echo "<h1>🚀 NUCLEAR 3.0: SIMULADOR DE ERROR</h1>";
+echo "<h1>🚀 NUCLEAR 3.1: RECONSTRUCCIÓN DE PUENTE DB</h1>";
 
-// 1. FORZAR VISUALIZACIÓN DE ERRORES DE PHP
 ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 2. BOOTSTRAP DE LARAVEL
-echo "<h2>🛠️ CARGANDO NÚCLEO DE LARAVEL...</h2>";
 try {
+    echo "<h2>🛠️ BOOTEANDO LARAVEL...</h2>";
     require __DIR__ . '/../vendor/autoload.php';
     $app = require_once __DIR__ . '/../bootstrap/app.php';
     
-    // Si llegamos acá, Laravel cargó.
-    echo "✅ Laravel cargado correctamente.<br>";
-    
+    // ESTO ES LO QUE FALTABA: Arrancar el Kernel
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    $kernel->bootstrap(); 
     
-    echo "<h2>🕵️ SIMULANDO RUTA 'owner/dashboard':</h2>";
+    echo "✅ Kernel de Laravel Booteado.<br>";
     
-    // Intentamos instanciar el controlador directamente
-    $controller = new \App\Http\Controllers\Owner\DashboardController();
+    echo "<h2>🕵️ PROBANDO CONEXIÓN DB:</h2>";
+    $dbName = \DB::connection()->getDatabaseName();
+    echo "📦 Conectado a base de datos: <b>$dbName</b><br>";
+
+    echo "<h2>🎬 SIMULANDO DASHBOARD:</h2>";
     
-    // Simulamos que somos el usuario ID 1 (Owner)
     $user = \App\Models\User::where('role', 'owner')->first();
     if ($user) {
         auth()->login($user);
-        echo "👤 Simunlando login como: " . $user->email . "<br>";
-    } else {
-        echo "⚠️ No se encontró un usuario OWNER en la DB.<br>";
+        echo "👤 Login simulado: " . $user->email . "<br>";
     }
 
-    echo "🎬 Ejecutando DashboardController@index...<br>";
-    
-    // Esto debería disparar el error real si existe
+    $controller = new \App\Http\Controllers\Owner\DashboardController();
     $response = $controller->index();
     
-    echo "✅ El controlador respondió sin morir.<br>";
-    echo "<div style='border:1px solid #0f0; padding:10px; margin-top:20px; color:#fff;'>";
-    echo "REPORTE: El controlador parece estar sano. Si ves esto, el error es en el ROUTER o en el MIDDLEWARE.";
-    echo "</div>";
+    echo "✅ ¡ÉXITO! El controlador respondió.<br>";
+    echo "Si ves esto, el error real está en las RUTAS o en el MIDDLEWARE.";
 
 } catch (\Throwable $e) {
-    echo "<div style='background:red; color:white; padding:20px; margin-top:20px; font-size:18px;'>";
-    echo "🔥 ¡ERROR DETECTADO EN EL SIMULADOR!<br><br>";
+    echo "<div style='background:red; color:white; padding:20px; margin-top:20px; border-radius:10px;'>";
+    echo "🔥 ¡ERROR CAPTURADO!<br><br>";
     echo "<b>Mensaje:</b> " . $e->getMessage() . "<br>";
     echo "<b>Archivo:</b> " . $e->getFile() . ":" . $e->getLine() . "<br>";
     echo "</div>";
-    
-    echo "<h3>Stack Trace:</h3>";
-    echo "<pre style='font-size:10px;'>" . $e->getTraceAsString() . "</pre>";
+    echo "<h3>Stack Trace:</h3><pre style='font-size:10px;'>" . $e->getTraceAsString() . "</pre>";
 }
-
 echo "</body>";
