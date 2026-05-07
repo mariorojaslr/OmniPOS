@@ -55,6 +55,15 @@ Route::get('/limpiar-memoria', function() {
     return "❌ OPCACHE NO ESTÁ DISPONIBLE EN ESTE SERVIDOR.";
 });
 
+Route::get('/test-escritura-manual', function() {
+    $path = storage_path('logs/test_manual.txt');
+    file_put_contents($path, "ESCRITURA MANUAL EXITOSA: " . date('Y-m-d H:i:s'));
+    if (file_exists($path)) {
+        return "✅ ARCHIVO CREADO MANUALMENTE EN: " . $path . " - Contenido: " . file_get_contents($path);
+    }
+    return "❌ FALLÓ LA ESCRITURA MANUAL.";
+});
+
 // =========================================================
 // 🔐 AUTENTICACIÓN
 // =========================================================
