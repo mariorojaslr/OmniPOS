@@ -234,7 +234,7 @@ body {
         </a>
 
         {{-- CATÁLOGO PÚBLICO --}}
-        <a href="{{ route('catalog.index', $empresa->slug ?? $empresa->id) }}" target="_blank" class="nav-link-item" title="Ver mi tienda online">
+        <a href="{{ route('catalog.index', $empresa?->slug ?? ($empresa?->id ?? 'default')) }}" target="_blank" class="nav-link-item" title="Ver mi tienda online">
             <i class="bi bi-shop-window" style="color: #ffc107;"></i>
             <span class="nav-icon-label text-center lh-sm mt-1">Mi Catálogo<br>(Store)</span>
         </a>
@@ -435,7 +435,7 @@ body {
                 </a>
                 <h4 class="mb-0 fw-bold ms-2">📦 Terminal de Ventas (POS)</h4>
             @else
-                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa->nombre_comercial ?? 'MultiPOS' }}</h4>
+                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa?->nombre_comercial ?? 'MultiPOS' }}</h4>
                 {{-- NOVEDADES --}}
                 <a href="{{ route('empresa.novedades') }}" class="btn btn-sm btn-light border rounded-pill px-3 ms-2 d-none d-lg-flex align-items-center gap-2">
                     <span class="pulse-dot"></span>
