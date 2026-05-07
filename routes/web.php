@@ -9,7 +9,7 @@ use App\Http\Controllers\Empresa\DashboardController;
 // =========================================================
 
 Route::get('/hola-mundo', function () {
-    return "✅ EL SERVIDOR ESTÁ VIVO Y RESPONDIENDO TEXTO PLANO.";
+    return "✅ SERVIDOR VIVO - HORA: " . date('H:i:s') . " - SI ESTA HORA NO CAMBIA, HAY CACHE.";
 });
 
 Route::get('/forzar-error', function() {
