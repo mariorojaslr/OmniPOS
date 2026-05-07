@@ -12,6 +12,10 @@ Route::get('/hola-mundo', function () {
     return "✅ EL SERVIDOR ESTÁ VIVO Y RESPONDIENDO TEXTO PLANO.";
 });
 
+Route::get('/forzar-error', function() {
+    throw new \Exception("PRUEBA DE LOG: SI VES ESTO, EL LOG FUNCIONA.");
+});
+
 Route::get('/check-permisos', function() {
     $path = storage_path('logs');
     $isWritable = is_writable($path);
