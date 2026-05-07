@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
     
     Route::get('/help/fetch', function() { return response()->json(['status' => 'ok']); })->name('help.fetch');
+    Route::post('/help/save', function() { return response()->json(['success' => true]); })->name('help.save');
     Route::get('/password/edit', function() { return back(); })->name('password.edit');
 });
 
