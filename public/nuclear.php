@@ -1,46 +1,53 @@
 <?php
 /**
- * NUCLEAR 3.1 - Arranque Forzado
+ * NUCLEAR 3.2 - Petición Simulada
  */
 header('Content-Type: text/html; charset=utf-8');
-echo "<body style='background:#050505; color:#0f0; font-family:monospace; padding:30px;'>";
-echo "<h1>🚀 NUCLEAR 3.1: RECONSTRUCCIÓN DE PUENTE DB</h1>";
+echo "<body style='background:#000; color:#0f0; font-family:monospace; padding:30px;'>";
+echo "<h1>🚀 NUCLEAR 3.2: ESCÁNER DE CÓDIGO FINAL</h1>";
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 try {
-    echo "<h2>🛠️ BOOTEANDO LARAVEL...</h2>";
+    echo "🛠️ BOOTEANDO LARAVEL...<br>";
     require __DIR__ . '/../vendor/autoload.php';
     $app = require_once __DIR__ . '/../bootstrap/app.php';
-    
-    // ESTO ES LO QUE FALTABA: Arrancar el Kernel
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
     $kernel->bootstrap(); 
-    
-    echo "✅ Kernel de Laravel Booteado.<br>";
-    
-    echo "<h2>🕵️ PROBANDO CONEXIÓN DB:</h2>";
-    $dbName = \DB::connection()->getDatabaseName();
-    echo "📦 Conectado a base de datos: <b>$dbName</b><br>";
 
-    echo "<h2>🎬 SIMULANDO DASHBOARD:</h2>";
+    // INYECTAR REQUEST (Esto corrige el error anterior)
+    $request = \Illuminate\Http\Request::capture();
+    $app->instance('request', $request);
+    echo "✅ Petición capturada e inyectada.<br>";
+    
+    echo "<h2>🎬 EJECUTANDO LÓGICA DE DASHBOARD:</h2>";
     
     $user = \App\Models\User::where('role', 'owner')->first();
     if ($user) {
-        auth()->login($user);
-        echo "👤 Login simulado: " . $user->email . "<br>";
+        // Usamos el guard de web explícitamente
+        \Auth::guard('web')->setUser($user);
+        echo "👤 Usuario Owner identificado: " . $user->email . "<br>";
     }
 
-    $controller = new \App\Http\Controllers\Owner\DashboardController();
-    $response = $controller->index();
+    echo "🛰️ Llamando a DashboardController@index...<br><hr>";
     
-    echo "✅ ¡ÉXITO! El controlador respondió.<br>";
-    echo "Si ves esto, el error real está en las RUTAS o en el MIDDLEWARE.";
+    $controller = new \App\Http\Controllers\Owner\DashboardController();
+    $result = $controller->index();
+    
+    echo "<div style='color:white; background:green; padding:20px;'>";
+    echo "✅ ¡DASHBOARD RENDERIZADO CON ÉXITO!<br>";
+    echo "Si ves este mensaje verde, el código NO TIENE ERRORES. El problema es de Hostinger o del Router.";
+    echo "</div>";
+    
+    echo "<h3>VISTA PREVIA (HTML):</h3>";
+    echo "<div style='background:#fff; color:#333; padding:10px; height:300px; overflow:auto;'>";
+    echo htmlspecialchars(substr($result, 0, 2000)) . "...";
+    echo "</div>";
 
 } catch (\Throwable $e) {
-    echo "<div style='background:red; color:white; padding:20px; margin-top:20px; border-radius:10px;'>";
-    echo "🔥 ¡ERROR CAPTURADO!<br><br>";
+    echo "<div style='background:red; color:white; padding:20px; margin-top:20px;'>";
+    echo "🔥 ¡ERROR DE CÓDIGO DETECTADO!<br><br>";
     echo "<b>Mensaje:</b> " . $e->getMessage() . "<br>";
     echo "<b>Archivo:</b> " . $e->getFile() . ":" . $e->getLine() . "<br>";
     echo "</div>";
