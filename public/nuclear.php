@@ -1,56 +1,37 @@
 <?php
-/**
- * NUCLEAR 3.2 - Petición Simulada
- */
-header('Content-Type: text/html; charset=utf-8');
-echo "<body style='background:#000; color:#0f0; font-family:monospace; padding:30px;'>";
-echo "<h1>🚀 NUCLEAR 3.2: ESCÁNER DE CÓDIGO FINAL</h1>";
+// NUCLEAR 6.1: MONITOR DE SISTEMA MULTIPOS (FORZADO)
+// HORA DE GENERACIÓN: <?php echo date('H:i:s'); ?>
+define('LARAVEL_START', microtime(true));
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+echo "<body style='background:#050505; color:#0f0; font-family:sans-serif; padding:30px;'>";
+echo "<h1 style='color:#3b82f6;'>📡 MONITOR DE SISTEMA MULTIPOS v6.1</h1>";
 
-try {
-    echo "🛠️ BOOTEANDO LARAVEL...<br>";
-    require __DIR__ . '/../vendor/autoload.php';
-    $app = require_once __DIR__ . '/../bootstrap/app.php';
-    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-    $kernel->bootstrap(); 
-
-    // INYECTAR REQUEST (Esto corrige el error anterior)
-    $request = \Illuminate\Http\Request::capture();
-    $app->instance('request', $request);
-    echo "✅ Petición capturada e inyectada.<br>";
-    
-    echo "<h2>🎬 EJECUTANDO LÓGICA DE DASHBOARD:</h2>";
-    
-    $user = \App\Models\User::where('role', 'owner')->first();
-    if ($user) {
-        // Usamos el guard de web explícitamente
-        \Auth::guard('web')->setUser($user);
-        echo "👤 Usuario Owner identificado: " . $user->email . "<br>";
-    }
-
-    echo "🛰️ Llamando a DashboardController@index...<br><hr>";
-    
-    $controller = new \App\Http\Controllers\Owner\DashboardController();
-    $result = $controller->index();
-    
-    echo "<div style='color:white; background:green; padding:20px;'>";
-    echo "✅ ¡DASHBOARD RENDERIZADO CON ÉXITO!<br>";
-    echo "Si ves este mensaje verde, el código NO TIENE ERRORES. El problema es de Hostinger o del Router.";
-    echo "</div>";
-    
-    echo "<h3>VISTA PREVIA (HTML):</h3>";
-    echo "<div style='background:#fff; color:#333; padding:10px; height:300px; overflow:auto;'>";
-    echo htmlspecialchars(substr($result, 0, 2000)) . "...";
-    echo "</div>";
-
-} catch (\Throwable $e) {
-    echo "<div style='background:red; color:white; padding:20px; margin-top:20px;'>";
-    echo "🔥 ¡ERROR DE CÓDIGO DETECTADO!<br><br>";
-    echo "<b>Mensaje:</b> " . $e->getMessage() . "<br>";
-    echo "<b>Archivo:</b> " . $e->getFile() . ":" . $e->getLine() . "<br>";
-    echo "</div>";
-    echo "<h3>Stack Trace:</h3><pre style='font-size:10px;'>" . $e->getTraceAsString() . "</pre>";
+// 1. LECTOR DE LOGS
+$logPath = __DIR__.'/../storage/logs/laravel.log';
+echo "<h3>📝 Últimos Errores (laravel.log):</h3>";
+if (file_exists($logPath)) {
+    $lines = file($logPath);
+    $errors = array_slice($lines, -20);
+    echo "<pre style='background:#111; color:#ff4444; padding:20px; border:1px solid #441111; overflow:auto; max-height:400px;'>";
+    foreach($errors as $e) echo htmlspecialchars($e);
+    echo "</pre>";
+} else {
+    echo "❌ No se encontró el archivo de log en $logPath";
 }
-echo "</body>";
+
+// 2. ESPACIO EN DISCO
+$free = disk_free_space("/") / 1024 / 1024;
+echo "<h3>📊 Estado del Disco:</h3>";
+echo "<div>Espacio Libre: " . round($free, 2) . " MB</div>";
+
+// 3. PERMISOS
+echo "<h3>📁 Permisos de Escritura:</h3>";
+$folders = ['storage/framework/sessions', 'storage/framework/views', 'storage/logs'];
+foreach($folders as $f) {
+    $full = __DIR__.'/../' . $f;
+    $status = is_writable($full) ? "✅ OK" : "❌ BLOQUEADO";
+    echo "<div>$f: $status</div>";
+}
+?>
