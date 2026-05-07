@@ -116,6 +116,16 @@ class Empresa extends Model
         return $this->hasMany(\App\Models\Supplier::class);
     }
 
+    public function configuracion()
+    {
+        return $this->hasOne(EmpresaConfig::class, 'empresa_id');
+    }
+
+    public function config()
+    {
+        return $this->hasOne(EmpresaConfig::class, 'empresa_id');
+    }
+
     public function productImages()
     {
         return $this->hasManyThrough(
