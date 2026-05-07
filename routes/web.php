@@ -618,13 +618,9 @@ Route::post('v/inv/adjust', [App\Http\Controllers\Empresa\InventoryController::c
 
 // 🚨 RUTA DE DIAGNÓSTICO PROFUNDO 🚨
 Route::get('/debug-error', function() {
-    try {
-        $empresa = \App\Models\Empresa::first();
-        $config = $empresa->configuracion; // Probamos la relación
-        return "CONEXION EXITOSA - Configuración cargada. Logo: " . ($config->logo_url ?? 'Sin logo');
-    } catch (\Throwable $e) {
-        return "ERROR AL CARGAR CONFIGURACIÓN: " . $e->getMessage() . " en " . $e->getFile() . ":" . $e->getLine();
-    }
+    $user = \App\Models\User::where('role', 'empresa')->first();
+    $empresa = $user->empresa;
+    return view('empresa.dashboard.index', compact('user', 'empresa'));
 });
 
 Route::get('/reparar-rutas', function() {
