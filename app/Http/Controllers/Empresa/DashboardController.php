@@ -99,7 +99,7 @@ class DashboardController extends Controller
             $comprasPerc = $totalEgresos > 0 ? round(($comprasMes / $totalEgresos) * 100) : 0;
             $evaluacionLocal = $ventasHoy > 0 ? min(100, round(($ventasHoy / ($totalEgresos + 1)) * 50)) : ($totalEgresos > 0 ? 5 : 0);
 
-            $recentActivities = \App\Models\ActivityLog::where('empresa_id', $empresaId)->with('user')->latest()->limit(15)->get();
+            $recentActivities = collect(); // Temporalmente vacío para diagnóstico
 
             return view('empresa.dashboard.index', [
                 'empresa' => $empresa,
