@@ -89,6 +89,9 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])->prefix('empresa')->nam
 // 👑 RUTAS DEL OWNER (SISTEMA CENTRAL)
 // =========================================================
 Route::middleware(['auth'])->prefix('owner')->name('owner.')->group(function () {
+    // RUTA DE BYPASS (Para probar si el error es el middleware)
+    Route::get('/master-dash', [App\Http\Controllers\Owner\DashboardController::class, 'index']);
+    
     Route::get('/dashboard', [App\Http\Controllers\Owner\DashboardController::class, 'index'])->name('dashboard');
     
     // Placeholders para que el dashboard no explote
