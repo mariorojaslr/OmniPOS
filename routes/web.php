@@ -89,17 +89,18 @@ Route::get('/hola-mundo', function () {
     return "✅ EL SERVIDOR ESTÁ VIVO Y RESPONDIENDO TEXTO PLANO.";
 });
 
-// VISUALIZADOR DE LOGS (VERSION AMPLIADA)
+// VISUALIZADOR DE LOGS INTELIGENTE
 Route::get('/ver-logs', function() {
     $path = storage_path('logs/laravel.log');
-    if (!file_exists($path)) return "No hay logs disponibles en: " . $path;
+    if (!file_exists($path)) return "No hay logs disponibles.";
 
-    $file = fopen($path, 'r');
-    $size = filesize($path);
-    $read = min($size, 30000); // Leer los últimos 30.000 caracteres
-    fseek($file, -$read, SEEK_END);
-    $data = fread($file, $read);
-    fclose($file);
+    $data = file_get_contents($path);
+    $lastErrorPos = strrpos($data, 'production.ERROR:');
+    
+    if ($lastErrorPos === false) {
+        return "No se encontraron errores recientes en el log. Ultimas 100 lineas:<br><pre>" . htmlspecialchars(substr($data, -5000)) . "</pre>";
+    }
 
-    return "<pre>" . htmlspecialchars($data) . "</pre>";
+    // Devolver desde el último error hasta el final
+    return "<pre>" . htmlspecialchars(substr($data, $lastErrorPos)) . "</pre>";
 });
