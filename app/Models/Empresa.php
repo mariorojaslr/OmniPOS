@@ -46,6 +46,7 @@ class Empresa extends Model
         'arca_llave',
         'arca_ambiente',
         'arca_activo',
+        'plan_id',
     ];
 
     /**
@@ -59,10 +60,16 @@ class Empresa extends Model
         'ultima_fecha_pago'      => 'date',
         'config_pasarelas'       => 'array',
         'arca_activo'            => 'boolean',
+        'plan_id'                => 'integer',
     ];
 
     // =========================================================
     // RELACIONES
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class, 'plan_id');
+    }
 
     public function supportTickets()
     {
