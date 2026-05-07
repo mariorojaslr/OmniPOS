@@ -47,6 +47,14 @@ Route::get('/reparar-rutas', function() {
     return "✅ CACHE LIMPIA Y RUTAS RESETEADAS.";
 });
 
+Route::get('/limpiar-memoria', function() {
+    if (function_exists('opcache_reset')) {
+        opcache_reset();
+        return "✅ MEMORIA OPCACHE REINICIADA. Ahora el servidor debería ver el código nuevo.";
+    }
+    return "❌ OPCACHE NO ESTÁ DISPONIBLE EN ESTE SERVIDOR.";
+});
+
 // =========================================================
 // 🔐 AUTENTICACIÓN
 // =========================================================
