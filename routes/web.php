@@ -616,7 +616,22 @@ Route::get('/local-media/{path}', function ($path) {
 Route::get('v/inv/{uuid}', [App\Http\Controllers\Empresa\InventoryController::class, 'guestAccess'])->name('inventory.guest-access');
 Route::post('v/inv/adjust', [App\Http\Controllers\Empresa\InventoryController::class, 'adjust'])->name('inventory.guest-adjust');
 
-// 🚨 RUTA DE EMERGENCIA PARA REPARAR RUTAS EN PRODUCCIÓN 🚨
+// 🚨 RUTA DE DIAGNÓSTICO PROFUNDO 🚨
+Route::get('/debug-error', function() {
+    try {
+        $user = \App\Models\User::where('role', 'empresa')->first();
+        $empresa = $user->empresa;
+        return view('empresa.dashboard.index', compact('user', 'empresa'));
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'file'  => $e->getFile(),
+            'line'  => $e->getLine(),
+            'trace' => array_slice($e->getTrace(), 0, 5)
+        ]);
+    }
+});
+
 Route::get('/reparar-rutas', function() {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
     return "✅ Rutas y Caché de Producción actualizadas con éxito. Ya podés entrar al sistema.";
