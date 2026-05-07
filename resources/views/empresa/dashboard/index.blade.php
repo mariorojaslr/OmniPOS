@@ -3,15 +3,7 @@
 @section('content')
 
 @php
-/*
-|--------------------------------------------------------------------------
-| CONFIGURACIÓN VISUAL INSTITUCIONAL
-|--------------------------------------------------------------------------
-*/
-$config = $empresa->configuracion ?? null;
-
-$primary   = $config->color_primary   ?? '#2563eb';
-$secondary = $config->color_secondary ?? '#16a34a';
+    $user = auth()->user();
 @endphp
 
 <style>
