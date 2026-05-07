@@ -58,6 +58,12 @@ Route::get('/test-escritura-manual', function() {
 // =========================================================
 // 🔐 AUTENTICACIÓN Y REDIRECCIÓN CENTRAL
 // =========================================================
+// =========================================================
+// 🚀 OPERACIÓN BYPASS TOTAL - ACCESO DIRECTO AL DASHBOARD
+// =========================================================
+Route::get('/owner/dashboard', [App\Http\Controllers\Owner\DashboardController::class, 'index']);
+// =========================================================
+
 Route::get('/', function () { return view('welcome'); });
 Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
