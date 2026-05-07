@@ -1,4 +1,8 @@
 <?php
+// =========================================================
+// 🚨 SONDA DE RUTAS
+// =========================================================
+die("<h1>🛤️ HE LLEGADO AL ARCHIVO DE RUTAS</h1>");
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;

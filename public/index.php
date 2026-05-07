@@ -26,6 +26,4 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-die("<h1>🚀 ARRANQUE DE LARAVEL COMPLETADO</h1>");
-
 $app->handleRequest(Request::capture());
