@@ -92,15 +92,16 @@ Route::get('/hola-mundo', function () {
 // VISUALIZADOR DE LOGS INTELIGENTE
 Route::get('/ver-logs', function() {
     $path = storage_path('logs/laravel.log');
-    if (!file_exists($path)) return "No hay logs disponibles.";
+    if (!file_exists($path)) return "No hay logs disponibles. El archivo no existe.";
+    return "<pre>" . htmlspecialchars(file_get_contents($path)) . "</pre>";
+});
 
-    $data = file_get_contents($path);
-    $lastErrorPos = strrpos($data, 'production.ERROR:');
-    
-    if ($lastErrorPos === false) {
-        return "No se encontraron errores recientes en el log. Ultimas 100 lineas:<br><pre>" . htmlspecialchars(substr($data, -5000)) . "</pre>";
+// LIMPIEZA DE LOGS (PARA EMPEZAR DE CERO)
+Route::get('/borrar-logs', function() {
+    $path = storage_path('logs/laravel.log');
+    if (file_exists($path)) {
+        unlink($path);
+        return "✅ ARCHIVO DE LOGS ELIMINADO. Ahora entrá al Dashboard para generar uno nuevo.";
     }
-
-    // Devolver desde el último error hasta el final
-    return "<pre>" . htmlspecialchars(substr($data, $lastErrorPos)) . "</pre>";
+    return "El archivo ya no existía.";
 });
