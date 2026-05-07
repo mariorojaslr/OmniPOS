@@ -618,18 +618,7 @@ Route::post('v/inv/adjust', [App\Http\Controllers\Empresa\InventoryController::c
 
 // 🚨 RUTA DE DIAGNÓSTICO PROFUNDO 🚨
 Route::get('/debug-error', function() {
-    try {
-        $user = \App\Models\User::where('role', 'empresa')->first();
-        $empresa = $user->empresa;
-        return view('empresa.dashboard.index', compact('user', 'empresa'));
-    } catch (\Throwable $e) {
-        return response()->json([
-            'error' => $e->getMessage(),
-            'file'  => $e->getFile(),
-            'line'  => $e->getLine(),
-            'trace' => array_slice($e->getTrace(), 0, 5)
-        ]);
-    }
+    return "CONEXION EXITOSA - LARAVEL VIVO";
 });
 
 Route::get('/reparar-rutas', function() {
