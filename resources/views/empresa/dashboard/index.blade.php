@@ -8,10 +8,10 @@
 | CONFIGURACIÓN VISUAL INSTITUCIONAL
 |--------------------------------------------------------------------------
 */
-$config = $empresa->config ?? null;
+$config = $empresa->configuracion ?? null;
 
-$primary   = optional($config)->color_primary   ?? '#2563eb';
-$secondary = optional($config)->color_secondary ?? '#16a34a';
+$primary   = $config->color_primary   ?? '#2563eb';
+$secondary = $config->color_secondary ?? '#16a34a';
 @endphp
 
 <style>
