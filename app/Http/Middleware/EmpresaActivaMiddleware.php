@@ -86,9 +86,11 @@ class EmpresaActivaMiddleware
         }
 
         // 4. (Opcional) Cambio de contraseña obligatoria
+        /*
         if ($user->must_change_password) {
             // Nota: Podría redirigirse a una ruta de cambio de contraseña específica aquí
         }
+        */
 
         /*
         |--------------------------------------------------------------------------
