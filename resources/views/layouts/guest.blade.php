@@ -31,9 +31,9 @@
         $primary   = '#2563eb';
         $secondary = '#16a34a';
 
-        if(isset($empresa) && $empresa->configuracion){
-            $primary   = $empresa->configuracion->color_primario   ?? $primary;
-            $secondary = $empresa->configuracion->color_secundario ?? $secondary;
+        if(isset($empresa) && $empresa->config){
+            $primary   = $empresa->config->color_primary   ?? $primary;
+            $secondary = $empresa->config->color_secondary ?? $secondary;
         }
     @endphp
 
