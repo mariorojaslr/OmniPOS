@@ -19,11 +19,11 @@ class DashboardController extends Controller
             
             $data = [
                 'empresasCount'     => Empresa::count(),
-                'empresasActivas'   => Empresa::where('estado', 'activa')->count(),
+                'empresasActivas'   => Empresa::where('activo', true)->count(),
                 'usuariosCount'     => User::count(),
                 'articulosCount'    => \App\Models\Product::count(),
                 'clientesCount'     => \App\Models\Client::count(),
-                'facturacionMes'    => number_format(\App\Models\Venta::whereMonth('created_at', now()->month)->sum('total'), 0, ',', '.'),
+                'facturacionMes'    => \Schema::hasTable('ventas') ? number_format(\App\Models\Venta::whereMonth('created_at', now()->month)->sum('total'), 0, ',', '.') : 0,
                 'mrr'               => number_format(Empresa::count() * 25000, 0, ',', '.'),
                 'saludVentas'       => 94.2,
                 'growth'            => 12.5,
