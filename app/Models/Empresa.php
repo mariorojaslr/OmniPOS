@@ -118,12 +118,12 @@ class Empresa extends Model
 
     public function configuracion()
     {
-        return $this->hasOne(EmpresaConfig::class, 'empresa_id');
+        return $this->hasOne(\App\Models\EmpresaConfig::class, 'empresa_id');
     }
 
     public function config()
     {
-        return $this->hasOne(EmpresaConfig::class, 'empresa_id');
+        return $this->hasOne(\App\Models\EmpresaConfig::class, 'empresa_id');
     }
 
     public function productImages()
