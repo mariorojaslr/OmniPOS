@@ -3,6 +3,14 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
+// 🚨 CAPTURADOR NUCLEAR (PUNTO DE ENTRADA)
+set_exception_handler(function ($e) {
+    $logPath = __DIR__.'/../storage/logs/test_manual.txt';
+    $msg = "\n\n--- [NUCLEO] ERROR [" . date('Y-m-d H:i:s') . "] ---\n" . $e->getMessage() . "\n" . $e->getFile() . ":" . $e->getLine() . "\n";
+    @file_put_contents($logPath, $msg, FILE_APPEND);
+    die("<div style='background:#f00;color:#fff;padding:20px;font-family:sans-serif'><h1>🚨 ERROR DE ARRANQUE</h1><p><b>" . $e->getMessage() . "</b></p><pre>" . $e->getFile() . ":" . $e->getLine() . "</pre></div>");
+});
+
 define('LARAVEL_START', microtime(true));
 
 // Determine if the application is in maintenance mode...
