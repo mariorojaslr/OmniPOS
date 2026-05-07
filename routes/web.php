@@ -618,13 +618,9 @@ Route::post('v/inv/adjust', [App\Http\Controllers\Empresa\InventoryController::c
 
 // 🚨 RUTA DE DIAGNÓSTICO PROFUNDO 🚨
 Route::get('/debug-error', function() {
-    try {
-        $user = \App\Models\User::where('role', 'empresa')->first();
-        $empresa = $user->empresa;
-        return view('empresa.dashboard.index', compact('user', 'empresa'))->render();
-    } catch (\Throwable $e) {
-        return "⚠️ ERROR DETECTADO EN LA VISTA: " . $e->getMessage() . " | ARCHIVO: " . $e->getFile() . " | LÍNEA: " . $e->getLine();
-    }
+    $user = \App\Models\User::where('role', 'empresa')->first();
+    $empresa = $user->empresa;
+    return view('debug_view', compact('user', 'empresa'));
 });
 
 Route::get('/reparar-rutas', function() {
