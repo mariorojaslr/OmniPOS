@@ -97,6 +97,10 @@ Route::middleware(['auth'])->prefix('owner')->name('owner.')->group(function () 
     Route::get('/mimetizar/empresa/{empresa}/usuario/{usuario}', function($empresa, $usuario) {
         return "Mimetizando en Empresa $empresa con Usuario $usuario";
     })->name('mimetizar');
+    // Ruta de diagnóstico absoluto
+    Route::get('/test-owner', function() {
+        return "<h1>✅ AUTENTICACIÓN OK</h1><p>Logueado como: " . auth()->user()->name . " (" . auth()->user()->role . ")</p>";
+    });
 });
 
 // 🌐 CATÁLOGO PÚBLICO
