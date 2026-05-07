@@ -41,7 +41,7 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 999999;
+    z-index: 1050;
     border-right: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
@@ -127,8 +127,10 @@ body {
 
 #main-content {
     padding-left: var(--sidebar-width);
-    padding-top: calc(var(--navbar-height) + 20px);
+    padding-top: var(--navbar-height); /* Eliminamos el +20px aquí para controlar mejor los banners */
     min-height: 100vh;
+    position: relative;
+    z-index: 1;
 }
 
 .top-bar {
@@ -143,8 +145,13 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 30px;
-    z-index: 999;
+    z-index: 1040; /* Justo debajo del sidebar */
     border-bottom: 1px solid var(--sidebar-border);
+}
+
+/* Añadimos un espaciador para el contenido interno */
+.content-wrapper {
+    padding: 25px;
 }
 </style>
 @yield('styles')
@@ -206,7 +213,7 @@ body {
         </div>
     </div>
 
-    <div class="container-fluid p-4">
+    <div class="content-wrapper">
         @yield('content')
     </div>
 </div>

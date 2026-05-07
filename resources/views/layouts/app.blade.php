@@ -287,7 +287,7 @@
 {{-- =========================================================
    CONTENIDO
 ========================================================= --}}
-<main class="{{ auth()->check() ? 'container-fluid px-4 px-md-5' : 'container' }} my-4">
+<main class="{{ auth()->check() ? 'container-fluid px-4 px-md-5' : 'container' }}" style="margin-top: 2rem; margin-bottom: 4rem; position: relative; z-index: 5;">
     @yield('content')
 </main>
 
