@@ -620,9 +620,10 @@ Route::post('v/inv/adjust', [App\Http\Controllers\Empresa\InventoryController::c
 Route::get('/debug-error', function() {
     try {
         $empresa = \App\Models\Empresa::first();
-        return "CONEXION EXITOSA - Base de Datos OK. Empresa: " . $empresa->nombre_comercial;
+        $config = $empresa->configuracion; // Probamos la relación
+        return "CONEXION EXITOSA - Configuración cargada. Logo: " . ($config->logo_url ?? 'Sin logo');
     } catch (\Throwable $e) {
-        return "ERROR DE BASE DE DATOS: " . $e->getMessage();
+        return "ERROR AL CARGAR CONFIGURACIÓN: " . $e->getMessage() . " en " . $e->getFile() . ":" . $e->getLine();
     }
 });
 
