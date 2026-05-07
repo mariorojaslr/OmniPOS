@@ -51,7 +51,16 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])->prefix('empresa')->nam
     Route::resource('usuarios', App\Http\Controllers\Empresa\UsuarioController::class);
     Route::get('personal/asistencia-qr', [App\Http\Controllers\Empresa\AsistenciaQrController::class, 'index'])->name('personal.asistencia.qr');
 
-    // 📊 REPORTES
+    // 🆘 SOPORTE & TICKETS
+    Route::resource('soporte', App\Http\Controllers\Empresa\SupportTicketController::class);
+
+    // 📦 COMPRAS & PROVEEDORES (RESTANTE)
+    Route::resource('compras', App\Http\Controllers\Empresa\PurchaseController::class);
+
+    // 🛒 PEDIDOS ONLINE (ÓRDENES)
+    Route::resource('orders', App\Http\Controllers\Empresa\OrderController::class);
+
+    // 📊 REPORTES (RESTANTE)
     Route::get('reportes-panel', [App\Http\Controllers\Empresa\ReporteController::class, 'panel'])->name('reportes.panel');
 
     // ⚙️ CONFIGURACIÓN & AJUSTES
