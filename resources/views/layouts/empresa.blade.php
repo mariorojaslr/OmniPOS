@@ -11,7 +11,7 @@
 
 @php
     $user = auth()->user();
-    $empresa = $user->empresa ?? null;
+    $empresa = $user?->empresa ?? null;
     $config  = $empresa?->configuracion ?? null;
     $colorPrimario = $config?->color_primary ?? '#0d6efd';
     $modoOscuro = ($config?->theme ?? 'light') === 'dark';
