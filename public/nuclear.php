@@ -32,4 +32,22 @@ foreach ($cacheFiles as $file) {
 }
 
 echo "<h2>HORA: " . date('H:i:s') . "</h2>";
+
+// 4. Listado de tablas
+try {
+    require __DIR__ . '/../vendor/autoload.php';
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
+    $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+
+    $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+    echo "<h3>📋 TABLAS ENCONTRADAS:</h3><ul>";
+    foreach ($tables as $table) {
+        $tableName = current((array)$table);
+        echo "<li>$tableName</li>";
+    }
+    echo "</ul>";
+} catch (\Exception $e) {
+    echo "<p style='color:red'>❌ Error al listar tablas: " . $e->getMessage() . "</p>";
+}
+
 echo "<hr><a href='/login'>👉 INTENTAR ENTRAR AL LOGIN AHORA</a>";
