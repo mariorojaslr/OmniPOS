@@ -113,7 +113,9 @@ class DashboardController extends Controller
                 'settings'          => SystemSetting::pluck('value', 'key')->toArray(),
             ];
 
-            return view('owner.dashboard', $data);
+            // Forzamos el renderizado para atrapar errores de Blade aquí mismo
+            $html = view('owner.dashboard', $data)->render();
+            return $html;
 
         } catch (\Throwable $e) {
             die("<div style='background:black;color:red;padding:20px;font-family:monospace;'>
