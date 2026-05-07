@@ -61,7 +61,10 @@ Route::get('/test-escritura-manual', function() {
 // =========================================================
 // 🚀 OPERACIÓN BYPASS TOTAL - ACCESO DIRECTO AL DASHBOARD
 // =========================================================
-Route::get('/owner/dashboard', [App\Http\Controllers\Owner\DashboardController::class, 'index']);
+Route::get('/owner/dashboard', function() {
+    config(['app.debug' => true]);
+    return (new App\Http\Controllers\Owner\DashboardController())->index();
+});
 // =========================================================
 
 Route::get('/', function () { return view('welcome'); });
