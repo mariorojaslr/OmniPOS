@@ -96,6 +96,20 @@ Route::get('/ver-logs', function() {
     return "<pre>" . htmlspecialchars(file_get_contents($path)) . "</pre>";
 });
 
+// DIAGNÓSTICO DE PERMISOS
+Route::get('/check-permisos', function() {
+    $path = storage_path('logs');
+    $isWritable = is_writable($path);
+    $user = posix_getpwuid(posix_geteuid());
+    
+    return [
+        'logs_path' => $path,
+        'es_escribible' => $isWritable ? '✅ SÍ' : '❌ NO',
+        'usuario_php' => $user['name'] ?? 'desconocido',
+        'espacio_libre' => disk_free_space("/") / (1024 * 1024) . " MB",
+    ];
+});
+
 // LIMPIEZA DE LOGS (PARA EMPEZAR DE CERO)
 Route::get('/borrar-logs', function() {
     $path = storage_path('logs/laravel.log');
