@@ -1,5 +1,5 @@
 <?php
-die("<h1>🚨 EL SERVIDOR ESTA LEYENDO EL INDEX.PHP CORRECTO</h1>");
+// 🚨 CAPTURADOR NUCLEAR ACTIVO
 
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
