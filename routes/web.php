@@ -61,6 +61,10 @@ Route::post('login', [AuthenticatedSessionController::class, 'store']);
 Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout.get');
 Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
+// Rutas faltantes que causan error 500 en la vista de login
+Route::get('demo-mode', function() { return "Próximamente Modo Demo"; })->name('demo.mode');
+Route::get('forgot-password', [App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
+
 Route::middleware(['auth', 'empresa', 'empresa.activa'])->prefix('empresa')->name('empresa.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('products', App\Http\Controllers\Empresa\ProductController::class);
