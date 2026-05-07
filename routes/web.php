@@ -302,10 +302,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/compras/{purchase}/edit', [PurchaseController::class , 'edit'])->name('compras.edit');
         Route::put('/compras/{purchase}', [PurchaseController::class , 'update'])->name('compras.update');
         Route::delete('/compras/{purchase}', [PurchaseController::class , 'destroy'])->name('compras.destroy');
-        Route::get('/compras/ultimo-precio/{product}/{variant?}', [PurchaseController::class, 'getLastPrice'])->name('compras.ultimo_precio');
         Route::get('/compras/{purchase}/credit-note', [PurchaseController::class, 'creditNote'])->name('compras.credit_note');
-
-
 
         /*
      |--------------------------------------------------------------------------

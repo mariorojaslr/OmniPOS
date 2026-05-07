@@ -111,6 +111,11 @@ class Empresa extends Model
         return $this->hasMany(\App\Models\Venta::class);
     }
 
+    public function suppliers()
+    {
+        return $this->hasMany(\App\Models\Supplier::class);
+    }
+
     public function productImages()
     {
         return $this->hasManyThrough(
