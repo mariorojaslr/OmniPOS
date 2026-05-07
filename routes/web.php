@@ -29,6 +29,23 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])->prefix('empresa')->nam
     Route::get('ventas-manual', [App\Http\Controllers\Empresa\VentaController::class, 'manual'])->name('ventas.manual');
     Route::resource('pos', App\Http\Controllers\Empresa\POSController::class);
     Route::resource('presupuestos', App\Http\Controllers\Empresa\PresupuestoController::class);
+
+    // 👥 CLIENTES
+    Route::resource('clientes', App\Http\Controllers\Empresa\ClientController::class);
+    Route::get('clientes-portal', [App\Http\Controllers\Empresa\ClientController::class, 'portalList'])->name('clientes.portal_list');
+
+    // 🚛 PROVEEDORES
+    Route::resource('proveedores', App\Http\Controllers\Empresa\ProviderController::class);
+    Route::get('proveedores-portal', [App\Http\Controllers\Empresa\ProviderController::class, 'portalList'])->name('proveedores.portal_list');
+
+    // 🏦 TESORERIA & GASTOS
+    Route::resource('tesoreria', App\Http\Controllers\Empresa\TesoreriaController::class);
+    Route::resource('gastos', App\Http\Controllers\Empresa\GastoController::class);
+
+    // 🚚 LOGISTICA & GPS
+    Route::resource('gps', App\Http\Controllers\Empresa\GPSController::class);
+    Route::get('gps-rutas', [App\Http\Controllers\Empresa\GPSController::class, 'rutas'])->name('gps.rutas');
+    Route::resource('remitos', App\Http\Controllers\Empresa\RemitoController::class);
 });
 
 // DIAGNÓSTICO (POR SI ACASO)
