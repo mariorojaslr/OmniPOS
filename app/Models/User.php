@@ -23,11 +23,6 @@ class User extends Authenticatable
         'empresa_id',
         'activo',
         'email_verified_at',
-        'must_change_password', 
-        'sub_role',
-        'can_register_expenses',
-        'can_manage_purchases',
-        'can_sell',
         'status',
         'lead_source',
         'country',
@@ -53,10 +48,6 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at'     => 'datetime',
         'activo'                => 'boolean',
-        'must_change_password'  => 'boolean',
-        'can_register_expenses' => 'boolean',
-        'can_manage_purchases'  => 'boolean',
-        'can_sell'              => 'boolean',
     ];
 
     /*
