@@ -46,7 +46,24 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])->prefix('empresa')->nam
     Route::resource('gps', App\Http\Controllers\Empresa\GPSController::class);
     Route::get('gps-rutas', [App\Http\Controllers\Empresa\GPSController::class, 'rutas'])->name('gps.rutas');
     Route::resource('remitos', App\Http\Controllers\Empresa\RemitoController::class);
+
+    // 👥 PERSONAL & EQUIPO
+    Route::resource('usuarios', App\Http\Controllers\Empresa\UsuarioController::class);
+    Route::get('personal/asistencia-qr', [App\Http\Controllers\Empresa\AsistenciaQrController::class, 'index'])->name('personal.asistencia.qr');
+
+    // 📊 REPORTES
+    Route::get('reportes-panel', [App\Http\Controllers\Empresa\ReporteController::class, 'panel'])->name('reportes.panel');
+
+    // ⚙️ CONFIGURACIÓN & AJUSTES
+    Route::get('configuracion', [App\Http\Controllers\Empresa\ConfiguracionController::class, 'index'])->name('configuracion.index');
+    Route::resource('backup', App\Http\Controllers\Empresa\BackupController::class);
+    Route::get('units', [App\Http\Controllers\Empresa\UnitController::class, 'index'])->name('units.index');
+    Route::get('suscripcion', [App\Http\Controllers\Empresa\SubscriptionController::class, 'index'])->name('suscripcion.index');
+    Route::get('novedades', [App\Http\Controllers\Empresa\DashboardController::class, 'novedades'])->name('novedades');
 });
+
+// 🌐 CATÁLOGO PÚBLICO (MODO STORE)
+Route::get('c/{slug_or_id}', [App\Http\Controllers\Empresa\CatalogController::class, 'index'])->name('catalog.index');
 
 // DIAGNÓSTICO (POR SI ACASO)
 Route::get('/debug-error', function() {
