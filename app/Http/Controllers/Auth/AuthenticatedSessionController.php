@@ -16,6 +16,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
+        die("<h1>🎯 HE LLEGADO AL CONTROLADOR DE LOGIN</h1>");
         return view('auth.login');
     }
 
