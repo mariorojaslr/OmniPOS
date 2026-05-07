@@ -20,6 +20,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        die("<h1>🛰️ SONDA DE SINCRONIZACIÓN: LLEGUE AL CONTROLADOR (HORA: 06:37)</h1>");
         try {
             $today = now()->toDateString();
             
