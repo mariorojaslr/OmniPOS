@@ -1,90 +1,71 @@
 <?php
-echo "<h1>🚀 OPERACIÓN DESBLOQUEO TOTAL</h1>";
+/**
+ * NUCLEAR 2.0 - MultiPOS Diagnostic Tool
+ */
+header('Content-Type: text/html; charset=utf-8');
+echo "<body style='background:#111; color:#eee; font-family:sans-serif; padding:20px;'>";
+echo "<h1>🚀 NUCLEAR 2.0: MODO DIAGNÓSTICO TOTAL</h1>";
 
-// 1. Resetear OPcache
-if (function_exists('opcache_reset')) {
-    opcache_reset();
-    echo "<p>✅ OPcache reseteado.</p>";
-}
-
-// 2. MATAR EL MODO MANTENIMIENTO
-$maintenanceFile = __DIR__ . '/../storage/framework/maintenance.php';
-if (file_exists($maintenanceFile)) {
-    unlink($maintenanceFile);
-    echo "<p>🔓 <b>MODO MANTENIMIENTO DESACTIVADO (Archivo eliminado).</b></p>";
-} else {
-    echo "<p>ℹ️ El sistema no parece estar en modo mantenimiento (físicamente).</p>";
-}
-
-// 3. Limpiar caches de Laravel
-$cacheFiles = [
-    __DIR__ . '/../bootstrap/cache/config.php',
-    __DIR__ . '/../bootstrap/cache/routes-v7.php',
-    __DIR__ . '/../bootstrap/cache/services.php',
-    __DIR__ . '/../bootstrap/cache/packages.php'
-];
-
-foreach ($cacheFiles as $file) {
-    if (file_exists($file)) {
-        unlink($file);
-        echo "<p>🗑️ Cache eliminada: " . basename($file) . "</p>";
-    }
-}
-
-echo "<h2>HORA: " . date('H:i:s') . "</h2>";
-
-// 4. Listado de tablas
+// 1. LIMPIEZA DE CACHÉ
+echo "<h2>🧹 LIMPIEZA DE SISTEMA:</h2>";
 try {
-    require __DIR__ . '/../vendor/autoload.php';
-    $app = require_once __DIR__ . '/../bootstrap/app.php';
-    $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
-
-    $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
-    echo "<h3>📋 TABLAS ENCONTRADAS:</h3><ul>";
-    foreach ($tables as $table) {
-        $tableName = current((array)$table);
-        echo "<li>$tableName</li>";
+    if (function_exists('opcache_reset')) {
+        opcache_reset();
+        echo "✅ OPcache reseteado.<br>";
     }
-    echo "</ul>";
-} catch (\Exception $e) {
-    echo "<p style='color:red'>❌ Error al listar tablas: " . $e->getMessage() . "</p>";
-}
-
-// 5. Herramientas de Base de Datos
-if (isset($_GET['migrate'])) {
-    try {
-        echo "<h3>🛠️ EJECUTANDO MIGRACIONES...</h3>";
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        echo "<pre>" . \Illuminate\Support\Facades\Artisan::output() . "</pre>";
-        echo "<p>✅ Migraciones completadas.</p>";
-    } catch (\Exception $e) {
-        echo "<p style='color:red'>❌ Error en migración: " . $e->getMessage() . "</p>";
-    }
-}
-
-if (isset($_GET['seed_plans'])) {
-    try {
-        echo "<h3>🌱 SEMBRANDO PLANES BÁSICOS...</h3>";
-        $planes = [
-            ['name' => 'Emprendedor', 'price' => 25000, 'max_users' => 2, 'max_products' => 100, 'is_active' => true],
-            ['name' => 'Negocio', 'price' => 45000, 'max_users' => 5, 'max_products' => 500, 'is_active' => true],
-            ['name' => 'Empresa', 'price' => 85000, 'max_users' => 15, 'max_products' => 2000, 'is_active' => true],
-            ['name' => 'Premium', 'price' => 150000, 'max_users' => 50, 'max_products' => 10000, 'is_active' => true],
-        ];
-        foreach ($planes as $p) {
-            \App\Models\Plan::updateOrCreate(['name' => $p['name']], $p);
+    
+    // Forzar borrado de archivos de caché de rutas y servicios
+    $cacheFiles = [
+        __DIR__ . '/../bootstrap/cache/services.php',
+        __DIR__ . '/../bootstrap/cache/packages.php',
+        __DIR__ . '/../bootstrap/cache/routes-v7.php',
+        __DIR__ . '/../bootstrap/cache/config.php'
+    ];
+    
+    foreach ($cacheFiles as $file) {
+        if (file_exists($file)) {
+            unlink($file);
+            echo "🗑️ Cache eliminada: " . basename($file) . "<br>";
         }
-        echo "<p>✅ Planes creados/actualizados.</p>";
-    } catch (\Exception $e) {
-        echo "<p style='color:red'>❌ Error al sembrar planes: " . $e->getMessage() . "</p>";
     }
+} catch (Exception $e) {
+    echo "❌ Error en limpieza: " . $e->getMessage() . "<br>";
 }
 
-echo "<hr>";
-echo "<div style='background:#f0f0f0;padding:15px;border-radius:10px;'>";
-echo "<h3>🛠️ ACCIONES DE EMERGENCIA:</h3>";
-echo "<a href='?migrate=1' style='display:inline-block;padding:10px;background:blue;color:white;text-decoration:none;border-radius:5px;margin-right:10px;'>🚀 EJECUTAR MIGRACIONES (Crear tablas faltantes)</a>";
-echo "<a href='?seed_plans=1' style='display:inline-block;padding:10px;background:green;color:white;text-decoration:none;border-radius:5px;'>🌱 CREAR PLANES BÁSICOS</a>";
-echo "</div>";
+// 2. ÚLTIMOS ERRORES (LOGS)
+echo "<h2>📜 ÚLTIMOS LOGS (storage/logs/laravel.log):</h2>";
+$logPath = __DIR__ . '/../storage/logs/laravel.log';
+if (file_exists($logPath)) {
+    $lines = file($logPath);
+    $lastLines = array_slice($lines, -60);
+    echo "<pre style='background:#000; color:#0f0; padding:15px; border-radius:8px; border:1px solid #333; max-height:500px; overflow:auto; font-size:12px; line-height:1.4;'>";
+    foreach ($lastLines as $line) {
+        echo htmlspecialchars($line);
+    }
+    echo "</pre>";
+} else {
+    echo "<p style='color:orange;'>⚠️ Archivo de log no encontrado en $logPath</p>";
+}
 
-echo "<hr><a href='/login'>👉 INTENTAR ENTRAR AL LOGIN AHORA</a>";
+// 3. INSPECCIÓN DE BASE DE DATOS
+echo "<h2>📋 TABLAS ENCONTRADAS:</h2>";
+try {
+    include __DIR__ . '/../vendor/autoload.php';
+    $app = include __DIR__ . '/../bootstrap/app.php';
+    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    $response = $kernel->handle(Illuminate\Http\Request::capture());
+
+    $tables = DB::select('SHOW TABLES');
+    echo "<div style='display:grid; grid-template-columns:repeat(4,1fr); gap:5px;'>";
+    foreach ($tables as $table) {
+        $name = array_values((array)$table)[0];
+        echo "<span style='font-size:11px; background:#222; padding:3px; border-radius:3px;'>$name</span>";
+    }
+    echo "</div>";
+} catch (Exception $e) {
+    echo "❌ Error DB: " . $e->getMessage();
+}
+
+echo "<hr style='border:1px solid #333; margin:40px 0;'>";
+echo "<a href='owner/dashboard' style='background:#d4af37; color:#000; padding:15px 30px; text-decoration:none; font-weight:bold; border-radius:8px;'>PROBAR DASHBOARD AHORA</a>";
+echo "</body>";
