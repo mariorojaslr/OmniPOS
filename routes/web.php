@@ -61,7 +61,7 @@ Route::get('/test-escritura-manual', function() {
 // =========================================================
 // 🚀 OPERACIÓN BYPASS TOTAL - ACCESO DIRECTO AL DASHBOARD
 // =========================================================
-Route::get('/owner/dashboard', function() {
+Route::get('/radar-central', function() {
     config(['app.debug' => true]);
     return (new App\Http\Controllers\Owner\DashboardController())->index();
 });
