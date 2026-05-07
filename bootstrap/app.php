@@ -63,44 +63,7 @@ return Application::configure(basePath: dirname(__DIR__))
     | Punto único para customizar errores a futuro.
     */
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->reportable(function (\Throwable $e) {
-            try {
-                $user = auth()->user();
-                // 1. Guardamos el reporte tecnico seco
-                \App\Models\SystemError::create([
-                    'empresa_id' => $user->empresa_id ?? null,
-                    'user_id' => $user->id ?? null,
-                    'exception_class' => get_class($e),
-                    'message' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'url' => request()->fullUrl(),
-                    'status' => 'pendiente',
-                    'severity' => 'medio'
-                ]);
-
-                // DETERMINAMOS EL PREFIJO SEGÚN EL ENTORNO
-                $envLabel = config('app.env') === 'production' ? '🔥 [CRÍTICO]' : '🧪 [STAGING]';
-
-                // 2. CREAMOS EL TICKET DE SOPORTE VIVO PARA EL OWNER (VIP)
-                \App\Models\SupportTicket::create([
-                    'empresa_id' => $user->empresa_id ?? null,
-                    'user_id' => $user->id ?? null,
-                    'subject' => $envLabel . ' ERROR DE SISTEMA: ' . substr($e->getMessage(), 0, 40) . '...',
-                    'message' => "ERROR AUTOMÁTICO DETECTADO EN [" . strtoupper(config('app.env')) . "]:\n\n" . 
-                                 "MENSAJE: " . $e->getMessage() . "\n" .
-                                 "ARCHIVO: " . $e->getFile() . " (Línea: " . $e->getLine() . ")\n" .
-                                 "URL: " . request()->fullUrl() . "\n" .
-                                 "USER: " . ($user->email ?? 'Visitante') . "\n\n" .
-                                 "-- EL SISTEMA YA LOGUEO EL ORIGEN. PROCEDER A REPARAR URGENTE.",
-                    'status' => 'abierto',
-                    'priority' => 'critica'
-                ]);
-
-            } catch (\Throwable $loggingError) {
-                // Si falla el logueo del error, no hacemos nada para evitar un bucle infinito
-            }
-        });
+        // Bloque de reporte automático desactivado temporalmente para diagnosticar Error 500
     })
 
     /*
