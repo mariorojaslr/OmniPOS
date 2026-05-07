@@ -17,9 +17,11 @@ class OwnerMiddleware
 
         $user = auth()->user();
 
-        // Verificar rol OWNER (case insensitive)
-        if (!isset($user->role) || strtolower($user->role) !== 'owner') {
-            abort(403, 'Acceso solo para Owner');
+        // Verificar rol OWNER (más flexible)
+        $role = trim(strtolower($user->role ?? ''));
+        if ($role !== 'owner') {
+            \Log::warning("Intento de acceso denegado a Owner: " . $user->email . " con rol: " . $user->role);
+            abort(403, 'Acceso restringido: Se requiere rol de Owner.');
         }
 
         return $next($request);
