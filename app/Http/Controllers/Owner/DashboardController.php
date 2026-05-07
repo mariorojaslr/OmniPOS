@@ -20,6 +20,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        die("<h1>🛰️ SEÑAL RECIBIDA: LLEGUÉ AL CONTROLADOR DEL OWNER</h1>");
         try {
             $today = now()->toDateString();
             
@@ -112,6 +113,9 @@ class DashboardController extends Controller
                 'agent_data'        => $agent_data,
                 'settings'          => SystemSetting::pluck('value', 'key')->toArray(),
             ];
+
+            // DEBUG: Ver si los datos están bien antes de la vista
+            dd($data); 
 
             return view('owner.dashboard', $data);
 
