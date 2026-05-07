@@ -97,6 +97,13 @@ Route::middleware(['auth'])->prefix('owner')->name('owner.')->group(function () 
     Route::get('/mimetizar/empresa/{empresa}/usuario/{usuario}', function($empresa, $usuario) {
         return "Mimetizando en Empresa $empresa con Usuario $usuario";
     })->name('mimetizar');
+    // Perfil y Password
+    Route::get('/profile/password', function() { return "Cambiar Password"; })->name('password.edit');
+    
+    // Sistema de Ayuda (Arti)
+    Route::get('/help/fetch', function() { return response()->json(['success' => false]); })->name('help.fetch');
+    Route::post('/help/save', function() { return response()->json(['success' => false]); })->name('help.save');
+
     // Ruta de diagnóstico absoluto
     Route::get('/test-owner', function() {
         return "<h1>✅ AUTENTICACIÓN OK</h1><p>Logueado como: " . auth()->user()->name . " (" . auth()->user()->role . ")</p>";
