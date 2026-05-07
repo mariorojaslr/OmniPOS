@@ -65,10 +65,20 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name(
 Route::get('demo-mode', function() { return "Próximamente Modo Demo"; })->name('demo.mode');
 Route::get('forgot-password', [App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
 
+// =========================================================
+// 🏢 RUTAS DE EMPRESA CLIENTE
+// =========================================================
 Route::middleware(['auth', 'empresa', 'empresa.activa'])->prefix('empresa')->name('empresa.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('products', App\Http\Controllers\Empresa\ProductController::class);
     Route::resource('ventas', App\Http\Controllers\Empresa\VentaController::class);
+});
+
+// =========================================================
+// 👑 RUTAS DEL OWNER (SISTEMA CENTRAL)
+// =========================================================
+Route::middleware(['auth'])->prefix('owner')->name('owner.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Owner\DashboardController::class, 'index'])->name('dashboard');
 });
 
 // 🌐 CATÁLOGO PÚBLICO
