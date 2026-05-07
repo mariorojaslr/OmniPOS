@@ -83,3 +83,15 @@ Route::get('/reparar-rutas', function() {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
     return "✅ CACHE LIMPIA.";
 });
+
+// PRUEBA DE VIDA DEFINITIVA
+Route::get('/hola-mundo', function () {
+    return "✅ EL SERVIDOR ESTÁ VIVO Y RESPONDIENDO TEXTO PLANO.";
+});
+
+// VISUALIZADOR DE LOGS (CRÍTICO)
+Route::get('/ver-logs', function() {
+    $path = storage_path('logs/laravel.log');
+    if (!file_exists($path)) return "No hay logs disponibles.";
+    return "<pre>" . shell_exec('tail -n 100 ' . escapeshellarg($path)) . "</pre>";
+});
