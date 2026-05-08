@@ -173,12 +173,13 @@ body {
 
 /* CONTENT LAYOUT */
 #main-content {
-    padding-left: var(--sidebar-width);
+    margin-left: var(--sidebar-width);
     padding-top: calc(var(--navbar-height) + 20px);
     min-height: 100vh;
     position: relative;
     z-index: 1;
     overflow-x: hidden;
+    width: calc(100% - var(--sidebar-width));
 }
 
 .top-bar {
@@ -194,7 +195,8 @@ body {
     justify-content: space-between;
     padding: 0 30px;
     z-index: 1040;
-    border-bottom: 1px solid var(--sidebar-border);
+    border-bottom: 1px solid {{ $modoOscuro ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }};
+    box-sizing: border-box;
 }
 
 /* BOTÓN DE AYUDA MÁGICA */
@@ -505,13 +507,13 @@ body {
         .cursor-pointer { cursor: pointer; }
 
         @if(isset($posMode))
-        #main-content { padding-left: 0 !important; }
+        #main-content { margin-left: 0 !important; width: 100% !important; }
         .top-bar { left: 0 !important; }
         @endif
     </style>
 
     {{-- AREA DE TRABAJO (CONTENIDO REAL) --}}
-    <main class="flex-grow-1 p-4">
+    <main class="flex-grow-1 p-3 p-md-4" style="padding-left: 20px !important;">
         @yield('content')
     </main>
 </div>

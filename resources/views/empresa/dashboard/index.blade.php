@@ -36,11 +36,12 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 /* Background suave animado sutil basado en el color primario de la empresa */
 .empresa-bg {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: var(--navbar-height); left: var(--sidebar-width); right: 0; bottom: 0;
     z-index: -1;
     background: radial-gradient(circle at 10% 20%, {{ $primary }}15, transparent 35%),
                 radial-gradient(circle at 90% 80%, {{ $secondary }}15, transparent 35%);
     animation: bgPulse 12s infinite alternate ease-in-out;
+    pointer-events: none;
 }
 
 @keyframes bgPulse {
@@ -135,7 +136,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 {{-- Fondo estático para estabilidad --}}
 <div class="empresa-bg" style="background: radial-gradient(circle at 10% 20%, {{ $primary }}05, transparent 50%);"></div>
 
-<div class="dashboard-container" style="padding-left: 10px;">
+<div class="dashboard-container" style="padding: 0 15px;">
 
     {{-- ======================================================
         CENTRO DE MANDO MÓVIL (SOLO CELULARES)
