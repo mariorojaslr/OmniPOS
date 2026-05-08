@@ -15,42 +15,91 @@ class DashboardController extends Controller
     {
         try {
             $user = Auth::user();
-            $empresaId = $user->empresa_id;
-            $empresa = $user->empresa;
-
-            // Inicializamos todo en cero por seguridad
-            $ventasHoy = 0; $ventasMes = 0; $cantidadVentasHoy = 0;
-            $usuariosCount = 0; $clientesCount = 0; $productosCount = 0; $stockBajo = 0;
-            $pedidosPendientes = 0; $pedidosTotales = 0;
-            $gastosMes = 0; $comprasMes = 0; $ventasInternetHoy = 0;
-
-            // Intentamos cargar métricas una por una
-            try { $ventasHoy = DB::table('ventas')->where('empresa_id', $empresaId)->whereDate('created_at', today())->sum('total_con_iva'); } catch(\Exception $e){}
-            try { $ventasMes = DB::table('ventas')->where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->sum('total_con_iva'); } catch(\Exception $e){}
-            try { $cantidadVentasHoy = DB::table('ventas')->where('empresa_id', $empresaId)->whereDate('created_at', today())->count(); } catch(\Exception $e){}
             
-            try { $usuariosCount = User::where('empresa_id', $empresaId)->count(); } catch(\Exception $e){}
-            try { $clientesCount = Client::where('empresa_id', $empresaId)->count(); } catch(\Exception $e){}
-            try { $productosCount = Product::where('empresa_id', $empresaId)->count(); } catch(\Exception $e){}
-            try { $stockBajo = Product::where('empresa_id', $empresaId)->where(fn($q) => $q->whereColumn('stock', '<=', 'stock_min')->orWhere('stock', '<=', 0))->count(); } catch(\Exception $e){}
+            // Evadir if role = usuario
+            if ($user->role === 'usuario') {
+                return redirect()->route('empresa.usuario.dashboard');
+            }
 
-            try { $pedidosPendientes = DB::table('orders')->where('empresa_id', $empresaId)->whereIn('estado', ['pendiente', 'en_proceso', 'pedido_armado'])->count(); } catch(\Exception $e){}
-            try { $pedidosTotales = DB::table('orders')->where('empresa_id', $empresaId)->count(); } catch(\Exception $e){}
+            $empresaId = $user->empresa_id;
 
-            try { $gastosMes = DB::table('expenses')->where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->sum('amount'); } catch(\Exception $e){}
-            try { $comprasMes = DB::table('purchases')->where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->sum('total'); } catch(\Exception $e){}
-            try { $ventasInternetHoy = DB::table('orders')->where('empresa_id', $empresaId)->whereDate('created_at', today())->sum('total'); } catch(\Exception $e){}
+            if (!$empresaId) {
+                // Si es un Owner mimetizado sin empresa_id (raro pero posible), intentar recuperar del mimetizador
+                if (session('impersonator_id')) {
+                    $owner = \App\Models\User::find(session('impersonator_id'));
+                    if ($owner) {
+                        Auth::login($owner);
+                        session()->forget('impersonator_id');
+                        return redirect()->route('owner.dashboard')->with('error', 'Error crítico: La empresa a la que intentó entrar no tiene ID válido.');
+                    }
+                }
+                abort(403, 'Usuario sin empresa asignada');
+            }
 
+            $empresa = $user->empresa;
+            if (!$empresa) {
+                abort(404, 'Empresa no encontrada');
+            }
+
+            /* Métricas Comerciales */
+            $ventasHoy = DB::table('ventas')->where('empresa_id', $empresaId)->whereDate('created_at', today())->sum('total_con_iva');
+            $ventasMes = DB::table('ventas')->where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->sum('total_con_iva');
+            $cantidadVentasHoy = DB::table('ventas')->where('empresa_id', $empresaId)->whereDate('created_at', today())->count();
+
+            /* Gestión y Operativo */
+            $usuariosCount = User::where('empresa_id', $empresaId)->count();
+            $clientesCount = Client::where('empresa_id', $empresaId)->count();
+            $productosCount = Product::where('empresa_id', $empresaId)->count();
+            $stockBajo = Product::where('empresa_id', $empresaId)->where(fn($q) => $q->whereColumn('stock', '<=', 'stock_min')->orWhere('stock', '<=', 0))->count();
+
+            /* Catálogo y Pedidos */
+            $pedidosPendientes = \App\Models\Order::where('empresa_id', $empresaId)->whereIn('estado', ['pendiente', 'en_proceso', 'pedido_armado'])->count();
+            $pedidosTotales = \App\Models\Order::where('empresa_id', $empresaId)->count();
+
+            /* Alertas y Recordatorios */
             $reminders = [];
+            $config = $empresa->config;
+
+            if (!$empresa->cuit || !$empresa->condicion_iva || !$config?->logo_url) {
+                $reminders[] = [
+                    'type' => 'warning', 'icon' => '⚙️', 'title' => 'Perfil Incompleto', 
+                    'message' => 'Por favor, complete sus datos fiscales y suba su logo en Configuración.',
+                    'link' => route('empresa.configuracion.index'), 'btn' => 'Ir a Configuración'
+                ];
+            }
+
+            $comprasCount = \App\Models\Purchase::where('empresa_id', $empresaId)->count();
+            if ($productosCount > 0 && $comprasCount === 0) {
+                $reminders[] = [
+                    'type' => 'info', 'icon' => '📦', 'title' => 'Carga de Stock Pendiente',
+                    'message' => 'Recomendamos cargar su stock inicial registrando una Factura de Compra.',
+                    'link' => route('empresa.compras.index'), 'btn' => 'Registrar Compra'
+                ];
+            }
+
+            $reminders[] = [
+                'type' => 'danger', 'icon' => '🛡️', 'title' => '¿Encontró un problema?',
+                'message' => 'Si detecta cualquier error, por favor genere un Ticket de Soporte.',
+                'link' => route('empresa.soporte.index'), 'btn' => 'Generar Ticket'
+            ];
+
+            /* Gráficos y Desempeño */
+            $gastosMes = \App\Models\Expense::where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('amount');
+            $comprasMes = \App\Models\Purchase::where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('total');
+            $ventasInternetHoy = \App\Models\Order::where('empresa_id', $empresaId)->whereDate('created_at', today())->sum('total');
+
             $maxCanal = max($ventasHoy, $ventasInternetHoy, 1000);
             $saludVentasLocal = round(($ventasHoy / $maxCanal) * 100);
             $saludVentasInternet = round(($ventasInternetHoy / $maxCanal) * 100);
 
             $totalEgresos = $gastosMes + $comprasMes;
             $balanceLocal = $ventasHoy - $totalEgresos;
+
             $gastosPerc = $totalEgresos > 0 ? round(($gastosMes / $totalEgresos) * 100) : 0;
             $comprasPerc = $totalEgresos > 0 ? round(($comprasMes / $totalEgresos) * 100) : 0;
             $evaluacionLocal = $ventasHoy > 0 ? min(100, round(($ventasHoy / ($totalEgresos + 1)) * 50)) : ($totalEgresos > 0 ? 5 : 0);
+
+            $recentActivities = \App\Models\ActivityLog::where('empresa_id', $empresaId)->with('user')->latest()->limit(15)->get();
 
             return view('empresa.dashboard.index', [
                 'empresa' => $empresa,
@@ -67,23 +116,24 @@ class DashboardController extends Controller
                 'stockBajo' => $stockBajo,
                 'pedidosPendientes' => $pedidosPendientes,
                 'pedidosTotales' => $pedidosTotales,
-                'reminders' => [],
+                'reminders' => $reminders,
                 'saludLocal' => $saludVentasLocal,
                 'saludInternet' => $saludVentasInternet,
                 'balanceLocal' => $balanceLocal,
                 'evaluacionLocal' => $evaluacionLocal,
                 'gastosPerc' => $gastosPerc,
                 'comprasPerc' => $comprasPerc,
-                'recentActivities' => collect(),
+                'recentActivities' => $recentActivities,
             ]);
 
         } catch (\Throwable $e) {
-            return "❌ ERROR CRITICO EN DASHBOARD: " . $e->getMessage();
+            return "❌ ERROR EN CONTROLADOR DE EMPRESA: " . $e->getMessage() . " en " . $e->getFile() . " línea " . $e->getLine();
         }
     }
 
     public function novedades()
     {
-        return view('empresa.updates.index', ['updates' => collect()]);
+        $updates = \App\Models\SystemUpdate::orderByDesc('publish_date')->get();
+        return view('empresa.updates.index', compact('updates'));
     }
 }

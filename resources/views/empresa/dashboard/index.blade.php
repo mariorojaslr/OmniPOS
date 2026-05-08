@@ -3,11 +3,15 @@
 @section('content')
 
 @php
-    $user = auth()->user();
-    $empresa = $user?->empresa;
-    $config = $empresa?->configuracion;
-    $primary = $config?->color_primary ?? '#0d6efd';
-    $secondary = $config?->color_secondary ?? '#6c757d';
+/*
+|--------------------------------------------------------------------------
+| CONFIGURACIÓN VISUAL INSTITUCIONAL
+|--------------------------------------------------------------------------
+*/
+$config = $empresa->config ?? null;
+
+$primary   = $config?->color_primary   ?? '#2563eb';
+$secondary = $config?->color_secondary ?? '#16a34a';
 @endphp
 
 <style>
@@ -407,7 +411,7 @@
                 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted fw-bold">Vencimiento:</span>
-                    <span class="fw-bold">{{ is_object($empresa->fecha_vencimiento) ? $empresa->fecha_vencimiento->format('d/m/Y') : ($empresa->fecha_vencimiento ?? 'N/A') }}</span>
+                    <span class="fw-bold">{{ optional($empresa->fecha_vencimiento)->format('d/m/Y') ?? 'N/A' }}</span>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center">

@@ -28,7 +28,14 @@ class Empresa extends Model
         'activo',
         'fecha_vencimiento',
         'fecha_cierre_ejercicio',
-        'fecha_cierre_ejercicio',
+        'plan_id',
+        'custom_price',
+        'custom_max_products',
+        'custom_max_users',
+        'custom_max_storage_mb',
+        'is_bonificated',
+        'grace_period_until',
+        'status',
         'ultima_fecha_pago',
         // Datos fiscales
         'cuit',
@@ -46,7 +53,6 @@ class Empresa extends Model
         'arca_llave',
         'arca_ambiente',
         'arca_activo',
-        'plan_id',
     ];
 
     /**
@@ -57,19 +63,13 @@ class Empresa extends Model
         'fecha_vencimiento'      => 'date',
         'fecha_cierre_ejercicio' => 'date',
         'ultima_fecha_pago'      => 'date',
-        'ultima_fecha_pago'      => 'date',
+        'grace_period_until'     => 'date',
         'config_pasarelas'       => 'array',
         'arca_activo'            => 'boolean',
-        'plan_id'                => 'integer',
     ];
 
     // =========================================================
     // RELACIONES
-
-    public function plan()
-    {
-        return $this->belongsTo(Plan::class, 'plan_id');
-    }
 
     public function supportTickets()
     {
@@ -89,6 +89,11 @@ class Empresa extends Model
     public function cheques()
     {
         return $this->hasMany(Cheque::class);
+    }
+
+    public function ordenesPedido()
+    {
+        return $this->hasMany(\App\Models\OrdenPedido::class);
     }
 
     public function presupuestos()
@@ -111,21 +116,6 @@ class Empresa extends Model
         return $this->hasMany(\App\Models\Venta::class);
     }
 
-    public function suppliers()
-    {
-        return $this->hasMany(\App\Models\Supplier::class);
-    }
-
-    public function configuracion()
-    {
-        return $this->hasOne(\App\Models\EmpresaConfig::class, 'empresa_id');
-    }
-
-    public function config()
-    {
-        return $this->hasOne(\App\Models\EmpresaConfig::class, 'empresa_id');
-    }
-
     public function productImages()
     {
         return $this->hasManyThrough(
@@ -139,6 +129,19 @@ class Empresa extends Model
     }
 
     // =========================================================
+
+    public function plan()
+    {
+        return $this->belongsTo(\App\Models\Plan::class);
+    }
+
+    /**
+     * CONFIGURACIÓN VISUAL DE LA EMPRESA
+     */
+    public function config()
+    {
+        return $this->hasOne(\App\Models\EmpresaConfig::class, 'empresa_id');
+    }
 
     /**
      * USUARIOS QUE PERTENECEN A ESTA EMPRESA
@@ -228,6 +231,22 @@ class Empresa extends Model
     {
         return $this->fecha_cierre_ejercicio instanceof Carbon
             && $this->fecha_cierre_ejercicio->isPast();
+    }
+
+    /**
+     * Devuelve el límite de productos real (Custom o del Plan)
+     */
+    public function getLimiteProductos(): int
+    {
+        return $this->custom_max_products ?? ($this->plan->max_products ?? 0);
+    }
+
+    /**
+     * Devuelve el precio mensual real (Custom o del Plan)
+     */
+    public function getPrecioMensual(): float
+    {
+        return (float) ($this->custom_price ?? ($this->plan->price ?? 0));
     }
 
     /**

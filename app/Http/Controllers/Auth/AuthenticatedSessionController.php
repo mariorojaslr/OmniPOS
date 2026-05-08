@@ -24,44 +24,32 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        try {
-            $request->authenticate();
-            $request->session()->regenerate();
+        $request->authenticate();
+        $request->session()->regenerate();
 
-            $user = auth()->user();
+        $user = auth()->user();
 
-            // ================= OWNER =================
-            if ($user->role === 'owner') {
-                return redirect()->route('owner.dashboard');
-            }
-
-            // ================= EMPRESA =================
-            if ($user->role === 'empresa') {
-                return redirect()->route('empresa.dashboard');
-            }
-
-            // ================= USUARIO =================
-            if ($user->role === 'usuario') {
-                return redirect()->route('empresa.usuario.dashboard');
-            }
-
-            // Rol inválido → cierre por seguridad
-            Auth::guard('web')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            abort(403, 'Rol no permitido');
-        } catch (\Exception $e) {
-            // 🚨 SI EL LOGIN FALLA, LO MOSTRAMOS SI O SI
-            die("<div style='background:red;color:white;padding:20px;font-family:sans-serif;'>
-                <h1>🚨 ERROR DURANTE EL LOGIN</h1>
-                <p><b>Mensaje:</b> " . $e->getMessage() . "</p>
-                <p><b>Archivo:</b> " . $e->getFile() . ":" . $e->getLine() . "</p>
-                <hr>
-                <p>Verificá si la base de datos tiene las tablas necesarias.</p>
-                <a href='/login' style='color:yellow;'>Volver a intentar</a>
-            </div>");
+        // ================= OWNER =================
+        if ($user->role === 'owner') {
+            return redirect()->route('owner.dashboard');
         }
+
+        // ================= EMPRESA =================
+        if ($user->role === 'empresa') {
+            return redirect()->route('empresa.dashboard');
+        }
+
+        // ================= USUARIO =================
+        if ($user->role === 'usuario') {
+            return redirect()->route('empresa.usuario.dashboard');
+        }
+
+        // Rol inválido → cierre por seguridad
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        abort(403, 'Rol no permitido');
     }
 
     /**

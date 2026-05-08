@@ -1,7 +1,7 @@
 @extends('layouts.empresa')
 
 @section('content')
-<div class="container-fluid py-4 mt-5">
+<div class="container-fluid py-4">
 
     {{-- ════════════════════════════════════════════════════════
         CABECERA CON DATOS DEL PROVEEDOR
@@ -169,8 +169,8 @@
                             @endif
                         </td>
                         <td class="text-end pe-4">
-                            <button onclick="preselectCompra({{ $d->id }}, {{ $d->pending_amount }})" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm fw-bold border-0" data-bs-toggle="modal" data-bs-target="#modalPago">
-                                <i class="fas fa-hand-holding-usd me-1"></i> Pagar
+                            <button onclick="preselectCompra({{ $d->id }}, {{ $d->pending_amount }})" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalPago">
+                                Pagar
                             </button>
                         </td>
                     </tr>
@@ -220,8 +220,8 @@
                     @forelse($movimientos as $m)
                     <tr class="{{ $m->type == 'debit' ? '' : 'table-success table-active' }}" style="--bs-table-bg: {{ $m->type == 'credit' ? 'rgba(34, 197, 94, 0.04)' : 'transparent' }};">
                         <td class="text-center">
-                            <button class="btn btn-sm btn-primary rounded-pill px-3 py-1 shadow-sm fw-bold d-flex align-items-center justify-content-center gap-1 mx-auto" type="button" data-bs-toggle="collapse" data-bs-target="#row-{{ $m->id }}" style="font-size: 0.65rem; min-width: 65px;">
-                                <i class="fas fa-eye"></i> VER
+                            <button class="btn btn-sm btn-light p-1 rounded-circle border-0" type="button" data-bs-toggle="collapse" data-bs-target="#row-{{ $m->id }}">
+                                <i class="fas fa-chevron-down text-muted" style="font-size: 10px;"></i>
                             </button>
                         </td>
                         <td class="ps-3 text-nowrap">
@@ -285,17 +285,9 @@
                                                 <h6 class="small text-uppercase fw-bold text-muted mb-2">Pagos aplicados a este comprobante</h6>
                                                 @if($m->imputaciones->count() > 0)
                                                     @foreach($m->imputaciones as $imp)
-                                                        <div class="d-flex justify-content-between align-items-center bg-white p-2 px-3 rounded-3 border mb-2 shadow-sm border-start border-4 border-success">
-                                                            <div>
-                                                                <div class="small fw-bold text-dark">OP #{{ $imp->ordenPago->numero_orden ?? '?' }}</div>
-                                                                <div class="x-small text-muted">{{ $imp->created_at->format('d/m/Y') }}</div>
-                                                            </div>
-                                                            <div class="text-end">
-                                                                <div class="small fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</div>
-                                                                @if($imp->orden_pago_id)
-                                                                    <a href="{{ route('empresa.ordenes_pago.show', $imp->orden_pago_id) }}" class="x-small fw-bold text-primary text-decoration-none"><i class="fas fa-eye me-1"></i>Ver OP</a>
-                                                                @endif
-                                                            </div>
+                                                        <div class="d-flex justify-content-between align-items-center bg-white p-2 rounded border mb-1 shadow-sm">
+                                                            <span class="small"><i class="fas fa-check-circle text-success me-1"></i> OP #{{ $imp->ordenPago->numero_orden ?? '?' }} ({{ $imp->created_at->format('d/m/Y') }})</span>
+                                                            <span class="fw-bold text-success small">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
                                                         </div>
                                                     @endforeach
                                                 @else
@@ -716,8 +708,6 @@
             checkSums();
         }
     }
-</script>
-
 {{-- MODAL GESTIÓN DE CUENTAS BANCARIAS DEL PROVEEDOR --}}
 <div class="modal fade" id="modalCuentasBanco" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -789,63 +779,5 @@
         </div>
     </div>
 </div>
-
-@endsection
-
-@section('scripts')
-<script>
-    function getPortalLink() {
-        const btn = document.getElementById('btnPortal');
-        const originalHtml = btn.innerHTML;
-        
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Generando...';
-        btn.disabled = true;
-
-        fetch("{{ route('empresa.proveedores.portal-link', $supplier->id) }}")
-            .then(response => response.json())
-            .then(data => {
-                const url = data.url;
-                
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(url).then(() => {
-                        btn.innerHTML = '<i class="fas fa-check me-1"></i> ¡Enlace Copiado!';
-                        btn.classList.add('bg-success', 'text-white');
-                        btn.classList.remove('btn-primary');
-                        
-                        setTimeout(() => {
-                            btn.innerHTML = originalHtml;
-                            btn.classList.remove('bg-success', 'text-white');
-                            btn.classList.add('btn-primary');
-                            btn.disabled = false;
-                        }, 3000);
-                    }).catch(err => {
-                        window.open(url, '_blank');
-                        btn.innerHTML = originalHtml;
-                        btn.disabled = false;
-                    });
-                } else {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = url;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    try {
-                        document.execCommand('copy');
-                        btn.innerHTML = '<i class="fas fa-check me-1"></i> ¡Enlace Copiado!';
-                    } catch (err) {
-                        window.open(url, '_blank');
-                    }
-                    document.body.removeChild(textArea);
-                    setTimeout(() => {
-                        btn.innerHTML = originalHtml;
-                        btn.disabled = false;
-                    }, 3000);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                btn.innerHTML = 'Error al generar';
-                btn.disabled = false;
-            });
-    }
 </script>
 @endsection
