@@ -1,36 +1,38 @@
 <?php
-// NUCLEAR 6.6: MODO INDEPENDIENTE (SIN LARAVEL)
+// NUCLEAR 6.7: ERROR HUNTER (SIN LARAVEL)
 echo "<body style='background:#000; color:#0f0; font-family:monospace; padding:30px;'>";
-echo "<h1>🕵️‍♂️ DETECTIVE NUCLEAR v6.6</h1>";
+echo "<h1>🕵️‍♂️ DETECTIVE NUCLEAR v6.7</h1>";
 
-// 1. LEER EL LOG A MANO (SIN USAR LARAVEL)
 $logPath = __DIR__.'/../storage/logs/multipos.log';
-echo "<h3>📝 Error Real en multipos.log:</h3>";
+echo "<h3>🎯 Buscando el Error Real...</h3>";
+
 if (file_exists($logPath)) {
     $content = file($logPath);
-    $lastEntries = array_slice($content, -30);
-    echo "<pre style='background:#111; color:#ff4444; padding:15px; border:1px solid #333; overflow:auto;'>";
-    foreach($lastEntries as $line) echo htmlspecialchars($line);
-    echo "</pre>";
+    $found = false;
+    // Buscamos los últimos errores reales (local.ERROR)
+    $errors = [];
+    foreach(array_reverse($content) as $line) {
+        if(str_contains($line, 'local.ERROR')) {
+            $errors[] = $line;
+            if(count($errors) > 5) break;
+        }
+    }
+
+    if(!empty($errors)) {
+        echo "<div style='background:#440000; color:#fff; padding:20px; border:2px solid red;'>";
+        echo "<h4>🚨 ÚLTIMOS ERRORES ENCONTRADOS:</h4>";
+        foreach($errors as $err) {
+            echo "<p style='border-bottom:1px solid #660000; padding-bottom:10px;'>" . htmlspecialchars($err) . "</p>";
+        }
+        echo "</div>";
+    } else {
+        echo "<div>No se encontraron líneas con 'local.ERROR' en los últimos registros.</div>";
+        echo "<h4>Últimas 10 líneas del archivo:</h4><pre style='background:#111; padding:10px;'>";
+        $lastLines = array_slice($content, -10);
+        foreach($lastLines as $l) echo htmlspecialchars($l);
+        echo "</pre>";
+    }
 } else {
     echo "❌ No se encontró multipos.log";
 }
-
-// 2. VERIFICAR ARCHIVOS CRÍTICOS
-echo "<h3>🔎 Verificación de archivos:</h3>";
-$files = [
-    'vendor/autoload.php',
-    'bootstrap/app.php',
-    'config/app.php',
-    '.env'
-];
-foreach($files as $f) {
-    $exists = file_exists(__DIR__.'/../'.$f) ? "✅ EXISTE" : "❌ NO EXISTE";
-    echo "<div>$f: $status $exists</div>";
-}
-
-// 3. INTENTAR VER LA VERSIÓN DE PHP
-echo "<h3>⚙️ Servidor:</h3>";
-echo "<div>PHP: " . phpversion() . "</div>";
-echo "<div>CWD: " . getcwd() . "</div>";
 ?>
