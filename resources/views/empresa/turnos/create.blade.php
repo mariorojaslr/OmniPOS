@@ -20,12 +20,12 @@
                         {{-- SERVICIO --}}
                         <div class="col-md-12">
                             <label class="form-label fw-bold small">Servicio / Especialidad</label>
-                            <select name="servicio_id" class="form-select border-2" required>
+                            <select name="servicio_id" id="servicio_id" class="form-select border-2" required onchange="filterProfessionals()">
                                 <option value="">Selecciona un servicio...</option>
                                 @foreach($servicios->groupBy('categoria') as $cat => $items)
                                     <optgroup label="{{ $cat }}">
                                         @foreach($items as $s)
-                                            <option value="{{ $s->id }}">{{ $s->nombre }} - ${{ number_format($s->precio, 0) }} ({{ $s->duracion_minutos }} min)</option>
+                                            <option value="{{ $s->id }}" {{ old('servicio_id') == $s->id ? 'selected' : '' }}>{{ $s->nombre }} - ${{ number_format($s->precio, 0) }} ({{ $s->duracion_minutos }} min)</option>
                                         @endforeach
                                     </optgroup>
                                 @endforeach
@@ -35,10 +35,15 @@
                         {{-- PROFESIONAL --}}
                         <div class="col-md-12">
                             <label class="form-label fw-bold small">Profesional Asignado</label>
-                            <select name="user_id" class="form-select border-2" required>
+                            <select name="user_id" id="user_id" class="form-select border-2" required>
                                 <option value="">Selecciona al profesional...</option>
                                 @foreach($profesionales as $p)
-                                    <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                    @php
+                                        $especialidades = ($p->profesionalConfig && is_array($p->profesionalConfig->especialidades)) 
+                                            ? json_encode($p->profesionalConfig->especialidades) 
+                                            : '[]';
+                                    @endphp
+                                    <option value="{{ $p->id }}" data-especialidades='{{ $especialidades }}' {{ old('user_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -48,9 +53,9 @@
                             <label class="form-label fw-bold small">Cliente</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-2"><i class="bi bi-search"></i></span>
-                                <input list="list-clientes" id="cliente_search" class="form-control border-2" placeholder="Buscar cliente por nombre..." oninput="updateClientId(this)" required>
-                                <input type="hidden" name="client_id" id="client_id">
-                                <input type="hidden" name="cliente_nombre_manual" id="cliente_nombre_manual">
+                                <input list="list-clientes" id="cliente_search" class="form-control border-2" placeholder="Buscar cliente por nombre..." oninput="updateClientId(this)" value="{{ old('cliente_nombre_manual') }}" required>
+                                <input type="hidden" name="client_id" id="client_id" value="{{ old('client_id') }}">
+                                <input type="hidden" name="cliente_nombre_manual" id="cliente_nombre_manual" value="{{ old('cliente_nombre_manual') }}">
                                 
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalQuickClient" title="Nuevo Cliente">
                                     <i class="bi bi-plus-lg"></i>
@@ -67,17 +72,17 @@
                         {{-- FECHA Y HORA --}}
                         <div class="col-md-6">
                             <label class="form-label fw-bold small">Fecha</label>
-                            <input type="date" name="fecha" class="form-control border-2" value="{{ date('Y-m-d') }}" required>
+                            <input type="date" name="fecha" class="form-control border-2" value="{{ old('fecha', date('Y-m-d')) }}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold small">Hora de Inicio</label>
-                            <input type="time" name="hora_inicio" class="form-control border-2" required>
+                            <input type="time" name="hora_inicio" class="form-control border-2" value="{{ old('hora_inicio') }}" required>
                         </div>
 
                         {{-- NOTAS --}}
                         <div class="col-md-12">
                             <label class="form-label fw-bold small">Notas o Pedidos Especiales</label>
-                            <textarea name="notas" class="form-control border-2" rows="3" placeholder="Ej: Trae su propio esmalte, alérgica a..., etc."></textarea>
+                            <textarea name="notas" class="form-control border-2" rows="3" placeholder="Ej: Trae su propio esmalte, alérgica a..., etc.">{{ old('notas') }}</textarea>
                         </div>
                     </div>
 
@@ -145,6 +150,37 @@
 </div>
 
 <script>
+    function filterProfessionals() {
+        const servicioId = document.getElementById('servicio_id').value;
+        const profSelect = document.getElementById('user_id');
+        const options = profSelect.querySelectorAll('option');
+
+        // Reset profesional select
+        profSelect.value = "";
+
+        options.forEach(opt => {
+            if (opt.value === "") {
+                opt.style.display = "block";
+                return;
+            }
+
+            const especs = JSON.parse(opt.getAttribute('data-especialidades') || "[]");
+            
+            // Si no hay servicio elegido, mostramos todos
+            if (!servicioId) {
+                opt.style.display = "block";
+            } else {
+                // Si el servicio está en la lista de especialidades del profesional, lo mostramos
+                // Nota: Convertimos a string por si acaso los IDs vienen mezclados
+                if (especs.map(String).includes(String(servicioId))) {
+                    opt.style.display = "block";
+                } else {
+                    opt.style.display = "none";
+                }
+            }
+        });
+    }
+
     function updateClientId(input) {
         const val = input.value;
         const opts = document.getElementById('list-clientes').childNodes;

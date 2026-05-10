@@ -11,6 +11,7 @@ use App\Models\Servicio;
 use App\Models\AcuerdoProfesional;
 use App\Models\ProfesionalConfig;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class TurnoController extends Controller
 {
@@ -93,7 +94,10 @@ class TurnoController extends Controller
     {
         $empresa = Auth::user()->empresa;
         $servicios = $empresa->servicios()->where('activo', true)->get();
-        $profesionales = User::where('empresa_id', $empresa->id)->where('activo', true)->get();
+        $profesionales = User::where('empresa_id', $empresa->id)
+            ->where('activo', true)
+            ->with('profesionalConfig') // Cargamos la configuración para saber qué hacen
+            ->get();
         $clientes = $empresa->clients()->orderBy('name')->get();
 
         return view('empresa.turnos.create', compact('servicios', 'profesionales', 'clientes'));
@@ -164,22 +168,33 @@ class TurnoController extends Controller
             }
         }
 
-        $turno = $empresa->turnos()->create([
-            'servicio_id' => $request->servicio_id,
-            'user_id' => $request->user_id,
-            'client_id' => $request->client_id, // Nueva vinculación
-            'fecha' => $request->fecha,
-            'hora_inicio' => $request->hora_inicio,
-            'cliente_nombre_manual' => $request->cliente_nombre_manual,
-            'monto' => $servicio->precio,
-            'comision_monto' => $comision,
-            'notas' => $request->notas,
-            'estado' => 'pendiente'
-        ]);
+        try {
+            // --- CÁLCULO DE HORA FIN ---
+            $duracion = $servicio->duracion_minutos ?? 30; // Fallback 30 min
+            $hora_inicio = Carbon::parse($request->fecha . ' ' . $request->hora_inicio);
+            $hora_fin = $hora_inicio->copy()->addMinutes($duracion)->format('H:i:s');
 
-        $msg = 'Turno agendado correctamente.';
-        if($solapado) $msg .= ' OJO: El profesional ya tiene otra actividad a esta hora.';
+            $turno = $empresa->turnos()->create([
+                'servicio_id' => $request->servicio_id,
+                'user_id' => $request->user_id,
+                'client_id' => $request->client_id, // Nueva vinculación
+                'fecha' => $request->fecha,
+                'hora_inicio' => $request->hora_inicio,
+                'hora_fin' => $hora_fin, // Guardamos la hora de fin calculada
+                'cliente_nombre_manual' => $request->cliente_nombre_manual,
+                'monto' => $servicio->precio,
+                'comision_monto' => $comision,
+                'notas' => $request->notas,
+                'estado' => 'pendiente'
+            ]);
 
-        return redirect()->route('empresa.turnos.index')->with('success', $msg);
+            $msg = 'Turno agendado correctamente.';
+            if($solapado) $msg .= ' OJO: El profesional ya tiene otra actividad a esta hora.';
+
+            return redirect()->route('empresa.turnos.index')->with('success', $msg);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Error al guardar el turno: ' . $e->getMessage());
+        }
     }
 }
