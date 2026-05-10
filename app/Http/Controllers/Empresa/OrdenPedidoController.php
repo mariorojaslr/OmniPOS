@@ -42,7 +42,8 @@ class OrdenPedidoController extends Controller
         $proveedores = $empresa->suppliers()->where('active', true)->orderBy('name')->get();
         $productos = $empresa->products()->where('active', true)->orderBy('name')->get();
 
-        return view('empresa.ordenes_pedido.create', compact('empresa', 'proveedores', 'productos'));
+        $config = $empresa->config;
+        return view('empresa.ordenes_pedido.create', compact('empresa', 'proveedores', 'productos', 'config'));
     }
 
     public function store(Request $request)

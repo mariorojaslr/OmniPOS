@@ -30,8 +30,8 @@ trait BelongsToEmpresa
             }
 
             if (auth()->check() && auth()->user()->empresa_id) {
-                // Solo limitamos si el usuario actual tiene empresa_id
-                $builder->where($builder->getQuery()->from . '.empresa_id', auth()->user()->empresa_id);
+                // Usamos el nombre de la tabla del modelo directamente para evitar problemas con alias de subconsultas
+                $builder->where($builder->getModel()->getTable() . '.empresa_id', auth()->user()->empresa_id);
             }
         });
 
