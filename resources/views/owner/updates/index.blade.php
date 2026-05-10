@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    /** @var \Illuminate\Contracts\Pagination\LengthAwarePaginator $updates */
+@endphp
+
 @section('content')
 <style>
     /* 🛡️ BLINDAJE ANTI-ICONOS GIGANTES (V7.0) */

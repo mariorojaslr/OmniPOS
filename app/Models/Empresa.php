@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
 
+/**
+ * @property \Carbon\Carbon|null $fecha_vencimiento
+ * @property \Carbon\Carbon|null $fecha_cierre_ejercicio
+ * @property \Carbon\Carbon|null $ultima_fecha_pago
+ * @property \Carbon\Carbon|null $grace_period_until
+ */
 class Empresa extends Model
 {
     use HasFactory;

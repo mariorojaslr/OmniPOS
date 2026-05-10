@@ -216,7 +216,7 @@ class ClientController extends Controller
                 $m->haber = $m->type === 'credit' ? $m->amount : null;
             }
 
-            $movimientos->setCollection($movimientos->reverse());
+            $movimientos->setCollection($movimientos->getCollection()->reverse());
         }
 
 

@@ -71,7 +71,7 @@
                 <p class="text-muted mb-4 small">Imprimí este código para que tus empleados registren su jornada.</p>
                 
                 <div class="qr-display mb-4">
-                    {!! QrCode::size(200)->generate($urlResitro) !!}
+                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->generate($urlResitro) !!}
                 </div>
 
                 <h2 class="fw-extrabold mb-1">{{ $empresa->nombre }}</h2>
@@ -92,7 +92,7 @@
     {{-- AREA OCULTA PARA IMPRESIÓN (SOLO SE VE AL IMPRIMIR) --}}
     <div class="printable-area d-none text-center">
         <div class="qr-display-print">
-            {!! QrCode::size(400)->generate($urlResitro) !!}
+            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(400)->generate($urlResitro) !!}
         </div>
         <div class="print-title text-uppercase">{{ $empresa->nombre }}</div>
         <div style="font-size: 14pt; margin-top: 5mm; color: #666;">FICHADA DIGITAL POR QR</div>

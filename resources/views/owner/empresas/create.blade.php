@@ -50,7 +50,7 @@
                             <select name="plan_id" class="form-select">
                                 <option value="">Sin Plan asignado</option>
                                 @foreach($planes as $plan)
-                                    <option value="{{ $plan->id }}">{{ $plan->name }} ({{ env('APP_CURRENCY', '$') }} {{ number_format($plan->price, 2) }})</option>
+                                    <option value="{{ $plan->id }}">{{ $plan->name }} ({{ env('APP_CURRENCY', '$') }} {{ number_format((float)$plan->price, 2) }})</option>
                                 @endforeach
                             </select>
                         </div>

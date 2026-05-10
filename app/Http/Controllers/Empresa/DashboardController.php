@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Client;
+use App\Models\Order;
+use App\Models\Purchase;
+use App\Models\Expense;
+use App\Models\ActivityLog;
+use App\Models\SystemUpdate;
 
 class DashboardController extends Controller
 {
@@ -26,7 +31,7 @@ class DashboardController extends Controller
             if (!$empresaId) {
                 // Si es un Owner mimetizado sin empresa_id (raro pero posible), intentar recuperar del mimetizador
                 if (session('impersonator_id')) {
-                    $owner = \App\Models\User::find(session('impersonator_id'));
+                    $owner = User::find(session('impersonator_id'));
                     if ($owner) {
                         Auth::login($owner);
                         session()->forget('impersonator_id');
@@ -53,8 +58,8 @@ class DashboardController extends Controller
             $stockBajo = Product::where('empresa_id', $empresaId)->where(fn($q) => $q->whereColumn('stock', '<=', 'stock_min')->orWhere('stock', '<=', 0))->count();
 
             /* Catálogo y Pedidos */
-            $pedidosPendientes = \App\Models\Order::where('empresa_id', $empresaId)->whereIn('estado', ['pendiente', 'en_proceso', 'pedido_armado'])->count();
-            $pedidosTotales = \App\Models\Order::where('empresa_id', $empresaId)->count();
+            $pedidosPendientes = Order::where('empresa_id', $empresaId)->whereIn('estado', ['pendiente', 'en_proceso', 'pedido_armado'])->count();
+            $pedidosTotales = Order::where('empresa_id', $empresaId)->count();
 
             /* Alertas y Recordatorios */
             $reminders = [];
@@ -68,7 +73,7 @@ class DashboardController extends Controller
                 ];
             }
 
-            $comprasCount = \App\Models\Purchase::where('empresa_id', $empresaId)->count();
+            $comprasCount = Purchase::where('empresa_id', $empresaId)->count();
             if ($productosCount > 0 && $comprasCount === 0) {
                 $reminders[] = [
                     'type' => 'info', 'icon' => '📦', 'title' => 'Carga de Stock Pendiente',
@@ -84,9 +89,9 @@ class DashboardController extends Controller
             ];
 
             /* Gráficos y Desempeño */
-            $gastosMes = \App\Models\Expense::where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('amount');
-            $comprasMes = \App\Models\Purchase::where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('total');
-            $ventasInternetHoy = \App\Models\Order::where('empresa_id', $empresaId)->whereDate('created_at', today())->sum('total');
+            $gastosMes = Expense::where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('amount');
+            $comprasMes = Purchase::where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('total');
+            $ventasInternetHoy = Order::where('empresa_id', $empresaId)->whereDate('created_at', today())->sum('total');
 
             $maxCanal = max($ventasHoy, $ventasInternetHoy, 1000);
             $saludVentasLocal = round(($ventasHoy / $maxCanal) * 100);
@@ -99,7 +104,7 @@ class DashboardController extends Controller
             $comprasPerc = $totalEgresos > 0 ? round(($comprasMes / $totalEgresos) * 100) : 0;
             $evaluacionLocal = $ventasHoy > 0 ? min(100, round(($ventasHoy / ($totalEgresos + 1)) * 50)) : ($totalEgresos > 0 ? 5 : 0);
 
-            $recentActivities = \App\Models\ActivityLog::where('empresa_id', $empresaId)->with('user')->latest()->limit(15)->get();
+            $recentActivities = ActivityLog::where('empresa_id', $empresaId)->with('user')->latest()->limit(15)->get();
 
             return view('empresa.dashboard.index', [
                 'empresa' => $empresa,
@@ -133,7 +138,7 @@ class DashboardController extends Controller
 
     public function novedades()
     {
-        $updates = \App\Models\SystemUpdate::orderByDesc('publish_date')->get();
+        $updates = SystemUpdate::orderByDesc('publish_date')->get();
         return view('empresa.updates.index', compact('updates'));
     }
 }

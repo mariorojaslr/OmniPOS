@@ -10,7 +10,8 @@ class SystemUpdateController extends Controller
 {
     public function index()
     {
-        $updates = SystemUpdate::orderByDesc('publish_date')->paginate(15);
+        /** @var \Illuminate\Contracts\Pagination\LengthAwarePaginator $updates */
+        $updates = SystemUpdate::query()->orderByDesc('publish_date')->paginate(15);
         return view('owner.updates.index', compact('updates'));
     }
  

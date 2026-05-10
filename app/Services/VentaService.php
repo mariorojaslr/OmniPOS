@@ -9,6 +9,12 @@ use App\Models\Client;
 use App\Models\KardexMovimiento;
 use App\Models\ClientLedger;
 use App\Models\ProductVariant;
+use App\Models\Empresa;
+use App\Models\FinanzaCuenta;
+use App\Models\FinanzaMovimiento;
+use App\Models\Remito;
+use App\Models\RemitoItem;
+use App\Models\ActivityLog;
 
 use Illuminate\Support\Facades\DB;
 
@@ -67,7 +73,7 @@ class VentaService
         return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago, $montoEntrega, $pagosDiferenciados, $finanza_cuenta_id, $parent_id) {
 
             // Re-obtener empresa con bloqueo para asegurar número correlativo único
-            $empresaActual = \App\Models\Empresa::where('id', $user->empresa_id)->lockForUpdate()->first();
+            $empresaActual = Empresa::where('id', $user->empresa_id)->lockForUpdate()->first();
 
             $totalSinIva = 0;
             $totalIva    = 0;
@@ -96,7 +102,7 @@ class VentaService
                         $tipoComprobante = 'C';
                     } else {
                         // Si es Responsable Inscripto, determinamos A o B según el cliente
-                        $cliente = $clienteId ? \App\Models\Client::find($clienteId) : null;
+                        $cliente = $clienteId ? Client::find($clienteId) : null;
                         if ($cliente && $cliente->document_type === 'CUIT' && $cliente->iva_condition === 'Responsable Inscripto') {
                             $tipoComprobante = 'A';
                         } else {
@@ -112,7 +118,7 @@ class VentaService
                         'total_con_iva' => $totales['total_con_iva'],
                         'total_sin_iva' => $totales['total_sin_iva'],
                         'total_iva' => $totales['total_iva'],
-                        'cliente' => $clienteId ? \App\Models\Client::find($clienteId) : null
+                        'cliente' => $clienteId ? Client::find($clienteId) : null
                     ];
 
                     $resAfip = app(\App\Services\AfipService::class)->solicitarCAE($empresaActual, $ventaFicticia);
@@ -325,12 +331,12 @@ class VentaService
 
             if ($tipoVentaCliente === 'contado' && $finanza_cuenta_id) {
                 
-                $cuenta = \App\Models\FinanzaCuenta::where('empresa_id', $empresaActual->id)
+                $cuenta = FinanzaCuenta::where('empresa_id', $empresaActual->id)
                     ->where('id', $finanza_cuenta_id)
                     ->first();
 
                 if ($cuenta) {
-                    \App\Models\FinanzaMovimiento::create([
+                    FinanzaMovimiento::create([
                         'empresa_id'   => $empresaActual->id,
                         'cuenta_id'    => $cuenta->id,
                         'user_id'      => $user->id,
@@ -370,7 +376,7 @@ class VentaService
             }
 
             // REGISTRAR ACTIVIDAD
-            \App\Models\ActivityLog::log(
+            ActivityLog::log(
                 "Registró venta #{$venta->numero_comprobante} por $" . number_format($venta->total_con_iva, 2, ',', '.'),
                 $venta
             );
@@ -387,7 +393,7 @@ class VentaService
     {
         $numeroRemito = $this->generarNumeroRemito($empresa);
 
-        $remito = \App\Models\Remito::create([
+        $remito = Remito::create([
             'empresa_id'     => $empresa->id,
             'venta_id'       => $venta->id,
             'user_id'        => $user->id,
@@ -402,7 +408,7 @@ class VentaService
         $empresa->save();
 
         foreach ($venta->items as $item) {
-            \App\Models\RemitoItem::create([
+            RemitoItem::create([
                 'remito_id'     => $remito->id,
                 'venta_item_id' => $item->id,
                 'product_id'    => $item->product_id,
@@ -425,7 +431,7 @@ class VentaService
     {
         $numeroRemito = $this->generarNumeroRemito($empresa);
 
-        $remito = \App\Models\Remito::create([
+        $remito = Remito::create([
             'empresa_id'     => $empresa->id,
             'venta_id'       => $venta->id,
             'user_id'        => $user->id,
@@ -453,7 +459,7 @@ class VentaService
                 // No entregar más de lo vendido por seguridad
                 if ($qtyEntrega > $itemVenta->cantidad) $qtyEntrega = $itemVenta->cantidad;
 
-                \App\Models\RemitoItem::create([
+                RemitoItem::create([
                     'remito_id'     => $remito->id,
                     'venta_item_id' => $itemVenta->id,
                     'product_id'    => $itemVenta->product_id,
@@ -476,8 +482,8 @@ class VentaService
         $totalConIva = 0;
 
         foreach ($items as $item) {
-            $product = \App\Models\Product::find($item['id']);
-            $variant = isset($item['variant_id']) ? \App\Models\ProductVariant::find($item['variant_id']) : null;
+            $product = Product::find($item['id']);
+            $variant = isset($item['variant_id']) ? ProductVariant::find($item['variant_id']) : null;
             
             $precioFinalUnitario = (float) ($item['price'] ?? ($variant ? ($variant->price ?: $product->price) : $product->price));
             $cantidad  = (float) $item['quantity'];
