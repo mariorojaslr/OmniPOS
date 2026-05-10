@@ -24,7 +24,8 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            background-color: #0f172a;
+            background-color: #f8fafc;
+            color: #1e293b;
             color: #e2e8f0;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             overflow-x: hidden;
@@ -50,23 +51,23 @@
 
         /* Navbar Glassmorphism */
         .navbar-premium {
-            background: rgba(15, 23, 42, 0.7) !important;
+            background: #ffffff !important;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
         }
 
         .navbar-brand {
-            color: #f8fafc !important;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            color: #1e293b !important;
+            text-shadow: none;
         }
 
         /* Botón de Perfil Dropdown */
         .btn-profile {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #f8fafc;
+            background: #f1f5f9;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #1e293b;
             border-radius: 20px;
             padding: 6px 16px;
             transition: all 0.3s;
