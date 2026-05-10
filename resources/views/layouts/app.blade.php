@@ -356,6 +356,86 @@ document.addEventListener('DOMContentLoaded', function () {
 @endif
 @endauth
 
+    {{-- ═══════════════════════════════════════════
+         MODAL DE COMUNICADOS DEL OWNER (FLYERS/AVISOS)
+    ═══════════════════════════════════════════ --}}
+    @auth
+    @php
+        $unreadNotifications = \App\Models\OwnerNotification::where(function($q) {
+                $q->whereNull('empresa_id')->orWhere('empresa_id', Auth::user()->empresa_id);
+            })
+            ->whereDoesntHave('reads', function($q) {
+                $q->where('user_id', Auth::id());
+            })
+            ->latest()
+            ->get();
+    @endphp
+
+    @if($unreadNotifications->count() > 0)
+        @php $latestNotif = $unreadNotifications->first(); @endphp
+        <div class="modal fade" id="modalOwnerNotification" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered {{ $latestNotif->media_url ? 'modal-lg' : '' }}">
+                <div class="modal-content bg-dark border-secondary shadow-lg overflow-hidden" style="border-radius: 24px;">
+                    @if($latestNotif->media_url)
+                        <div class="media-container position-relative">
+                            @if($latestNotif->media_type === 'video')
+                                <video src="{{ $latestNotif->media_url }}" class="w-100" controls autoplay muted style="max-height: 400px; object-fit: cover;"></video>
+                            @else
+                                <img src="{{ $latestNotif->media_url }}" class="w-100" style="max-height: 500px; object-fit: contain; background: #000;">
+                            @endif
+                        </div>
+                    @endif
+                    
+                    <div class="modal-body p-4 text-center">
+                        <div class="mb-2">
+                            @if($latestNotif->type === 'festividad')
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 mb-3">🎄 MENSAJE ESPECIAL</span>
+                            @elseif($latestNotif->type === 'mantenimiento')
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-3 py-2 mb-3">⚙️ AVISO TÉCNICO</span>
+                            @else
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-2 mb-3">📢 COMUNICADO OFICIAL</span>
+                            @endif
+                        </div>
+                        
+                        <h3 class="text-white fw-bold mb-3">{{ $latestNotif->title }}</h3>
+                        <p class="text-secondary mb-4 fs-5" style="white-space: pre-line;">{{ $latestNotif->message }}</p>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-primary py-3 fw-bold rounded-pill shadow-lg" onclick="markNotificationRead({{ $latestNotif->id }})">
+                                <i class="fas fa-check-circle me-2"></i> ENTENDIDO / CERRAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var myModal = new bootstrap.Modal(document.getElementById('modalOwnerNotification'));
+                myModal.show();
+            });
+
+            function markNotificationRead(id) {
+                fetch(`/owner/notificaciones/${id}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        var modalEl = document.getElementById('modalOwnerNotification');
+                        var modal = bootstrap.Modal.getInstance(modalEl);
+                        modal.hide();
+                    }
+                });
+            }
+        </script>
+    @endif
+    @endauth
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 @yield('scripts')

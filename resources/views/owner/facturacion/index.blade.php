@@ -90,6 +90,7 @@
                                         <form action="{{ route('owner.notifications.send') }}" method="POST" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="empresa_id" value="{{ $empresa->id }}">
+                                            <input type="hidden" name="title" value="Aviso de Vencimiento de Suscripción">
                                             <input type="hidden" name="type" value="vencimiento">
                                             <input type="hidden" name="message" value="Tu suscripción a MultiPOS está próxima a vencer. Por favor, regulariza tu situación para evitar interrupciones en el servicio.">
                                             <button type="submit" class="btn btn-outline-warning btn-sm">

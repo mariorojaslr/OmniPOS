@@ -118,6 +118,17 @@ class User extends Authenticatable
 
     /*
     |--------------------------------------------------------------------------
+    | READ NOTIFICATIONS
+    |--------------------------------------------------------------------------
+    */
+
+    public function readOwnerNotifications()
+    {
+        return $this->belongsToMany(OwnerNotification::class, 'owner_notification_reads');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | RELACIONES
     |--------------------------------------------------------------------------
     */
