@@ -189,15 +189,19 @@ body {
     right: 0;
     left: var(--sidebar-width);
     height: var(--navbar-height);
-    background: {{ $modoOscuro ? 'rgba(2, 6, 23, 0.95)' : 'rgba(255, 255, 255, 0.98)' }};
+    background: #ffffff;
     backdrop-filter: blur(15px);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 30px;
     z-index: 1040;
-    border-bottom: 1px solid {{ $modoOscuro ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }};
+    border-bottom: 1px solid rgba(0,0,0,0.05);
     box-sizing: border-box;
+}
+
+.top-bar h4, .top-bar div {
+    color: #1e293b !important;
 }
 
 /* BOTÓN DE AYUDA MÁGICA */
