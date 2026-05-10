@@ -68,11 +68,11 @@
                                 </div>
                                 <div class="text-end">
                                     @if($empresa->dias_para_vencer < 0)
-                                        <span class="badge bg-danger">VENCIDA (hace {{ abs($empresa->dias_para_vencer) }} días)</span>
+                                        <span class="badge bg-danger">VENCIDA (hace {{ $empresa->vencimiento_human }})</span>
                                     @elseif($empresa->dias_para_vencer <= 7)
-                                        <span class="badge bg-warning text-dark">PRÓXIMO VENCIMIENTO ({{ $empresa->dias_para_vencer }} días)</span>
+                                        <span class="badge bg-warning text-dark">PRÓXIMO VENCIMIENTO (en {{ $empresa->vencimiento_human }})</span>
                                     @else
-                                        <span class="badge bg-success">AL DÍA ({{ $empresa->dias_para_vencer }} días rest.)</span>
+                                        <span class="badge bg-success">AL DÍA (faltan {{ $empresa->vencimiento_human }})</span>
                                     @endif
                                     <div class="mt-2 fw-bold text-white">
                                         Total Pagado: ${{ number_format($empresa->monto_total_pagado, 0, ',', '.') }}

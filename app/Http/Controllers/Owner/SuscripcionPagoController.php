@@ -17,7 +17,24 @@ class SuscripcionPagoController extends Controller
         }])->get();
         
         foreach($empresas as $empresa) {
-            $empresa->dias_para_vencer = $empresa->fecha_vencimiento ? now()->diffInDays($empresa->fecha_vencimiento, false) : -999;
+            if ($empresa->fecha_vencimiento) {
+                $vencimiento = Carbon::parse($empresa->fecha_vencimiento);
+                $diff = now()->diff($vencimiento);
+                
+                // Días totales para lógica de badges (entero)
+                $empresa->dias_para_vencer = (int) now()->diffInDays($vencimiento, false);
+                
+                // Texto amigable
+                $parts = [];
+                if ($diff->days > 0) $parts[] = $diff->days . " día" . ($diff->days > 1 ? "s" : "");
+                if ($diff->h > 0) $parts[] = $diff->h . " hora" . ($diff->h > 1 ? "s" : "");
+                
+                $empresa->vencimiento_human = count($parts) > 0 ? implode(' y ', $parts) : 'menos de 1 hora';
+            } else {
+                $empresa->dias_para_vencer = -999;
+                $empresa->vencimiento_human = 'Sin fecha';
+            }
+            
             $empresa->monto_total_pagado = $empresa->pagos->sum('monto');
         }
 
