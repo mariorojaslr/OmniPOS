@@ -261,7 +261,7 @@ function agregarFila(itemData = null){
         </td>
 
         <td>
-            <input type="number" min="1" step="0.01"
+            <input type="number" min="1" step="0.0001"
                    name="items[${index}][quantity]"
                    class="form-control text-end cantidad"
                    value="1">
@@ -586,7 +586,7 @@ async function guardarNuevoProducto() {
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Precio Venta (Est.)</label>
-                            <input type="number" step="0.01" name="price" class="form-control" value="0">
+                            <input type="number" step="0.0001" name="price" class="form-control" value="0">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Rubro</label>

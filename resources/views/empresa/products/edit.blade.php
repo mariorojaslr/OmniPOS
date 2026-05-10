@@ -76,7 +76,7 @@
                         <label class="form-label fw-semibold">Precio Venta</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light">$</span>
-                            <input type="number" step="0.01" name="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $product->price) }}" required>
+                            <input type="number" step="0.0001" name="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $product->price) }}" required>
                         </div>
                         @error('price')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
@@ -86,7 +86,7 @@
                         <label class="form-label fw-semibold">Precio Costo</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light">$</span>
-                            <input type="number" step="0.01" name="cost" class="form-control @error('cost') is-invalid @enderror" value="{{ old('cost', $product->cost) }}">
+                            <input type="number" step="0.0001" name="cost" class="form-control @error('cost') is-invalid @enderror" value="{{ old('cost', $product->cost) }}">
                         </div>
                         @error('cost')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
@@ -255,6 +255,7 @@
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Stock Actual</label>
                         <input type="number" 
+                               step="0.0001"
                                name="stock" 
                                class="form-control" 
                                value="{{ old('stock', $product->stock) }}" 
@@ -268,6 +269,7 @@
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Stock Mínimo</label>
                         <input type="number" 
+                               step="0.0001"
                                name="stock_min" 
                                class="form-control" 
                                value="{{ old('stock_min', $product->stock_min) }}">
@@ -277,6 +279,7 @@
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Stock Ideal</label>
                         <input type="number" 
+                               step="0.0001"
                                name="stock_ideal" 
                                class="form-control" 
                                value="{{ old('stock_ideal', $product->stock_ideal) }}">

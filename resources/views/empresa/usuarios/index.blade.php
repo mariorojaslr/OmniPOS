@@ -1,5 +1,10 @@
 @extends('layouts.empresa')
 
+@php
+    $empresa = auth()->user()->empresa;
+    $config = $empresa?->config;
+@endphp
+
 @section('content')
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -52,89 +57,96 @@ FILTRO USUARIOS
 
         <table class="table mb-0 align-middle">
             <thead class="table-light">
-                <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
+                <tr class="x-small text-muted text-uppercase">
+                    <th class="ps-4">Personal</th>
                     <th>Estado</th>
-                    <th>Tipo</th> {{-- NUEVA COLUMNA --}}
-                    <th width="360">Acciones</th>
+                    <th>Tipo / Rol</th>
+                    <th class="text-center" width="80">Editar</th>
+                    <th class="text-center" width="80">Switch</th>
+                    <th class="text-center" width="80">Clave</th>
+                    <th class="text-center" width="100">Reporte</th>
+                    @if($config->mod_turnos)
+                        <th class="text-center border-start bg-primary bg-opacity-10 text-primary" width="120">
+                            <i class="bi bi-calendar-check me-1"></i> Turnos
+                        </th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
 
                 @forelse($usuarios as $usuario)
                 <tr>
-                    <td class="fw-semibold">{{ $usuario->name }}</td>
-                    <td>{{ $usuario->email }}</td>
+                    <td class="ps-4">
+                        <div class="fw-bold text-dark">{{ $usuario->name }}</div>
+                        <div class="x-small text-muted">{{ $usuario->email }}</div>
+                    </td>
 
-                    {{-- =========================================
-                    ESTADO
-                    ========================================== --}}
                     <td>
                         @if($usuario->activo)
-                            <span class="badge bg-success">Activo</span>
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">ACTIVO</span>
                         @else
-                            <span class="badge bg-secondary">Inactivo</span>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">OFF</span>
                         @endif
                     </td>
 
-                    {{-- =========================================
-                    TIPO DE USUARIO (NUEVO)
-                    ========================================== --}}
                     <td>
                         @if($usuario->role === 'empresa')
-                            <span class="badge bg-dark text-white fw-bold">
-                                <i class="bi bi-shield-fill me-1"></i> Administrador
-                            </span>
-                        @elseif($usuario->role === 'usuario')
-                            @php
-                                $subRoleLabel = match($usuario->sub_role ?? 'cajero') {
-                                    'cajero'    => '🖥️ Cajero',
-                                    'operativo' => '🏭 Operativo',
-                                    'empleado'  => '🏗️ Campo',
-                                    default     => ucfirst($usuario->sub_role ?? 'cajero'),
-                                };
-                            @endphp
-                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary fw-bold">
-                                {{ $subRoleLabel }}
-                            </span>
+                            <span class="small fw-bold text-dark"><i class="bi bi-shield-lock me-1"></i> ADMIN</span>
                         @else
-                            <span class="badge bg-secondary">{{ ucfirst($usuario->role) }}</span>
+                            <span class="small fw-bold text-primary text-uppercase">{{ $usuario->sub_role ?? 'Cajero' }}</span>
                         @endif
                     </td>
 
+                    {{-- COLUMNAS DE ACCIÓN INDIVIDUALES --}}
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-light border-0 text-dark" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $usuario->id }}" title="Editar Datos">
+                            <i class="bi bi-pencil-square fs-6"></i>
+                        </button>
+                    </td>
 
-                    {{-- =========================================
-                    ACCIONES
-                    ========================================== --}}
-                    <td class="text-end pe-3">
-                        <div class="d-flex justify-content-end align-items-center gap-1" style="white-space: nowrap;">
-                            {{-- EDITAR (MODAL) --}}
-                            <button type="button" class="btn btn-sm btn-dark fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $usuario->id }}">
-                                <i class="bi bi-pencil-square"></i> Editar
+                    <td class="text-center">
+                        <form method="POST" action="{{ route('empresa.usuarios.toggle', $usuario->id) }}" class="d-inline m-0">
+                            @csrf @method('PATCH')
+                            <button class="btn btn-sm {{ $usuario->activo ? 'text-warning' : 'text-success' }} border-0">
+                                <i class="bi bi-power fs-5"></i>
                             </button>
+                        </form>
+                    </td>
 
-                            {{-- ACTIVAR / DESACTIVAR --}}
-                            <form method="POST" action="{{ route('empresa.usuarios.toggle', $usuario->id) }}" class="d-inline m-0">
-                                @csrf @method('PATCH')
-                                <button class="btn btn-sm btn-outline-warning fw-bold">
-                                    {{ $usuario->activo ? 'Apagar' : 'Prender' }}
-                                </button>
-                            </form>
+                    <td class="text-center">
+                        <form method="POST" action="{{ route('empresa.usuarios.reset', $usuario->id) }}" class="d-inline m-0">
+                            @csrf @method('PATCH')
+                            <button class="btn btn-sm text-danger border-0" title="Resetear Contraseña">
+                                <i class="bi bi-key-fill"></i>
+                            </button>
+                        </form>
+                    </td>
 
-                            {{-- RESET PASSWORD --}}
-                            <form method="POST" action="{{ route('empresa.usuarios.reset', $usuario->id) }}" class="d-inline m-0">
-                                @csrf @method('PATCH')
-                                <button class="btn btn-sm btn-outline-danger fw-bold">
-                                    Reset
-                                </button>
-                            </form>
+                    <td class="text-center">
+                        <a href="{{ route('empresa.usuarios.desempeno', $usuario->id) }}" class="btn btn-sm text-info border-0" title="Ver Desempeño">
+                            <i class="bi bi-bar-chart-fill"></i>
+                        </a>
+                    </td>
 
-                            {{-- DESEMPEÑO --}}
-                            <a href="{{ route('empresa.usuarios.desempeno', $usuario->id) }}" class="btn btn-sm btn-outline-info fw-bold">
-                                Desempeño
-                            </a>
-                        </div>
+                    {{-- SECCIÓN MODULAR DE TURNOS --}}
+                    @if($config->mod_turnos)
+                        <td class="text-center border-start bg-primary bg-opacity-10">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('empresa.usuarios.config-profesional.edit', $usuario->id) }}" 
+                                   class="btn btn-sm btn-primary rounded-pill px-2 shadow-sm" title="Configurar Pagos">
+                                    <i class="bi bi-wallet2"></i>
+                                </a>
+                                @if($usuario->profesionalConfig)
+                                   <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2" 
+                                       onclick="copiarLinkRapido('{{ url('/portal/profesional') }}/{{ $usuario->profesionalConfig->token_portal }}')" 
+                                       title="Copiar Link del Portal">
+                                       <i class="bi bi-link-45deg"></i>
+                                   </button>
+                                @endif
+                            </div>
+                        </td>
+                    @endif
+                </tr>
 
                         {{-- ========================================================
                            MODAL DE EDICIÓN DE FACULTADES Y DATOS
@@ -243,6 +255,20 @@ function toggleSubRoleEdit(userId) {
         container.style.opacity = (role === 'empresa') ? '0.4' : '1';
         container.querySelector('select').disabled = (role === 'empresa');
     }
+}
+
+function copiarLinkRapido(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Link copiado',
+            text: 'Ya puedes enviarlo por WhatsApp al profesional',
+            timer: 2000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    });
 }
 
 // Inicializar todos los modales al cargar

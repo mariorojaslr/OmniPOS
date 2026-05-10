@@ -145,7 +145,7 @@
                 </thead>
                 <tbody>
                     @foreach($deudas as $d)
-                    @php $diasAntig = $d->created_at->diffInDays(now()); @endphp
+                    @php $diasAntig = (int) $d->created_at->diffInDays(now()); @endphp
                     <tr>
                         <td class="ps-4 fw-semibold text-nowrap">{{ $d->created_at->format('d/m/Y') }}</td>
                         <td>
@@ -295,8 +295,13 @@
                                                 @endif
                                             </div>
                                         @else
-                                            <p class="mb-2 small"><strong>Tipo:</strong> Orden de Pago</p>
-                                            @if($m->reference)
+                                                @if($m->reference)
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <p class="mb-0 small"><strong>Tipo:</strong> Orden de Pago</p>
+                                                        <a href="{{ route('proveedores.pagos.pdf', $m->reference_id) }}" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm fw-bold">
+                                                            <i class="fas fa-print me-1"></i> Imprimir Comprobante
+                                                        </a>
+                                                    </div>
                                                 <div class="mb-3">
                                                     <strong class="small">Medios de Pago Utilizados:</strong>
                                                     <div class="mt-2 d-flex flex-wrap gap-2">
@@ -384,7 +389,7 @@
                             </h6>
                             <div class="overflow-auto custom-scrollbar" style="max-height: 350px;">
                                 @forelse($deudas as $d)
-                                @php $diasAntig = $d->created_at->diffInDays(now()); @endphp
+                                @php $diasAntig = (int) $d->created_at->diffInDays(now()); @endphp
                                 <label class="d-flex justify-content-between align-items-center bg-white p-3 rounded-3 border mb-2 cursor-pointer hover-shadow">
                                     <div class="d-flex align-items-center">
                                         <input class="form-check-input me-3 compra-checkbox" type="checkbox" name="compras[]" value="{{ $d->id }}" data-monto="{{ $d->pending_amount }}" style="transform: scale(1.3);">

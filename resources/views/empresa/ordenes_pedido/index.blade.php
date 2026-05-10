@@ -204,7 +204,7 @@
                                     </li>
                                     @if($orden->estado !== 'convertido')
                                     <li>
-                                        <form action="{{ route('empresa.ordenes-pedido.convert', $orden->id) }}" method="POST">
+                                        <form action="{{ route('empresa.ordenes-pedido.convertir', $orden->id) }}" method="POST">
                                             @csrf
                                             <button type="submit" class="dropdown-item text-success fw-bold"
                                                 onclick="return confirm('¿Deseas convertir esta orden en una Factura de Compra real?')">

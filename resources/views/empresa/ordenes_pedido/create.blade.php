@@ -98,10 +98,12 @@
                                            class="form-control form-control-sm border-secondary-subtle fw-semibold" 
                                            placeholder="Nombre del artículo o servicio..." required>
                                     
-                                    {{-- Campo de Instrucciones (LO QUE PIDIÓ EL USUARIO) --}}
-                                    <textarea x-model="item.instrucciones" :name="'items['+index+'][instrucciones]'" 
-                                              class="form-control instruction-box" rows="2" 
-                                              placeholder="Añadir instrucciones especiales de procesamiento (ej: laminado, corte, etc.)"></textarea>
+                                    {{-- Campo de Instrucciones (Datos Extra / Constructivos) --}}
+                                    @if($config?->mod_orden_pedido_extra)
+                                        <textarea x-model="item.instrucciones" :name="'items['+index+'][instrucciones]'" 
+                                                  class="form-control instruction-box" rows="2" 
+                                                  placeholder="Añadir instrucciones especiales de procesamiento (ej: laminado, corte, etc.)"></textarea>
+                                    @endif
                                     
                                     {{-- Opción guardar como producto interno --}}
                                     <div x-show="!item.product_id" class="d-flex align-items-center gap-2 mt-1">
@@ -226,7 +228,7 @@
                 }
 
                 try {
-                    const response = await fetch(`{{ route('empresa.ordenes-pedido.index') }}/last-price?product_id=${item.product_id}&proveedor_id=${this.proveedor_id}`);
+                    const response = await fetch(`{{ route('empresa.ordenes-pedido.last-price') }}?product_id=${item.product_id}&proveedor_id=${this.proveedor_id}`);
                     const data = await response.json();
                     item.last_price = data.price || 0;
                     this.calculateDiff(item);

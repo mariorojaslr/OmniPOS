@@ -91,6 +91,29 @@ class TesoreriaController extends Controller
     }
 
     /**
+     * Actualizar datos de una cuenta financiera (Alias/Nombre, CBU, etc)
+     */
+    public function updateCuenta(Request $request, $id)
+    {
+        $request->validate([
+            'nombre'        => 'required|string|max:255',
+            'numero_cuenta' => 'nullable|string|max:50',
+            'cbu_cvu'       => 'nullable|string|max:50',
+        ]);
+
+        $empresaId = Auth::user()->empresa_id;
+        $cuenta = FinanzaCuenta::where('empresa_id', $empresaId)->findOrFail($id);
+
+        $cuenta->update([
+            'nombre'        => $request->nombre,
+            'numero_cuenta' => $request->numero_cuenta,
+            'cbu_cvu'       => $request->cbu_cvu,
+        ]);
+
+        return back()->with('success', "Cuenta '{$cuenta->nombre}' actualizada con éxito.");
+    }
+
+    /**
      * Guardar cuenta bancaria de un tercero (Cliente o Proveedor)
      */
     public function storeBankAccount(Request $request)

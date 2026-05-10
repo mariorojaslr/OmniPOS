@@ -50,7 +50,7 @@
         </a>
         <div class="d-flex gap-2">
             @if($orden->estado !== 'convertido')
-                <form action="{{ route('empresa.ordenes-pedido.convert', $orden->id) }}" method="POST">
+                <form action="{{ route('empresa.ordenes-pedido.convertir', $orden->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-success fw-bold px-4 shadow-sm">
                         <i class="bi bi-receipt me-2"></i> CONVERTIR A COMPRA REAL

@@ -56,6 +56,9 @@ class ConfiguracionEmpresaController extends Controller
                 'logo'            => 'nullable|image|max:2048',
                 'dias_nuevo'      => 'nullable|integer|min:1|max:365',
                 'mod_orden_pedido' => 'nullable|boolean',
+                'mod_orden_pedido_extra' => 'nullable|boolean',
+                'mod_turnos' => 'nullable|boolean',
+                'mod_unidades_medida' => 'nullable|boolean',
                 
                 // Fiscales / ARCA
                 'arca_cuit'            => 'nullable|string|max:20',
@@ -126,7 +129,7 @@ class ConfiguracionEmpresaController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | ACTUALIZAR CONFIG (VISUAL)
+            | ACTUALIZAR CONFIG (VISUAL Y MÓDULOS)
             |--------------------------------------------------------------------------
             */
             $configData = [
@@ -135,6 +138,9 @@ class ConfiguracionEmpresaController extends Controller
                 'theme'           => $request->theme ?? 'light',
                 'dias_nuevo'      => $request->dias_nuevo ?? 7,
                 'mod_orden_pedido' => $request->has('mod_orden_pedido'),
+                'mod_orden_pedido_extra' => $request->has('mod_orden_pedido_extra'),
+                'mod_turnos' => $request->has('mod_turnos'),
+                'mod_unidades_medida' => $request->has('mod_unidades_medida'),
             ];
 
             if ($logoPath) {

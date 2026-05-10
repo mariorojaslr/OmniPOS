@@ -20,9 +20,18 @@ trait BelongsToEmpresa
     {
         // 1. Añadimos el Global Scope (Aislamiento de lectura)
         static::addGlobalScope('empresa', function (Builder $builder) {
+            // Detección robusta de portal: si la URL contiene 'portal', 'public' o es una ruta de portal
+            if (str_contains(request()->url(), '/portal/') || 
+                str_contains(request()->url(), '/public/') || 
+                request()->is('portal/*') || 
+                request()->routeIs('*.portal') ||
+                request()->routeIs('portal.*')) {
+                return;
+            }
+
             if (auth()->check() && auth()->user()->empresa_id) {
-                // Solo limitamos si el usuario actual tiene empresa_id (No es el SysOwner super admin en su panel, o si el SysOwner está impersonando sí que entra)
-                $builder->where('empresa_id', auth()->user()->empresa_id);
+                // Solo limitamos si el usuario actual tiene empresa_id
+                $builder->where($builder->getQuery()->from . '.empresa_id', auth()->user()->empresa_id);
             }
         });
 

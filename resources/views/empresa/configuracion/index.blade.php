@@ -74,10 +74,30 @@
 
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Configuración de Catálogo</label>
-                                <div class="p-3 border rounded-3 bg-light">
+                                <div class="p-3 border rounded-3 bg-light mb-3">
                                     <label class="form-label small">Días etiqueta "Nuevo"</label>
                                     <input type="number" name="dias_nuevo" value="{{ $config->dias_nuevo ?? 7 }}" min="1" max="365" class="form-control shadow-sm">
                                     <small class="text-muted">Tiempo que permanece el cartel de novedad.</small>
+                                </div>
+
+                                <label class="form-label fw-bold">Módulos del Sistema</label>
+                                <div class="p-3 border rounded-3 bg-white shadow-sm border-success border-opacity-25">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="modOrdenPedido" name="mod_orden_pedido" value="1" {{ ($config->mod_orden_pedido ?? false) ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold" for="modOrdenPedido">📦 Órdenes de Pedido</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="modOrdenPedidoExtra" name="mod_orden_pedido_extra" value="1" {{ ($config->mod_orden_pedido_extra ?? false) ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold" for="modOrdenPedidoExtra">🛠️ Datos Extra (Constructivos)</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="modTurnos" name="mod_turnos" value="1" {{ ($config->mod_turnos ?? false) ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold" for="modTurnos">📅 Gestión de Turnos</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="modUnidades" name="mod_unidades_medida" value="1" {{ ($config->mod_unidades_medida ?? false) ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold" for="modUnidades">⚖️ Unidades de Medida</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>

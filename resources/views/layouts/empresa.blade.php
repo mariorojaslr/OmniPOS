@@ -174,12 +174,13 @@ body {
 /* CONTENT LAYOUT */
 #main-content {
     margin-left: var(--sidebar-width);
-    padding-top: calc(var(--navbar-height) + 20px);
+    padding-top: var(--navbar-height);
     min-height: 100vh;
     position: relative;
-    z-index: 1;
     overflow-x: hidden;
     width: calc(100% - var(--sidebar-width));
+    display: flex;
+    flex-direction: column;
 }
 
 .top-bar {
@@ -347,6 +348,7 @@ body {
                 <h6>👥 CARTERA</h6>
                 <div class="submenu-list">
                     <a href="{{ route('empresa.clientes.index') }}" class="submenu-link">📄 Listado de Clientes</a>
+                    <a href="{{ route('empresa.clientes.portal_list') }}" class="submenu-link">🌐 Portal del Cliente</a>
                     <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">💰 Cta. Cte. Clientes</a>
                     <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">🧾 Recibos de Cobro</a>
                     <a href="{{ route('empresa.listados.clientes') }}" class="submenu-link">📋 Padrones</a>
@@ -362,9 +364,14 @@ body {
                 <h6>🚛 GESTIÓN PROVEEDORES</h6>
                 <div class="submenu-list">
                     <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🚚 Mis Proveedores</a>
+                    <a href="{{ route('empresa.proveedores.portal_list') }}" class="submenu-link">🌐 Portal de Proveedores</a>
                     <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Facturas de Compra</a>
                     <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">💳 Cta. Cte. Proveedores</a>
-                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🧾 Recibos de Pago</a>
+                    <a href="{{ route('empresa.recibos-proveedores.index') }}" class="submenu-link">🧾 Recibos de Pago</a>
+                    @if($config?->mod_orden_pedido)
+                        <hr class="my-1 opacity-10">
+                        <a href="{{ route('empresa.ordenes-pedido.index') }}" class="submenu-link fw-bold text-success">📝 Órdenes de Pedido</a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -383,6 +390,25 @@ body {
                 </div>
             </div>
         </div>
+
+        {{-- TURNOS (MODULAR) --}}
+        @if($config?->mod_turnos)
+            <div onclick="window.location='{{ route('empresa.turnos.index') }}'" class="nav-link-item" style="cursor: pointer;">
+                <i class="bi bi-calendar-event" style="color: #00d2ff;"></i>
+                <span class="nav-icon-label">Turnos</span>
+                <div class="floating-balloon">
+                    <h6>📅 RESERVAS</h6>
+                    <div class="submenu-list">
+                        <a href="{{ route('empresa.turnos.index') }}" class="submenu-link">📋 Agenda de Turnos</a>
+                        <a href="{{ route('empresa.turnos.create') }}" class="submenu-link">⚙️ Nuevo Turno</a>
+                        <a href="{{ route('empresa.liquidaciones.index') }}" class="submenu-link">💰 Liquidaciones</a>
+                        <a href="{{ route('empresa.liquidaciones.create') }}" class="submenu-link">⚡ Motor de Pago</a>
+                        <hr class="my-1 border-white border-opacity-10">
+                        <a href="{{ route('empresa.servicios.index') }}" class="submenu-link">💆 Servicios</a>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- REPORTES --}}
         <div onclick="window.location='{{ route('empresa.reportes.panel') }}'" class="nav-link-item" style="cursor: pointer;">
@@ -409,6 +435,9 @@ body {
                 <h6>⚙️ SISTEMA</h6>
                 <div class="submenu-list">
                     <a href="{{ route('empresa.configuracion.index') }}" class="submenu-link">🛠️ Configurar App</a>
+                    @if($config?->mod_unidades_medida)
+                        <a href="{{ route('empresa.units.index') }}" class="submenu-link">⚖️ Unidades de Medida</a>
+                    @endif
                     <a href="{{ route('empresa.backup.index') }}" class="submenu-link">🛡️ Bóveda de Backups</a>
                     <a href="{{ route('empresa.suscripcion.index') }}" class="submenu-link text-primary">⭐ Mi Suscripción</a>
                 </div>
@@ -459,6 +488,47 @@ body {
                 </a>
             @endif
 
+            {{-- NOTIFICACIONES --}}
+            <div class="dropdown">
+                <div class="position-relative cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell fs-5 text-dark opacity-75"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
+                        2
+                    </span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-0 mt-3 overflow-hidden" style="min-width: 300px;">
+                    <li class="bg-light p-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold small text-uppercase">Notificaciones</h6>
+                            <span class="badge bg-primary rounded-pill">2 Nuevas</span>
+                        </div>
+                    </li>
+                    <li class="p-2">
+                        <a class="dropdown-item rounded-3 p-3 d-flex gap-3" href="#">
+                            <div class="bg-success-subtle text-success rounded-circle p-2" style="height: 40px; width: 40px;">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">Copia de Seguridad</div>
+                                <div class="x-small text-muted">Backup completado con éxito hoy.</div>
+                            </div>
+                        </a>
+                        <a class="dropdown-item rounded-3 p-3 d-flex gap-3" href="#">
+                            <div class="bg-warning-subtle text-warning rounded-circle p-2" style="height: 40px; width: 40px;">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">Stock Bajo</div>
+                                <div class="x-small text-muted">Hay 5 artículos por debajo del mínimo.</div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="bg-light p-2 text-center">
+                        <a href="#" class="x-small fw-bold text-decoration-none">Ver todas las notificaciones</a>
+                    </li>
+                </ul>
+            </div>
+
             <div class="dropdown">
                 <div class="d-flex align-items-center gap-3 cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                     <div class="text-end d-none d-md-block">
@@ -472,6 +542,7 @@ body {
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 mt-2" style="min-width: 220px;">
                     <li><h6 class="dropdown-header small text-uppercase fw-800 opacity-50">Mi Usuario</h6></li>
                     <li><a class="dropdown-item rounded-3 py-2" href="#"><i class="bi bi-person me-2"></i> Mi Perfil</a></li>
+                    <li><a class="dropdown-item rounded-3 py-2" href="#"><i class="bi bi-bell me-2"></i> Mis Notificaciones</a></li>
                     <li><a class="dropdown-item rounded-3 py-2" href="{{ route('password.edit') }}"><i class="bi bi-key me-2"></i> Cambiar Contraseña</a></li>
                     <li><a class="dropdown-item rounded-3 py-2" href="{{ route('empresa.configuracion.index') }}"><i class="bi bi-gear me-2"></i> Ajustes App</a></li>
                     @if($user->role === 'owner')
@@ -513,7 +584,7 @@ body {
     </style>
 
     {{-- AREA DE TRABAJO (CONTENIDO REAL) --}}
-    <main class="flex-grow-1 p-3 p-md-4" style="padding-left: 20px !important;">
+    <main class="flex-grow-1 p-3 p-md-4" style="padding-left: 20px !important; padding-top: 25px !important;">
         @yield('content')
     </main>
 </div>

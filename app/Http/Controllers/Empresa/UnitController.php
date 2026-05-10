@@ -28,7 +28,7 @@ class UnitController extends Controller
     {
         $request->validate([
             'name'              => 'required|string|max:255',
-            'short_name'        => 'required|string|max:10',
+            'short_name'        => 'required|regex:/^[a-zA-Z0-9\s.]+$/|max:15',
             'base_unit_id'      => 'nullable|exists:units,id',
             'conversion_factor' => 'nullable|numeric|min:0.0001',
         ]);

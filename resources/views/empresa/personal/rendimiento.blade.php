@@ -1,7 +1,8 @@
 @extends('layouts.empresa')
 
 @php
-    $config = auth()->user()->empresa->config;
+    $empresa = auth()->user()->empresa;
+    $config = $empresa?->config;
     $modoOscuro = ($config?->theme ?? 'light') === 'dark';
 @endphp
 

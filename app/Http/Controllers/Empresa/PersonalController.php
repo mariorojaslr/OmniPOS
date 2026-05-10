@@ -27,17 +27,25 @@ class PersonalController extends Controller
             }])
             ->get()
             ->map(function($user) {
-                // Métricas de ventas en el mes actual
-                $stats = DB::table('ventas')
-                    ->where('user_id', $user->id)
-                    ->whereMonth('created_at', now()->month)
-                    ->whereYear('created_at', now()->year)
-                    ->select(
-                        DB::raw('COUNT(*) as total_trans'),
-                        DB::raw('SUM(total_con_iva) as total_ventas'),
-                        DB::raw('AVG(total_con_iva) as promedio_ticket')
-                    )
-                    ->first();
+                // Métricas de ventas en el mes actual - Manejo defensivo
+                try {
+                    $stats = DB::table('ventas')
+                        ->where('user_id', $user->id)
+                        ->whereMonth('created_at', now()->month)
+                        ->whereYear('created_at', now()->year)
+                        ->select(
+                            DB::raw('COUNT(*) as total_trans'),
+                            DB::raw('SUM(total_con_iva) as total_ventas'),
+                            DB::raw('AVG(total_con_iva) as promedio_ticket')
+                        )
+                        ->first();
+                } catch (\Exception $e) {
+                    $stats = (object)[
+                        'total_ventas' => 0,
+                        'total_trans' => 0,
+                        'promedio_ticket' => 0
+                    ];
+                }
 
                 $user->total_mes = $stats->total_ventas ?? 0;
                 $user->total_trans = $stats->total_trans ?? 0;

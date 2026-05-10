@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\SupplierPortalToken;
 use App\Models\SupplierLedger;
+use App\Models\Supplier;
 
 class SupplierPortalController extends Controller
 {
@@ -17,6 +18,11 @@ class SupplierPortalController extends Controller
         }
 
         $supplier = $portalToken->supplier;
+        
+        if (!$supplier) {
+            abort(404, 'Proveedor no encontrado.');
+        }
+
         $empresa = $supplier->empresa;
         $empresa->load('config');
 
@@ -26,7 +32,7 @@ class SupplierPortalController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        $saldo = $supplier->saldo();
+        $saldo = $supplier->saldo;
 
         return view('supplier_portal.index', compact('supplier', 'empresa', 'movimientos', 'saldo'));
     }

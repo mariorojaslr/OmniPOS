@@ -23,6 +23,11 @@ class ClientPortalController extends Controller
         }
 
         $client = $portalToken->client;
+        
+        if (!$client) {
+            abort(404, 'Cliente no encontrado.');
+        }
+
         $empresa = $client->empresa;
 
         $movimientos = ClientLedger::where('client_id', $client->id)

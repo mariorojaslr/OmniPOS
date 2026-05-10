@@ -127,8 +127,18 @@ class User extends Authenticatable
         return $this->belongsTo(Empresa::class);
     }
 
+    public function profesionalConfig()
+    {
+        return $this->hasOne(ProfesionalConfig::class);
+    }
+
     public function asistencias()
     {
         return $this->hasMany(Asistencia::class);
+    }
+
+    public function turnosProfesional()
+    {
+        return $this->hasMany(Turno::class, 'user_id');
     }
 }

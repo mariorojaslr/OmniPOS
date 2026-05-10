@@ -467,7 +467,7 @@ class ClientController extends Controller
             }
 
             return response()->json([
-                'url' => route('client.portal.index', ['token' => $token->token])
+                'url' => route('client.portal', ['token' => $token->token])
             ]);
         } catch (\Exception $e) {
             \Log::error("Error generando link de portal para cliente {$client->id}: " . $e->getMessage());
@@ -493,5 +493,43 @@ class ClientController extends Controller
             ->paginate(50);
 
         return view('empresa.clientes.portal_list', compact('clientes'));
+    }
+
+    public function quickStore(Request $request)
+    {
+        try {
+            $request->validate([
+                'name'  => 'required|string|max:255',
+                'phone' => 'nullable|string|max:50',
+                'email' => 'nullable|email|max:255',
+                'address' => 'nullable|string|max:255',
+                'lat' => 'nullable',
+                'lng' => 'nullable',
+            ]);
+
+            $cliente = Client::create([
+                'empresa_id' => auth()->user()->empresa_id,
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'address' => $request->address,
+                'lat' => $request->lat,
+                'lng' => $request->lng,
+                'type' => 'consumidor_final',
+                'document' => null,
+                'active' => 1
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'id' => $cliente->id,
+                'name' => $cliente->name
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 422);
+        }
     }
 }

@@ -170,7 +170,7 @@
                             <td class="text-end pe-4 no-print">
                                 <div class="d-flex justify-content-end gap-1">
                                     @if(!$m->paid && $m->reference_type == 'App\Models\Venta' && $m->reference_id)
-                                    <a href="{{ route('client.portal.invoice.pay', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-success btn-mini" style="width: 75px;" target="_blank">
+                                    <a href="{{ route('client.portal.pay_simulator', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-success btn-mini" style="width: 75px;" target="_blank">
                                         PAGAR
                                     </a>
                                     @endif
@@ -178,7 +178,7 @@
                                     <button class="btn btn-outline-secondary btn-mini" style="width: 75px;" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $m->id }}">RECIBOS</button>
                                     
                                     @if($m->reference_type == 'App\Models\Venta' && $m->reference_id)
-                                    <a href="{{ route('client.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" style="width: 90px;" target="_blank">VER FACTURA</a>
+                                    <a href="{{ route('client.portal.invoice', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" style="width: 90px;" target="_blank">VER FACTURA</a>
                                     @endif
                                 </div>
                             </td>
@@ -195,7 +195,7 @@
                                                     <div class="d-flex align-items-center gap-2">
                                                         <span class="fw-bold text-success">${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
                                                         @if($imp->recibo_id)
-                                                        <a href="{{ route('client.portal.receipt.pdf', ['token' => request()->route('token'), 'id' => $imp->recibo_id]) }}" target="_blank" class="text-dark no-print"><i class="fas fa-print"></i></a>
+                                                        <a href="{{ route('client.portal.payment', ['token' => request()->route('token'), 'id' => $imp->recibo_id]) }}" target="_blank" class="text-dark no-print"><i class="fas fa-print"></i></a>
                                                         @endif
                                                     </div>
                                                 </div>

@@ -160,7 +160,7 @@
                                         <i class="fas fa-list-ul me-1"></i> VER PAGOS
                                     </button>
                                     @if($m->reference_type == 'App\Models\Purchase')
-                                    <a href="{{ route('supplier.portal.invoice.pdf', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">FACTURA</a>
+                                    <a href="{{ route('supplier.portal.invoice', ['token' => request()->route('token'), 'id' => $m->reference_id]) }}" class="btn btn-dark btn-mini" target="_blank">FACTURA</a>
                                     @endif
                                 </div>
                             </td>
@@ -182,7 +182,7 @@
                                                         <div class="d-flex align-items-center gap-3">
                                                             <span class="fw-bold text-success" style="font-size: 0.8rem;">Imputado: ${{ number_format($imp->monto_aplicado, 2, ',', '.') }}</span>
                                                             @if($op)
-                                                            <a href="{{ route('supplier.portal.payment.pdf', ['token' => request()->route('token'), 'id' => $op->id]) }}" target="_blank" class="btn btn-link p-0 text-dark no-print" title="Imprimir Recibo">
+                                                            <a href="{{ route('supplier.portal.payment', ['token' => request()->route('token'), 'id' => $op->id]) }}" target="_blank" class="btn btn-link p-0 text-dark no-print" title="Imprimir Recibo">
                                                                 <i class="fas fa-print"></i>
                                                             </a>
                                                             @endif

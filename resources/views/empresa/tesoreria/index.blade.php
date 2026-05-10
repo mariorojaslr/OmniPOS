@@ -111,12 +111,19 @@
                                             </div>
                                             <div>
                                                 <h6 class="fw-bold mb-0 text-dark">{{ $c->nombre }}</h6>
-                                                @if($c->cbu_cvu)<div class="x-small text-muted mt-1 font-monospace opacity-75">{{ $c->cbu_cvu }}</div>@endif
+                                                <div class="x-small text-muted">{{ $c->numero_cuenta ?? 'Sin datos' }}</div>
                                             </div>
                                         </div>
-                                        <div class="text-end">
-                                            <h5 class="fw-bold mb-0 text-dark">${{ number_format($c->saldo_actual, 2, ',', '.') }}</h5>
-                                            <span class="badge bg-light text-muted rounded-pill x-small border px-2 fw-medium">{{ $c->movimientos_count }} movs.</span>
+                                        <div class="d-flex gap-3 align-items-center">
+                                            <div class="text-end">
+                                                <h5 class="fw-bold mb-0 text-dark">${{ number_format($c->saldo_actual, 2, ',', '.') }}</h5>
+                                                <span class="badge bg-light text-muted rounded-pill x-small border px-2 fw-medium">{{ $c->movimientos_count }} movs.</span>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-secondary border-0 p-1" 
+                                                    onclick="abrirModalEditar('{{ $c->id }}', '{{ $c->nombre }}', '{{ $c->numero_cuenta }}', '{{ $c->cbu_cvu }}')"
+                                                    title="Editar Alias/Datos">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -168,7 +175,7 @@
                                     <td>
                                         <div class="small text-dark fw-medium">{{ $m->concepto }}</div>
                                         @if($m->tipo == 'ingreso')
-                                            <span class="x-small text-success fw-bold text-uppercase">Entrata <i class="bi bi-arrow-up-right"></i></span>
+                                            <span class="x-small text-success fw-bold text-uppercase">Entrada <i class="bi bi-arrow-up-right"></i></span>
                                         @else
                                             <span class="x-small text-danger fw-bold text-uppercase">Salida <i class="bi bi-arrow-down-left"></i></span>
                                         @endif
@@ -248,6 +255,62 @@
         </div>
     </div>
 </div>
+
+{{-- MODAL EDITAR CUENTA --}}
+<div class="modal fade" id="modalEditarCuenta" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-primary text-white p-4 border-0">
+                <h5 class="modal-title fw-bold">Editar Fuente / Alias</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarCuenta" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body p-4 bg-light">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 mb-3">
+                        <div class="mb-3">
+                            <label class="small text-muted fw-bold text-uppercase mb-1 ls-1">Alias / Nombre</label>
+                            <input type="text" name="nombre" id="edit_nombre" class="form-control border-0 bg-light rounded-pill px-3 fw-bold" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-muted fw-bold text-uppercase mb-1 ls-1">Número de Cuenta</label>
+                            <input type="text" name="numero_cuenta" id="edit_numero" class="form-control border-0 bg-light rounded-pill px-3 font-monospace">
+                        </div>
+                        <div class="mb-0">
+                            <label class="small text-muted fw-bold text-uppercase mb-1 ls-1">CBU / CVU</label>
+                            <input type="text" name="cbu_cvu" id="edit_cbu" class="form-control border-0 bg-light rounded-pill px-3 font-monospace">
+                        </div>
+                    </div>
+                    <p class="small text-muted text-center px-3 mt-2">
+                        <i class="bi bi-info-circle me-1"></i> El saldo no puede editarse manualmente por seguridad; debe registrar un movimiento de ajuste.
+                    </p>
+                </div>
+                <div class="modal-footer border-0 p-4 bg-white">
+                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm scale-up">
+                        GUARDAR CAMBIOS <i class="bi bi-floppy ms-1"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    function abrirModalEditar(id, nombre, numero, cbu) {
+        let form = document.getElementById('formEditarCuenta');
+        form.action = `/empresa/tesoreria/cuentas/${id}`;
+        
+        document.getElementById('edit_nombre').value = nombre;
+        document.getElementById('edit_numero').value = numero;
+        document.getElementById('edit_cbu').value = cbu;
+
+        let modal = new bootstrap.Modal(document.getElementById('modalEditarCuenta'));
+        modal.show();
+    }
+</script>
+@endpush
 
 <style>
     .x-small { font-size: 0.65rem; }

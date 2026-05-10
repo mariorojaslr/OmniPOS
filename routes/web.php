@@ -48,15 +48,15 @@ use App\Http\Controllers\Empresa\ListadoController;
 // ================= AUTH =================
 use App\Http\Controllers\Auth\PasswordController;
 
-// ================= CATÁLOGO =================
+// ================= CATÃLOGO =================
 use App\Http\Controllers\CatalogController;
 
-/* |-------------------------------------------------------------------------- | RUTA RAÍZ Y CATÁLOGO (PÚBLICO) |-------------------------------------------------------------------------- */
+/* |-------------------------------------------------------------------------- | RUTA RAÃZ Y CATÃLOGO (PÃšBLICO) |-------------------------------------------------------------------------- */
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/c/{empresa}', [CatalogController::class , 'index'])->name('catalog.index');
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class , 'show'])->name('catalog.show');
 
-// MODO DEMO (PUESTA EN MARCHA RÁPIDA - REEMPLAZADO POR DEMO EXPERIENCE)
+// MODO DEMO (PUESTA EN MARCHA RÃPIDA - REEMPLAZADO POR DEMO EXPERIENCE)
 // Route::get('/demo-mode', [DemoController::class, 'enter'])->name('demo.mode');
 
 /* |-------------------------------------------------------------------------- | AUTH (BREEZE) |-------------------------------------------------------------------------- */
@@ -72,7 +72,7 @@ Route::middleware('auth')->group(function() {
         return redirect()->route('empresa.dashboard');
     })->name('dashboard');
 
-    // SALIDA DE MIMETIZACIÓN (ÚNICA Y GLOBAL)
+    // SALIDA DE MIMETIZACIÃ“N (ÃšNICA Y GLOBAL)
     Route::get('/return-to-owner', function(Request $request){
         if(session()->has('impersonator_id')){
             $ownerId = session()->pull('impersonator_id');
@@ -81,7 +81,7 @@ Route::middleware('auth')->group(function() {
             if($owner) {
                 Auth::login($owner);
                 $request->session()->regenerate();
-                return redirect()->route('owner.dashboard')->with('success', 'Has vuelto a tu sesión de Propietario');
+                return redirect()->route('owner.dashboard')->with('success', 'Has vuelto a tu sesiÃ³n de Propietario');
             }
         }
         return redirect('/');
@@ -92,7 +92,7 @@ Route::middleware('auth')->group(function() {
     Route::post('/help/save', [App\Http\Controllers\HelpArticleController::class, 'save'])->name('help.save');
 });
 
-/* |-------------------------------------------------------------------------- | OWNER (ADMINISTRACIÓN MASTER) |-------------------------------------------------------------------------- */
+/* |-------------------------------------------------------------------------- | OWNER (ADMINISTRACIÃ“N MASTER) |-------------------------------------------------------------------------- */
 Route::middleware(['auth', 'owner'])
     ->prefix('owner')
     ->name('owner.')
@@ -100,10 +100,10 @@ Route::middleware(['auth', 'owner'])
 
         Route::get('/dashboard', [OwnerDashboardController::class , 'index'])->name('dashboard')->middleware('can:isOwner');
         
-        // MIMETIZACIÓN (Ruta Única Anti-Conflicto)
+        // MIMETIZACIÃ“N (Ruta Ãšnica Anti-Conflicto)
         Route::get('/mimetizar/empresa/{empresaId}/usuario/{usuario}', [App\Http\Controllers\Owner\EmpresaUserController::class, 'impersonate'])->name('empresas.users.impersonate');
 
-        // GESTIÓN DE USUARIOS DE EMPRESA (Restaurado Full - Usa {empresaId} para evitar slug binding)
+        // GESTIÃ“N DE USUARIOS DE EMPRESA (Restaurado Full - Usa {empresaId} para evitar slug binding)
         Route::get('empresas/{empresaId}/users', [EmpresaUserController::class , 'index'])->name('empresas.users.index');
         Route::get('empresas/{empresaId}/users/create', [EmpresaUserController::class , 'create'])->name('empresas.users.create');
         Route::post('empresas/{empresaId}/users', [EmpresaUserController::class , 'store'])->name('empresas.users.store');
@@ -142,7 +142,7 @@ Route::middleware(['auth', 'owner'])
     });
 
 
-/* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÓN (LEAD MAGNET) |-------------------------------------------------------------------------- */
+/* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÃ“N (LEAD MAGNET) |-------------------------------------------------------------------------- */
 Route::get('/demo-experience', function() {
     
     // 1. Buscamos la Empresa de prueba (ID 1 por defecto en el sistema de desarrollo)
@@ -174,7 +174,7 @@ Route::get('/demo-experience', function() {
         ]
     );
 
-    // 3. Login automático y redirección instantánea
+    // 3. Login automÃ¡tico y redirecciÃ³n instantÃ¡nea
     \Illuminate\Support\Facades\Auth::login($demoUser);
     
     return redirect()->route('empresa.dashboard')->with('success', 'Bienvenido al Modo Demo. Explora todas las funciones libremente.');
@@ -182,7 +182,7 @@ Route::get('/demo-experience', function() {
 })->name('demo.mode');
 
 
-/* |-------------------------------------------------------------------------- | ONBOARDING COMERCIAL (PRE-ACTIVACIÓN) |-------------------------------------------------------------------------- */
+/* |-------------------------------------------------------------------------- | ONBOARDING COMERCIAL (PRE-ACTIVACIÃ“N) |-------------------------------------------------------------------------- */
 Route::middleware(['auth'])->group(function () {
     Route::get('/registro-paso-2', [App\Http\Controllers\Auth\RegisteredUserController::class, 'paymentPage'])->name('register.pay');
     Route::post('/registro-voucher', [App\Http\Controllers\Auth\RegisteredUserController::class, 'processPayment'])->name('register.payment.store');
@@ -220,11 +220,14 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      */
         Route::get('clientes/export', [ClientController::class , 'export'])->name('clientes.export');
         Route::post('clientes/import', [ClientController::class , 'import'])->name('clientes.import');
+        Route::post('clientes/quick-store', [ClientController::class, 'quickStore'])->name('clientes.quick-store');
         Route::resource('clientes', ClientController::class)->except(['destroy', 'show']);
         Route::get('clientes/{client}', [App\Http\Controllers\Empresa\ClientAccountController::class, 'show'])->name('clientes.show');
         Route::post('clientes/{client}/recibos', [App\Http\Controllers\Empresa\ClientAccountController::class, 'storeReceipt'])->name('clientes.recibos.store');
         Route::post('clientes/{client}/aplicar-saldo', [App\Http\Controllers\Empresa\ClientAccountController::class, 'aplicarSaldoAFavor'])->name('clientes.aplicar_saldo');
         Route::get('clientes/{client}/deudas', [App\Http\Controllers\Empresa\ClientAccountController::class, 'apiGetDeudas'])->name('clientes.deudas.api');
+        Route::get('clientes-portal', [ClientController::class, 'portalList'])->name('clientes.portal_list');
+        Route::get('clientes/{client}/portal-link', [ClientController::class, 'getPortalLink'])->name('clientes.portal_link');
 
         /*
      |--------------------------------------------------------------------------
@@ -246,7 +249,15 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('proveedores/cheques', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'chequesIndex'])->name('proveedores.cheques');
         Route::get('proveedores/{supplier}/cta_cte', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'show'])->name('proveedores.show');
         Route::post('proveedores/{supplier}/pagos', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'storePayment'])->name('proveedores.pagos.store');
+        Route::get('proveedores/pagos/{orden}/pdf', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'downloadPayment'])->name('proveedores.pagos.pdf');
+        
+        // GESTIÓN DE RECIBOS DE PROVEEDORES (NUEVO)
+        Route::resource('recibos-proveedores', App\Http\Controllers\Empresa\OrdenPagoController::class)->names('recibos-proveedores')->only(['index', 'create', 'store']);
+        Route::get('api/supplier-deuda/{supplier}', [App\Http\Controllers\Empresa\OrdenPagoController::class, 'getDeudaApi'])->name('api.supplier_deuda');
+        
         Route::resource('proveedores', SupplierController::class)->except(['destroy', 'show']);
+        Route::get('proveedores-portal', [SupplierController::class, 'portalList'])->name('proveedores.portal_list');
+        Route::get('proveedores/{supplier}/portal-link', [SupplierController::class, 'getPortalLink'])->name('proveedores.portal_link');
 
         /*
       |--------------------------------------------------------------------------
@@ -256,6 +267,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('tesoreria', [App\Http\Controllers\Empresa\TesoreriaController::class, 'index'])->name('tesoreria.index');
         Route::get('tesoreria/proyeccion', [App\Http\Controllers\Empresa\TesoreriaController::class, 'proyeccion'])->name('tesoreria.proyeccion');
         Route::post('tesoreria/cuentas', [App\Http\Controllers\Empresa\TesoreriaController::class, 'storeCuenta'])->name('tesoreria.cuentas.store');
+        Route::put('tesoreria/cuentas/{id}', [App\Http\Controllers\Empresa\TesoreriaController::class, 'updateCuenta'])->name('tesoreria.cuentas.update');
         Route::post('tesoreria/bank-accounts', [App\Http\Controllers\Empresa\TesoreriaController::class, 'storeBankAccount'])->name('tesoreria.bank-accounts.store');
         
         Route::get('tesoreria/cheques', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'chequesIndex'])->name('tesoreria.cheques.index');
@@ -293,7 +305,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         /*
      |--------------------------------------------------------------------------
-     | CONFIGURACIÓN EMPRESA Y SOPORTE
+     | CONFIGURACIÃ“N EMPRESA Y SOPORTE
      |--------------------------------------------------------------------------
      */
         Route::get('/configuracion', [ConfiguracionEmpresaController::class , 'index'])->name('configuracion.index');
@@ -303,12 +315,12 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/configuracion/descargar-cert/{type}', [ConfiguracionEmpresaController::class, 'downloadCert'])->name('configuracion.download_cert');
         Route::get('/tax/search-cuit', [ConfiguracionEmpresaController::class, 'searchByCuit'])->name('tax.search_cuit');
 
-        // MI SUSCRIPCIÓN (SaaS CLIENT PORTAL)
+        // MI SUSCRIPCIÃ“N (SaaS CLIENT PORTAL)
         Route::get('/mi-suscripcion', [\App\Http\Controllers\Empresa\SuscripcionController::class, 'index'])->name('suscripcion.index');
         Route::post('/mi-suscripcion/pago', [\App\Http\Controllers\Empresa\SuscripcionController::class, 'reportPayment'])->name('suscripcion.pago');
 
 
-        // BÓVEDA DE RESGUARDO (BACKUPS)
+        // BÃ“VEDA DE RESGUARDO (BACKUPS)
         Route::get('/backup', [App\Http\Controllers\Empresa\BackupController::class, 'index'])->name('backup.index');
         Route::get('/backup/download', [App\Http\Controllers\Empresa\BackupController::class, 'download'])->name('backup.download');
 
@@ -332,7 +344,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::resource('units', App\Http\Controllers\Empresa\UnitController::class)->names('units');
         Route::get('/faltantes', [ReplenishmentController::class , 'index'])->name('stock.faltantes');
 
-        // PRODUCCIÓN Y RECETAS (BOM)
+        // PRODUCCIÃ“N Y RECETAS (BOM)
         Route::resource('recipes', RecipeController::class);
         Route::post('/recipes/{recipe}/add-item', [RecipeController::class, 'addItem'])->name('recipes.addItem');
         Route::post('/recipes/{recipe}/produce', [RecipeController::class, 'produce'])->name('recipes.produce');
@@ -355,6 +367,8 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::patch('/usuarios/{usuario}', [UsuarioController::class , 'update'])->name('usuarios.update');
         Route::patch('/usuarios/{usuario}/toggle', [UsuarioController::class , 'toggle'])->name('usuarios.toggle');
         Route::patch('/usuarios/{usuario}/reset-password', [UsuarioController::class , 'resetPassword'])->name('usuarios.reset');
+        Route::get('/usuarios/{user}/config-profesional', [App\Http\Controllers\Empresa\ProfessionalConfigController::class, 'edit'])->name('usuarios.config-profesional.edit');
+        Route::post('/usuarios/{user}/config-profesional', [App\Http\Controllers\Empresa\ProfessionalConfigController::class, 'update'])->name('usuarios.config-profesional.update');
 
 
         /*
@@ -389,7 +403,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('products/export', [ProductController::class , 'export'])->name('products.export');
         Route::post('products/import', [ProductController::class , 'import'])->name('products.import');
         
-        // Actualización masiva de precios
+        // ActualizaciÃ³n masiva de precios
         Route::get('products/bulk-price-update', [BulkPriceUpdateController::class, 'index'])->name('products.bulk-price-update');
         Route::post('products/bulk-price-update', [BulkPriceUpdateController::class, 'update'])->name('products.bulk-price-update.update');
 
@@ -398,7 +412,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('labels-hub', [LabelController::class, 'index'])->name('labels.index');
         Route::post('labels-hub/generate', [LabelController::class, 'generate'])->name('labels.generate');
 
-        // INVENTARIO MÓVIL (ESCÁNER)
+        // INVENTARIO MÃ“VIL (ESCÃNER)
         Route::get('inventory/scan', [App\Http\Controllers\Empresa\InventoryController::class, 'index'])->name('inventory_scan');
         Route::post('inventory/adjust', [App\Http\Controllers\Empresa\InventoryController::class, 'adjust'])->name('inventory_adjust');
         
@@ -432,7 +446,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         /*
      |--------------------------------------------------------------------------
-     | LOGÍSTICA / REMITOS (Pilar 1)
+     | LOGÃSTICA / REMITOS (Pilar 1)
      |--------------------------------------------------------------------------
      */
         Route::get('/ventas/{venta}/entregar', [App\Http\Controllers\Empresa\RemitoController::class, 'create'])->name('ventas.entregar');
@@ -448,14 +462,14 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         /*
      |--------------------------------------------------------------------------
-     | INTELIGENCIA LOGÍSTICA (Pilar 1 - Reportes Globales)
+     | INTELIGENCIA LOGÃSTICA (Pilar 1 - Reportes Globales)
      |--------------------------------------------------------------------------
      */
         Route::get('/logistica/reporte', [App\Http\Controllers\Empresa\LogisticaController::class, 'index'])->name('logistica.reporte');
 
         /*
      |--------------------------------------------------------------------------
-     | GESTIÓN DE PERSONAL (Pilar 2 - Rendimiento Operativo)
+     | GESTIÃ“N DE PERSONAL (Pilar 2 - Rendimiento Operativo)
      |--------------------------------------------------------------------------
      */
         Route::get('/personal/rendimiento', [App\Http\Controllers\Empresa\PersonalController::class, 'index'])->name('personal.rendimiento');
@@ -465,17 +479,17 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('/personal/check-in', [App\Http\Controllers\Empresa\AsistenciaController::class, 'checkIn'])->name('personal.checkin');
         Route::post('/personal/check-out', [App\Http\Controllers\Empresa\AsistenciaController::class, 'checkOut'])->name('personal.checkout');
 
-        // GESTIÓN DE PUNTOS DE FICHAJE (QR)
+        // GESTIÃ“N DE PUNTOS DE FICHAJE (QR)
         Route::get('/personal/asistencia/qr-management', [App\Http\Controllers\Empresa\AsistenciaQrController::class, 'showQr'])->name('personal.asistencia.qr');
         Route::get('/personal/asistencia/qr/{slug}', [App\Http\Controllers\Empresa\AsistenciaQrController::class, 'qrRegistro'])->name('personal.asistencia.qr-registro')->withoutMiddleware(['auth', 'empresa', 'empresa.activa']);
 
-        // AUDITORÍA DE CAJAS (Pilar 2)
+        // AUDITORÃA DE CAJAS (Pilar 2)
         Route::get('/personal/cajas', [App\Http\Controllers\Empresa\CajaAuditoriaController::class, 'index'])->name('personal.cajas.index');
         Route::get('/personal/cajas/{cierre}', [App\Http\Controllers\Empresa\CajaAuditoriaController::class, 'show'])->name('personal.cajas.show');
 
 
 
-        // GASTO RÁPIDO (App Móvil para Campo)
+        // GASTO RÃPIDO (App MÃ³vil para Campo)
         Route::get('/personal/gastos/rapido', [App\Http\Controllers\Empresa\GastoRapidoController::class, 'create'])->name('gastos.quick');
         Route::post('/personal/gastos/rapido', [App\Http\Controllers\Empresa\GastoRapidoController::class, 'store'])->name('gastos.store-quick');
 
@@ -485,7 +499,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/listados/clientes', [App\Http\Controllers\Empresa\ListadoController::class, 'clientes'])->name('listados.clientes');
         Route::get('/listados/cheques', [App\Http\Controllers\Empresa\ListadoController::class, 'cheques'])->name('listados.cheques');
 
-        // UTILIDADES GPS (Dashboard Logístico)
+        // UTILIDADES GPS (Dashboard LogÃ­stico)
         Route::get('/gps', [App\Http\Controllers\Empresa\GpsController::class, 'index'])->name('gps.index');
         Route::get('/gps/rutas', [App\Http\Controllers\Empresa\GpsController::class, 'rutas'])->name('gps.rutas');
         Route::get('/gps/search', [App\Http\Controllers\Empresa\GpsController::class, 'searchEntities'])->name('gps.search');
@@ -507,7 +521,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         /*
      |--------------------------------------------------------------------------
-     | PEDIDOS POR CATÁLOGO
+     | PEDIDOS POR CATÃLOGO
      |--------------------------------------------------------------------------
      */
         Route::get('/pedidos', [OrderController::class, 'index'])->name('orders.index');
@@ -518,7 +532,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
 
         /*
      |--------------------------------------------------------------------------
-     | ÓRDENES DE PEDIDO A PROVEEDORES
+     | Ã“RDENES DE PEDIDO A PROVEEDORES
      |--------------------------------------------------------------------------
      */
         Route::get('/ordenes-pedido', [\App\Http\Controllers\Empresa\OrdenPedidoController::class, 'index'])->name('ordenes-pedido.index');
@@ -528,10 +542,19 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('/ordenes-pedido/{id}/convertir', [\App\Http\Controllers\Empresa\OrdenPedidoController::class, 'convertToPurchase'])->name('ordenes-pedido.convertir');
         Route::get('/ordenes-pedido/api/last-price', [\App\Http\Controllers\Empresa\OrdenPedidoController::class, 'getLastPrice'])->name('ordenes-pedido.last-price');
 
+        // GESTIÓN DE TURNOS (NUEVO MODULAR)
+        Route::get('turnos/events', [\App\Http\Controllers\Empresa\TurnoController::class, 'events'])->name('turnos.events');
+        Route::resource('turnos', \App\Http\Controllers\Empresa\TurnoController::class);
+        Route::resource('servicios', \App\Http\Controllers\Empresa\ServicioController::class);
+
+        // LIQUIDACIONES A PROFESIONALES (NUEVO)
+        Route::get('liquidaciones/pendientes', [\App\Http\Controllers\Empresa\LiquidacionController::class, 'getPendientes'])->name('liquidaciones.pendientes');
+        Route::resource('liquidaciones', \App\Http\Controllers\Empresa\LiquidacionController::class);
+
     });
 
 
-/* |-------------------------------------------------------------------------- | PORTALES PÚBLICOS (PROVEEDORES Y CLIENTES) |-------------------------------------------------------------------------- */
+/* |-------------------------------------------------------------------------- | PORTALES PÃšBLICOS (PROVEEDORES Y CLIENTES) |-------------------------------------------------------------------------- */
 Route::get('/portal/proveedor/{token}', [\App\Http\Controllers\SupplierPortalController::class, 'index'])->name('supplier.portal');
 Route::get('/portal/proveedor/{token}/invoice/{id}', [\App\Http\Controllers\SupplierPortalController::class, 'downloadInvoice'])->name('supplier.portal.invoice');
 Route::get('/portal/proveedor/{token}/payment/{id}', [\App\Http\Controllers\SupplierPortalController::class, 'downloadPayment'])->name('supplier.portal.payment');
@@ -541,7 +564,7 @@ Route::get('/portal/cliente/{token}/invoice/{id}', [\App\Http\Controllers\Client
 Route::get('/portal/cliente/{token}/payment/{id}', [\App\Http\Controllers\ClientPortalController::class, 'downloadPayment'])->name('client.portal.payment');
 Route::get('/portal/cliente/{token}/simular-pago', [\App\Http\Controllers\ClientPortalController::class, 'paySimulator'])->name('client.portal.pay_simulator');
 
-/* |-------------------------------------------------------------------------- | CATÁLOGO PÚBLICO |-------------------------------------------------------------------------- */
+/* |-------------------------------------------------------------------------- | CATÃLOGO PÃšBLICO |-------------------------------------------------------------------------- */
 Route::get('/c/{empresa}', [CatalogController::class , 'index'])->name('catalog.index');
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class , 'show'])->name('catalog.show');
 
@@ -583,7 +606,7 @@ Route::post('/cart/add/{product}', [CartController::class , 'add'])->name('cart.
 Route::delete('/cart/remove/{id}', [CartController::class , 'remove'])->name('cart.remove');
 Route::patch('/cart/update/{id}', [CartController::class , 'update'])->name('cart.update');
 
-/* |-------------------------------------------------------------------------- | LOCAL MEDIA FALLBACK  |-------------------------------------------------------------------------- | Ruta de emergencia que sirve el archivo de forma directa a través | de PHP para saltarse el bloqueo de Symphly Links de Hostinger. */
+/* |-------------------------------------------------------------------------- | LOCAL MEDIA FALLBACK  |-------------------------------------------------------------------------- | Ruta de emergencia que sirve el archivo de forma directa a travÃ©s | de PHP para saltarse el bloqueo de Symphly Links de Hostinger. */
 Route::get('/local-media/{path}', function ($path) {
     if (strpos($path, '..') !== false) {
         abort(404);
@@ -600,7 +623,7 @@ Route::get('/local-media/{path}', function ($path) {
         abort(404);
     }
 
-    // Usamos una detección de MIME más robusta (no depende de extensiones de PHP que pueden faltar)
+    // Usamos una detecciÃ³n de MIME mÃ¡s robusta (no depende de extensiones de PHP que pueden faltar)
     $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
     $mimes = [
         'png'  => 'image/png',
@@ -612,7 +635,7 @@ Route::get('/local-media/{path}', function ($path) {
     ];
     $contentType = $mimes[$extension] ?? 'image/png';
 
-    // Desactivamos caché para evitar ver logos viejos tras subir uno nuevo
+    // Desactivamos cachÃ© para evitar ver logos viejos tras subir uno nuevo
     return response()->file($fullPath, [
         'Content-Type' => $contentType,
         'Cache-Control' => 'no-cache, no-store, must-revalidate',
@@ -621,12 +644,17 @@ Route::get('/local-media/{path}', function ($path) {
     ]);
 })->where('path', '.*')->name('local.media');
 
-// RUTA PÚBLICA PARA ESCANEO POR QR (SIN AUTH)
+// RUTA PÃšBLICA PARA ESCANEO POR QR (SIN AUTH)
 Route::get('v/inv/{uuid}', [App\Http\Controllers\Empresa\InventoryController::class, 'guestAccess'])->name('inventory.guest-access');
 Route::post('v/inv/adjust', [App\Http\Controllers\Empresa\InventoryController::class, 'adjust'])->name('inventory.guest-adjust');
 
-// 🚨 RUTA DE EMERGENCIA PARA REPARAR RUTAS EN PRODUCCIÓN 🚨
+// ðŸš¨ RUTA DE EMERGENCIA PARA REPARAR RUTAS EN PRODUCCIÃ“N ðŸš¨
 Route::get('/reparar-rutas', function() {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-    return "✅ Rutas y Caché de Producción actualizadas con éxito. Ya podés entrar al sistema.";
+    return "âœ… Rutas y CachÃ© de ProducciÃ³n actualizadas con Ã©xito. Ya podÃ©s entrar al sistema.";
 });
+
+// PORTAL INDIVIDUAL PARA PROFESIONALES (ACCESO POR TOKEN)
+Route::get('/portal/profesional/{token}', [App\Http\Controllers\ProfessionalPortalController::class, 'index'])->name('portal.profesional.index');
+Route::post('/portal/profesional/complete/{id}', [App\Http\Controllers\ProfessionalPortalController::class, 'completeTurno'])->name('portal.profesional.complete');
+

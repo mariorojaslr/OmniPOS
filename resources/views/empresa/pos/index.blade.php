@@ -17,7 +17,7 @@
 .venta-row:nth-child(odd){background:#f0f7ff}
 
 .qty-box{display:flex;gap:4px;justify-content:center}
-.qty-box input{width:38px;text-align:center;font-size:12px;padding:2px;border:1px solid #ced4da;border-radius:4px}
+.qty-box input{width:65px;text-align:center;font-size:12px;padding:2px;border:1px solid #ced4da;border-radius:4px}
 
 .trash-btn{border:1px solid #dc3545;color:#dc3545;background:none;font-size:12px;padding:2px 6px;border-radius:4px;transition:.2s}
 .trash-btn:hover{background:#dc3545;color:#fff}
@@ -405,7 +405,7 @@ total+=sub;
 
         <div class="qty-box">
         <button onclick="changeQty('${id}',-1)">-</button>
-        <input value="${p.qty}" onchange="setQty('${id}',this.value)">
+        <input type="number" step="0.0001" value="${p.qty}" onchange="setQty('${id}',this.value)">
         <button onclick="changeQty('${id}',1)">+</button>
         </div>
 
@@ -434,7 +434,7 @@ function changeQty(id,d){
 }
 
 function setQty(id,v){
-    v=parseInt(v);
+    v=parseFloat(v);
     if(cart[id]){
         if(v<=0)delete cart[id];
         else cart[id].qty=v;
@@ -657,7 +657,7 @@ function renderRemitoItems() {
                        value="${item.qty}" 
                        min="0" 
                        max="${item.qty}" 
-                       step="0.01">
+                       step="0.0001">
             </div>
         `;
         list.appendChild(div);

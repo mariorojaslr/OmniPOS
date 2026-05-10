@@ -49,6 +49,11 @@ class Supplier extends Model
         return $this->morphMany(BankAccount::class, 'holder');
     }
 
+    public function portalToken()
+    {
+        return $this->hasOne(SupplierPortalToken::class, 'supplier_id');
+    }
+
 
     /*
     |--------------------------------------------------------------------------

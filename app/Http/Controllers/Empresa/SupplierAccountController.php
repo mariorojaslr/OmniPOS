@@ -147,6 +147,38 @@ class SupplierAccountController extends Controller
             return back()->with('error', "Error al registrar el pago: " . $e->getMessage());
         }
     }
+
+    /**
+     * Descarga el PDF de una Orden de Pago (Recibo de Proveedor)
+     */
+    public function downloadPayment(OrdenPago $orden)
+    {
+        $empresa = Auth::user()->empresa;
+
+        if ($orden->empresa_id !== $empresa->id) {
+            abort(403);
+        }
+
+        $orden->load(['supplier', 'pagos.cheque', 'imputaciones.ledger', 'user']);
+
+        // Lógica de Logo
+        $logoBase64 = null;
+        if ($empresa->config && $empresa->config->logo) {
+            try {
+                $path = storage_path('app/public/' . $empresa->config->logo);
+                if (file_exists($path)) {
+                    $type = pathinfo($path, PATHINFO_EXTENSION);
+                    $data = file_get_contents($path);
+                    $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                }
+            } catch (\Exception $e) {}
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('empresa.pagos.print_op', compact('orden', 'empresa', 'logoBase64'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download("OrdenPago_{$orden->numero_orden}.pdf");
+    }
     
     /**
      * Listado global de cheques (Cartera de Cheques)

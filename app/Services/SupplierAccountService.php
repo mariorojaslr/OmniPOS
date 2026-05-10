@@ -25,6 +25,9 @@ class SupplierAccountService
 
         return DB::transaction(function () use ($supplierId, $monto, $fecha, $empresaId, $user, $pagosDiferenciados, $comprasEspecificas, $autoImputar) {
             
+            // 0. Obtener proveedor para descripción
+            $supplier = Supplier::find($supplierId);
+            
             if (!empty($pagosDiferenciados)) {
                 $monto = 0;
                 foreach ($pagosDiferenciados as $p) {
@@ -109,7 +112,6 @@ class SupplierAccountService
             }
 
             // 4. Registrar en el Ledger del Proveedor
-            $supplier = Supplier::find($supplierId);
             $movimientoPago = SupplierLedger::create([
                 'empresa_id'     => $empresaId,
                 'supplier_id'    => $supplierId,

@@ -308,7 +308,7 @@ class SupplierController extends Controller
             }
 
             return response()->json([
-                'url' => route('supplier.portal.index', ['token' => $token->token])
+                'url' => route('supplier.portal', ['token' => $token->token])
             ]);
         } catch (\Exception $e) {
             \Log::error("Error generando link de portal para proveedor {$supplier->id}: " . $e->getMessage());

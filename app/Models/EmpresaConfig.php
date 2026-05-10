@@ -15,6 +15,10 @@ class EmpresaConfig extends Model
         'color_secondary',
         'theme',
         'dias_nuevo',
+        'mod_orden_pedido',
+        'mod_orden_pedido_extra',
+        'mod_turnos',
+        'mod_unidades_medida',
     ];
 
     /*

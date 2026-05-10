@@ -101,6 +101,16 @@ class Empresa extends Model
         return $this->hasMany(\App\Models\Presupuesto::class);
     }
 
+    public function turnos()
+    {
+        return $this->hasMany(\App\Models\Turno::class);
+    }
+
+    public function servicios()
+    {
+        return $this->hasMany(\App\Models\Servicio::class);
+    }
+
     public function products()
     {
         return $this->hasMany(\App\Models\Product::class);
