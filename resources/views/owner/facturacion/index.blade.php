@@ -1,81 +1,171 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="row align-items-center mb-4">
-    <div class="col">
-        <h4 class="fw-bold mb-0">Sistema de Facturación</h4>
-        <p class="text-muted mb-0">Historial de pagos y suscripciones de las empresas.</p>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h2 class="text-white fw-bold">Gestión de Facturación Central</h2>
+            <a href="{{ route('owner.facturacion.create') }}" class="btn btn-primary px-4 shadow-sm">
+                <i class="fas fa-plus me-2"></i> Registrar Pago Manual
+            </a>
+        </div>
     </div>
-    <div class="col-auto">
-        {{-- <a href="{{ route('owner.facturacion.create') }}" class="btn btn-primary shadow-sm rounded-pill px-4">
-            + Registrar Pago
-        </a> --}}
-    </div>
-</div>
 
-<div class="card shadow-sm border-0 rounded-4">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4">Fecha</th>
-                        <th>Empresa</th>
-                        <th>Plan</th>
-                        <th>Método</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                        <th>Comprobante</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($pagos as $pago)
-                    <tr>
-                        <td class="ps-4">{{ $pago->fecha_pago->format('d/m/Y') }}</td>
-                        <td>
-                            <strong class="d-block text-dark">{{ $pago->empresa->nombre_comercial }}</strong>
-                            <small class="text-muted">{{ $pago->empresa->status }}</small>
-                        </td>
-                        <td>
-                            @if($pago->plan)
-                                <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 px-2 py-1 rounded-pill small fw-bold">
-                                    {{ $pago->plan->name }}
-                                </span>
-                            @else
-                                <span class="text-muted small italic">Sin Plan</span>
-                            @endif
-                        </td>
-                        <td>
-                            <span class="text-uppercase fw-bold text-dark" style="font-size: 0.75rem;">{{ $pago->metodo }}</span>
-                        </td>
-                        <td>
-                            <strong class="text-success" style="letter-spacing: -0.5px;">${{ number_format($pago->monto, 0, ',', '.') }}</strong>
-                        </td>
-                        <td>
-                            @if($pago->estado == 'aprobado' || $pago->estado == 'activa')
-                                <span class="badge bg-success-subtle text-success border border-success border-opacity-25 px-2 py-1 pb-1 rounded-pill fw-bold">PAGO APROBADO</span>
-                            @elseif($pago->estado == 'pendiente')
-                                <span class="badge bg-warning-subtle text-warning border border-warning border-opacity-25 px-2 py-1 pb-1 rounded-pill">PENDIENTE</span>
-                            @else
-                                <span class="badge bg-danger-subtle text-danger border border-danger border-opacity-25 px-2 py-1 pb-1 rounded-pill text-uppercase">{{ $pago->estado }}</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($pago->nro_comprobante)
-                                <code class="bg-light px-2 py-1 rounded border text-primary small fw-bold">{{ $pago->nro_comprobante }}</code>
-                            @else
-                                <span class="text-muted opacity-50">-</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">No hay pagos registrados aún.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <!-- KPIs Superiores -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-dark border-secondary shadow-lg">
+                <div class="card-body">
+                    <h6 class="text-secondary text-uppercase small fw-bold">Empresas Activas</h6>
+                    <h3 class="text-white mb-0">{{ $empresas->where('activo', true)->count() }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark border-secondary shadow-lg">
+                <div class="card-body">
+                    <h6 class="text-secondary text-uppercase small fw-bold">Vencidas / Morosas</h6>
+                    <h3 class="text-danger mb-0">{{ $empresas->where('dias_para_vencer', '<', 0)->count() }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark border-secondary shadow-lg">
+                <div class="card-body">
+                    <h6 class="text-secondary text-uppercase small fw-bold">Por vencer (7 días)</h6>
+                    <h3 class="text-warning mb-0">{{ $empresas->whereBetween('dias_para_vencer', [0, 7])->count() }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark border-secondary shadow-lg">
+                <div class="card-body">
+                    <h6 class="text-secondary text-uppercase small fw-bold">Recaudación Total</h6>
+                    <h3 class="text-success mb-0">${{ number_format($empresas->sum('monto_total_pagado'), 0, ',', '.') }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado por Empresa (Acordeón) -->
+    <div class="card bg-dark border-secondary shadow-lg">
+        <div class="card-header bg-transparent border-secondary py-3">
+            <h5 class="text-white mb-0"><i class="fas fa-building me-2"></i> Estado de Clientes SaaS</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="accordion accordion-flush" id="accordionFacturacion">
+                @foreach($empresas as $empresa)
+                <div class="accordion-item bg-transparent border-bottom border-secondary">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-white py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $empresa->id }}">
+                            <div class="d-flex w-100 justify-content-between align-items-center pe-4">
+                                <div>
+                                    <span class="fw-bold h5 mb-0">{{ $empresa->name }}</span>
+                                    <div class="small text-secondary mt-1">
+                                        Plan: {{ $empresa->plan->name ?? 'N/A' }} | 
+                                        Cuit: {{ $empresa->cuit ?? 'N/A' }}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    @if($empresa->dias_para_vencer < 0)
+                                        <span class="badge bg-danger">VENCIDA (hace {{ abs($empresa->dias_para_vencer) }} días)</span>
+                                    @elseif($empresa->dias_para_vencer <= 7)
+                                        <span class="badge bg-warning text-dark">PRÓXIMO VENCIMIENTO ({{ $empresa->dias_para_vencer }} días)</span>
+                                    @else
+                                        <span class="badge bg-success">AL DÍA ({{ $empresa->dias_para_vencer }} días rest.)</span>
+                                    @endif
+                                    <div class="mt-2 fw-bold text-white">
+                                        Total Pagado: ${{ number_format($empresa->monto_total_pagado, 0, ',', '.') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="collapse{{ $empresa->id }}" class="accordion-collapse collapse" data-bs-parent="#accordionFacturacion">
+                        <div class="accordion-body bg-black bg-opacity-25 py-4">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary text-uppercase small fw-bold mb-3">Acciones de Gestión</h6>
+                                    <div class="d-flex gap-2">
+                                        <form action="{{ route('owner.notifications.send') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="empresa_id" value="{{ $empresa->id }}">
+                                            <input type="hidden" name="type" value="vencimiento">
+                                            <input type="hidden" name="message" value="Tu suscripción a MultiPOS está próxima a vencer. Por favor, regulariza tu situación para evitar interrupciones en el servicio.">
+                                            <button type="submit" class="btn btn-outline-warning btn-sm">
+                                                <i class="fas fa-bell me-1"></i> Notificar Vencimiento
+                                            </button>
+                                        </form>
+                                        <a href="{{ route('owner.empresas.edit', $empresa->id) }}" class="btn btn-outline-info btn-sm">
+                                            <i class="fas fa-edit me-1"></i> Editar Empresa
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Última Notificación Enviada</h6>
+                                    <p class="text-white mb-0">
+                                        {{ $empresa->ultima_notificacion_vencimiento ? $empresa->ultima_notificacion_vencimiento->format('d/m/Y H:i') : 'Nunca enviada' }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <h6 class="text-white fw-bold mb-3">Historial de Pagos</h6>
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover border-secondary">
+                                    <thead class="text-secondary">
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Plan</th>
+                                            <th>Método</th>
+                                            <th>Monto</th>
+                                            <th>Comprobante</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($empresa->pagos as $pago)
+                                        <tr>
+                                            <td>{{ $pago->fecha_pago->format('d/m/Y') }}</td>
+                                            <td><span class="badge bg-secondary">{{ $pago->plan->name ?? 'Básico' }}</span></td>
+                                            <td>{{ $pago->metodo }}</td>
+                                            <td class="fw-bold text-success">${{ number_format($pago->monto, 0, ',', '.') }}</td>
+                                            <td>{{ $pago->nro_comprobante ?: '-' }}</td>
+                                            <td>
+                                                <span class="badge rounded-pill {{ $pago->estado === 'aprobado' ? 'bg-success bg-opacity-25 text-success border border-success' : 'bg-warning bg-opacity-25 text-warning border border-warning' }}">
+                                                    {{ strtoupper($pago->estado) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4 text-secondary">
+                                                <i class="fas fa-info-circle me-2"></i> No se registran pagos históricos para esta empresa.
+                                            </td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .accordion-button::after {
+        filter: invert(1);
+    }
+    .accordion-button:not(.collapsed) {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        box-shadow: none;
+    }
+    .badge {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+</style>
 @endsection

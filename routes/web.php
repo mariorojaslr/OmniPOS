@@ -117,6 +117,9 @@ Route::middleware(['auth', 'owner'])
         Route::get('suscripciones', [SuscripcionPagoController::class , 'index'])->name('facturacion.index');
         Route::post('suscripciones-upload', [SuscripcionPagoController::class, 'store'])->name('facturacion.store');
 
+        Route::get('notificaciones', [App\Http\Controllers\Owner\NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notificaciones/enviar', [App\Http\Controllers\Owner\NotificationController::class, 'send'])->name('notifications.send');
+
         Route::resource('soporte', OwnerSupportTicketController::class)->names('soporte');
         Route::post('soporte/upload-media', [OwnerSupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');
 

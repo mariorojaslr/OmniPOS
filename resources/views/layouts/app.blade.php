@@ -252,6 +252,11 @@
                             Panel de Control Owner
                         </a>
                     </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('owner.notifications.index') }}">
+                            <span class="me-2">🔔</span> Centro de Notificaciones
+                        </a>
+                    </li>
                     @endif
 
                     @if(auth()->user()->role === 'empresa')

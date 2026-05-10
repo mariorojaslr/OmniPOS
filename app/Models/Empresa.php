@@ -43,6 +43,7 @@ class Empresa extends Model
         'grace_period_until',
         'status',
         'ultima_fecha_pago',
+        'ultima_notificacion_vencimiento',
         // Datos fiscales
         'cuit',
         'condicion_iva',
@@ -65,13 +66,14 @@ class Empresa extends Model
      * CASTS AUTOMÁTICOS
      */
     protected $casts = [
-        'activo'                 => 'boolean',
-        'fecha_vencimiento'      => 'date',
-        'fecha_cierre_ejercicio' => 'date',
-        'ultima_fecha_pago'      => 'date',
-        'grace_period_until'     => 'date',
-        'config_pasarelas'       => 'array',
-        'arca_activo'            => 'boolean',
+        'activo'                          => 'boolean',
+        'fecha_vencimiento'               => 'date',
+        'fecha_cierre_ejercicio'          => 'date',
+        'ultima_fecha_pago'               => 'date',
+        'grace_period_until'              => 'date',
+        'config_pasarelas'                => 'array',
+        'arca_activo'                     => 'boolean',
+        'ultima_notificacion_vencimiento' => 'datetime',
     ];
 
     // =========================================================
@@ -85,6 +87,11 @@ class Empresa extends Model
     public function pagos()
     {
         return $this->hasMany(SuscripcionPago::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(OwnerNotification::class);
     }
 
     public function ordenesPago()
