@@ -640,6 +640,10 @@
                     <i class="bi bi-broadcast-pin" style="color: #a855f7;"></i>
                     <div><div class="cmd-label">COMUNICADOS</div><div class="cmd-sub">Logs de actualización</div></div>
                 </a>
+                <a href="{{ route('owner.notifications.index') }}" class="cmd-btn" style="border-color: rgba(34, 197, 94, 0.2); background: rgba(34, 197, 94, 0.02);">
+                    <i class="bi bi-bell-fill text-success"></i>
+                    <div><div class="cmd-label">NOTIFICACIONES</div><div class="cmd-sub">Historial de avisos SaaS</div></div>
+                </a>
                 <button type="button" class="cmd-btn" style="border-color: rgba(234, 179, 8, 0.2); background: rgba(234, 179, 8, 0.02); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalSettings">
                     <i class="bi bi-sliders text-warning"></i>
                     <div><div class="cmd-label text-warning">AJUSTES GLOBALES</div><div class="cmd-sub">Configuración maestra</div></div>

@@ -60,7 +60,7 @@
                         <button class="accordion-button collapsed bg-transparent text-white py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $empresa->id }}">
                             <div class="d-flex w-100 justify-content-between align-items-center pe-4">
                                 <div>
-                                    <span class="fw-bold h5 mb-0">{{ $empresa->name }}</span>
+                                    <span class="fw-bold h5 mb-0">{{ $empresa->nombre_comercial }}</span>
                                     <div class="small text-secondary mt-1">
                                         Plan: {{ $empresa->plan->name ?? 'N/A' }} | 
                                         Cuit: {{ $empresa->cuit ?? 'N/A' }}

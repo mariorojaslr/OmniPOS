@@ -30,7 +30,7 @@
                         @forelse($notifications as $notif)
                         <tr>
                             <td class="ps-4">{{ $notif->created_at->format('d/m/Y H:i') }}</td>
-                            <td class="fw-bold text-white">{{ $notif->empresa->name }}</td>
+                            <td class="fw-bold text-white">{{ $notif->empresa->nombre_comercial }}</td>
                             <td>
                                 @if($notif->type === 'vencimiento')
                                     <span class="badge bg-danger bg-opacity-25 text-danger border border-danger">VENCIMIENTO</span>

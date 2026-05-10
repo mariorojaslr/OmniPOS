@@ -12,15 +12,14 @@ class SuscripcionPagoController extends Controller
 {
     public function index()
     {
-        // Obtenemos todas las empresas con su plan y el historial de pagos
         $empresas = Empresa::with(['plan', 'pagos' => function($q) {
             $q->orderByDesc('fecha_pago');
-        }])->get()->map(function($empresa) {
-            // Cálculo básico de estado financiero
+        }])->get();
+        
+        foreach($empresas as $empresa) {
             $empresa->dias_para_vencer = $empresa->fecha_vencimiento ? now()->diffInDays($empresa->fecha_vencimiento, false) : -999;
             $empresa->monto_total_pagado = $empresa->pagos->sum('monto');
-            return $empresa;
-        });
+        }
 
         return view('owner.facturacion.index', compact('empresas'));
     }

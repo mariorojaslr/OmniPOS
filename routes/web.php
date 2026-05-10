@@ -115,6 +115,7 @@ Route::middleware(['auth', 'owner'])
         Route::resource('updates', SystemUpdateController::class);
 
         Route::get('suscripciones', [SuscripcionPagoController::class , 'index'])->name('facturacion.index');
+        Route::get('suscripciones/create', [SuscripcionPagoController::class , 'create'])->name('facturacion.create');
         Route::post('suscripciones-upload', [SuscripcionPagoController::class, 'store'])->name('facturacion.store');
 
         Route::get('notificaciones', [App\Http\Controllers\Owner\NotificationController::class, 'index'])->name('notifications.index');
