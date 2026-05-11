@@ -124,8 +124,11 @@
                                                 <p class="small text-muted mb-0">Si está desactivado, el sistema emitirá comprobantes de gestión interna (No Válidos como Factura).</p>
                                             </div>
                                         </div>
-                                        <div class="form-check form-switch form-switch-lg">
-                                            <input class="form-check-input" type="checkbox" name="arca_activo" value="1" {{ ($empresa->arca_activo ?? false) ? 'checked' : '' }} style="width: 3.5rem; height: 1.8rem;">
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-white text-primary border-primary border px-3 py-2 me-3 fw-bold shadow-sm" style="font-size: 0.9rem;">#{{ $empresa->id }}</span>
+                                            <div class="form-check form-switch form-switch-lg">
+                                                <input class="form-check-input" type="checkbox" name="arca_activo" value="1" {{ ($empresa->arca_activo ?? false) ? 'checked' : '' }} style="width: 3.5rem; height: 1.8rem;">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
