@@ -64,7 +64,7 @@ class SupplierAccountController extends Controller
             '61_plus'  => 0, // 61+ días
         ];
         foreach ($deudas as $d) {
-            $dias = $d->created_at->diffInDays($hoy);
+            $dias = $d->created_at ? $d->created_at->diffInDays($hoy) : 0;
             if ($dias > 60) {
                 $aging['61_plus'] += $d->pending_amount;
             } elseif ($dias > 30) {

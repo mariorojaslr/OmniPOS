@@ -145,9 +145,9 @@
                 </thead>
                 <tbody>
                     @foreach($deudas as $d)
-                    @php $diasAntig = (int) $d->created_at->diffInDays(now()); @endphp
+                    @php $diasAntig = $d->created_at ? (int) $d->created_at->diffInDays(now()) : 0; @endphp
                     <tr>
-                        <td class="ps-4 fw-semibold text-nowrap">{{ $d->created_at->format('d/m/Y') }}</td>
+                        <td class="ps-4 fw-semibold text-nowrap">{{ $d->created_at ? $d->created_at->format('d/m/Y') : 'S/F' }}</td>
                         <td>
                             <span class="fw-bold text-dark">{{ $d->description }}</span>
                             @if($d->reference_type == 'App\Models\Purchase')

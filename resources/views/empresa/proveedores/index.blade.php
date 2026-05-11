@@ -70,18 +70,27 @@
                                 </a>
                                 
                                 <div class="d-flex gap-1">
-                                    <a href="javascript:void(0)" onclick="showPortalLink({{ $s->id }}, '{{ addslashes($s->name) }}')" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="Obtener Enlace al Portal">
-                                        <i class="fas fa-link" style="font-size: 0.8rem;"></i>
+                                    {{-- Botón Enlace Portal (Azul con Icono Blanco) --}}
+                                    <a href="javascript:void(0)" onclick="showPortalLink({{ $s->id }}, '{{ addslashes($s->name) }}')" 
+                                       class="btn btn-sm btn-primary d-flex align-items-center justify-content-center rounded-circle shadow-sm" 
+                                       style="width: 34px; height: 34px;" title="Obtener Enlace al Portal">
+                                        <i class="fas fa-link text-white" style="font-size: 0.9rem;"></i>
                                     </a>
                                     
+                                    {{-- Botón GPS (Si tiene coords) --}}
                                     @if($s->lat && $s->lng)
-                                        <a href="https://www.google.com/maps?q={{ $s->lat }},{{ $s->lng }}" target="_blank" class="btn btn-sm btn-dark d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="Ver ubicación en GPS">
-                                            <i class="fas fa-map-marker-alt" style="font-size: 0.8rem;"></i>
+                                        <a href="https://www.google.com/maps?q={{ $s->lat }},{{ $s->lng }}" target="_blank" 
+                                           class="btn btn-sm btn-dark d-flex align-items-center justify-content-center rounded-circle shadow-sm" 
+                                           style="width: 34px; height: 34px;" title="Ver ubicación en GPS">
+                                            <i class="fas fa-map-marker-alt text-white" style="font-size: 0.9rem;"></i>
                                         </a>
                                     @endif
 
-                                    <a href="{{ route('empresa.proveedores.edit', $s->id) }}" class="btn btn-sm btn-light border d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="Editar Proveedor">
-                                        <i class="fas fa-edit text-dark" style="font-size: 0.8rem;"></i>
+                                    {{-- Botón Editar (Gris fuerte con Icono Blanco) --}}
+                                    <a href="{{ route('empresa.proveedores.edit', $s->id) }}" 
+                                       class="btn btn-sm btn-secondary d-flex align-items-center justify-content-center rounded-circle shadow-sm" 
+                                       style="width: 34px; height: 34px;" title="Editar Proveedor">
+                                        <i class="fas fa-edit text-white" style="font-size: 0.9rem;"></i>
                                     </a>
                                 </div>
                             </div>
