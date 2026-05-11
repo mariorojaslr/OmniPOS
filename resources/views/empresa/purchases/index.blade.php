@@ -193,11 +193,17 @@
                     </td>
 
                     <td>
-                        $ {{ number_format($purchase->total,2,',','.') }}
+                        @if($purchase->invoice_type == 'NC')
+                            <span class="text-danger fw-bold">-$ {{ number_format($purchase->total,2,',','.') }}</span>
+                        @else
+                            $ {{ number_format($purchase->total,2,',','.') }}
+                        @endif
                     </td>
 
                     <td>
-                        @if($purchase->payment_type == 'contado')
+                        @if($purchase->invoice_type == 'NC')
+                            <span class="badge bg-danger">Nota de Crédito</span>
+                        @elseif($purchase->payment_type == 'contado')
                             <span class="badge bg-success">Contado</span>
                         @else
                             <span class="badge bg-warning text-dark">Crédito</span>

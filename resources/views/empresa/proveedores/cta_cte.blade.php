@@ -713,7 +713,12 @@
             checkSums();
         }
     }
-{{-- MODAL GESTIÓN DE CUENTAS BANCARIAS DEL PROVEEDOR --}}
+</script>
+
+{{-- ════════════════════════════════════════════════════════
+    MODAL GESTIÓN DE CUENTAS BANCARIAS DEL PROVEEDOR
+    (Movido fuera del script para corregir error 500)
+════════════════════════════════════════════════════════ --}}
 <div class="modal fade" id="modalCuentasBanco" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
@@ -784,5 +789,5 @@
         </div>
     </div>
 </div>
-</script>
+
 @endsection

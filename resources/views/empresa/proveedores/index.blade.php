@@ -65,8 +65,11 @@
                         </td>
                         <td class="text-end pe-4">
                             <div class="d-flex gap-2 justify-content-end">
-                                <a href="{{ route('empresa.proveedores.show', $s->id) }}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
+                                <a href="{{ route('empresa.proveedores.show', $s->id) }}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" title="Cuenta Corriente / Ledger">
                                     <i class="fas fa-file-invoice-dollar me-1"></i> Cuenta Corriente
+                                </a>
+                                <a href="{{ route('empresa.proveedores.portal_link', $s->id) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle shadow-sm" title="Enlace al Portal del Proveedor">
+                                    <i class="fas fa-link"></i>
                                 </a>
                                 @if($s->lat && $s->lng)
                                     <a href="https://www.google.com/maps?q={{ $s->lat }},{{ $s->lng }}" target="_blank" class="btn btn-sm btn-dark rounded-pill px-3 fw-bold">
