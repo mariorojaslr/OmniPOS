@@ -65,20 +65,25 @@
                         </td>
                         <td class="text-end pe-4">
                             <div class="d-flex gap-2 justify-content-end">
-                                <a href="{{ route('empresa.proveedores.show', $s->id) }}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" title="Cuenta Corriente / Ledger">
+                                <a href="{{ route('empresa.proveedores.show', $s->id) }}" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" title="Ver Cuenta Corriente">
                                     <i class="fas fa-file-invoice-dollar me-1"></i> Cuenta Corriente
                                 </a>
-                                <a href="{{ route('empresa.proveedores.portal_link', $s->id) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle shadow-sm" title="Enlace al Portal del Proveedor">
-                                    <i class="fas fa-link"></i>
-                                </a>
-                                @if($s->lat && $s->lng)
-                                    <a href="https://www.google.com/maps?q={{ $s->lat }},{{ $s->lng }}" target="_blank" class="btn btn-sm btn-dark rounded-pill px-3 fw-bold">
-                                        📍 GPS
+                                
+                                <div class="d-flex gap-1">
+                                    <a href="javascript:void(0)" onclick="showPortalLink({{ $s->id }}, '{{ addslashes($s->name) }}')" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="Obtener Enlace al Portal">
+                                        <i class="fas fa-link" style="font-size: 0.8rem;"></i>
                                     </a>
-                                @endif
-                                <a href="{{ route('empresa.proveedores.edit', $s->id) }}" class="btn btn-sm btn-light border rounded-pill px-2">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                                    
+                                    @if($s->lat && $s->lng)
+                                        <a href="https://www.google.com/maps?q={{ $s->lat }},{{ $s->lng }}" target="_blank" class="btn btn-sm btn-dark d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="Ver ubicación en GPS">
+                                            <i class="fas fa-map-marker-alt" style="font-size: 0.8rem;"></i>
+                                        </a>
+                                    @endif
+
+                                    <a href="{{ route('empresa.proveedores.edit', $s->id) }}" class="btn btn-sm btn-light border d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="Editar Proveedor">
+                                        <i class="fas fa-edit text-dark" style="font-size: 0.8rem;"></i>
+                                    </a>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -94,4 +99,68 @@
         @endif
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+function showPortalLink(id, name) {
+    Swal.fire({
+        title: 'Enlace al Portal',
+        text: 'Generando enlace para ' + name + '...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    $.get(`/empresa/proveedores/${id}/portal-link`, function(res) {
+        if (res.url) {
+            Swal.fire({
+                title: '<i class="fas fa-link text-primary me-2"></i>Enlace al Portal',
+                html: `
+                    <p class="small text-muted mb-3">Envía este enlace a <strong>${name}</strong> para que pueda ver su cuenta corriente en tiempo real.</p>
+                    <div class="input-group mb-3">
+                        <input type="text" id="portalUrl" class="form-control form-control-sm bg-light border-0" value="${res.url}" readonly>
+                        <button class="btn btn-primary btn-sm" onclick="copyToClipboard()">
+                            <i class="fas fa-copy me-1"></i> Copiar
+                        </button>
+                    </div>
+                    <div class="text-center mt-3">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(res.url)}" alt="QR" class="img-fluid rounded shadow-sm border p-2">
+                        <div class="x-small text-muted mt-2">Escanea para abrir en el celular</div>
+                    </div>
+                `,
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    container: 'my-swal'
+                }
+            });
+        }
+    }).fail(function() {
+        Swal.fire('Error', 'No se pudo generar el enlace.', 'error');
+    });
+}
+
+function copyToClipboard() {
+    const copyText = document.getElementById("portalUrl");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value);
+    
+    Swal.fire({
+        icon: 'success',
+        title: '¡Copiado!',
+        text: 'El enlace se ha copiado al portapapeles.',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000
+    });
+}
+</script>
+
+<style>
+    .my-swal { z-index: 999999 !important; }
+</style>
 @endsection
