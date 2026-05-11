@@ -74,7 +74,7 @@
                                     <a href="javascript:void(0)" onclick="showPortalLink({{ $s->id }}, '{{ addslashes($s->name) }}')" 
                                        class="btn btn-sm btn-primary d-flex align-items-center justify-content-center rounded-circle shadow-sm" 
                                        style="width: 34px; height: 34px;" title="Obtener Enlace al Portal">
-                                        <i class="fas fa-link text-white" style="font-size: 0.9rem;"></i>
+                                        <i class="bi bi-link-45deg text-white" style="font-size: 1.1rem;"></i>
                                     </a>
                                     
                                     {{-- Botón GPS (Si tiene coords) --}}
@@ -82,7 +82,7 @@
                                         <a href="https://www.google.com/maps?q={{ $s->lat }},{{ $s->lng }}" target="_blank" 
                                            class="btn btn-sm btn-dark d-flex align-items-center justify-content-center rounded-circle shadow-sm" 
                                            style="width: 34px; height: 34px;" title="Ver ubicación en GPS">
-                                            <i class="fas fa-map-marker-alt text-white" style="font-size: 0.9rem;"></i>
+                                            <i class="bi bi-geo-alt text-white" style="font-size: 0.9rem;"></i>
                                         </a>
                                     @endif
 
@@ -90,7 +90,7 @@
                                     <a href="{{ route('empresa.proveedores.edit', $s->id) }}" 
                                        class="btn btn-sm btn-secondary d-flex align-items-center justify-content-center rounded-circle shadow-sm" 
                                        style="width: 34px; height: 34px;" title="Editar Proveedor">
-                                        <i class="fas fa-edit text-white" style="font-size: 0.9rem;"></i>
+                                        <i class="bi bi-pencil text-white" style="font-size: 0.9rem;"></i>
                                     </a>
                                 </div>
                             </div>
