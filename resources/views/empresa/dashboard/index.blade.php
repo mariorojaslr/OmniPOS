@@ -141,52 +141,47 @@ $secondary = $config?->color_secondary ?? '#16a34a';
     {{-- ======================================================
         CENTRO DE MANDO MÓVIL (SOLO CELULARES)
     ====================================================== --}}
-    <div class="d-md-none mb-5 animate__animated animate__fadeInDown">
-        <h5 class="stat-label mb-3 text-center">🚀 Operativa de Campo</h5>
-        <div class="row g-3">
+    <div class="d-md-none mb-4 animate__animated animate__fadeInDown">
+        <div class="row g-2">
             <div class="col-6">
-                <a href="{{ route('empresa.gastos.quick') }}" class="glass-panel text-center d-flex flex-column align-items-center justify-content-center py-4 text-decoration-none border-danger border-opacity-25" style="background: rgba(239, 68, 68, 0.08);">
-                    <div class="fs-1 mb-2">💸</div>
-                    <div class="fw-bold text-danger small text-uppercase">Gasto Rápido</div>
+                <a href="{{ route('empresa.gastos.quick') }}" class="glass-panel text-center py-3 text-decoration-none" style="border: 1px solid rgba(239, 68, 68, 0.15); background: white;">
+                    <div class="fs-4 mb-1">💸</div>
+                    <div class="fw-bold text-danger small" style="font-size: 0.65rem; letter-spacing: 0.5px;">GASTO RÁPIDO</div>
                 </a>
             </div>
             <div class="col-6">
-                <a href="{{ route('empresa.personal.asistencia.qr') }}" class="glass-panel text-center d-flex flex-column align-items-center justify-content-center py-4 text-decoration-none border-primary border-opacity-25" style="background: rgba(37, 99, 235, 0.08);">
-                    <div class="fs-1 mb-2">📸</div>
-                    <div class="fw-bold text-primary small text-uppercase">Fichaje QR</div>
+                <a href="{{ route('empresa.personal.asistencia.qr') }}" class="glass-panel text-center py-3 text-decoration-none" style="border: 1px solid {{ $primary }}25; background: white;">
+                    <div class="fs-4 mb-1">📸</div>
+                    <div class="fw-bold small" style="color: {{ $primary }}; font-size: 0.65rem; letter-spacing: 0.5px;">FICHAJE QR</div>
                 </a>
             </div>
             <div class="col-12">
-                <a href="{{ route('empresa.pos.index') }}" class="glass-panel text-center d-flex align-items-center justify-content-center py-3 text-decoration-none border-success border-opacity-25" style="background: rgba(34, 197, 94, 0.08);">
-                    <div class="fs-3 me-3">🛒</div>
-                    <div class="fw-bold text-success text-uppercase">Nueva Venta (POS)</div>
+                <a href="{{ route('empresa.pos.index') }}" class="glass-panel text-center py-2 text-decoration-none" style="border: 1px solid #16a34a30; background: white;">
+                    <div class="fw-bold text-success small" style="font-size: 0.7rem;">NUEVA VENTA (POS)</div>
                 </a>
             </div>
         </div>
     </div>
 
-    {{-- Header removido para usar el del layout --}}
-
     {{-- ======================================================
-        NOTIFICACIONES / TAREAS PENDIENTES
+        NOTIFICACIONES / TAREAS PENDIENTES (CARTELES DE ALERTA)
     ====================================================== --}}
     @if(count($reminders) > 0)
-    <div class="row mb-5">
+    <div class="row mb-4">
         <div class="col-12">
-            <h5 class="fw-bold mb-3 text-secondary">Acciones Sugeridas</h5>
-            <div class="row g-3">
+            <div class="row g-2">
                 @foreach($reminders as $rem)
                 <div class="col-md-6">
-                    <div class="glass-panel" style="border-left: 5px solid {{ $rem['type'] == 'warning' ? '#f59e0b' : '#3b82f6' }}; padding: 1rem 1.5rem;">
+                    <div class="glass-panel" style="border-left: 4px solid {{ $rem['type'] == 'warning' ? '#f59e0b' : $primary }}; padding: 0.8rem 1.2rem; background: #ffffff;">
                         <div class="d-flex align-items-center">
-                            <div class="fs-2 me-3">{{ $rem['icon'] }}</div>
+                            <div class="fs-3 me-3 opacity-75">{{ $rem['icon'] }}</div>
                             <div class="flex-grow-1">
-                                <h6 class="fw-bold mb-0 {{ $rem['type'] == 'warning' ? 'text-warning' : 'text-primary' }}">
+                                <h6 class="fw-bold mb-0" style="font-size: 0.85rem; color: {{ $rem['type'] == 'warning' ? '#b45309' : $primary }};">
                                     {{ $rem['title'] }}
                                 </h6>
-                                <p class="small mb-2 text-muted">{{ $rem['message'] }}</p>
-                                <a href="{{ $rem['link'] }}" class="btn btn-sm py-1 px-3" style="background: {{ $rem['type'] == 'warning' ? '#f59e0b' : '#3b82f6' }}; color: white; border-radius: 8px; font-size: 0.75rem;">
-                                    {{ $rem['btn'] }}
+                                <p class="small mb-1 text-muted" style="font-size: 0.75rem;">{{ $rem['message'] }}</p>
+                                <a href="{{ $rem['link'] }}" class="fw-bold text-decoration-none text-uppercase" style="font-size: 0.65rem; color: {{ $rem['type'] == 'warning' ? '#f59e0b' : $primary }}; letter-spacing: 0.5px;">
+                                    {{ $rem['btn'] }} <i class="bi bi-chevron-right"></i>
                                 </a>
                             </div>
                         </div>
@@ -244,7 +239,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
                         <div class="d-flex flex-column justify-content-center h-100 p-3">
                              <div class="stat-label mb-2">Pedidos Pendientes</div>
                              <h3 class="fw-bold {{ $pedidosPendientes > 0 ? 'text-warning' : 'text-muted' }}">{{ $pedidosPendientes }}</h3>
-                             <a href="{{ route('empresa.orders.index') }}" class="btn btn-sm btn-outline-primary rounded-pill mt-2">Gestionar Pedidos</a>
+                             <a href="{{ route('empresa.orders.index') }}" class="btn btn-sm rounded-pill mt-2" style="background: #8b5cf6; color: white;">Gestionar Pedidos</a>
                         </div>
                     </div>
                 </div>
@@ -326,7 +321,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
                     {{ $pedidosPendientes }}
                 </div>
                 <div class="small text-muted mb-3">Pedidos Pendientes</div>
-                <a href="{{ route('empresa.orders.index') }}" class="btn btn-sm btn-dark w-100 mb-1">
+                <a href="{{ route('empresa.orders.index') }}" class="btn btn-sm w-100 mb-1 fw-bold" style="background: #8b5cf6; color: white;">
                     Gestionar Pedidos
                 </a>
                 <div class="x-small text-muted" style="font-size: 0.7rem;">{{ $pedidosTotales }} totales registrados</div>

@@ -2,6 +2,11 @@
 
 @section('content')
 <style>
+    body {
+        background-color: #f8fafc !important;
+        color: #334155 !important;
+    }
+
     :root {
         --card-bg: #ffffff;
         --border-color: rgba(0, 0, 0, 0.05);

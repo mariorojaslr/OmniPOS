@@ -317,9 +317,9 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-5">
-                                                <div class="card border-dark">
-                                                    <div class="card-body bg-dark bg-opacity-10 p-3">
-                                                        <h6 class="text-dark fw-bold mb-2">Información de Servicio</h6>
+                                                <div class="card border-primary border-opacity-25 shadow-sm">
+                                                    <div class="card-body bg-primary bg-opacity-10 p-3">
+                                                        <h6 class="text-primary fw-bold mb-2">Información de Servicio</h6>
                                                         <ul class="small mb-0 list-unstyled">
                                                             <li><strong>Comisión:</strong> 2.9% + 0.30 USD</li>
                                                             <li><strong>Acreditación:</strong> 7 días (primer pago), luego 2 días.</li>
@@ -459,7 +459,7 @@
 
                     <div class="row g-3 justify-content-center mb-5">
                         <div class="col-md-5">
-                            <a href="#" id="linkDownloadKey" class="btn btn-outline-dark w-100 py-3 shadow-sm fw-bold">
+                            <a href="#" id="linkDownloadKey" class="btn btn-outline-primary w-100 py-3 shadow-sm fw-bold">
                                 <i class="bi bi-key h3 d-block mb-2"></i>
                                 Descargar Llave (.key)
                             </a>

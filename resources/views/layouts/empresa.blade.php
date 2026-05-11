@@ -188,7 +188,6 @@ body {
     top: 0;
     right: 0;
     left: var(--sidebar-width);
-    height: var(--navbar-height);
     background: #ffffff;
     backdrop-filter: blur(15px);
     display: flex;
@@ -196,12 +195,12 @@ body {
     justify-content: space-between;
     padding: 0 30px;
     z-index: 1040;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 3px solid var(--color-primario);
     box-sizing: border-box;
 }
 
-.top-bar h4, .top-bar div {
-    color: #1e293b !important;
+.top-bar h4, .top-bar div, .top-bar i, .top-bar span {
+    color: #1e293b;
 }
 
 /* BOTÓN DE AYUDA MÁGICA */
@@ -467,11 +466,12 @@ body {
                 </a>
                 <h4 class="mb-0 fw-bold ms-2">📦 Terminal de Ventas (POS)</h4>
             @else
-                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa->nombre_comercial ?? 'MultiPOS' }}</h4>
-                {{-- NOVEDADES --}}
-                <a href="{{ route('empresa.novedades') }}" class="btn btn-sm btn-light border rounded-pill px-3 ms-2 d-none d-lg-flex align-items-center gap-2">
-                    <span class="pulse-dot"></span>
-                    <span class="small fw-bold">Novedades v2.4</span>
+                <h4 class="mb-0 fw-bold d-none d-md-block"></h4><title>{{ $empresa->nombre_comercial ?? 'MultiPOS' }} | Panel de Gestión</title>
+    <link rel="icon" type="image/png" href="{{ asset('local-media/logos/' . ($empresa->config->logo ?? 'default.png')) }}">
+                {{-- Novedades con Contraste --}}
+                <a href="{{ route('empresa.novedades') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-2 d-none d-lg-flex align-items-center gap-2 fw-bold" style="font-size: 0.7rem; border-color: var(--color-primario)40; color: var(--color-primario);">
+                    <span class="d-flex align-items-center justify-content-center bg-primary rounded-circle" style="width: 8px; height: 8px; background-color: var(--color-primario) !important;"></span>
+                    Novedades v2.4
                 </a>
             @endif
         </div>
@@ -595,20 +595,20 @@ body {
 
 
 
-{{-- ASISTENTE INTELIGENTE ARTI (VENTANA MAESTRA AL INICIO PARA EVITAR DESPLAZAMIENTOS) --}}
-<div id="helpPanel" class="arti-window-pro shadow-lg" style="display:none; position:fixed; right:30px; top:90px; z-index:1000005;">
-    <div class="arti-header-pro d-flex align-items-center justify-content-between">
+{{-- ASISTENTE INTELIGENTE MULTIPOS (VENTANA MAESTRA AL INICIO PARA EVITAR DESPLAZAMIENTOS) --}}
+<div id="helpPanel" class="multipos-window-pro shadow-lg" style="display:none; position:fixed; right:30px; top:90px; z-index:1000005;">
+    <div class="multipos-header-pro d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-2">
             <i class="bi bi-robot text-white"></i>
-            <h6 class="mb-0 fw-bold small text-uppercase tracking-wider text-white">Centro de Ayuda Inteligente</h6>
+            <h6 class="mb-0 fw-bold small text-uppercase tracking-wider text-white">Centro de Ayuda MultiPOS</h6>
         </div>
         <div class="d-flex align-items-center gap-1">
-            <button class="btn-arti-tool" id="btnEditHelp" title="Editar Manual"><i class="bi bi-pencil-square"></i></button>
-            <button class="btn-arti-tool" onclick="openHelp()" title="Cerrar"><i class="bi bi-x-lg"></i></button>
+            <button class="btn-multipos-tool" id="btnEditHelp" title="Editar Manual"><i class="bi bi-pencil-square"></i></button>
+            <button class="btn-multipos-tool" onclick="openHelp()" title="Cerrar"><i class="bi bi-x-lg"></i></button>
         </div>
     </div>
     
-    <div class="arti-body-pro" id="helpContentArea">
+    <div class="multipos-body-pro" id="helpContentArea">
         {{-- Contenido --}}
     </div>
 
@@ -663,7 +663,7 @@ body {
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
     }
 
-    .arti-window-pro {
+    .multipos-window-pro {
         position: fixed;
         right: 30px;
         top: 90px;
@@ -683,6 +683,15 @@ body {
         box-shadow: 0 25px 80px rgba(0,0,0,0.15);
     }
 
+    .multipos-header-pro {
+        padding: 15px 22px;
+        background: var(--color-primario);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        cursor: move;
+        border-radius: 20px 20px 0 0;
+        color: #fff;
+    }
+
     /* TIRADORES DE REDIMENSIONADO */
     .ui-resizable-handle { 
         z-index: 1000006 !important; 
@@ -694,16 +703,8 @@ body {
     
     .ui-resizable-e { width: 10px !important; right: -5px !important; cursor: ew-resize !important; }
     .ui-resizable-s { height: 10px !important; bottom: -5px !important; cursor: ns-resize !important; }
-    .arti-header-pro {
-        padding: 15px 22px;
-        background: var(--color-primario);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        cursor: move;
-        border-radius: 20px 20px 0 0;
-        color: #fff;
-    }
 
-    .btn-arti-tool {
+    .btn-multipos-tool {
         background: transparent;
         border: none;
         color: rgba(255,255,255,0.8);
@@ -712,7 +713,7 @@ body {
         padding: 0 8px;
         transition: all 0.2s;
     }
-    .btn-arti-tool:hover { color: #fff; transform: scale(1.2); }
+    .btn-multipos-tool:hover { color: #fff; transform: scale(1.2); }
 
     .arti-body-pro {
         flex-grow: 1;
@@ -773,14 +774,13 @@ body {
 </style>
 
 <script>
-    const currentRoute = '{{ Route::currentRouteName() }}';
     const userRole = "{{ auth()->user()->role }}";
     const isImpersonated = {{ session('impersonator_id') ? 'true' : 'false' }};
 
     $(function() {
         // HABILITAR ARRASTRE Y REDIMENSIONADO TOTAL (LIBRE)
         $("#helpPanel").draggable({ 
-            handle: ".arti-header-pro", 
+            handle: ".multipos-header-pro", 
             containment: "window",
             scroll: false 
         }).resizable({ 
@@ -788,15 +788,27 @@ body {
             minHeight: 250, 
             handles: "all",
             resize: function(event, ui) {
-                // Ajustar altura del editor si está abierto al redimensionar la ventana
                 const editor = $('#summernoteHelp');
                 if (editor.next('.note-editor').length) {
-                    const newHeight = ui.size.height - 280; // Compensar cabecera, footer y controles
+                    const newHeight = ui.size.height - 280;
                     editor.summernote('height', newHeight > 100 ? newHeight : 100);
                 }
             }
         });
     });
+
+    // Variable global para rastrear el contexto (Ruta + Pestaña si existe)
+    let currentContext = '{{ Route::currentRouteName() }}';
+
+    function updateContext() {
+        const route = '{{ Route::currentRouteName() }}';
+        // Detectar si hay una pestaña activa de Bootstrap
+        const activeTab = document.querySelector('.nav-link.active[data-bs-toggle="tab"]');
+        const tabId = activeTab ? activeTab.getAttribute('data-bs-target').replace('#', '') : null;
+        
+        currentContext = tabId ? `${route}__${tabId}` : route;
+        return currentContext;
+    }
 
     function openHelp() {
         const panel = $("#helpPanel");
@@ -809,11 +821,12 @@ body {
     }
 
     function fetchHelpContent() {
+        const context = updateContext();
         const area = $("#helpContentArea");
-        area.html('<div class="text-center py-5"><div class="spinner-border text-primary spinner-border-sm"></div><p class="mt-2 text-muted x-small">Arti está pensando...</p></div>');
+        area.html('<div class="text-center py-5"><div class="spinner-border text-primary spinner-border-sm"></div><p class="mt-2 text-muted x-small">MultiPOS está pensando...</p></div>');
         $("#btnEditHelp").addClass('d-none');
 
-        $.get(`/help/fetch?route=${currentRoute}`, function(res) {
+        $.get(`/help/fetch?route=${context}`, function(res) {
             if(res.success && res.data) {
                 if(userRole === 'owner' || isImpersonated) $("#btnEditHelp").removeClass('d-none');
                 
@@ -832,7 +845,7 @@ body {
                 area.html(`
                     <div class="text-center py-5 opacity-40">
                         <i class="bi bi-robot fs-1"></i>
-                        <p class="mt-2 mb-0 fw-bold">No hay instrucciones registradas.</p>
+                        <p class="mt-2 mb-0 fw-bold">No hay instrucciones registradas para esta sección.</p>
                         ${(userRole === 'owner' || isImpersonated) ? '<button class="btn btn-sm btn-primary rounded-pill px-4 mt-3" onclick="activateEditor()">REGISTRAR MANUAL</button>' : ''}
                     </div>
                 `);
@@ -841,15 +854,16 @@ body {
     }
 
     function activateEditor() {
+        const context = updateContext();
         $("#helpContentArea").hide();
         $("#helpEditorArea").show();
-        const currentTitle = $("#helpContentArea h3").text() || "Manual de " + currentRoute;
+        const currentTitle = $("#helpContentArea h3").text() || "Manual de " + context;
         const currentContent = $("#helpContentArea .manual-body").html() || "";
         const panelHeight = $("#helpPanel").height();
 
         $("#editHelpTitle").val(currentTitle);
         $('#summernoteHelp').summernote({ 
-            height: panelHeight - 350, // Calculamos altura inicial según ventana
+            height: panelHeight - 350, 
             lang: 'es-ES',
             placeholder: 'Escribe aquí las instrucciones maestras...',
             toolbar: [
@@ -873,6 +887,7 @@ body {
     }
 
     function saveHelpContent() {
+        const context = updateContext();
         const title = $("#editHelpTitle").val();
         const content = $('#summernoteHelp').summernote('code');
         const video = $("#editHelpVideo").val();
@@ -884,7 +899,7 @@ body {
 
         $.post('/help/save', {
             _token: "{{ csrf_token() }}",
-            route_name: currentRoute,
+            route_name: context,
             title: title,
             content: content,
             video_url: video
@@ -899,7 +914,14 @@ body {
 
     $("#btnEditHelp").on('click', activateEditor);
 
-    // JS para posicionar los globos flotantes (FIX PARA SCROLL)
+    // Listener para cambios de pestaña: si el panel de ayuda está abierto, se actualiza el contenido
+    $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function (e) {
+        if ($("#helpPanel").is(':visible')) {
+            fetchHelpContent();
+        }
+    });
+
+    // JS para posicionar los globos flotantes
     document.querySelectorAll('.nav-link-item').forEach(item => {
         item.addEventListener('mouseenter', function() {
             const balloon = this.querySelector('.floating-balloon');
