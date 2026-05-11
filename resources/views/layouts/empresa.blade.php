@@ -466,8 +466,7 @@ body {
                 </a>
                 <h4 class="mb-0 fw-bold ms-2">📦 Terminal de Ventas (POS)</h4>
             @else
-                <h4 class="mb-0 fw-bold d-none d-md-block"></h4><title>{{ $empresa->nombre_comercial ?? 'MultiPOS' }} | Panel de Gestión</title>
-    <link rel="icon" type="image/png" href="{{ asset('local-media/logos/' . ($empresa->config->logo ?? 'default.png')) }}">
+                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa->nombre_comercial ?? 'MultiPOS' }}</h4>
                 {{-- Novedades con Contraste --}}
                 <a href="{{ route('empresa.novedades') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-2 d-none d-lg-flex align-items-center gap-2 fw-bold" style="font-size: 0.7rem; border-color: var(--color-primario)40; color: var(--color-primario);">
                     <span class="d-flex align-items-center justify-content-center bg-primary rounded-circle" style="width: 8px; height: 8px; background-color: var(--color-primario) !important;"></span>
@@ -715,12 +714,23 @@ body {
     }
     .btn-multipos-tool:hover { color: #fff; transform: scale(1.2); }
 
-    .arti-body-pro {
+    .multipos-body-pro {
         flex-grow: 1;
         overflow-y: auto;
         padding: 25px;
         line-height: 1.6;
         color: #475569;
+    }
+
+    .multipos-footer-pro {
+        padding: 12px 25px;
+        background: #f8fafc;
+        font-size: 0.75rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 0 0 20px 20px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     #helpEditorArea {
