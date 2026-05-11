@@ -295,27 +295,28 @@
                                                 @endif
                                             </div>
                                         @else
-                                                @if($m->reference)
-                                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                                        <p class="mb-0 small"><strong>Tipo:</strong> Orden de Pago</p>
-                                                        <a href="{{ route('proveedores.pagos.pdf', $m->reference_id) }}" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm fw-bold">
-                                                            <i class="fas fa-print me-1"></i> Imprimir Comprobante
-                                                        </a>
-                                                    </div>
+                                            {{-- CASO CRÉDITO (PAGO O NOTA DE CRÉDITO) --}}
+                                            @if($m->reference_type == 'App\Models\OrdenPago' && $m->reference)
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <p class="mb-0 small"><strong>Tipo:</strong> Orden de Pago #{{ $m->reference->numero_orden ?? 'S/N' }}</p>
+                                                    <a href="{{ route('empresa.pagos.print', $m->reference_id) }}" target="_blank" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm fw-bold">
+                                                        <i class="bi bi-printer me-1"></i> Imprimir Recibo
+                                                    </a>
+                                                </div>
                                                 <div class="mb-3">
                                                     <strong class="small">Medios de Pago Utilizados:</strong>
                                                     <div class="mt-2 d-flex flex-wrap gap-2">
-                                                        @foreach($m->reference->pagos as $dp)
-                                                            <div class="bg-white border rounded-3 p-2 shadow-sm small">
-                                                                <i class="fas fa-money-check-alt text-primary me-1"></i>
-                                                                <strong>{{ ucfirst($dp->metodo_pago) }}</strong>: ${{ number_format($dp->monto, 2, ',', '.') }}
-                                                                @if($dp->cheque_id) <span class="text-muted">(Cheque #{{ $dp->cheque->numero ?? '?' }})</span> @endif
-                                                            </div>
-                                                        @endforeach
+                                                        @if($m->reference->pagos)
+                                                            @foreach($m->reference->pagos as $dp)
+                                                                <div class="bg-white border rounded-3 p-2 shadow-sm small">
+                                                                    <i class="bi bi-cash-stack text-primary me-1"></i>
+                                                                    <strong>{{ ucfirst($dp->metodo_pago) }}</strong>: ${{ number_format($dp->monto, 2, ',', '.') }}
+                                                                </div>
+                                                            @endforeach
+                                                        @endif
                                                     </div>
                                                 </div>
-                                                
-                                                @if($m->reference->imputaciones->count() > 0)
+                                                @if($m->reference->imputaciones && $m->reference->imputaciones->count() > 0)
                                                     <div class="mt-3">
                                                         <strong class="small text-muted text-uppercase">Comprobantes cancelados con esta OP:</strong>
                                                         @foreach($m->reference->imputaciones as $imp)
@@ -326,6 +327,18 @@
                                                         @endforeach
                                                     </div>
                                                 @endif
+                                            @elseif($m->reference_type == 'App\Models\Purchase' && $m->reference)
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <p class="mb-0 small"><strong>Tipo:</strong> Nota de Crédito (NC)</p>
+                                                    <a href="{{ route('empresa.compras.show', $m->reference_id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm fw-bold">
+                                                        <i class="bi bi-eye me-1"></i> Ver NC Original
+                                                    </a>
+                                                </div>
+                                                <div class="alert alert-info py-2 small border-0 shadow-sm">
+                                                    <i class="bi bi-info-circle me-1"></i> Este crédito se originó de una Nota de Crédito aplicada a una compra.
+                                                </div>
+                                            @else
+                                                <p class="small text-muted">Detalles adicionales no disponibles para este movimiento manual.</p>
                                             @endif
                                         @endif
                                     </div>
