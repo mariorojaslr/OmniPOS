@@ -118,9 +118,13 @@ Route::middleware(['auth', 'owner'])
         Route::get('suscripciones/create', [SuscripcionPagoController::class , 'create'])->name('facturacion.create');
         Route::post('suscripciones-upload', [SuscripcionPagoController::class, 'store'])->name('facturacion.store');
 
+        // Centro de Comunicaciones
         Route::get('notificaciones', [App\Http\Controllers\Owner\NotificationController::class, 'index'])->name('notifications.index');
-        Route::post('notificaciones/enviar', [App\Http\Controllers\Owner\NotificationController::class, 'store'])->name('notifications.send');
-        Route::post('notificaciones/{id}/read', [App\Http\Controllers\Owner\NotificationReadController::class, 'markAsRead'])->name('notifications.markRead');
+        Route::post('notificaciones/send', [App\Http\Controllers\Owner\NotificationController::class, 'store'])->name('notifications.send');
+        Route::put('notificaciones/{id}', [App\Http\Controllers\Owner\NotificationController::class, 'update'])->name('notifications.update');
+        Route::delete('notificaciones/{id}', [App\Http\Controllers\Owner\NotificationController::class, 'destroy'])->name('notifications.destroy');
+        Route::patch('notificaciones/{id}/toggle', [App\Http\Controllers\Owner\NotificationController::class, 'toggleActive'])->name('notifications.toggle');
+        Route::post('notificaciones/{id}/read', [App\Http\Controllers\Owner\NotificationReadController::class, 'markAsRead'])->name('notifications.read');
 
         Route::resource('soporte', OwnerSupportTicketController::class)->names('soporte');
         Route::post('soporte/upload-media', [OwnerSupportTicketController::class, 'uploadMedia'])->name('soporte.uploadMedia');

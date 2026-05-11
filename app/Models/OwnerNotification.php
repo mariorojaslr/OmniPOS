@@ -11,6 +11,8 @@ class OwnerNotification extends Model
         'title',
         'type',
         'message',
+        'expires_at',
+        'active',
         'channel',
         'media_url',
         'media_type',
@@ -19,6 +21,8 @@ class OwnerNotification extends Model
  
     protected $casts = [
         'read_at' => 'datetime',
+        'expires_at' => 'datetime',
+        'active' => 'boolean',
     ];
  
     public function empresa()

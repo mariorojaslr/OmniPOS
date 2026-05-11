@@ -87,9 +87,27 @@
                                 @endif
                             </td>
                             <td class="text-end pe-4">
-                                <button class="btn btn-sm btn-outline-secondary" title="Ver detalle">
-                                    <i class="fas fa-eye"></i>
-                                </button>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-info" title="Editar" 
+                                            onclick="editNotification({{ json_encode($notif) }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form action="{{ route('owner.notifications.toggle', $notif->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm {{ $notif->active ? 'btn-outline-warning' : 'btn-outline-success' }}" 
+                                                title="{{ $notif->active ? 'Desactivar' : 'Activar' }}">
+                                            <i class="fas {{ $notif->active ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('owner.notifications.destroy', $notif->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar comunicación permanentemente?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @empty
@@ -124,18 +142,22 @@
                     <p class="text-secondary small mb-4">Este mensaje será visible para <strong>todos los administradores y usuarios</strong> de todas las empresas del sistema en sus respectivos dashboards.</p>
                     
                     <div class="row mb-3">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <label class="form-label text-secondary small fw-bold">TÍTULO / ASUNTO</label>
                             <input type="text" name="title" class="form-control bg-black border-secondary text-white" placeholder="Ej: ¡Feliz Día del Padre!" required>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label text-secondary small fw-bold">TIPO DE AVISO</label>
                             <select name="type" class="form-select bg-black border-secondary text-white" required>
                                 <option value="aviso_general">Aviso General</option>
-                                <option value="festividad">Festividad (Navidad, Año Nuevo, etc)</option>
-                                <option value="mantenimiento">Mantenimiento de Sistema</option>
-                                <option value="novedad">Nueva Funcionalidad / Módulo</option>
+                                <option value="festividad">Festividad</option>
+                                <option value="mantenimiento">Mantenimiento</option>
+                                <option value="novedad">Nueva Función</option>
                             </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-secondary small fw-bold">VENCE EL (OPCIONAL)</label>
+                            <input type="date" name="expires_at" class="form-control bg-black border-secondary text-white">
                         </div>
                     </div>
 
@@ -147,7 +169,6 @@
                     <div class="mb-0">
                         <label class="form-label text-secondary small fw-bold">ADJUNTAR FLYER O VIDEO (OPCIONAL)</label>
                         <input type="file" name="media" class="form-control bg-black border-secondary text-white" accept="image/*,video/*">
-                        <div class="form-text text-muted small">Formatos permitidos: JPG, PNG, WEBP, MP4. Tamaño máx: 10MB.</div>
                     </div>
                 </div>
                 <div class="modal-footer border-secondary">
@@ -158,6 +179,65 @@
         </div>
     </div>
 </div>
+
+<!-- Modal: Editar Notificación -->
+<div class="modal fade" id="modalEditNotification" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark border-secondary shadow-lg">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white fw-bold"><i class="fas fa-edit me-2 text-info"></i> Editar Comunicación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formEditNotification" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary small fw-bold">TÍTULO / ASUNTO</label>
+                            <input type="text" name="title" id="edit-title" class="form-control bg-black border-secondary text-white" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-secondary small fw-bold">TIPO DE AVISO</label>
+                            <select name="type" id="edit-type" class="form-select bg-black border-secondary text-white" required>
+                                <option value="aviso_general">Aviso General</option>
+                                <option value="festividad">Festividad</option>
+                                <option value="mantenimiento">Mantenimiento</option>
+                                <option value="novedad">Nueva Función</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-secondary small fw-bold">VENCE EL</label>
+                            <input type="date" name="expires_at" id="edit-expires" class="form-control bg-black border-secondary text-white">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">MENSAJE / CONTENIDO</label>
+                        <textarea name="message" id="edit-message" rows="4" class="form-control bg-black border-secondary text-white" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">CANCELAR</button>
+                    <button type="submit" class="btn btn-info px-4 fw-bold">GUARDAR CAMBIOS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function editNotification(notif) {
+    document.getElementById('formEditNotification').action = `/owner/notificaciones/${notif.id}`;
+    document.getElementById('edit-title').value = notif.title;
+    document.getElementById('edit-type').value = notif.type;
+    document.getElementById('edit-message').value = notif.message;
+    if(notif.expires_at) {
+        document.getElementById('edit-expires').value = notif.expires_at.split('T')[0];
+    }
+    new bootstrap.Modal(document.getElementById('modalEditNotification')).show();
+}
+</script>
 
 <style>
     .form-control:focus, .form-select:focus {

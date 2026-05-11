@@ -362,7 +362,11 @@ document.addEventListener('DOMContentLoaded', function () {
     ═══════════════════════════════════════════ --}}
     @auth
     @php
-        $unreadNotifications = \App\Models\OwnerNotification::where(function($q) {
+        $unreadNotifications = \App\Models\OwnerNotification::where('active', true)
+            ->where(function($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+            })
+            ->where(function($q) {
                 $q->whereNull('empresa_id')->orWhere('empresa_id', Auth::user()->empresa_id);
             })
             ->whereDoesntHave('reads', function($q) {

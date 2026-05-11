@@ -22,6 +22,7 @@ class NotificationController extends Controller
             'title' => 'required|string|max:255',
             'type' => 'required|string',
             'message' => 'required|string',
+            'expires_at' => 'nullable|date',
             'media' => 'nullable|file|mimes:jpg,jpeg,png,webp,mp4,mov|max:10240', // Max 10MB
         ]);
 
@@ -36,20 +37,41 @@ class NotificationController extends Controller
         }
 
         OwnerNotification::create([
-            'empresa_id' => $request->empresa_id, // NULL = Global
+            'empresa_id' => $request->empresa_id,
             'title' => $request->title,
             'type' => $request->type,
             'message' => $request->message,
+            'expires_at' => $request->expires_at,
             'channel' => 'dashboard',
             'media_url' => $mediaUrl,
             'media_type' => $mediaType,
         ]);
 
-        if ($request->empresa_id && $request->type === 'vencimiento') {
-            $empresa = Empresa::find($request->empresa_id);
-            $empresa->update(['ultima_notificacion_vencimiento' => now()]);
-        }
-
         return redirect()->back()->with('success', 'Comunicación enviada correctamente.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $notif = OwnerNotification::findOrFail($id);
+        $notif->update($request->only(['title', 'message', 'type', 'expires_at', 'active']));
+        
+        return redirect()->back()->with('success', 'Comunicación actualizada.');
+    }
+
+    public function destroy($id)
+    {
+        $notif = OwnerNotification::findOrFail($id);
+        $notif->delete();
+        
+        return redirect()->back()->with('success', 'Comunicación eliminada.');
+    }
+
+    public function toggleActive($id)
+    {
+        $notif = OwnerNotification::findOrFail($id);
+        $notif->active = !$notif->active;
+        $notif->save();
+        
+        return redirect()->back()->with('success', 'Estado de comunicación actualizado.');
     }
 }
