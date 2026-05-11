@@ -12,6 +12,7 @@ use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use App\Models\Product;
 use App\Models\KardexMovimiento;
+use App\Models\SupplierLedger;
 
 class PurchaseController extends Controller
 {
@@ -116,7 +117,11 @@ class PurchaseController extends Controller
         $products  = Product::where('empresa_id', $empresaId)->with('variants')->get();
         $prefill   = session()->pull('prefill_compra', null);
 
-        return view('empresa.purchases.create', compact('suppliers','products', 'prefill'));
+        $cuentas = \App\Models\FinanzaCuenta::where('empresa_id', $empresaId)
+            ->where('activo', 1)
+            ->get();
+
+        return view('empresa.purchases.create', compact('suppliers','products', 'prefill', 'cuentas'));
     }
 
 
@@ -255,7 +260,7 @@ class PurchaseController extends Controller
                     // NC de proveedor -> Menos deuda para nosotros (Haber/Credit)
                     // En este caso, creamos un movimiento de crédito directamente o una OP especial.
                     // Por ahora, un movimiento simple con referencia a la NC (se asume que la NC es el purchase)
-                    SupplierLedger::create([
+                    $ledger = SupplierLedger::create([
                         'empresa_id'     => $empresaId,
                         'supplier_id'    => $supplier->id,
                         'type'           => 'credit',
@@ -266,6 +271,34 @@ class PurchaseController extends Controller
                         'reference_id'   => $purchase->id,
                         'paid'           => false
                     ]);
+
+                    // Intentar imputar esta NC a deudas pendientes
+                    $supplierAccountService = app(\App\Services\SupplierAccountService::class);
+                    $restante = $supplierAccountService->imputarMontoCredito($supplier->id, $total);
+                    
+                    $ledger->update([
+                        'pending_amount' => $restante,
+                        'paid' => ($restante <= 0.01)
+                    ]);
+
+                    $supplier->recalcularSaldo();
+
+                    // Si la compra original fue al contado, y están haciendo NC "Guardar y Pagar", 
+                    // significa que quieren devolver el dinero a la caja.
+                    if ($request->accion === 'guardar_pagar' && $request->finanza_cuenta_id) {
+                        app(\App\Services\TesoreriaService::class)->registrarMovimiento(
+                            $request->finanza_cuenta_id,
+                            'ingreso',
+                            $total,
+                            "Devolución por Nota de Crédito #{$purchase->invoice_number} (Proveedor: {$supplier->name})",
+                            [
+                                'categoria' => 'Notas de Crédito Proveedores',
+                                'reference_type' => Purchase::class,
+                                'reference_id' => $purchase->id,
+                                'fecha' => $purchase->purchase_date
+                            ]
+                        );
+                    }
                 } else {
                     if ($tipoPago === 'credito') {
                         // Aumentar deuda
@@ -279,7 +312,11 @@ class PurchaseController extends Controller
                             $supplier->id, 
                             $total, 
                             $purchase->purchase_date,
-                            [['metodo_pago' => 'efectivo', 'monto' => $total]],
+                            [[
+                                'metodo_pago' => 'efectivo', 
+                                'monto' => $total,
+                                'finanza_cuenta_id' => $request->finanza_cuenta_id
+                            ]],
                             [], // Auto-imputar
                             true
                         );
@@ -451,13 +488,11 @@ class PurchaseController extends Controller
     /* =========================================================
        PREPARAR NOTA DE CRÉDITO (REVERSA)
     ========================================================= */
-    public function creditNote(Purchase $purchase)
+    public function creditNote($id)
     {
         $empresaId = auth()->user()->empresa_id;
 
-        if ($purchase->empresa_id !== $empresaId) {
-            abort(403);
-        }
+        $purchase = Purchase::where('empresa_id', $empresaId)->findOrFail($id);
 
         $purchase->load(['items.product', 'items.variant']);
         

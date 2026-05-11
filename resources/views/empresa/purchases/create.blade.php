@@ -7,7 +7,12 @@
 ========================================================= --}}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="mb-0">Nueva Compra</h2>
+        <h2 class="mb-0">
+            @if(isset($prefill) && ($prefill['invoice_type'] ?? '') == 'NC')
+                <span class="badge bg-danger">NOTA DE CRÉDITO</span>
+            @endif
+            Nueva Compra
+        </h2>
         <small class="text-muted">Factura de proveedor</small>
     </div>
 
@@ -64,6 +69,24 @@
             </div>
 
         </div>
+
+        {{-- SECCIÓN DE PAGO (OPCIONAL SEGÚN ACCIÓN) --}}
+        <div class="row mt-2">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold text-primary">Caja / Cuenta (Para pago al contado o devolución)</label>
+                <select name="finanza_cuenta_id" class="form-select border-primary shadow-sm">
+                    <option value="">Seleccionar cuenta (Opcional)</option>
+                    @foreach($cuentas as $cuenta)
+                        <option value="{{ $cuenta->id }}">{{ $cuenta->nombre }} (Saldo: $ {{ number_format($cuenta->saldo_actual, 2, ',', '.') }})</option>
+                    @endforeach
+                </select>
+                <small class="text-muted d-block mt-1">
+                    <i class="bi bi-info-circle"></i> 
+                    Si seleccionas una cuenta, el dinero se descontará (en Compra) o sumará (en Nota de Crédito) automáticamente.
+                </small>
+            </div>
+        </div>
+
     </div>
 </div>
 
