@@ -147,10 +147,12 @@ class AfipService
             ];
 
         } catch (\Exception $e) {
-            Log::error("Error AFIP Solicitar CAE: " . $e->getMessage());
+            \Log::error("ERROR AFIP DETALLADO (Empresa {$empresa->id}): " . $e->getMessage());
+            \Log::error("Datos enviados: " . json_encode($data ?? 'No se llegaron a generar los datos'));
+            
             return [
                 'success' => false,
-                'error'   => $e->getMessage()
+                'error'   => "AFIP respondió: " . $e->getMessage() . " (Revisa el log para más detalles)"
             ];
         }
     }
