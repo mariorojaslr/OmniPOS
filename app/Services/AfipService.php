@@ -28,11 +28,18 @@ class AfipService
 
         // Prioridad 1: Certificados específicos de la empresa
         if (file_exists($certPath) && file_exists($keyPath)) {
+            $certContent = file_get_contents($certPath);
+            $keyContent  = file_get_contents($keyPath);
+
+            if ($certContent === false || $keyContent === false) {
+                throw new \Exception("ERROR: No se pudo leer el contenido de los certificados en $certPath. Verifica permisos.");
+            }
+
             return new \Afip([
                 'CUIT'         => $cuit,
                 'production'   => $isProduction,
-                'cert'         => file_get_contents($certPath),
-                'key'          => file_get_contents($keyPath),
+                'cert'         => $certContent,
+                'key'          => $keyContent,
                 'res_folder'   => $resFolder,
             ]);
         }
