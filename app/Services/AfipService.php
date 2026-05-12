@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+// CAMBIO FORZADO: 2026-05-12 03:51
+
 use App\Models\Empresa;
 use Afip;
 use Illuminate\Support\Facades\Log;
