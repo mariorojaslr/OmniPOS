@@ -61,7 +61,7 @@
         if($empresa->condicion_iva === 'Monotributista'){
             $letra = "C"; $cod_id = "011";
         } else {
-            $taxCondition = strtoupper(trim($venta->cliente->tax_condition ?? ''));
+            $taxCondition = strtoupper(trim($venta->cliente->condicion_iva ?? ''));
             $esA = ($taxCondition === 'RESPONSABLE INSCRIPTO' || $taxCondition === 'RESPONSABLE_INSCRIPTO');
             $letra = $esA ? "A" : "B";
             $cod_id = $esA ? "001" : "006";
