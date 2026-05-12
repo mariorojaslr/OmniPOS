@@ -33,20 +33,25 @@
         .items-table td { padding: 4px 8px; font-size: 8.5pt; color: #000; border: none; }
         
         /* FOOTER COMPACTO */
-        .footer-container { position: absolute; bottom: 0; width: 100%; padding: 20px 25px; border-top: 2px solid #000; box-sizing: border-box; }
+        .footer-container { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px 25px; border-top: 2px solid #000; box-sizing: border-box; }
         
         .arca-box { float: left; width: 40%; padding-top: 10px; }
         .arca-logo { height: 38px; margin-bottom: 12px; }
         .qr-placeholder { border: 1.2px solid #000; padding: 6px; display: inline-block; background: #fff; }
         .qr-img { width: 95px; height: 95px; }
         
-        .totals-section { float: left; width: 55%; margin-left: 2%; text-align: right; padding-right: 0.5cm; }
+        .totals-section { float: left; width: 55%; margin-left: 2%; text-align: right; padding-right: 0.8cm; }
         .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
         .totals-table td { padding: 3px 0; font-size: 11pt; color: #000; }
         .total-row { font-size: 19pt; font-weight: 900; color: #000; border-top: 2.5px solid #000; border-bottom: 2.5px solid #000; padding: 10px 0; }
 
-        .cae-box { text-align: right; margin-top: 12px; }
+        .cae-box { text-align: right; margin-top: 12px; padding-right: 0.8cm; }
         .cae-data { font-weight: 900; font-size: 11.5pt; font-family: 'Courier-Bold', 'Courier', monospace; letter-spacing: 0.5px; }
+
+        .dotted-row { width: 100%; margin-bottom: 5px; }
+        .dotted-label { float: left; background: #fff; padding-right: 5px; }
+        .dotted-value { float: right; background: #fff; padding-left: 5px; font-weight: bold; }
+        .dotted-filler { border-bottom: 1px dotted #888; height: 14px; margin-top: -4px; }
 
         .attribution { text-align: center; font-size: 7.5pt; color: #666; margin-top: 35px; border-top: 1px solid #ddd; padding-top: 10px; font-style: italic; }
         .clear { clear: both; }
@@ -170,7 +175,7 @@
                     <br>
                     @if($venta->qr_data)
                         <div class="qr-placeholder">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data) }}" class="qr-img">
+                            <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
                         </div>
                     @endif
                     <div style="display: inline-block; vertical-align: top; margin-left: 15px; width: 180px;">
@@ -188,22 +193,26 @@
             </div>
 
             <div class="totals-section">
-                <table class="totals-table">
+                <div class="totals-table">
                     @if($esA)
-                        <tr>
-                            <td style="font-weight: bold; color: #444;">Subtotal Neto:</td>
-                            <td style="text-align: right; font-weight: bold;">$ {{ number_format($venta->total_sin_iva, 2, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold; color: #444;">IVA 21%:</td>
-                            <td style="text-align: right; font-weight: bold;">$ {{ number_format($venta->total_iva, 2, ',', '.') }}</td>
-                        </tr>
+                        <div class="dotted-row">
+                            <span class="dotted-label">Subtotal Neto</span>
+                            <span class="dotted-value">$ {{ number_format($venta->total_sin_iva, 2, ',', '.') }}</span>
+                            <div class="dotted-filler"></div>
+                        </div>
+                        <div class="dotted-row">
+                            <span class="dotted-label">IVA 21%</span>
+                            <span class="dotted-value">$ {{ number_format($venta->total_iva, 2, ',', '.') }}</span>
+                            <div class="dotted-filler"></div>
+                        </div>
                     @endif
-                    <tr class="total-row">
-                        <td style="text-align: left;">IMPORTE TOTAL:</td>
-                        <td style="text-align: right;">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
-                    </tr>
-                </table>
+                    
+                    <div style="margin-top: 10px; border-top: 2.5px solid #000; border-bottom: 2.5px solid #000; padding: 10px 0;">
+                        <span style="float: left; font-size: 16pt; font-weight: 900;">IMPORTE TOTAL</span>
+                        <span style="float: right; font-size: 19pt; font-weight: 900;">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</span>
+                        <div style="clear: both;"></div>
+                    </div>
+                </div>
                 
                 <div class="cae-box">
                     <div class="cae-data">CAE №: {{ $venta->cae ?? '-' }}</div>
