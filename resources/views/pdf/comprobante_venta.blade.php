@@ -35,17 +35,17 @@
         /* FOOTER COMPACTO */
         .footer-container { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px 25px; border-top: 2px solid #000; box-sizing: border-box; }
         
-        .arca-box { float: left; width: 40%; padding-top: 10px; }
-        .arca-logo { height: 38px; margin-bottom: 12px; }
-        .qr-placeholder { border: 1.2px solid #000; padding: 6px; display: inline-block; background: #fff; }
-        .qr-img { width: 95px; height: 95px; }
+        .arca-box { float: left; width: 45%; padding-top: 35px; }
+        .arca-logo { height: 38px; margin-bottom: 5px; }
+        .qr-placeholder { border: 1.2px solid #000; padding: 4px; display: inline-block; background: #fff; margin-top: 5px; }
+        .qr-img { width: 125px; height: 125px; }
         
-        .totals-section { float: left; width: 55%; margin-left: 2%; text-align: right; padding-right: 0.8cm; }
+        .totals-section { float: left; width: 50%; margin-left: 2%; text-align: right; padding-right: 1.2cm; }
         .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
         .totals-table td { padding: 3px 0; font-size: 11pt; color: #000; }
         .total-row { font-size: 19pt; font-weight: 900; color: #000; border-top: 2.5px solid #000; border-bottom: 2.5px solid #000; padding: 10px 0; }
 
-        .cae-box { text-align: right; margin-top: 12px; padding-right: 0.8cm; }
+        .cae-box { text-align: right; margin-top: 50px; padding-right: 1.2cm; }
         .cae-data { font-weight: 900; font-size: 11.5pt; font-family: 'Courier-Bold', 'Courier', monospace; letter-spacing: 0.5px; }
 
         .dotted-row { width: 100%; margin-bottom: 5px; }
@@ -169,18 +169,14 @@
             
             <div class="arca-box">
                 @if($hasCae)
-                    @if(isset($arcaLogoBase64) && $arcaLogoBase64)
-                        <img src="{{ $arcaLogoBase64 }}" class="arca-logo">
-                    @endif
-                    <br>
                     @if($venta->qr_data)
                         <div class="qr-placeholder">
                             <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
                         </div>
                     @endif
-                    <div style="display: inline-block; vertical-align: top; margin-left: 15px; width: 180px;">
+                    <div style="margin-top: 10px;">
                         <div style="font-size: 10pt; font-weight: 900;">Comprobante Autorizado</div>
-                        <div style="font-size: 7pt; color: #444; line-height: 1.2; margin-top: 5px;">
+                        <div style="font-size: 7pt; color: #444; line-height: 1.2; margin-top: 3px;">
                             Esta administración federal no se responsabiliza por los datos declarados.
                         </div>
                     </div>
@@ -215,7 +211,7 @@
                 </div>
                 
                 <div class="cae-box">
-                    <div class="cae-data">CAE №: {{ $venta->cae ?? '-' }}</div>
+                    <div class="cae-data">CAE: {{ $venta->cae ?? '-' }}</div>
                     <div class="cae-data">Vencimiento CAE: {{ $venta->cae_vencimiento ? \Carbon\Carbon::parse($venta->cae_vencimiento)->format('d/m/Y') : '-' }}</div>
                 </div>
             </div>

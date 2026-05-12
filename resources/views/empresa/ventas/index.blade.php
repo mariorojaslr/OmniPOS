@@ -172,7 +172,9 @@
                             @php
                                 $tipoLetra = strtoupper(substr($venta->tipo_comprobante ?? 'B', -1));
                                 if($venta->tipo_comprobante == 'ticket') $tipoLetra = 'T';
-                                $fullNum = str_pad($empresa->arca_punto_venta ?? '1', 4, '0', STR_PAD_LEFT) . '-' . str_pad($venta->id, 8, '0', STR_PAD_LEFT);
+                                
+                                // Si ya tiene número oficial (de AFIP), usamos ese. Si no, el interno.
+                                $fullNum = $venta->numero_comprobante ?: (str_pad($empresa->arca_punto_venta ?? '1', 4, '0', STR_PAD_LEFT) . '-' . str_pad($venta->id, 8, '0', STR_PAD_LEFT));
                             @endphp
                             <span class="badge bg-light text-dark border me-1">{{ $tipoLetra }}</span>
                             <span class="fw-bold">{{ $fullNum }}</span>

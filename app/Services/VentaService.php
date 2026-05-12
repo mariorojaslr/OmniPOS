@@ -128,6 +128,10 @@ class VentaService
                         $caeVencimiento = date('Y-m-d', strtotime($resAfip['cae_vencimiento']));
                         $numeroComprobante = $resAfip['numero_comprobante'];
                         $qrData = $resAfip['qr_data'] ?? null;
+                        
+                        // Actualizamos el contador de la empresa para que el próximo número interno sea coherente
+                        $empresaActual->proximo_numero_factura = (int) substr($numeroComprobante, -8) + 1;
+                        $empresaActual->save();
                     } else {
                          // TRABAR LA VENTA SI NO HAY CAE LEGAL
                         throw new \Exception("ERROR AFIP: " . $resAfip['error']);
