@@ -81,7 +81,7 @@
                                 </div>
 
                                 <label class="form-label fw-bold">Módulos del Sistema</label>
-                                <div class="p-3 border rounded-3 bg-white shadow-sm border-success border-opacity-25">
+                                <div class="p-3 border rounded-3 bg-white shadow-sm border-success border-opacity-25 mb-3">
                                     <div class="form-check form-switch mb-2">
                                         <input class="form-check-input" type="checkbox" id="modOrdenPedido" name="mod_orden_pedido" value="1" {{ ($config->mod_orden_pedido ?? false) ? 'checked' : '' }}>
                                         <label class="form-check-label small fw-bold" for="modOrdenPedido">📦 Órdenes de Pedido</label>
@@ -97,6 +97,32 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="modUnidades" name="mod_unidades_medida" value="1" {{ ($config->mod_unidades_medida ?? false) ? 'checked' : '' }}>
                                         <label class="form-check-label small fw-bold" for="modUnidades">⚖️ Unidades de Medida</label>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 border rounded-3 bg-light shadow-sm">
+                                    <label class="form-label small fw-bold">Provincia Principal</label>
+                                    <select name="provincia" class="form-select form-select-sm">
+                                        <option value="">Seleccionar...</option>
+                                        @foreach(['Buenos Aires','CABA','Catamarca','Chaco','Chubut','Córdoba','Corrientes','Entre Ríos','Formosa','Jujuy','La Pampa','La Rioja','Mendoza','Misiones','Neuquén','Río Negro','Salta','San Juan','San Luis','Santa Cruz','Santa Fe','Santiago del Estero','Tierra del Fuego','Tucumán'] as $prov)
+                                            <option value="{{ $prov }}" {{ ($empresa->provincia ?? '') == $prov ? 'selected' : '' }}>{{ $prov }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- DATOS LEGALES BASICOS --}}
+                            <div class="col-12">
+                                <div class="p-3 border rounded-3 bg-light">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold">Nombre Comercial / Fantasía</label>
+                                            <input type="text" name="nombre_comercial" value="{{ $empresa->nombre_comercial }}" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold">Razón Social Legal</label>
+                                            <input type="text" name="razon_social" value="{{ $empresa->razon_social }}" class="form-control" required>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -423,19 +449,6 @@
                                 <label class="form-label fw-bold small">CUIT del Titular</label>
                                 <input type="text" id="wiz_cuit" class="form-control" name="cuit" value="{{ $empresa->arca_cuit ?? $empresa->cuit }}" required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold small">Nombre Comercial <span class="text-danger">*</span></label>
-                            <input type="text" name="nombre_comercial" class="form-control border-2" value="{{ $empresa->nombre_comercial }}" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold small">Provincia (Principal para GPS) <span class="text-danger">*</span></label>
-                            <select name="provincia" class="form-select border-2" required>
-                                <option value="">Seleccionar Provincia...</option>
-                                @foreach(['Buenos Aires','CABA','Catamarca','Chaco','Chubut','Córdoba','Corrientes','Entre Ríos','Formosa','Jujuy','La Pampa','La Rioja','Mendoza','Misiones','Neuquén','Río Negro','Salta','San Juan','San Luis','Santa Cruz','Santa Fe','Santiago del Estero','Tierra del Fuego','Tucumán'] as $prov)
-                                    <option value="{{ $prov }}" {{ ($empresa->provincia ?? '') == $prov ? 'selected' : '' }}>{{ $prov }}</option>
-                                @endforeach
-                            </select>
-                        </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small">Localidad / Ciudad</label>
                                 <input type="text" id="wiz_localidad" class="form-control" name="localidad" placeholder="Ej: CABA" required>
