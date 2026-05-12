@@ -209,8 +209,8 @@
                     <div class="doc-num">N&deg; {{ $fullNumero }}</div>
                     <div class="doc-data">
                         <p><strong>Fecha:</strong> {{ $venta->created_at->format('d/m/Y') }}</p>
-                        <p><strong>CUIT:</strong> {{ $empresa->arca_cuit ?? ($empresa->iibb ?? $empresa->cuit) }}</p>
-                        <p><strong>I.I.B.B.:</strong> {{ $empresa->iibb ?? $empresa->cuit }}</p>
+                        <p><strong>CUIT:</strong> {{ $empresa->arca_cuit ?? $empresa->cuit }}</p>
+                        <p><strong>I.I.B.B.:</strong> {{ $empresa->iibb ?? '-' }}</p>
                         <p><strong>Inicio Actividades:</strong> {{ $empresa->inicio_actividad ?? '-' }}</p>
                     </div>
                 </td>

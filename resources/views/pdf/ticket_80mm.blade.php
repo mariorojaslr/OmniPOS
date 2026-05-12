@@ -83,7 +83,7 @@
     @endif
     <div class="company-info">
         CUIT: {{ $empresa->arca_cuit ?? $empresa->cuit }}<br>
-        IIBB: {{ $empresa->iibb ?? $empresa->cuit }}<br>
+        IIBB: {{ $empresa->iibb ?? '-' }}<br>
         {{ $empresa->direccion_fiscal ?? '-' }}<br>
         Cond. IVA: {{ $empresa->condicion_iva ?? 'Responsable Inscripto' }}
     </div>
