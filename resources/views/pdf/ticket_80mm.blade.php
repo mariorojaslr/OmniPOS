@@ -52,10 +52,26 @@
 <body>
 
 @php
-    $tipo = strtoupper($venta->tipo_comprobante ?? 'B');
-    $esA = ($tipo === 'A' || $tipo === 'FACTURA A');
-    $letra = $esA ? 'A' : 'B';
-    $numeroCompleto = $venta->numero_comprobante ?: (str_pad($empresa->arca_punto_venta ?? '15', 5, '0', STR_PAD_LEFT) . '-' . str_pad($venta->id, 8, '0', STR_PAD_LEFT));
+    $hasCae = !empty($venta->cae);
+    $letra = "X";
+    $cod_id = "000";
+    $esA = false;
+
+    if($hasCae){
+        if($empresa->condicion_iva === 'Monotributista'){
+            $letra = "C"; $cod_id = "011";
+        } else {
+            $esA = ($venta->cliente && ($venta->cliente->tax_condition === 'responsable_inscripto' || $venta->cliente->tax_condition === 'Responsable Inscripto'));
+            $letra = $esA ? "A" : "B";
+            $cod_id = $esA ? "001" : "006";
+        }
+        $titulo_comprobante = "FACTURA " . $letra;
+    } else {
+        $letra = "X";
+        $titulo_comprobante = (strtoupper($venta->tipo_comprobante ?? 'B') === 'TICKET') ? "TICKET" : "DOC. NO FISCAL";
+    }
+    
+    $numeroCompleto = $venta->numero_comprobante ?: (str_pad($empresa->arca_punto_venta ?? '12', 4, '0', STR_PAD_LEFT) . '-' . str_pad($venta->id, 8, '0', STR_PAD_LEFT));
     $itemsCount = $venta->items->sum('cantidad');
 @endphp
 
@@ -63,16 +79,17 @@
     @if(isset($logoBase64) && $logoBase64)
         <img src="{{ $logoBase64 }}" class="logo">
     @endif
+    <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
     <div class="company-info">
-        de Mario C. Rojas<br>
-        CUIT: {{ $empresa->arca_cuit ?? $empresa->cuit }} - IIBB: {{ $empresa->iibb ?? '-' }}<br>
-        Dirección: {{ $empresa->direccion_fiscal ?? '-' }}<br>
-        Inic. De Actividades: {{ $empresa->inicio_actividad ?? '-' }}
+        CUIT: {{ $empresa->arca_cuit ?? $empresa->cuit }}<br>
+        IIBB: {{ $empresa->iibb ?? $empresa->cuit }}<br>
+        {{ $empresa->direccion_fiscal ?? '-' }}<br>
+        Cond. IVA: {{ $empresa->condicion_iva ?? 'Responsable Inscripto' }}
     </div>
 </div>
 
 <div class="doc-info">
-    FACTURA "{{ $letra }}"<br>
+    {{ $titulo_comprobante }} "{{ $letra }}"<br>
     <span class="doc-num">N&deg; {{ $numeroCompleto }}</span>
 </div>
 
@@ -80,9 +97,9 @@
 
 <div class="client-info">
     <strong>Fecha:</strong> {{ $venta->created_at->format('d/m/Y') }} &nbsp; <strong>Hora:</strong> {{ $venta->created_at->format('H:i:s') }}<br>
-    <strong>{{ strtoupper($venta->cliente->name ?? 'CONSUMIDOR FINAL') }}</strong><br>
-    Cond. de I.V.A. {{ $venta->cliente->condicion_iva ?? 'CONSUMIDOR FINAL' }}<br>
-    C.U.I.T.: {{ $venta->cliente->document ?? '-' }}
+    <strong>CLIENTE:</strong> {{ strtoupper($venta->cliente->name ?? 'CONSUMIDOR FINAL') }}<br>
+    <strong>IVA:</strong> {{ $venta->cliente->condicion_iva ?? 'Consumidor Final' }}<br>
+    <strong>CUIT/DNI:</strong> {{ $venta->cliente->document ?? '-' }}
 </div>
 
 <div class="divider"></div>
@@ -98,7 +115,7 @@
         @foreach($venta->items as $item)
         <tr class="item-row-divider">
             <td style="padding-bottom: 2px;">
-                <div style="font-size: 7.5pt;">{{ number_format($item->cantidad, 0) }} x $ {{ number_format($item->total_item_con_iva / $item->cantidad, 2, ',', '.') }}</div>
+                <div style="font-size: 7.5pt;">{{ number_format($item->cantidad, 0) }} x $ {{ number_format($item->precio_unitario, 2, ',', '.') }}</div>
                 <div class="bold">{{ strtoupper($item->product->name) }}</div>
                 @if($item->variant) <small>({{ $item->variant->size }}/{{ $item->variant->color }})</small> @endif
             </td>
@@ -109,21 +126,30 @@
 </table>
 
 <div class="totals-box">
+    @if($esA)
+        <table width="100%" style="font-size: 9pt; margin-bottom: 5px;">
+            <tr>
+                <td>Subtotal Neto</td>
+                <td class="text-right">$ {{ number_format($venta->total_sin_iva, 2, ',', '.') }}</td>
+            </tr>
+            <tr>
+                <td>IVA 21%</td>
+                <td class="text-right">$ {{ number_format($venta->total_iva, 2, ',', '.') }}</td>
+            </tr>
+        </table>
+    @endif
     <table width="100%">
         <tr style="font-size: 13pt; font-weight: 900;">
             <td>TOTAL</td>
             <td class="text-right">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
         </tr>
-        <tr>
-            <td style="padding-top: 5px; font-size: 9pt;">RECIBI/MOS:<br>{{ strtoupper($venta->metodo_pago ?? 'EFECTIVO') }}</td>
-            <td class="text-right" style="vertical-align: bottom; font-weight: bold;">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
-        </tr>
     </table>
 </div>
 
 <div class="extra-info">
-    CANTIDAD DE ARTICULOS : {{ (int)$itemsCount }}<br>
-    CAJERO: {{ strtoupper($user->name) }} - CAJA_01
+    FORMA DE PAGO: {{ strtoupper($venta->metodo_pago ?? 'EFECTIVO') }}<br>
+    CANTIDAD DE ARTÍCULOS: {{ (int)$itemsCount }}<br>
+    CAJERO: {{ strtoupper($user->name ?? 'SISTEMA') }}
 </div>
 
 <div class="afip-footer">
@@ -133,13 +159,12 @@
         @endif
     </div>
     <div class="cae-column">
-        <strong>Código AFIP:</strong><br>
-        CAE{{ $venta->cae ?? '-' }}<br><br>
-        <strong>Vencimiento:</strong><br>
-        {{ $venta->cae_vencimiento ? \Carbon\Carbon::parse($venta->cae_vencimiento)->format('d/m/Y') : '-' }}
+        <strong>Código ARCA:</strong><br>
+        CAE: {{ $venta->cae ?? '-' }}<br>
+        Vto: {{ $venta->cae_vencimiento ? \Carbon\Carbon::parse($venta->cae_vencimiento)->format('d/m/Y') : '-' }}
     </div>
     <div class="clear"></div>
-    <div style="font-size: 7pt; text-align: center; margin-top: 5px;">
+    <div style="font-size: 7pt; text-align: center; margin-top: 8px;">
         Esta administración no se responsabiliza por los datos declarados en este comprobante.
     </div>
 </div>
