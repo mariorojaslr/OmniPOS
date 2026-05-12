@@ -273,7 +273,8 @@ class ConfiguracionEmpresaController extends Controller
                 'cert'         => $certPathOnDisk,
                 'key'          => $keyPathOnDisk,
                 'ta_folder'    => $taPath,
-                'force_soap'   => true
+                'force_soap'   => true,
+                'access_token' => env('AFIP_ACCESS_TOKEN', ''),
             ]);
 
             // Intentar con el servicio más común

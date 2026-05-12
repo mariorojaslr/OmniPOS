@@ -209,10 +209,16 @@ class VentaController extends Controller
         $empresa->load('config');
 
         // Determinar formato (A4 o Ticket 80mm)
-        $formato = $request->get('format', 'a4');
+        // Determinamos el formato (A4 por defecto)
+        $formato = $request->get('format');
         
-        if ($venta->tipo_comprobante === 'ticket' && !$request->has('format')) {
-            $formato = 'ticket';
+        if (!$formato) {
+            // Si el comprobante es B o C (consumidor final/monotributo) y viene del POS, usamos ticket por defecto
+            if (in_array($venta->tipo_comprobante, ['B', 'C', 'ticket', 'X'])) {
+                $formato = 'ticket';
+            } else {
+                $formato = 'a4';
+            }
         }
 
         // Lógica de Logo - Acceso directo a disco para evitar fallos de red en producción
