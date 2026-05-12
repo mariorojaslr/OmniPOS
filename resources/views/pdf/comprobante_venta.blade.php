@@ -97,7 +97,7 @@
         }
         
         /* Caja ARCA (QR y Leyenda) */
-        .arca-box { float: left; width: 50%; padding-top: 2px; }
+        .arca-box { float: left; width: 50%; padding-top: 50px; padding-left: 20px; } /* <--- Bajamos y movemos a la derecha */
         .arca-logo { height: 26px; margin-bottom: 2px; }
         .qr-placeholder { border: 1.2px solid #000; padding: 2px; display: inline-block; background: #fff; vertical-align: top; }
         .qr-img { width: 80px; height: 80px; }
@@ -112,13 +112,13 @@
             margin-left: 2%; 
             text-align: right; 
             padding-right: 3.5cm;
-            margin-top: 35px; /* <--- Bajamos el total */
+            margin-top: 75px; /* <--- Bajamos el total unos 2cm más */
         }
         .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
         .totals-table td { padding: 0; font-size: 11pt; color: #000; }
         
         /* Caja de CAE y Vencimiento */
-        .cae-box { text-align: right; margin-top: 35px; padding-right: 3.5cm; }
+        .cae-box { text-align: right; margin-top: 15px; padding-right: 3.5cm; } /* Ajustado para alinear con leyenda */
         .cae-data { 
             font-weight: 900; 
             font-size: 10pt; 
@@ -270,7 +270,7 @@
                                 <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
                             </div>
                         @endif
-                        <div style="display: inline-block; vertical-align: top; margin-left: 15px; margin-top: 35px;">
+                        <div style="display: inline-block; vertical-align: top; margin-left: 15px; margin-top: 0px;">
                             @if(isset($arcaLogoBase64) && $arcaLogoBase64)
                                 <img src="{{ $arcaLogoBase64 }}" class="arca-logo" style="display: block; margin-bottom: 3px;">
                             @endif
