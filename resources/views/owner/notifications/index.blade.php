@@ -9,102 +9,109 @@
         </div>
         <div class="col-md-4 text-md-end">
             <button type="button" class="btn btn-primary px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalGlobalNotification">
-                <i class="fas fa-bullhorn me-2"></i> Nueva Comunicación Global
+                <i class="bi bi-megaphone me-2"></i> Nueva Comunicación Global
             </button>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show bg-success bg-opacity-10 text-success border-success mb-4" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert alert-success bg-black border-success text-success shadow-lg mb-4 d-flex align-items-center" role="alert">
+            <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+            <div>{{ session('success') }}</div>
+            <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
-    <div class="card bg-dark border-secondary shadow-lg">
-        <div class="card-header bg-transparent border-secondary py-3 d-flex justify-content-between align-items-center">
-            <h5 class="text-white mb-0"><i class="fas fa-history me-2"></i> Registro de Avisos</h5>
+    <div class="card bg-black border-secondary border-opacity-25 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <div class="card-header bg-dark bg-opacity-50 border-secondary border-opacity-25 py-4 px-4 d-flex justify-content-between align-items-center">
+            <h5 class="text-white mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i> Registro de Avisos</h5>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-dark table-hover mb-0 border-secondary align-middle">
-                    <thead class="text-secondary small">
-                        <tr>
-                            <th class="ps-4">Fecha/Hora</th>
-                            <th>Empresa / Destino</th>
-                            <th>Título / Asunto</th>
-                            <th>Tipo</th>
-                            <th>Media</th>
-                            <th class="text-end pe-4">Acciones</th>
+                <table class="table table-dark table-hover mb-0 align-middle" style="--bs-table-bg: transparent;">
+                    <thead class="text-white small text-uppercase" style="background: rgba(255,255,255,0.05);">
+                        <tr style="border-bottom: 2px solid rgba(255,255,255,0.1);">
+                            <th class="ps-4 py-3 fw-bold">Fecha/Hora</th>
+                            <th class="py-3 fw-bold">Empresa / Destino</th>
+                            <th class="py-3 fw-bold">Título / Asunto</th>
+                            <th class="py-3 fw-bold">Tipo</th>
+                            <th class="py-3 fw-bold">Media</th>
+                            <th class="text-end pe-4 py-3 fw-bold">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="border-top-0">
                         @forelse($notifications as $notif)
-                        <tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                             <td class="ps-4">
-                                <div class="text-white">{{ $notif->created_at->format('d/m/Y') }}</div>
-                                <div class="small text-secondary">{{ $notif->created_at->format('H:i') }} hs</div>
+                                <div class="text-white fw-bold">{{ $notif->created_at->format('d/m/Y') }}</div>
+                                <div class="small text-white opacity-75">{{ $notif->created_at->format('H:i') }} hs</div>
                             </td>
                             <td>
                                 @if($notif->empresa_id)
-                                    <span class="text-white fw-bold">{{ $notif->empresa->nombre_comercial }}</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2 shadow-sm" style="width: 24px; height: 24px; font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.2);">
+                                            <i class="bi bi-building"></i>
+                                        </div>
+                                        <span class="text-white small fw-bold">{{ $notif->empresa->nombre_comercial }}</span>
+                                    </div>
                                 @else
-                                    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary px-3">🌎 GLOBAL (Todas)</span>
+                                    <span class="badge bg-primary text-white border border-white border-opacity-25 px-3 rounded-pill shadow-sm" style="font-size: 0.7rem; background: #2563eb !important;">
+                                        <i class="bi bi-globe me-1 text-white"></i> GLOBAL (Todas)
+                                    </span>
                                 @endif
                             </td>
                             <td>
-                                <div class="text-white fw-bold">{{ $notif->title ?: 'Sin título' }}</div>
-                                <div class="small text-secondary text-truncate" style="max-width: 250px;">
+                                <div class="text-white fw-bold small">{{ $notif->title ?: 'Sin título' }}</div>
+                                <div class="text-white opacity-75 text-truncate" style="max-width: 250px; font-size: 0.75rem;">
                                     {{ Str::limit($notif->message, 80) }}
                                 </div>
                             </td>
                             <td>
-                                @if($notif->type === 'vencimiento')
-                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">VENCIMIENTO</span>
-                                @elseif($notif->type === 'mantenimiento')
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">MANTENIMIENTO</span>
-                                @elseif($notif->type === 'novedad')
-                                    <span class="badge bg-info bg-opacity-10 text-info border border-info">NOVEDAD</span>
-                                @elseif($notif->type === 'festividad')
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success">FESTIVIDAD</span>
-                                @else
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">{{ strtoupper($notif->type) }}</span>
-                                @endif
+                                @php
+                                    $badgeStyle = match($notif->type) {
+                                        'vencimiento' => 'background: #ef4444; color: white;',
+                                        'mantenimiento' => 'background: #f59e0b; color: black;',
+                                        'novedad' => 'background: #0ea5e9; color: white;',
+                                        'festividad' => 'background: #10b981; color: white;',
+                                        default => 'background: #64748b; color: white;'
+                                    };
+                                @endphp
+                                <span class="badge px-2 py-1 rounded-pill shadow-sm fw-bold" style="font-size: 0.65rem; {{ $badgeStyle }}">
+                                    {{ strtoupper($notif->type) }}
+                                </span>
                             </td>
                             <td>
                                 @if($notif->media_url)
-                                    @if($notif->media_type === 'image')
-                                        <a href="{{ $notif->media_url }}" target="_blank" class="text-info small">
-                                            <i class="fas fa-image me-1"></i> Imagen
-                                        </a>
-                                    @else
-                                        <a href="{{ $notif->media_url }}" target="_blank" class="text-warning small">
-                                            <i class="fas fa-video me-1"></i> Video
-                                        </a>
-                                    @endif
+                                    <a href="{{ $notif->media_url }}" target="_blank" class="btn btn-sm btn-light py-0 px-2 fw-bold shadow-sm" style="font-size: 0.7rem;">
+                                        <i class="bi {{ $notif->media_type === 'image' ? 'bi-image' : 'bi-play-btn' }} me-1"></i> VER MEDIA
+                                    </a>
                                 @else
-                                    <span class="text-muted small">Solo texto</span>
+                                    <span class="text-white opacity-50 small" style="font-size: 0.7rem;">Solo texto</span>
                                 @endif
                             </td>
                             <td class="text-end pe-4">
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-info" title="Editar" 
-                                            onclick="editNotification({{ json_encode($notif) }})">
-                                        <i class="fas fa-edit"></i>
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="btn btn-sm d-flex align-items-center justify-content-center shadow-sm" 
+                                            style="width: 32px; height: 32px; border-radius: 8px; background: #3b82f6; border: none;"
+                                            title="Editar" onclick="editNotification({{ json_encode($notif) }})">
+                                        <i class="bi bi-pencil-square text-white"></i>
                                     </button>
                                     <form action="{{ route('owner.notifications.toggle', $notif->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn btn-sm {{ $notif->active ? 'btn-outline-warning' : 'btn-outline-success' }}" 
+                                        <button type="submit" class="btn btn-sm d-flex align-items-center justify-content-center shadow-sm" 
+                                                style="width: 32px; height: 32px; border-radius: 8px; background: {{ $notif->active ? '#334155' : '#10b981' }}; border: none;"
                                                 title="{{ $notif->active ? 'Desactivar' : 'Activar' }}">
-                                            <i class="fas {{ $notif->active ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+                                            <i class="bi {{ $notif->active ? 'bi-eye-slash' : 'bi-eye' }} text-white"></i>
                                         </button>
                                     </form>
                                     <form action="{{ route('owner.notifications.destroy', $notif->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar comunicación permanentemente?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="submit" class="btn btn-sm d-flex align-items-center justify-content-center shadow-sm" 
+                                                style="width: 32px; height: 32px; border-radius: 8px; background: #ef4444; border: none;"
+                                                title="Eliminar">
+                                            <i class="bi bi-trash text-white"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -113,7 +120,7 @@
                         @empty
                         <tr>
                             <td colspan="6" class="text-center py-5 text-secondary">
-                                <i class="fas fa-paper-plane fa-3x mb-3 d-block opacity-25"></i>
+                                <i class="bi bi-send fa-3x mb-3 d-block opacity-25"></i>
                                 No se han enviado comunicaciones recientemente.
                             </td>
                         </tr>
@@ -122,7 +129,7 @@
                 </table>
             </div>
         </div>
-        <div class="card-footer bg-transparent border-secondary py-3">
+        <div class="card-footer bg-transparent border-secondary border-opacity-25 py-3">
             {{ $notifications->links('pagination::bootstrap-5') }}
         </div>
     </div>
@@ -133,7 +140,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-dark border-secondary shadow-lg">
             <div class="modal-header border-secondary">
-                <h5 class="modal-title text-white fw-bold"><i class="fas fa-bullhorn me-2 text-primary"></i> Nueva Comunicación Global</h5>
+                <h5 class="modal-title text-white fw-bold"><i class="bi bi-megaphone me-2 text-primary"></i> Nueva Comunicación Global</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ route('owner.notifications.send') }}" method="POST" enctype="multipart/form-data">
@@ -185,7 +192,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-dark border-secondary shadow-lg">
             <div class="modal-header border-secondary">
-                <h5 class="modal-title text-white fw-bold"><i class="fas fa-edit me-2 text-info"></i> Editar Comunicación</h5>
+                <h5 class="modal-title text-white fw-bold"><i class="bi bi-pencil-square me-2 text-info"></i> Editar Comunicación</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="formEditNotification" method="POST">

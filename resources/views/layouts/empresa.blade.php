@@ -491,43 +491,55 @@ body {
                 </a>
             @endif
 
-            {{-- NOTIFICACIONES --}}
+            {{-- NOTIFICACIONES DINÁMICAS --}}
+            @php
+                $totalNotif = ($lowStockCount ?? 0) + 1; // +1 por el backup (siempre presente como recordatorio)
+            @endphp
             <div class="dropdown">
                 <div class="position-relative cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-bell fs-5 text-dark opacity-75"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
-                        2
-                    </span>
+                    @if($totalNotif > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white shadow-sm" style="font-size: 0.65rem; padding: 0.3em 0.5em;">
+                            {{ $totalNotif }}
+                        </span>
+                    @endif
                 </div>
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-0 mt-3 overflow-hidden" style="min-width: 300px;">
-                    <li class="bg-light p-3 border-bottom">
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-0 mt-3 overflow-hidden bg-black border border-secondary border-opacity-25" style="min-width: 320px;">
+                    <li class="bg-dark bg-opacity-50 p-3 border-bottom border-secondary border-opacity-25">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 fw-bold small text-uppercase">Notificaciones</h6>
-                            <span class="badge bg-primary rounded-pill">2 Nuevas</span>
+                            <h6 class="mb-0 fw-bold small text-uppercase text-white tracking-wider">Centro de Alertas</h6>
+                            <span class="badge bg-primary text-white rounded-pill px-3" style="font-size: 0.6rem;">{{ $totalNotif }} ACTIVAS</span>
                         </div>
                     </li>
-                    <li class="p-2">
-                        <a class="dropdown-item rounded-3 p-3 d-flex gap-3" href="#">
-                            <div class="bg-success-subtle text-success rounded-circle p-2" style="height: 40px; width: 40px;">
-                                <i class="bi bi-check-circle"></i>
+                    <li class="p-1">
+                        {{-- ALERTA: STOCK BAJO --}}
+                        @if(($lowStockCount ?? 0) > 0)
+                            <a class="dropdown-item rounded-3 p-3 d-flex gap-3 align-items-center border-bottom border-secondary border-opacity-10 hover-bright" href="{{ route('empresa.stock.faltantes') }}">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="height: 40px; width: 40px; flex-shrink: 0;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold small text-white">Stock Crítico</div>
+                                    <div class="x-small text-white opacity-75">Hay <strong>{{ $lowStockCount }} artículos</strong> por debajo del mínimo.</div>
+                                </div>
+                                <i class="bi bi-chevron-right text-white opacity-25"></i>
+                            </a>
+                        @endif
+
+                        {{-- ALERTA: BACKUP (ESTÁTICA PERO ÚTIL) --}}
+                        <a class="dropdown-item rounded-3 p-3 d-flex gap-3 align-items-center hover-bright" href="{{ route('empresa.backup.index') }}">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="height: 40px; width: 40px; flex-shrink: 0;">
+                                <i class="bi bi-shield-check"></i>
                             </div>
-                            <div>
-                                <div class="fw-bold small">Copia de Seguridad</div>
-                                <div class="x-small text-muted">Backup completado con éxito hoy.</div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold small text-white">Bóveda de Seguridad</div>
+                                <div class="x-small text-white opacity-75">Tu información está resguardada. Haz un backup manual aquí.</div>
                             </div>
-                        </a>
-                        <a class="dropdown-item rounded-3 p-3 d-flex gap-3" href="#">
-                            <div class="bg-warning-subtle text-warning rounded-circle p-2" style="height: 40px; width: 40px;">
-                                <i class="bi bi-exclamation-triangle"></i>
-                            </div>
-                            <div>
-                                <div class="fw-bold small">Stock Bajo</div>
-                                <div class="x-small text-muted">Hay 5 artículos por debajo del mínimo.</div>
-                            </div>
+                            <i class="bi bi-chevron-right text-white opacity-25"></i>
                         </a>
                     </li>
-                    <li class="bg-light p-2 text-center">
-                        <a href="#" class="x-small fw-bold text-decoration-none">Ver todas las notificaciones</a>
+                    <li class="bg-dark bg-opacity-50 p-2 text-center border-top border-secondary border-opacity-25">
+                        <a href="{{ route('empresa.dashboard') }}" class="x-small fw-bold text-white text-decoration-none opacity-75 hover-opacity-100">CERRAR PANEL</a>
                     </li>
                 </ul>
             </div>
