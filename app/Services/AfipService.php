@@ -13,7 +13,7 @@ class AfipService
      */
     protected function getAfipInstance(Empresa $empresa)
     {
-        $isProduction = (strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
+        $isProduction = ($empresa->arca_ambiente === 'produccion' || strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
         $cuit = (int) str_replace('-', '', $empresa->arca_cuit);
 
         // Carpeta para recursos de AFIP (obligatoria para el SDK)
