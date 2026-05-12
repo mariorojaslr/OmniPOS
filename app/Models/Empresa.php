@@ -60,6 +60,7 @@ class Empresa extends Model
         'arca_llave',
         'arca_ambiente',
         'arca_activo',
+        'inicio_actividad',
     ];
 
     /**
