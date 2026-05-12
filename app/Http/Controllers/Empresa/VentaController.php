@@ -261,7 +261,8 @@ class VentaController extends Controller
         }
 
         if ($formato === 'ticket') {
-            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket_80mm', compact('venta', 'empresa', 'logoBase64', 'qrUrl'))
+            $user = $venta->user ?? auth()->user();
+            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket_80mm', compact('venta', 'empresa', 'logoBase64', 'qrUrl', 'user'))
                 ->setPaper([0, 0, 226.77, 700], 'portrait');
         } else {
             $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64', 'qrUrl'))
