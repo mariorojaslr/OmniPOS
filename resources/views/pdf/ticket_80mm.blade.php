@@ -78,8 +78,9 @@
 <div class="header">
     @if(isset($logoBase64) && $logoBase64)
         <img src="{{ $logoBase64 }}" class="logo">
+    @else
+        <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
     @endif
-    <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
     <div class="company-info">
         CUIT: {{ $empresa->arca_cuit ?? $empresa->cuit }}<br>
         IIBB: {{ $empresa->iibb ?? $empresa->cuit }}<br>

@@ -72,6 +72,9 @@ class ConfiguracionEmpresaController extends Controller
                 'arca_certificado'     => 'nullable|file|max:2048',
                 'arca_llave'           => 'nullable|file|max:2048',
                 
+                'nombre_comercial'     => 'nullable|string|max:100',
+                'razon_social'        => 'nullable|string|max:100',
+                
                 'pasarelas'            => 'nullable|array',
             ]);
 
@@ -90,6 +93,8 @@ class ConfiguracionEmpresaController extends Controller
                 'dia_cierre_periodo' => $request->dia_cierre_periodo ?? 0,
                 'arca_ambiente'      => $request->arca_ambiente ?? 'homologacion',
                 'arca_activo'        => $request->has('arca_activo'),
+                'nombre_comercial'   => $request->nombre_comercial,
+                'razon_social'       => $request->razon_social,
                 'config_pasarelas'   => $request->pasarelas ?? [],
             ];
 

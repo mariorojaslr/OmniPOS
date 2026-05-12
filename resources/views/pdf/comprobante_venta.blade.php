@@ -193,10 +193,11 @@
                 <td width="48%">
                     @if(isset($logoBase64) && $logoBase64)
                         <img src="{{ $logoBase64 }}" class="company-logo">
+                    @else
+                        <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
                     @endif
-                    <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
                     <div class="company-data">
-                        <p><strong>{{ $empresa->nombre_comercial ?? 'Casa Central' }}</strong></p>
+                        <p><strong>{{ $empresa->nombre_comercial ?? '' }}</strong></p>
                         <p>{{ $empresa->direccion_fiscal ?? '-' }}</p>
                         <p>Tel: {{ $empresa->telefono ?? '-' }}</p>
                         <p><strong>Cond. IVA:</strong> {{ $empresa->condicion_iva ?? 'Responsable Inscripto' }}</p>
