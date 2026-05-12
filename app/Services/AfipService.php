@@ -24,6 +24,9 @@ class AfipService
             mkdir($resFolder, 0777, true);
         }
 
+        // Access Token del SDK (requerido por app.afipsdk.com)
+        $accessToken = env('AFIP_ACCESS_TOKEN', '');
+
         // Rutas a los certificados
         $certPath = base_path("ARCA/empresa_{$empresa->id}_cert.crt");
         $keyPath  = base_path("ARCA/empresa_{$empresa->id}_key.key");
@@ -31,11 +34,12 @@ class AfipService
         // Prioridad 1: Certificados específicos de la empresa
         if (file_exists($certPath) && file_exists($keyPath)) {
             return new \Afip([
-                'CUIT'         => $cuit,
-                'production'   => $isProduction,
-                'cert'         => file_get_contents($certPath),
-                'key'          => file_get_contents($keyPath),
-                'res_folder'   => $resFolder,
+                'CUIT'          => $cuit,
+                'production'    => $isProduction,
+                'cert'          => file_get_contents($certPath),
+                'key'           => file_get_contents($keyPath),
+                'res_folder'    => $resFolder,
+                'access_token'  => $accessToken,
             ]);
         }
 
@@ -44,16 +48,16 @@ class AfipService
         $keyPathGen  = base_path('ARCA/empresa.key');
         if (file_exists($certPathGen) && file_exists($keyPathGen)) {
             return new \Afip([
-                'CUIT'         => $cuit,
-                'production'   => $isProduction,
-                'cert'         => file_get_contents($certPathGen),
-                'key'          => file_get_contents($keyPathGen),
-                'res_folder'   => $resFolder,
+                'CUIT'          => $cuit,
+                'production'    => $isProduction,
+                'cert'          => file_get_contents($certPathGen),
+                'key'           => file_get_contents($keyPathGen),
+                'res_folder'    => $resFolder,
+                'access_token'  => $accessToken,
             ]);
         }
 
-        // Prioridad 3: Access Token (solo si no hay certificados)
-        $accessToken = env('AFIP_ACCESS_TOKEN');
+        // Prioridad 3: Solo Access Token
         if ($accessToken) {
             return new \Afip([
                 'CUIT'          => $cuit,
