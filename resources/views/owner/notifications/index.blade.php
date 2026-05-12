@@ -1,14 +1,54 @@
 @extends('layouts.app')
 
+@section('styles')
+<style>
+    /* FORZAR FONDO NEGRO TOTAL PARA EL OWNER */
+    body, #main-content, .navbar-premium {
+        background-color: #000 !important;
+        background-image: none !important;
+    }
+    
+    .navbar-brand, .nav-link, .btn-profile {
+        color: #ffffff !important;
+    }
+
+    /* ALTO CONTRASTE PARA LOS TEXTOS */
+    .text-white { color: #ffffff !important; }
+    .text-secondary, .text-muted, .opacity-75 { color: #ffffff !important; opacity: 1 !important; }
+    
+    .card {
+        background-color: #000 !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+    }
+
+    .table thead th {
+        background-color: #1a1a1a !important;
+        color: #ffffff !important;
+        border-bottom: 2px solid #ffffff !important;
+    }
+
+    /* PAGINACIÓN EN NEGRO */
+    .pagination .page-link {
+        background-color: #000 !important;
+        color: #fff !important;
+        border-color: rgba(255,255,255,0.2) !important;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #3b82f6 !important;
+        border-color: #3b82f6 !important;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid py-4">
-    <div class="row mb-4">
+    <div class="row align-items-center mb-5">
         <div class="col-md-8">
-            <h2 class="text-white fw-bold">Centro de Comunicaciones SaaS</h2>
-            <p class="text-secondary text-uppercase small fw-bold">Gestión de avisos individuales y globales a empresas</p>
+            <h2 class="text-white fw-bold mb-1">Centro de Comunicaciones SaaS</h2>
+            <p class="text-white opacity-75 text-uppercase small fw-bold tracking-wider">Gestión de avisos individuales y globales a empresas</p>
         </div>
         <div class="col-md-4 text-md-end">
-            <button type="button" class="btn btn-primary px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalGlobalNotification">
+            <button type="button" class="btn btn-primary px-4 shadow-sm fw-bold border-white border-opacity-10" data-bs-toggle="modal" data-bs-target="#modalGlobalNotification">
                 <i class="bi bi-megaphone me-2"></i> Nueva Comunicación Global
             </button>
         </div>
