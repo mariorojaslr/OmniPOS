@@ -284,15 +284,18 @@ class ConfiguracionEmpresaController extends Controller
                 'access_token' => env('AFIP_ACCESS_TOKEN', ''),
             ]);
 
-            // Intentar con el servicio más común
+            // 🚀 USAR LÓGICA DIRECTA (BYPASS AFIPSDK) con múltiples fallbacks (10, 5, 4)
             try {
                 $res = $afipManual->RegisterScopeTen->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
             } catch (\Exception $e) {
-                // Fallback al 5
                 try {
                     $res = $afipManual->RegisterScopeFive->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
                 } catch (\Exception $e2) {
-                    throw new \Exception("AFIP: " . $e->getMessage());
+                    try {
+                        $res = $afipManual->RegisterScopeFour->GetTaxpayerDetails((int) str_replace('-', '', $cuit));
+                    } catch (\Exception $e3) {
+                        throw new \Exception("AFIP: No se pudo obtener datos (A10, A5 y A4 fallaron). Verifica permisos.");
+                    }
                 }
             }
 
