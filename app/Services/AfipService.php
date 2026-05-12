@@ -34,7 +34,7 @@ class AfipService
 
         // Prioridad 1: Certificados específicos de la empresa
         if (file_exists($certPath) && file_exists($keyPath)) {
-            return new Afip([
+            return new \Afip([
                 'CUIT'         => $cuit,
                 'production'   => $isProduction,
                 'cert'         => file_get_contents($certPath),
@@ -48,7 +48,7 @@ class AfipService
         $certPathGen = base_path('ARCA/empresa.crt');
         $keyPathGen  = base_path('ARCA/empresa.key');
         if (file_exists($certPathGen) && file_exists($keyPathGen)) {
-            return new Afip([
+            return new \Afip([
                 'CUIT'         => $cuit,
                 'production'   => $isProduction,
                 'cert'         => file_get_contents($certPathGen),
@@ -61,7 +61,7 @@ class AfipService
         // Prioridad 3: Access Token (solo si no hay certificados)
         $accessToken = env('AFIP_ACCESS_TOKEN');
         if ($accessToken) {
-            return new Afip([
+            return new \Afip([
                 'CUIT'          => $cuit,
                 'production'    => $isProduction,
                 'access_token'  => $accessToken,
