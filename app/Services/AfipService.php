@@ -16,26 +16,49 @@ class AfipService
         $isProduction = (strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
         $cuit = (int) str_replace('-', '', $empresa->arca_cuit);
 
-        // Rutas directas como en el Test Exitoso
+        // Carpeta para recursos de AFIP (obligatoria para el SDK)
+        $resFolder = storage_path('app/afip_res/');
+        if (!file_exists($resFolder)) {
+            mkdir($resFolder, 0777, true);
+        }
+
+        // Carpeta para el Token de Acceso temporal (TA) por empresa
+        $taFolder = storage_path('app/afip_ta/empresa_' . $empresa->id);
+        if (!file_exists($taFolder)) {
+            mkdir($taFolder, 0777, true);
+        }
+
+        // Rutas a los certificados en la raíz /ARCA
         $certPath = base_path("ARCA/empresa_{$empresa->id}_cert.crt");
         $keyPath  = base_path("ARCA/empresa_{$empresa->id}_key.key");
 
-        // Si no existen los específicos, probamos los genéricos
-        if (!file_exists($certPath)) $certPath = base_path('ARCA/empresa.crt');
-        if (!file_exists($keyPath))  $keyPath  = base_path('ARCA/empresa.key');
-
+        // Prioridad 1: Certificados específicos de la empresa
         if (file_exists($certPath) && file_exists($keyPath)) {
             return new Afip([
                 'CUIT'         => $cuit,
                 'production'   => $isProduction,
                 'cert'         => file_get_contents($certPath),
                 'key'          => file_get_contents($keyPath),
-                'res_folder'   => storage_path('app/afip_res/'), // Carpeta estándar de recursos
-                'ta_folder'    => storage_path('app/ARCA/ta/' . $empresa->id),
+                'res_folder'   => $resFolder,
+                'ta_folder'    => $taFolder,
             ]);
         }
 
-        // Fallback a Access Token si existe en el .env
+        // Prioridad 2: Certificados genéricos
+        $certPathGen = base_path('ARCA/empresa.crt');
+        $keyPathGen  = base_path('ARCA/empresa.key');
+        if (file_exists($certPathGen) && file_exists($keyPathGen)) {
+            return new Afip([
+                'CUIT'         => $cuit,
+                'production'   => $isProduction,
+                'cert'         => file_get_contents($certPathGen),
+                'key'          => file_get_contents($keyPathGen),
+                'res_folder'   => $resFolder,
+                'ta_folder'    => $taFolder,
+            ]);
+        }
+
+        // Prioridad 3: Access Token (solo si no hay certificados)
         $accessToken = env('AFIP_ACCESS_TOKEN');
         if ($accessToken) {
             return new Afip([
@@ -45,7 +68,7 @@ class AfipService
             ]);
         }
 
-        throw new \Exception("BLOQUEO: No se encontraron los archivos .crt y .key en la carpeta /ARCA para la empresa {$empresa->id}.");
+        throw new \Exception("ERROR CRÍTICO: No se encontraron certificados (.crt y .key) para la empresa {$empresa->id} en la carpeta /ARCA. Verificadas rutas: $certPath y $keyPath");
     }
 
     /**
