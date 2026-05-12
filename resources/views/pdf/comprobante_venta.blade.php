@@ -24,9 +24,9 @@
          */
         .invoice-box { 
             border: 1.5px solid #000; 
-            padding: 0; 
+            padding: 10px 0 0 0; /* Un poco de aire arriba */
             position: relative; 
-            min-height: 26.5cm; /* Esto asegura que el cuadro ocupe casi toda la hoja */
+            min-height: 26.5cm; 
         }
 
         /* La letra (A, B, C) en el medio del encabezado */
@@ -47,8 +47,8 @@
         .header-center .cod { font-size: 7pt; font-weight: bold; }
 
         /* Tabla del encabezado (Logo a la izquierda, Datos de Factura a la derecha) */
-        .header-table { width: 100%; border-bottom: 1.5px solid #000; border-collapse: collapse; }
-        .header-table td { padding: 15px; vertical-align: top; }
+        .header-table { width: 100%; border-bottom: 1.5px solid #000; border-collapse: collapse; margin-bottom: 10px; }
+        .header-table td { padding: 10px 15px; vertical-align: top; }
         
         .company-logo { max-height: 65px; margin-bottom: 10px; display: block; }
         .company-name { font-size: 16pt; font-weight: 900; color: #000; text-transform: uppercase; }
