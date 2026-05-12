@@ -40,12 +40,12 @@
         .qr-placeholder { border: 1.2px solid #000; padding: 3px; display: inline-block; background: #fff; vertical-align: top; }
         .qr-img { width: 85px; height: 85px; }
         
-        .totals-section { float: left; width: 45%; margin-left: 2%; text-align: right; padding-right: 1.8cm; }
-        .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
-        .totals-table td { padding: 1px 0; font-size: 11pt; color: #000; }
+        .totals-section { float: left; width: 45%; margin-left: 2%; text-align: right; padding-right: 2.2cm; }
+        .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
+        .totals-table td { padding: 0; font-size: 11pt; color: #000; }
         
-        .cae-box { text-align: right; margin-top: 5px; padding-right: 1.8cm; }
-        .cae-data { font-weight: 900; font-size: 10.5pt; font-family: 'Courier-Bold', 'Courier', monospace; letter-spacing: 0.5px; line-height: 1.2; }
+        .cae-box { text-align: right; margin-top: 2px; padding-right: 1.8cm; }
+        .cae-data { font-weight: 900; font-size: 10.5pt; font-family: 'Courier-Bold', 'Courier', monospace; letter-spacing: 0.5px; line-height: 1.1; }
 
         .dotted-row { width: 100%; margin-bottom: 2px; }
         .dotted-label { float: left; background: #fff; padding-right: 5px; }
@@ -174,7 +174,7 @@
                                 <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
                             </div>
                         @endif
-                        <div style="display: inline-block; vertical-align: top; margin-left: 15px;">
+                        <div style="display: inline-block; vertical-align: top; margin-left: 15px; margin-top: 45px;">
                             @if(isset($arcaLogoBase64) && $arcaLogoBase64)
                                 <img src="{{ $arcaLogoBase64 }}" class="arca-logo" style="display: block;">
                             @endif
