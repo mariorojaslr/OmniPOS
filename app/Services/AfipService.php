@@ -15,16 +15,16 @@ class AfipService
      */
     protected function getAfipInstance(Empresa $empresa)
     {
-        $isProduction = ($empresa->arca_ambiente === 'produccion' || strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
+        $isProduction = ($empresa->arca_ambiente === 'produccion');
         $cuit = (int) str_replace('-', '', $empresa->arca_cuit);
 
-        // Carpeta para recursos de AFIP (obligatoria para el SDK)
+        // Carpeta para recursos de AFIP
         $resFolder = storage_path('app/afip_res/');
         if (!file_exists($resFolder)) {
             mkdir($resFolder, 0777, true);
         }
 
-        // Rutas a los certificados en la raíz /ARCA
+        // Rutas a los certificados
         $certPath = base_path("ARCA/empresa_{$empresa->id}_cert.crt");
         $keyPath  = base_path("ARCA/empresa_{$empresa->id}_key.key");
 
@@ -33,8 +33,8 @@ class AfipService
             return new \Afip([
                 'CUIT'         => $cuit,
                 'production'   => $isProduction,
-                'cert'         => $certPath,
-                'key'          => $keyPath,
+                'cert'         => file_get_contents($certPath),
+                'key'          => file_get_contents($keyPath),
                 'res_folder'   => $resFolder,
             ]);
         }
@@ -46,8 +46,8 @@ class AfipService
             return new \Afip([
                 'CUIT'         => $cuit,
                 'production'   => $isProduction,
-                'cert'         => $certPathGen,
-                'key'          => $keyPathGen,
+                'cert'         => file_get_contents($certPathGen),
+                'key'          => file_get_contents($keyPathGen),
                 'res_folder'   => $resFolder,
             ]);
         }
