@@ -147,12 +147,17 @@ class AfipService
             ];
 
         } catch (\Exception $e) {
-            \Log::error("ERROR AFIP DETALLADO (Empresa {$empresa->id}): " . $e->getMessage());
-            \Log::error("Datos enviados: " . json_encode($data ?? 'No se llegaron a generar los datos'));
+            $debugData = [
+                'error' => $e->getMessage(),
+                'pv' => $puntoVenta ?? '?',
+                'tipo' => $tipoCompAfip ?? '?',
+                'cuit_emp' => $empresa->arca_cuit,
+                'doc_cliente' => $venta->cliente->document ?? '0'
+            ];
             
             return [
                 'success' => false,
-                'error'   => "AFIP respondió: " . $e->getMessage() . " (Revisa el log para más detalles)"
+                'error'   => "DETALLE TÉCNICO AFIP: " . json_encode($debugData)
             ];
         }
     }
