@@ -111,13 +111,14 @@
             width: 45%; 
             margin-left: 2%; 
             text-align: right; 
-            padding-right: 3.5cm; /* <--- TOQUE AQUÍ PARA ALEJAR EL TOTAL DEL BORDE */
+            padding-right: 3.5cm;
+            margin-top: 35px; /* <--- Bajamos el total */
         }
         .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
         .totals-table td { padding: 0; font-size: 11pt; color: #000; }
         
         /* Caja de CAE y Vencimiento */
-        .cae-box { text-align: right; margin-top: 2px; padding-right: 3.5cm; }
+        .cae-box { text-align: right; margin-top: 35px; padding-right: 3.5cm; }
         .cae-data { 
             font-weight: 900; 
             font-size: 10pt; 
@@ -208,7 +209,7 @@
                     <div class="doc-num">N&deg; {{ $fullNumero }}</div>
                     <div class="doc-data">
                         <p><strong>Fecha:</strong> {{ $venta->created_at->format('d/m/Y') }}</p>
-                        <p><strong>CUIT:</strong> {{ $empresa->cuit }}</p>
+                        <p><strong>CUIT:</strong> {{ $empresa->arca_cuit ?? ($empresa->iibb ?? $empresa->cuit) }}</p>
                         <p><strong>I.I.B.B.:</strong> {{ $empresa->iibb ?? $empresa->cuit }}</p>
                         <p><strong>Inicio Actividades:</strong> {{ $empresa->inicio_actividad ?? '-' }}</p>
                     </div>
@@ -270,10 +271,10 @@
                         @endif
                         <div style="display: inline-block; vertical-align: top; margin-left: 15px; margin-top: 35px;">
                             @if(isset($arcaLogoBase64) && $arcaLogoBase64)
-                                <img src="{{ $arcaLogoBase64 }}" class="arca-logo" style="display: block;">
+                                <img src="{{ $arcaLogoBase64 }}" class="arca-logo" style="display: block; margin-bottom: 3px;">
                             @endif
-                            <div style="font-size: 11pt; font-weight: 900; margin-top: 1px;">Comprobante Autorizado</div>
-                            <div style="font-size: 7pt; color: #000; line-height: 1; margin-top: 0px;">
+                            <div style="font-size: 11pt; font-weight: 900; line-height: 1;">Comprobante Autorizado</div>
+                            <div style="font-size: 7pt; color: #000; line-height: 1.1; margin-top: 1px;">
                                 Esta administración federal no se responsabiliza por los datos declarados.
                             </div>
                         </div>
