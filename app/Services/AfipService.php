@@ -177,10 +177,10 @@ class AfipService
             return ($tipo === 'NC' || $tipo === 'nota_credito') ? 13 : 11; // 11=FC C, 13=NC C
         }
 
-        // Si el cliente es Responsable Inscripto -> Comprobante A (1 o 3)
-        $clienteEsRI = ($cliente && $cliente->tax_condition === 'responsable_inscripto');
-
         // ⚖️ DISCRIMINACIÓN A o B (RI -> RI = A | RI -> Otros = B)
+        $taxCondition = strtoupper(trim($cliente->tax_condition ?? ''));
+        $clienteEsRI = (strpos($taxCondition, 'RESPONSABLE INSCRIPTO') !== false || strpos($taxCondition, 'RESPONSABLE_INSCRIPTO') !== false);
+
         return ($tipo === 'NC' || $tipo === 'nota_credito') 
             ? ($clienteEsRI ? 3 : 8)  // 3=NC A, 8=NC B
             : ($clienteEsRI ? 1 : 6); // 1=FC A, 6=FC B

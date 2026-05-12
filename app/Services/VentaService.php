@@ -103,7 +103,10 @@ class VentaService
                     } else {
                         // Si es Responsable Inscripto, determinamos A o B según el cliente
                         $cliente = $clienteId ? Client::find($clienteId) : null;
-                        if ($cliente && $cliente->document_type === 'CUIT' && $cliente->iva_condition === 'Responsable Inscripto') {
+                        $taxCondition = strtoupper(trim($cliente->tax_condition ?? ''));
+                        $clienteEsRI = (strpos($taxCondition, 'RESPONSABLE INSCRIPTO') !== false || strpos($taxCondition, 'RESPONSABLE_INSCRIPTO') !== false);
+                        
+                        if ($clienteEsRI) {
                             $tipoComprobante = 'A';
                         } else {
                             $tipoComprobante = 'B';

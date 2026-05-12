@@ -4,329 +4,272 @@
     <meta charset="UTF-8">
     <title>Comprobante de Venta</title>
     <style>
-        /** 
-         *  CONFIGURACIÓN DE LA PÁGINA
-         *  Aquí definimos los márgenes globales de la hoja A4.
-         */
         @page { margin: 1cm; }
-        
         body { 
             font-family: 'Helvetica', 'Arial', sans-serif; 
             font-size: 9pt; 
             color: #333; 
-            line-height: 1.4; 
-            margin: 0; 
-            padding: 0; 
+            line-height: 1.2;
+            margin: 0;
+            padding: 0;
         }
 
-        /** 
-         *  ESTILOS DEL CUADRO PRINCIPAL (MARCO EXTERIOR)
-         */
-        .invoice-box { 
-            border: 1.5px solid #000; 
-            padding: 10px 0 0 0; /* Un poco de aire arriba */
-            position: relative; 
-            min-height: 26.5cm; 
+        /* Contenedor Principal */
+        .invoice-box {
+            width: 100%;
+            position: relative;
+            min-height: 27cm; /* Asegura que el pie de página quede abajo */
         }
 
-        /* La letra (A, B, C) en el medio del encabezado */
-        .header-center {
+        /* Encabezado */
+        .header-table { width: 100%; border-bottom: 1px solid #000; margin-bottom: 10px; table-layout: fixed; }
+        .header-table td { vertical-align: top; padding: 5px; }
+        
+        .company-logo { max-height: 80px; max-width: 250px; margin-bottom: 5px; }
+        .company-name { font-size: 16pt; font-weight: bold; color: #000; margin-bottom: 2px; }
+        .company-data { font-size: 8pt; color: #444; }
+        .company-data p { margin: 2px 0; }
+
+        /* Letra del Comprobante (El cuadro del medio) */
+        .doc-type-box {
             position: absolute;
             top: 0;
             left: 50%;
-            transform: translateX(-50%);
-            border: 1.5px solid #000;
-            border-top: none;
-            width: 45px;
-            height: 45px;
-            text-align: center;
+            margin-left: -20px;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #000;
             background: #fff;
+            text-align: center;
             z-index: 10;
         }
-        .header-center .letter { font-size: 24pt; font-weight: bold; display: block; line-height: 1.1; }
-        .header-center .cod { font-size: 7pt; font-weight: bold; }
+        .doc-type-letter { font-size: 24pt; font-weight: bold; line-height: 35px; }
+        .doc-type-code { font-size: 6pt; font-weight: bold; margin-top: -5px; display: block; }
 
-        /* Tabla del encabezado (Logo a la izquierda, Datos de Factura a la derecha) */
-        .header-table { width: 100%; border-bottom: 1.5px solid #000; border-collapse: collapse; margin-bottom: 10px; }
-        .header-table td { padding: 10px 15px; vertical-align: top; }
-        
-        .company-logo { max-height: 65px; margin-bottom: 10px; display: block; }
-        .company-name { font-size: 16pt; font-weight: 900; color: #000; text-transform: uppercase; }
-        .company-data p { margin: 0; font-size: 8.5pt; color: #444; }
+        .doc-title { font-size: 14pt; font-weight: bold; margin: 0; text-transform: uppercase; }
+        .doc-num { font-size: 11pt; font-weight: bold; margin: 5px 0; }
+        .doc-data p { margin: 3px 0; font-size: 8.5pt; }
 
-        .doc-title { font-size: 18pt; font-weight: 900; margin: 0; color: #000; }
-        .doc-num { font-size: 14pt; font-weight: 900; margin: 5px 0; }
-        .doc-data p { margin: 2px 0; font-size: 9pt; }
+        /* Barras de Sección */
+        .section-bar { 
+            background: #f0f0f0; 
+            padding: 5px 10px; 
+            border: 1px solid #ccc; 
+            font-weight: bold; 
+            font-size: 9pt; 
+            margin: 10px 0;
+            text-transform: uppercase;
+        }
 
-        /* Franja de Datos del Cliente */
-        .section-bar { background: #f9f9f9; padding: 8px 15px; border-bottom: 1.5px solid #000; }
-        .label { font-weight: bold; color: #555; font-size: 8pt; text-transform: uppercase; margin-right: 5px; }
+        /* Tablas de Datos */
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .data-table td { padding: 4px 10px; vertical-align: top; }
+        .label { font-weight: bold; color: #555; margin-right: 5px; }
 
-        /** 
-         *  TABLA DE PRODUCTOS (ITEMS)
-         *  Aquí puedes tocar los paddings y tamaños de letra de la lista.
-         */
-        .items-table { width: 100%; border-collapse: collapse; }
+        /* Tabla de Items */
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .items-table th { 
-            background: #000; 
+            background: #333; 
             color: #fff; 
-            padding: 6px 8px; 
             text-align: left; 
-            font-size: 8pt; 
-            text-transform: uppercase; 
+            padding: 7px 10px; 
+            font-size: 8.5pt; 
+            text-transform: uppercase;
         }
         .items-table td { 
-            padding: 4px 8px; 
-            font-size: 8.5pt; 
-            color: #000; 
-            border: none; 
+            padding: 7px 10px; 
+            border-bottom: 1px solid #eee; 
+            font-size: 9pt; 
         }
-        
-        /** 
-         *  PIE DE PÁGINA (FOOTER) - EL BLOQUE DE ABAJO
-         *  Este bloque está "anclado" al fondo con position: absolute.
-         */
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* Pie de Página / Totales */
         .footer-container { 
             position: absolute; 
             bottom: 0; 
-            left: 0; 
             width: 100%; 
-            padding: 0 25px 5px 25px; 
-            border-top: 1.5px solid #000; 
-            box-sizing: border-box; 
+            padding-top: 10px;
+            border-top: 2px solid #000;
         }
-        
-        /* Caja ARCA (QR y Leyenda) */
-        .arca-box { float: left; width: 50%; padding-top: 50px; padding-left: 20px; } /* <--- Bajamos y movemos a la derecha */
-        .arca-logo { height: 26px; margin-bottom: 2px; }
-        .qr-placeholder { border: 1.2px solid #000; padding: 2px; display: inline-block; background: #fff; vertical-align: top; }
-        .qr-img { width: 80px; height: 80px; }
-        
-        /** 
-         *  TOTALES (LO QUE QUERÍAS MOVER)
-         *  Ajusta 'padding-right' para alejar el total del borde derecho.
-         */
+
         .totals-section { 
-            float: left; 
-            width: 45%; 
-            margin-left: 2%; 
-            text-align: right; 
-            padding-right: 3.5cm;
-            margin-top: 75px; /* <--- Bajamos el total unos 2cm más */
+            float: right; 
+            width: 40%; 
+            margin-bottom: 20px;
         }
-        .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
-        .totals-table td { padding: 0; font-size: 11pt; color: #000; }
-        
-        /* Caja de CAE y Vencimiento */
-        .cae-box { text-align: right; margin-top: 15px; padding-right: 3.5cm; } /* Ajustado para alinear con leyenda */
-        .cae-data { 
-            font-weight: 900; 
-            font-size: 10pt; 
-            font-family: 'Courier-Bold', 'Courier', monospace; 
-            letter-spacing: 0.5px; 
-            line-height: 1.0; 
-        }
+        .totals-table { width: 100%; border-collapse: collapse; }
+        .totals-table td { padding: 3px 0; font-size: 10pt; }
+        .total-row { font-size: 14pt !important; font-weight: bold; color: #000; border-top: 1px solid #333; }
 
-        /* Líneas punteadas en Subtotales */
-        .dotted-row { width: 100%; margin-bottom: 2px; }
-        .dotted-label { float: left; background: #fff; padding-right: 5px; }
-        .dotted-value { float: right; background: #fff; padding-left: 5px; font-weight: bold; }
-        .dotted-filler { border-bottom: 1px dotted #888; height: 14px; margin-top: -4px; }
-
-        .clear { clear: both; }
+        /* Bloque ARCA / AFIP */
+        .arca-container { clear: both; width: 100%; margin-top: 20px; table-layout: fixed; }
+        .arca-box-left { width: 60%; vertical-align: middle; }
+        .arca-box-right { width: 40%; text-align: right; vertical-align: middle; }
         
-        /* Pequeña firma al final de todo */
-        .attribution { 
-            text-align: center; 
-            font-size: 7pt; 
-            color: #888; 
-            margin-top: 10px; 
-            border-top: 1px solid #eee; 
-            padding-top: 5px; 
-        }
+        .qr-img { width: 90px; height: 90px; margin-right: 15px; float: left; }
+        .arca-logo { height: 28px; margin-bottom: 5px; display: block; }
+        .arca-legal { font-size: 7.5pt; color: #666; font-style: italic; line-height: 1.1; }
+        
+        .cae-data { font-size: 10pt; font-weight: bold; color: #000; }
+        .cae-label { color: #555; font-size: 9pt; font-weight: normal; margin-right: 5px; }
     </style>
 </head>
 <body>
 
-    @php
-        // Lógica para determinar si es factura A, B o C
-        $isTicket = ($venta->tipo_comprobante === 'ticket' || $venta->tipo_comprobante === 'X');
-        $letra = "X";
-        $cod_id = "000";
-        $hasCae = !empty($venta->cae);
+@php
+    $hasCae = !empty($venta->cae);
+    $letra = "X";
+    $cod_id = "000";
 
-        if($hasCae){
-            // Si tiene CAE, determinamos la letra según el CUIT del cliente o condición de la empresa
-            if($empresa->condicion_iva === 'Monotributista'){
-                $letra = "C"; $cod_id = "011";
-            } else {
-                $taxCondition = strtoupper(trim($venta->cliente->condicion_iva ?? ''));
-                $esA = ($taxCondition === 'RESPONSABLE INSCRIPTO' || $taxCondition === 'RESPONSABLE_INSCRIPTO');
-                $letra = $esA ? "A" : "B";
-                $cod_id = $esA ? "001" : "006";
-            }
-            $titulo_comprobante = "FACTURA " . $letra;
+    if($hasCae){
+        $taxCondEmpresa = strtoupper(trim($empresa->condicion_iva ?? ''));
+        if(strpos($taxCondEmpresa, 'MONOTRIBUTO') !== false){
+            $letra = "C"; $cod_id = "011";
         } else {
-            $titulo_comprobante = $isTicket ? "TICKET" : "FACTURA " . $letra;
+            $taxCondition = strtoupper(trim($venta->cliente->tax_condition ?? ''));
+            $esA = (strpos($taxCondition, 'RESPONSABLE INSCRIPTO') !== false || strpos($taxCondition, 'RESPONSABLE_INSCRIPTO') !== false);
+            $letra = $esA ? "A" : "B";
+            $cod_id = $esA ? "001" : "006";
         }
-        
-        // Número completo (Sucursal - Número)
-        $fullNumero = $venta->numero_comprobante ?: (str_pad($empresa->arca_punto_venta ?? '12', 4, '0', STR_PAD_LEFT) . '-' . str_pad($venta->id, 8, '0', STR_PAD_LEFT));
-    @endphp
+    }
+    
+    $titulo_comprobante = $hasCae ? "FACTURA " . $letra : "COMPROBANTE DE GESTIÓN";
+    $fullNumero = $venta->numero_comprobante;
+@endphp
 
-    <div class="invoice-box">
-        
-        {{-- ALERTA SI NO ES VÁLIDO --}}
-        @if(!$hasCae)
-            <div style="background: #ff0000; color: #fff; text-align: center; padding: 5px; font-weight: bold; position: absolute; width: 100%; top: -35px; left: 0;">
-                DOCUMENTO NO VÁLIDO COMO FACTURA
-            </div>
-        @endif
+<div class="invoice-box">
+    
+    {{-- CUADRO DE LETRA CENTRAL --}}
+    <div class="doc-type-box">
+        <span class="doc-type-letter">{{ $letra }}</span>
+        <span class="doc-type-code">COD. {{ $cod_id }}</span>
+    </div>
 
-        {{-- EL "CUADRITO" DE LA LETRA EN EL MEDIO --}}
-        <div class="header-center">
-            <span class="letter">{{ $letra }}</span>
-            <span class="cod">Cod. {{ $cod_id }}</span>
-        </div>
+    {{-- ENCABEZADO --}}
+    <table class="header-table">
+        <tr>
+            <td width="48%">
+                @if(isset($logoBase64) && $logoBase64)
+                    <img src="{{ $logoBase64 }}" class="company-logo">
+                @else
+                    <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
+                @endif
+                <div class="company-data">
+                    <p><strong>{{ $empresa->nombre_comercial ?? '' }}</strong></p>
+                    <p>{{ $empresa->direccion_fiscal ?? '-' }}</p>
+                    <p>Tel: {{ $empresa->telefono ?? '-' }}</p>
+                    <p><strong>Cond. IVA:</strong> {{ $empresa->condicion_iva ?? 'Responsable Inscripto' }}</p>
+                </div>
+            </td>
+            <td width="4%"></td>
+            <td width="48%" style="text-align: right;">
+                <h1 class="doc-title">{{ $titulo_comprobante }}</h1>
+                <div class="doc-num">N&deg; {{ $fullNumero }}</div>
+                <div class="doc-data">
+                    <p><span class="label">Fecha de Emisión:</span> {{ $venta->created_at->format('d/m/Y') }}</p>
+                    <p><span class="label">CUIT:</span> {{ $empresa->arca_cuit ?? $empresa->cuit }}</p>
+                    <p><span class="label">Ingresos Brutos:</span> {{ $empresa->iibb ?? '-' }}</p>
+                    <p><span class="label">Inicio de Actividades:</span> {{ $empresa->inicio_actividad ?? '-' }}</p>
+                </div>
+            </td>
+        </tr>
+    </table>
 
-        {{-- ENCABEZADO: DATOS DE LA EMPRESA Y DE LA FACTURA --}}
-        <table class="header-table">
+    {{-- DATOS DEL CLIENTE --}}
+    <div class="section-bar">Datos del Cliente</div>
+    <table class="data-table">
+        <tr>
+            <td width="55%">
+                <span class="label">Apellido y Nombre / Razón Social:</span> {{ $venta->cliente->name ?? 'Consumidor Final' }}
+            </td>
+            <td width="45%">
+                <span class="label">CUIT / DNI:</span> {{ $venta->cliente->document ?? '-' }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Condición frente al IVA:</span> {{ $venta->cliente->tax_condition ?? 'Consumidor Final' }}
+            </td>
+            <td>
+                <span class="label">Domicilio:</span> {{ $venta->cliente->address ?? '-' }}
+            </td>
+        </tr>
+    </table>
+
+    {{-- LISTADO DE PRODUCTOS --}}
+    <table class="items-table">
+        <thead>
             <tr>
-                <td width="48%">
-                    @if(isset($logoBase64) && $logoBase64)
-                        <img src="{{ $logoBase64 }}" class="company-logo">
-                    @else
-                        <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
-                    @endif
-                    <div class="company-data">
-                        <p><strong>{{ $empresa->nombre_comercial ?? '' }}</strong></p>
-                        <p>{{ $empresa->direccion_fiscal ?? '-' }}</p>
-                        <p>Tel: {{ $empresa->telefono ?? '-' }}</p>
-                        <p><strong>Cond. IVA:</strong> {{ $empresa->condicion_iva ?? 'Responsable Inscripto' }}</p>
-                    </div>
-                </td>
-                <td width="48%" style="text-align: right;">
-                    <h1 class="doc-title">{{ $titulo_comprobante }}</h1>
-                    <div class="doc-num">N&deg; {{ $fullNumero }}</div>
-                    <div class="doc-data">
-                        <p><strong>Fecha:</strong> {{ $venta->created_at->format('d/m/Y') }}</p>
-                        <p><strong>CUIT:</strong> {{ $empresa->arca_cuit ?? $empresa->cuit }}</p>
-                        <p><strong>I.I.B.B.:</strong> {{ $empresa->iibb ?? '-' }}</p>
-                        <p><strong>Inicio Actividades:</strong> {{ $empresa->inicio_actividad ?? '-' }}</p>
-                    </div>
-                </td>
+                <th width="10%">Cant.</th>
+                <th width="50%">Descripción</th>
+                <th width="20%" class="text-right">Precio Unit.</th>
+                <th width="20%" class="text-right">Subtotal</th>
             </tr>
-        </table>
-
-        {{-- DATOS DEL CLIENTE --}}
-        <div class="section-bar">
-            <table width="100%" cellpadding="0" cellspacing="0">
+        </thead>
+        <tbody>
+            @foreach($venta->items as $item)
                 <tr>
-                    <td width="55%"><span class="label">Señor(es):</span> <span style="font-size: 10pt; font-weight: 900;">{{ strtoupper($venta->cliente->name ?? 'CONSUMIDOR FINAL') }}</span></td>
-                    <td width="45%"><span class="label">IVA:</span> {{ $venta->cliente->condicion_iva ?? 'Consumidor Final' }}</td>
+                    <td class="text-center">{{ number_format($item->cantidad, 2) }}</td>
+                    <td>
+                        {{ $item->product->name }}
+                        @if($item->variant) - {{ $item->variant->name }} @endif
+                    </td>
+                    <td class="text-right">${{ number_format($item->precio_unitario_sin_iva * 1.21, 2, ',', '.') }}</td>
+                    <td class="text-right">${{ number_format($item->total_item_con_iva, 2, ',', '.') }}</td>
                 </tr>
-                <tr>
-                    <td width="55%"><span class="label">Domicilio:</span> {{ $venta->cliente->address ?? '-' }}</td>
-                    <td width="45%"><span class="label">CUIT / DNI:</span> {{ $venta->cliente->document ?? '-' }}</td>
+            @endforeach
+        </tbody>
+    </table>
+
+    {{-- PIE DE PÁGINA (TOTALES Y ARCA) --}}
+    <div class="footer-container">
+        
+        {{-- SECCIÓN DE TOTALES --}}
+        <div class="totals-section">
+            <table class="totals-table">
+                @if($letra === 'A')
+                    <tr>
+                        <td class="label">Importe Neto Gravado:</td>
+                        <td class="text-right">${{ number_format($venta->total_sin_iva, 2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">IVA 21%:</td>
+                        <td class="text-right">${{ number_format($venta->total_iva, 2, ',', '.') }}</td>
+                    </tr>
+                @endif
+                <tr class="total-row">
+                    <td>TOTAL:</td>
+                    <td class="text-right">${{ number_format($venta->total_con_iva, 2, ',', '.') }}</td>
                 </tr>
             </table>
         </div>
 
-        {{-- TABLA DE PRODUCTOS --}}
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th width="12%">Cod.</th>
-                    <th width="53%">Descripción / Detalle</th>
-                    <th width="10%" style="text-align: center;">Cant.</th>
-                    <th width="12%" style="text-align: right;">P. Unit.</th>
-                    <th width="13%" style="text-align: right;">Importe</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($venta->items as $item)
-                <tr>
-                    <td>{{ $item->product->id ?? '-' }}</td>
-                    <td>
-                        <strong>{{ $item->product->name ?? 'Producto' }}</strong>
-                        @if($item->variant) <small>({{ $item->variant->size }} {{ $item->variant->color }})</small> @endif
-                    </td>
-                    <td style="text-align: center;">{{ number_format($item->cantidad, 0) }}</td>
-                    <td style="text-align: right;">$ {{ number_format($item->precio_unitario, 2, ',', '.') }}</td>
-                    <td style="text-align: right;"><strong>$ {{ number_format($item->total_item_con_iva, 2, ',', '.') }}</strong></td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        {{-- PIE DE PÁGINA ANCLADO AL FONDO --}}
-        <div class="footer-container">
-            
-            <div class="arca-box">
-                @if($hasCae)
-                    <div style="display: flex; align-items: flex-start;">
-                        @if($venta->qr_data)
-                            <div class="qr-placeholder">
-                                <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
-                            </div>
-                        @endif
-                        <div style="display: inline-block; vertical-align: top; margin-left: 15px; margin-top: 0px;">
-                            @if(isset($arcaLogoBase64) && $arcaLogoBase64)
-                                <img src="{{ $arcaLogoBase64 }}" class="arca-logo" style="display: block; margin-bottom: 3px;">
-                            @endif
-                            <div style="font-size: 11pt; font-weight: 900; line-height: 1;">Comprobante Autorizado</div>
-                            <div style="font-size: 7pt; color: #000; line-height: 1.1; margin-top: 1px;">
-                                Esta administración federal no se responsabiliza por los datos declarados.
-                            </div>
-                        </div>
-                    </div>
-                @else
-                    <div style="border: 2px solid #000; padding: 15px; text-align: center; font-weight: bold; font-size: 12pt;">
-                        DOCUMENTO NO VÁLIDO COMO FACTURA <br>
-                        <span style="font-size: 9pt; font-weight: normal;">Uso Administrativo Interno</span>
-                    </div>
-                @endif
-            </div>
-
-            <div class="totals-section">
-                <div class="totals-table">
-                    {{-- SI ES FACTURA A, MOSTRAMOS EL DESGLOSE DE IVA --}}
-                    @if($hasCae && isset($esA) && $esA)
-                        <div class="dotted-row">
-                            <span class="dotted-label">Subtotal Neto</span>
-                            <span class="dotted-value">$ {{ number_format($venta->total_sin_iva, 2, ',', '.') }}</span>
-                            <div class="dotted-filler"></div>
-                        </div>
-                        <div class="dotted-row">
-                            <span class="dotted-label">IVA 21%</span>
-                            <span class="dotted-value">$ {{ number_format($venta->total_iva, 2, ',', '.') }}</span>
-                            <div class="dotted-filler"></div>
-                        </div>
+        {{-- BLOQUE FISCAL ARCA --}}
+        <table class="arca-container">
+            <tr>
+                <td class="arca-box-left">
+                    @if($venta->qr_data)
+                        <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
                     @endif
-                    
-                    {{-- CUADRO DE IMPORTE TOTAL --}}
-                    <div style="margin-top: 10px; border-top: 2.5px solid #000; border-bottom: 2.5px solid #000; padding: 10px 0;">
-                        <span style="float: left; font-size: 16pt; font-weight: 900;">IMPORTE TOTAL</span>
-                        <span style="float: right; font-size: 19pt; font-weight: 900;">$ {{ number_format($venta->total_con_iva, 2, ',', '.') }}</span>
-                        <div style="clear: both;"></div>
+                    <div style="float: left; width: 60%;">
+                        <img src="{{ public_path('images/arca_logo.png') }}" class="arca-logo" onerror="this.src='https://www.afip.gob.ar/images/logo_afip.png'; this.style.height='24px';">
+                        <div class="arca-legal">
+                            Comprobante Autorizado por AFIP/ARCA.<br>
+                            Esta Administración Federal no se responsabiliza por los datos declarados.
+                        </div>
                     </div>
-                </div>
-                
-                {{-- DATOS DEL CAE --}}
-                <div class="cae-box">
-                    <div class="cae-data">CAE: {{ $venta->cae ?? '-' }}</div>
-                    <div class="cae-data">Vencimiento CAE: {{ $venta->cae_vencimiento ? \Carbon\Carbon::parse($venta->cae_vencimiento)->format('d/m/Y') : '-' }}</div>
-                </div>
-            </div>
-            
-            <div class="clear"></div>
-
-            <div class="attribution">
-                MultiPOS SaaS (gentepiola.net) | Emitido Electrónicamente | Pág. 1 de 1
-            </div>
-        </div>
-
+                </td>
+                <td class="arca-box-right">
+                    @if($hasCae)
+                        <p class="cae-data"><span class="cae-label">CAE N&deg;:</span> {{ $venta->cae }}</p>
+                        <p class="cae-data"><span class="cae-label">Vto. CAE:</span> {{ \Carbon\Carbon::parse($venta->cae_vencimiento)->format('d/m/Y') }}</p>
+                    @endif
+                </td>
+            </tr>
+        </table>
     </div>
+</div>
 
 </body>
 </html>
