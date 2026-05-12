@@ -22,7 +22,7 @@ class KardexExport implements FromCollection, WithHeadings
 
     public function collection()
     {
-        $query = KardexMovimiento::where('empresa_id', \Illuminate\Support\Facades\Auth::user()->empresa_id)
+        $query = KardexMovimiento::where('empresa_id', Auth::user()->empresa_id)
             ->where('product_id', $this->productId);
 
         if ($this->desde) {

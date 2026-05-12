@@ -184,7 +184,7 @@ Route::get('/demo-experience', function() {
     );
 
     // 3. Login automÃ¡tico y redirecciÃ³n instantÃ¡nea
-    \Illuminate\Support\Facades\Auth::login($demoUser);
+    Auth::login($demoUser);
     
     return redirect()->route('empresa.dashboard')->with('success', 'Bienvenido al Modo Demo. Explora todas las funciones libremente.');
 

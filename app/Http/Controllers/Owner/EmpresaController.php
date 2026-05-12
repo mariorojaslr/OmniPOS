@@ -173,7 +173,7 @@ class EmpresaController extends Controller
         session(['impersonator_id' => auth()->id()]);
         
         // Loguearse como el usuario de la empresa
-        auth()->login($user);
+        \Illuminate\Support\Facades\Auth::login($user);
         
         return redirect()->route('empresa.dashboard')->with('info', 'Modo Mimetización: Estás viendo la plataforma como ' . $user->name);
     }

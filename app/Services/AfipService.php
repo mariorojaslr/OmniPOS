@@ -13,55 +13,39 @@ class AfipService
      */
     protected function getAfipInstance(Empresa $empresa)
     {
-        // Si tenemos un Token de Acceso (Cloud SDK), lo usamos como prioridad
-        $accessToken = env('AFIP_ACCESS_TOKEN'); // Leemos directo del .env
         $isProduction = (strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
+        $cuit = (int) str_replace('-', '', $empresa->arca_cuit);
 
-        // Definimos las rutas posibles
-        $paths = [
-            'specific' => base_path("ARCA/empresa_{$empresa->id}_cert.crt"),
-            'specific_key' => base_path("ARCA/empresa_{$empresa->id}_key.key"),
-            'generic' => base_path('ARCA/empresa.crt'),
-            'generic_key' => base_path('ARCA/empresa.key'),
-            'special' => base_path('ARCA/empresa .key'),
-        ];
+        // Rutas directas como en el Test Exitoso
+        $certPath = base_path("ARCA/empresa_{$empresa->id}_cert.crt");
+        $keyPath  = base_path("ARCA/empresa_{$empresa->id}_key.key");
 
-        // LOG DE DIAGNÓSTICO (Solo visible en logs del sistema)
-        Log::info("DIAGNÓSTICO AFIP - Empresa: " . $empresa->id);
-        Log::info("¿Existe Specific Cert?: " . (file_exists($paths['specific']) ? 'SÍ' : 'NO'));
-        Log::info("¿Existe Specific Key?: " . (file_exists($paths['specific_key']) ? 'SÍ' : 'NO'));
-        Log::info("¿Hay Token en .env?: " . ($accessToken ? 'SÍ ('.substr($accessToken, 0, 5).'...)' : 'NO'));
+        // Si no existen los específicos, probamos los genéricos
+        if (!file_exists($certPath)) $certPath = base_path('ARCA/empresa.crt');
+        if (!file_exists($keyPath))  $keyPath  = base_path('ARCA/empresa.key');
 
-        // Resolución de Certificado
-        $certContent = null;
-        if (file_exists($paths['specific'])) $certContent = file_get_contents($paths['specific']);
-        elseif (file_exists($paths['generic'])) $certContent = file_get_contents($paths['generic']);
-
-        // Resolución de Llave
-        $keyContent = null;
-        if (file_exists($paths['specific_key'])) $keyContent = file_get_contents($paths['specific_key']);
-        elseif (file_exists($paths['generic_key'])) $keyContent = file_get_contents($paths['generic_key']);
-        elseif (file_exists($paths['special'])) $keyContent = file_get_contents($paths['special']);
-
-        if ($certContent && $keyContent) {
-            return new \Afip([
-                'CUIT'         => (float) str_replace('-', '', $empresa->arca_cuit),
+        if (file_exists($certPath) && file_exists($keyPath)) {
+            return new Afip([
+                'CUIT'         => $cuit,
                 'production'   => $isProduction,
-                'cert'         => $certContent,
-                'key'          => $keyContent,
+                'cert'         => file_get_contents($certPath),
+                'key'          => file_get_contents($keyPath),
+                'res_folder'   => storage_path('app/afip_res/'), // Carpeta estándar de recursos
                 'ta_folder'    => storage_path('app/ARCA/ta/' . $empresa->id),
             ]);
         }
 
+        // Fallback a Access Token si existe en el .env
+        $accessToken = env('AFIP_ACCESS_TOKEN');
         if ($accessToken) {
-            return new \Afip([
-                'CUIT'          => (float) str_replace('-', '', $empresa->arca_cuit),
+            return new Afip([
+                'CUIT'          => $cuit,
                 'production'    => $isProduction,
                 'access_token'  => $accessToken,
             ]);
         }
 
-        throw new \Exception("BLOQUEO: No se encontró el certificado en " . $paths['specific'] . " ni el Token en el .env. Subí los archivos al servidor o cargá el Token.");
+        throw new \Exception("BLOQUEO: No se encontraron los archivos .crt y .key en la carpeta /ARCA para la empresa {$empresa->id}.");
     }
 
     /**

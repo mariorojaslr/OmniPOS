@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @php
-    /** @var \Illuminate\Contracts\Pagination\LengthAwarePaginator $updates */
+    /** @var \Illuminate\Pagination\LengthAwarePaginator $updates */
 @endphp
 
 @section('content')

@@ -162,6 +162,7 @@ class SupplierAccountService
             $query->orderBy('created_at', 'asc')->orderBy('id', 'asc');
         }
 
+        /** @var \App\Models\SupplierLedger[] $deudas */
         $deudas = $query->get();
 
         foreach ($deudas as $deuda) {

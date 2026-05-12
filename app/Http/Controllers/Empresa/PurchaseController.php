@@ -41,7 +41,7 @@ class PurchaseController extends Controller
         $empresaId = auth()->user()->empresa_id;
 
         $today  = Carbon::today('America/Argentina/Buenos_Aires');
-        $week   = Carbon::now('America/Argentina/Buenos_Aires')->startOfWeek(Carbon::MONDAY);
+        $week   = Carbon::now('America/Argentina/Buenos_Aires')->startOfWeek(1); // 1 = Lunes (Monday)
         $month  = Carbon::now('America/Argentina/Buenos_Aires')->startOfMonth();
 
         $query = Purchase::where('empresa_id', $empresaId)
