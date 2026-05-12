@@ -119,6 +119,14 @@ class AfipService
 
             $res = $afip->ElectronicBilling->CreateVoucher($data);
 
+            // Leer respuesta (puede ser objeto o array según versión del SDK)
+            $cae = is_array($res) ? ($res['CAE'] ?? null) : ($res->CAE ?? null);
+            $caeVto = is_array($res) ? ($res['CAEFchVto'] ?? $res['CAEVto'] ?? null) : ($res->CAEFchVto ?? $res->CAEVto ?? null);
+
+            if (!$cae) {
+                throw new \Exception("AFIP no devolvió CAE. Respuesta: " . json_encode($res));
+            }
+
             // 📱 GENERAR QR DATA (Requerido por AFIP desde 2021)
             $qrData = [
                 "ver" => 1,
@@ -133,13 +141,13 @@ class AfipService
                 "tipoDocRec" => (int) $data['DocTipo'],
                 "nroDocRec" => (int) $data['DocNro'],
                 "tipoCodAut" => "E",
-                "codAut" => (int) $res['CAE']
+                "codAut" => (int) $cae
             ];
 
             return [
                 'success'           => true,
-                'cae'               => $res['CAE'],
-                'cae_vencimiento'   => $res['CAEVto'],
+                'cae'               => $cae,
+                'cae_vencimiento'   => $caeVto,
                 'numero_comprobante' => str_pad($puntoVenta, 5, '0', STR_PAD_LEFT) . '-' . str_pad($nextNumber, 8, '0', STR_PAD_LEFT),
                 'qr_data'           => base64_encode(json_encode($qrData))
             ];
