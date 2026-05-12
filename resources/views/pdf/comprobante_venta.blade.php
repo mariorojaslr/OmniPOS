@@ -33,22 +33,21 @@
         .items-table td { padding: 4px 8px; font-size: 8.5pt; color: #000; border: none; }
         
         /* FOOTER COMPACTO */
-        .footer-container { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px 25px; border-top: 2px solid #000; box-sizing: border-box; }
+        .footer-container { position: absolute; bottom: 0; left: 0; width: 100%; padding: 5px 25px; border-top: 2px solid #000; box-sizing: border-box; }
         
-        .arca-box { float: left; width: 45%; padding-top: 35px; }
-        .arca-logo { height: 38px; margin-bottom: 5px; }
-        .qr-placeholder { border: 1.2px solid #000; padding: 4px; display: inline-block; background: #fff; margin-top: 5px; }
-        .qr-img { width: 125px; height: 125px; }
+        .arca-box { float: left; width: 50%; padding-top: 5px; }
+        .arca-logo { height: 28px; margin-bottom: 2px; }
+        .qr-placeholder { border: 1.2px solid #000; padding: 3px; display: inline-block; background: #fff; vertical-align: top; }
+        .qr-img { width: 85px; height: 85px; }
         
-        .totals-section { float: left; width: 50%; margin-left: 2%; text-align: right; padding-right: 1.2cm; }
-        .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-        .totals-table td { padding: 3px 0; font-size: 11pt; color: #000; }
-        .total-row { font-size: 19pt; font-weight: 900; color: #000; border-top: 2.5px solid #000; border-bottom: 2.5px solid #000; padding: 10px 0; }
+        .totals-section { float: left; width: 45%; margin-left: 2%; text-align: right; padding-right: 1.8cm; }
+        .totals-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
+        .totals-table td { padding: 1px 0; font-size: 11pt; color: #000; }
+        
+        .cae-box { text-align: right; margin-top: 5px; padding-right: 1.8cm; }
+        .cae-data { font-weight: 900; font-size: 10.5pt; font-family: 'Courier-Bold', 'Courier', monospace; letter-spacing: 0.5px; line-height: 1.2; }
 
-        .cae-box { text-align: right; margin-top: 50px; padding-right: 1.2cm; }
-        .cae-data { font-weight: 900; font-size: 11.5pt; font-family: 'Courier-Bold', 'Courier', monospace; letter-spacing: 0.5px; }
-
-        .dotted-row { width: 100%; margin-bottom: 5px; }
+        .dotted-row { width: 100%; margin-bottom: 2px; }
         .dotted-label { float: left; background: #fff; padding-right: 5px; }
         .dotted-value { float: right; background: #fff; padding-left: 5px; font-weight: bold; }
         .dotted-filler { border-bottom: 1px dotted #888; height: 14px; margin-top: -4px; }
@@ -113,7 +112,7 @@
                 </td>
                 <td width="48%" style="text-align: right;">
                     <h1 class="doc-title">{{ $titulo_comprobante }}</h1>
-                    <div class="doc-num">{{ $fullNumero }}</div>
+                    <div class="doc-num">N&deg; {{ $fullNumero }}</div>
                     <div class="doc-data">
                         <p><strong>Fecha:</strong> {{ $venta->created_at->format('d/m/Y') }}</p>
                         <p><strong>CUIT:</strong> {{ $empresa->cuit }}</p>
@@ -169,15 +168,20 @@
             
             <div class="arca-box">
                 @if($hasCae)
-                    @if($venta->qr_data)
-                        <div class="qr-placeholder">
-                            <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
-                        </div>
-                    @endif
-                    <div style="margin-top: 10px;">
-                        <div style="font-size: 10pt; font-weight: 900;">Comprobante Autorizado</div>
-                        <div style="font-size: 7pt; color: #444; line-height: 1.2; margin-top: 3px;">
-                            Esta administración federal no se responsabiliza por los datos declarados.
+                    <div style="display: flex; align-items: flex-start;">
+                        @if($venta->qr_data)
+                            <div class="qr-placeholder">
+                                <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
+                            </div>
+                        @endif
+                        <div style="display: inline-block; vertical-align: top; margin-left: 15px;">
+                            @if(isset($arcaLogoBase64) && $arcaLogoBase64)
+                                <img src="{{ $arcaLogoBase64 }}" class="arca-logo" style="display: block;">
+                            @endif
+                            <div style="font-size: 11pt; font-weight: 900; margin-top: 2px;">Comprobante Autorizado</div>
+                            <div style="font-size: 7.5pt; color: #000; line-height: 1; margin-top: 1px;">
+                                Esta administración federal no se responsabiliza por los datos declarados.
+                            </div>
                         </div>
                     </div>
                 @else

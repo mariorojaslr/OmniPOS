@@ -18,6 +18,7 @@
         .bold { font-weight: bold; }
         
         .header { text-align: center; margin-bottom: 5px; }
+        .logo { max-width: 45mm; max-height: 18mm; margin-bottom: 5px; }
         .company-name { font-size: 12pt; font-weight: bold; margin-bottom: 2px; }
         .company-info { font-size: 8pt; line-height: 1.2; }
         
@@ -59,9 +60,11 @@
 @endphp
 
 <div class="header">
-    <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
+    @if(isset($logoBase64) && $logoBase64)
+        <img src="{{ $logoBase64 }}" class="logo">
+    @endif
     <div class="company-info">
-        {{ $empresa->nombre_comercial }}<br>
+        de Mario C. Rojas<br>
         CUIT: {{ $empresa->arca_cuit ?? $empresa->cuit }} - IIBB: {{ $empresa->iibb ?? '-' }}<br>
         Dirección: {{ $empresa->direccion_fiscal ?? '-' }}<br>
         Inic. De Actividades: {{ $empresa->inicio_actividad ?? '-' }}
@@ -70,7 +73,7 @@
 
 <div class="doc-info">
     FACTURA "{{ $letra }}"<br>
-    <span class="doc-num">№ {{ $numeroCompleto }}</span>
+    <span class="doc-num">N&deg; {{ $numeroCompleto }}</span>
 </div>
 
 <div class="divider"></div>
