@@ -8,9 +8,9 @@
         body { 
             font-family: 'Courier New', Courier, monospace; 
             font-size: 10pt; 
-            width: 76mm; /* Margen para impresoras de 80mm */
-            margin: 0 auto;
-            padding: 5mm;
+            width: 70mm; /* Ajustado para dejar margen derecho en papel de 80mm */
+            margin: 0;
+            padding: 2mm;
             color: #000;
         }
 
@@ -149,6 +149,8 @@
         @if($venta->qr_data)
             <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(200)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
         @endif
+        <div style="font-size: 16pt; font-weight: 900; color: #000; margin-bottom: -2px;">ARCA</div>
+        <div style="font-size: 5pt; font-weight: bold; color: #000; text-transform: uppercase; margin-bottom: 3px;">Agencia de Recaudación y Control Aduanero</div>
         <div class="cae-box">
             CAE: {{ $venta->cae }}<br>
             Vto. CAE: {{ \Carbon\Carbon::parse($venta->cae_vencimiento)->format('d/m/Y') }}

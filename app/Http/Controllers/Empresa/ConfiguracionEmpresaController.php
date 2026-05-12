@@ -277,8 +277,8 @@ class ConfiguracionEmpresaController extends Controller
             $afipManual = new \Afip([
                 'CUIT'         => (int) str_replace('-', '', $empresa->arca_cuit),
                 'production'   => ($empresa->arca_ambiente === 'produccion'),
-                'cert'         => $certPathOnDisk,
-                'key'          => $keyPathOnDisk,
+                'cert'         => file_get_contents($certPathOnDisk),
+                'key'          => file_get_contents($keyPathOnDisk),
                 'ta_folder'    => $taPath,
                 'force_soap'   => true,
                 'access_token' => env('AFIP_ACCESS_TOKEN', ''),

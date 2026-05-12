@@ -253,10 +253,10 @@
                         <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
                     @endif
                     <div style="float: left; width: 60%;">
-                        <img src="{{ public_path('images/arca_logo.png') }}" class="arca-logo" onerror="this.src='https://www.afip.gob.ar/images/logo_afip.png'; this.style.height='24px';">
+                        <div style="font-size: 24pt; font-weight: 900; color: #333; margin-bottom: -5px;">ARCA</div>
+                        <div style="font-size: 6.5pt; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Agencia de Recaudación y Control Aduanero</div>
                         <div class="arca-legal">
-                            Comprobante Autorizado por AFIP/ARCA.<br>
-                            Esta Administración Federal no se responsabiliza por los datos declarados.
+                            Comprobante Autorizado por AFIP/ARCA.
                         </div>
                     </div>
                 </td>
