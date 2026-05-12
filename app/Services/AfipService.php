@@ -14,18 +14,12 @@ class AfipService
     protected function getAfipInstance(Empresa $empresa)
     {
         $isProduction = ($empresa->arca_ambiente === 'produccion' || strpos(strtolower($empresa->arca_ambiente), 'prod') !== false);
-        $cuit = (int) str_replace('-', '', $empresa->arca_cuit);
+        $cuit = str_replace('-', '', $empresa->arca_cuit);
 
         // Carpeta para recursos de AFIP (obligatoria para el SDK)
         $resFolder = storage_path('app/afip_res/');
         if (!file_exists($resFolder)) {
             mkdir($resFolder, 0777, true);
-        }
-
-        // Carpeta para el Token de Acceso temporal (TA) por empresa
-        $taFolder = storage_path('app/afip_ta/empresa_' . $empresa->id);
-        if (!file_exists($taFolder)) {
-            mkdir($taFolder, 0777, true);
         }
 
         // Rutas a los certificados en la raíz /ARCA
@@ -40,7 +34,6 @@ class AfipService
                 'cert'         => file_get_contents($certPath),
                 'key'          => file_get_contents($keyPath),
                 'res_folder'   => $resFolder,
-                'ta_folder'    => $taFolder,
             ]);
         }
 
@@ -54,7 +47,6 @@ class AfipService
                 'cert'         => file_get_contents($certPathGen),
                 'key'          => file_get_contents($keyPathGen),
                 'res_folder'   => $resFolder,
-                'ta_folder'    => $taFolder,
             ]);
         }
 
