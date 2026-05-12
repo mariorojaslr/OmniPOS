@@ -74,6 +74,7 @@ class ConfiguracionEmpresaController extends Controller
                 
                 'nombre_comercial'     => 'nullable|string|max:100',
                 'razon_social'        => 'nullable|string|max:100',
+                'inicio_actividad'     => 'nullable|string|max:20',
                 
                 'pasarelas'            => 'nullable|array',
             ]);
@@ -95,6 +96,7 @@ class ConfiguracionEmpresaController extends Controller
                 'arca_activo'        => $request->has('arca_activo'),
                 'nombre_comercial'   => $request->nombre_comercial,
                 'razon_social'       => $request->razon_social,
+                'inicio_actividad'   => $request->inicio_actividad,
                 'config_pasarelas'   => $request->pasarelas ?? [],
             ];
 

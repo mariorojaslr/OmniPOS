@@ -136,11 +136,11 @@
                         </div>
                         
                         <div class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label fw-bold">Cuit Titular</label>
                                 <input type="text" name="arca_cuit" value="{{ $empresa->arca_cuit ?? $empresa->cuit }}" class="form-control" placeholder="20-XXXXXXXX-X">
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label fw-bold">Condición IVA</label>
                                 <select name="condicion_iva" class="form-select">
                                     <option value="Responsable Inscripto" {{ $empresa->condicion_iva == 'Responsable Inscripto' ? 'selected' : '' }}>Responsable Inscripto</option>
@@ -148,9 +148,13 @@
                                     <option value="Exento" {{ $empresa->condicion_iva == 'Exento' ? 'selected' : '' }}>Exento</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label fw-bold">Inscripción IIBB</label>
                                 <input type="text" name="iibb" value="{{ $empresa->iibb }}" class="form-control">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-danger">Inicio Actividades</label>
+                                <input type="date" name="inicio_actividad" value="{{ $empresa->inicio_actividad }}" class="form-control border-danger border-2 shadow-sm">
                             </div>
                             
                             <div class="col-md-3">
