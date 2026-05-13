@@ -48,12 +48,17 @@ class BackupController extends Controller
             'supplier_ledgers'  => 'Cuentas Corrientes Proveedores'
         ];
 
-        // Por simplicidad en este entorno, generaremos un CSV consolidado o redireccionaremos al tipo
-        if ($type === 'sql' || $type === 'media' || $type === 'tokens') {
-            return $this->exportToCsv($empresa, $tables);
+        // Permitir CSV, SQL y otros tipos
+        if (in_array($type, ['csv', 'sql', 'media', 'tokens'])) {
+            try {
+                return $this->exportToCsv($empresa, $tables);
+            } catch (Exception $e) {
+                Log::error("Error en backup: " . $e->getMessage());
+                return response()->json(['error' => 'Error al generar el archivo: ' . $e->getMessage()], 500);
+            }
         }
 
-        return redirect()->back()->with('error', 'Tipo de resguardo no soportado actualmente.');
+        return response()->json(['error' => 'Tipo de resguardo no soportado actualmente.'], 400);
     }
 
     private function exportToCsv($empresa, $tables)
@@ -61,38 +66,44 @@ class BackupController extends Controller
         $fileName = 'backup_' . str_replace(' ', '_', strtolower($empresa->nombre_comercial)) . '_' . date('d-m-Y') . '.csv';
 
         $response = new StreamedResponse(function () use ($empresa, $tables) {
-            $handle = fopen('php://output', 'w');
-            
-            // Añadir BOM para visualización correcta en Excel
-            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+            try {
+                $handle = fopen('php://output', 'w');
+                
+                // Añadir BOM para visualización correcta en Excel
+                fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
 
-            foreach ($tables as $tableName => $label) {
-                if (!Schema::hasTable($tableName)) continue;
+                foreach ($tables as $tableName => $label) {
+                    if (!Schema::hasTable($tableName)) continue;
 
-                // Separador de sección
-                fputcsv($handle, ["--- SECCIÓN: $label ---"]);
+                    // Separador de sección
+                    fputcsv($handle, ["--- SECCIÓN: $label ---"]);
 
-                // Obtener columnas
-                $columns = Schema::getColumnListing($tableName);
-                fputcsv($handle, $columns);
+                    // Obtener columnas
+                    $columns = Schema::getColumnListing($tableName);
+                    fputcsv($handle, $columns);
 
-                $query = DB::table($tableName);
-                if (in_array('empresa_id', $columns)) {
-                    $query->where('empresa_id', $empresa->id);
-                }
-
-                foreach ($query->lazy() as $row) {
-                    $data = [];
-                    foreach ($columns as $column) {
-                        $data[] = $row->{$column} ?? '';
+                    $query = DB::table($tableName);
+                    if (in_array('empresa_id', $columns)) {
+                        $query->where('empresa_id', $empresa->id);
                     }
-                    fputcsv($handle, $data);
+
+                    foreach ($query->lazy() as $row) {
+                        $data = [];
+                        foreach ($columns as $column) {
+                            $data[] = $row->{$column} ?? '';
+                        }
+                        fputcsv($handle, $data);
+                    }
+
+                    fputcsv($handle, []); // Línea vacía entre tablas
                 }
 
-                fputcsv($handle, []); // Línea vacía entre tablas
+                fclose($handle);
+            } catch (Exception $e) {
+                Log::error("Error durante el streaming del backup: " . $e->getMessage());
+                // No podemos cambiar el status code aquí porque ya se envió el 200, 
+                // pero al menos el log tendrá el error.
             }
-
-            fclose($handle);
         }, 200, [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
