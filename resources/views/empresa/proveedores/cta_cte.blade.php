@@ -89,8 +89,8 @@
                             ${{ number_format($creditosAFavorDisponible, 2, ',', '.') }}
                         </h3>
                         @if($creditosAFavorDisponible > 0 && $deudas->count() > 0)
-                            <button class="btn btn-xs btn-outline-success rounded-pill px-2 py-0 x-small fw-bold" data-bs-toggle="modal" data-bs-target="#modalAplicarSaldo">
-                                Imputar
+                            <button class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAplicarSaldo">
+                                <i class="fas fa-exchange-alt me-1"></i> Imputar
                             </button>
                         @endif
                     </div>
