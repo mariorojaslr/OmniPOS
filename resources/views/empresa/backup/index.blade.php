@@ -90,36 +90,65 @@
 </div>
 
 <div class="row g-4">
-    <!-- Base de Datos -->
+    <!-- 1. DATOS -->
     <div class="col-md-4">
         <div class="vault-card">
             <div>
-                <h4 class="vault-title">🗄️ Base de Datos</h4>
-                <p class="text-secondary small mb-4">Descarga el volcado completo de tus productos, ventas, clientes y configuraciones operativas.</p>
+                <h4 class="vault-title">🗄️ DATOS</h4>
+                <p class="text-secondary small mb-2">Volcado SQL completo con sentencias INSERT de:</p>
+                <ul class="text-secondary small mb-4 ps-3" style="line-height: 1.8;">
+                    <li>Productos, variantes y stock</li>
+                    <li>Ventas y detalle de comprobantes</li>
+                    <li>Clientes y proveedores</li>
+                    <li>Cuentas corrientes y tesorería</li>
+                    <li>Gastos, compras y asistencias</li>
+                </ul>
             </div>
-            <button class="btn btn-download" onclick="startBackupProcess('sql')">INICIAR ASISTENTE</button>
+            <button class="btn btn-download" onclick="startBackupProcess('sql')">
+                <i class="fas fa-database me-2"></i> DESCARGAR DATOS
+            </button>
         </div>
     </div>
 
-    <!-- Archivos & Media -->
+    <!-- 2. FOTOS -->
     <div class="col-md-4">
         <div class="vault-card">
             <div>
-                <h4 class="vault-title">🖼️ Repositorio Multimedia</h4>
-                <p class="text-secondary small mb-4">Sincronización con el servidor central de alto rendimiento para el resguardo de imágenes y media.</p>
+                <h4 class="vault-title">🖼️ FOTOS</h4>
+                <p class="text-secondary small mb-2">Descarga todas las imágenes desde Bunny CDN:</p>
+                <ul class="text-secondary small mb-4 ps-3" style="line-height: 1.8;">
+                    <li>Fotos de productos</li>
+                    <li>Logo institucional</li>
+                    <li>Comprobantes locales (si existen)</li>
+                </ul>
+                <div class="alert alert-light border-0 py-2 px-3 small mb-0" style="background: #fef9c3;">
+                    <i class="fas fa-clock text-warning me-1"></i> Puede tardar según la cantidad de fotos
+                </div>
             </div>
-            <button class="btn btn-download" style="background: #3b82f6;" onclick="startBackupProcess('media')">SINC. REPOSITORIO</button>
+            <button class="btn btn-download" style="background: #3b82f6;" onclick="startBackupProcess('media')">
+                <i class="fas fa-images me-2"></i> DESCARGAR FOTOS
+            </button>
         </div>
     </div>
 
-    <!-- Pasarelas -->
+    <!-- 3. CERTIFICADOS -->
     <div class="col-md-4">
         <div class="vault-card">
             <div>
-                <h4 class="vault-title">🔑 Tokens de Conexión</h4>
-                <p class="text-secondary small mb-4">Respaldo de seguridad de tus credenciales de cobro electrónico (Mercado Pago, Stripe) y envíos.</p>
+                <h4 class="vault-title">🔐 CERTIFICADOS</h4>
+                <p class="text-secondary small mb-2">Resguardo de archivos críticos de AFIP/ARCA:</p>
+                <ul class="text-secondary small mb-4 ps-3" style="line-height: 1.8;">
+                    <li>Certificado digital (.crt)</li>
+                    <li>Clave privada (.key)</li>
+                    <li>Instrucciones de restauración</li>
+                </ul>
+                <div class="alert alert-light border-0 py-2 px-3 small mb-0" style="background: #fef2f2;">
+                    <i class="fas fa-exclamation-triangle text-danger me-1"></i> Guardá este archivo en lugar seguro
+                </div>
             </div>
-            <button class="btn btn-download" style="background: #0f172a;" onclick="startBackupProcess('tokens')">VER TOKENS</button>
+            <button class="btn btn-download" style="background: #0f172a;" onclick="startBackupProcess('tokens')">
+                <i class="fas fa-key me-2"></i> DESCARGAR CERTIFICADOS
+            </button>
         </div>
     </div>
 </div>

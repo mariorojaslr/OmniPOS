@@ -291,29 +291,82 @@ class BackupController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  4) RESGUARDO DE CONFIGURACIÓN — Certificados y tokens
+    //  4) RESGUARDO DE CERTIFICADOS — Archivos .crt y .key reales
     // ─────────────────────────────────────────────────────────────
     private function exportTokens($empresa)
     {
-        $fileName = 'config_' . Str::slug($empresa->nombre_comercial) . '_' . date('Ymd_His') . '.txt';
+        $zip = new ZipArchive();
+        $fileName = 'certificados_' . Str::slug($empresa->nombre_comercial) . '_' . date('Ymd_His') . '.zip';
+        $tempFile = tempnam(sys_get_temp_dir(), 'multipos_cert_');
 
-        $content  = "══════════════════════════════════════════════════\n";
-        $content .= "  MULTIPOS — CONFIGURACIÓN Y CERTIFICADOS\n";
-        $content .= "══════════════════════════════════════════════════\n\n";
-        $content .= "Empresa:        {$empresa->nombre_comercial}\n";
-        $content .= "CUIT:           {$empresa->cuit}\n";
-        $content .= "Punto de Venta: " . ($empresa->punto_venta ?? 'No definido') . "\n";
-        $content .= "──────────────────────────────────────────────────\n\n";
-        $content .= "CERTIFICADOS AFIP / ARCA:\n";
-        $content .= "  Certificado (.crt): " . ($empresa->cert_path ? 'PRESENTE (' . basename($empresa->cert_path) . ')' : 'NO CARGADO') . "\n";
-        $content .= "  Clave (.key):       " . ($empresa->key_path ? 'PRESENTE (' . basename($empresa->key_path) . ')' : 'NO CARGADO') . "\n";
-        $content .= "  Modo AFIP:          " . ($empresa->afip_mod ? 'Producción' : 'Testing (Homologación)') . "\n\n";
-        $content .= "──────────────────────────────────────────────────\n";
-        $content .= "Fecha de generación: " . date('Y-m-d H:i:s') . "\n";
+        if ($zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            return response()->json(['error' => 'No se pudo crear el archivo ZIP.'], 500);
+        }
 
-        return response($content, 200, [
-            'Content-Type'        => 'text/plain',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-        ]);
+        $archivosIncluidos = 0;
+
+        // Buscar certificados con la MISMA lógica que usa AfipService
+        $certPaths = [
+            // Prioridad 1: Certificados específicos de la empresa
+            'cert' => base_path("ARCA/empresa_{$empresa->id}_cert.crt"),
+            'key'  => base_path("ARCA/empresa_{$empresa->id}_key.key"),
+        ];
+
+        $certGenPaths = [
+            // Prioridad 2: Certificados genéricos
+            'cert' => base_path('ARCA/empresa.crt'),
+            'key'  => base_path('ARCA/empresa.key'),
+        ];
+
+        // Intentar certificados específicos primero
+        $certFile = null;
+        $keyFile = null;
+
+        if (file_exists($certPaths['cert'])) {
+            $certFile = $certPaths['cert'];
+        } elseif (file_exists($certGenPaths['cert'])) {
+            $certFile = $certGenPaths['cert'];
+        }
+
+        if (file_exists($certPaths['key'])) {
+            $keyFile = $certPaths['key'];
+        } elseif (file_exists($certGenPaths['key'])) {
+            $keyFile = $certGenPaths['key'];
+        }
+
+        if ($certFile) {
+            $zip->addFile($certFile, 'certificado_' . basename($certFile));
+            $archivosIncluidos++;
+        }
+
+        if ($keyFile) {
+            $zip->addFile($keyFile, 'clave_' . basename($keyFile));
+            $archivosIncluidos++;
+        }
+
+        // Resumen de configuración
+        $resumen  = "══════════════════════════════════════════════════\n";
+        $resumen .= "  MULTIPOS — RESGUARDO DE CERTIFICADOS\n";
+        $resumen .= "══════════════════════════════════════════════════\n\n";
+        $resumen .= "Empresa:        {$empresa->nombre_comercial}\n";
+        $resumen .= "CUIT:           {$empresa->cuit}\n";
+        $resumen .= "Punto de Venta: " . ($empresa->punto_venta ?? 'No definido') . "\n";
+        $resumen .= "──────────────────────────────────────────────────\n\n";
+        $resumen .= "CERTIFICADOS AFIP / ARCA:\n";
+        $resumen .= "  Certificado (.crt): " . ($certFile ? 'INCLUIDO (' . basename($certFile) . ')' : 'NO ENCONTRADO') . "\n";
+        $resumen .= "  Clave (.key):       " . ($keyFile ? 'INCLUIDO (' . basename($keyFile) . ')' : 'NO ENCONTRADO') . "\n";
+        $resumen .= "  Modo AFIP:          " . ($empresa->afip_mod ? 'Producción' : 'Testing (Homologación)') . "\n\n";
+        $resumen .= "ARCHIVOS INCLUIDOS: {$archivosIncluidos}\n";
+        $resumen .= "──────────────────────────────────────────────────\n";
+        $resumen .= "Fecha de generación: " . date('Y-m-d H:i:s') . "\n\n";
+        $resumen .= "INSTRUCCIONES DE RESTAURACIÓN:\n";
+        $resumen .= "  1. Subir los archivos .crt y .key a la carpeta /ARCA del servidor\n";
+        $resumen .= "  2. Nombrarlos como: empresa_{$empresa->id}_cert.crt y empresa_{$empresa->id}_key.key\n";
+        $resumen .= "  3. Ejecutar: php artisan optimize:clear\n";
+
+        $zip->addFromString('_INSTRUCCIONES.txt', $resumen);
+        $zip->close();
+
+        return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
     }
 }
