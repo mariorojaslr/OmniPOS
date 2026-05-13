@@ -153,6 +153,26 @@
     </div>
 </div>
 
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+            <div class="card-body p-4 p-md-5">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="text-white fw-bold mb-2">📦 Resguardo Maestro Integral</h3>
+                        <p class="text-light opacity-75 mb-0">Genera un único archivo consolidado con la estructura sugerida: carpetas independientes para <strong>DATOS</strong>, <strong>FOTOS</strong> y <strong>CERTIFICADOS</strong>. Ideal para copias de seguridad mensuales.</p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-4 mt-md-0">
+                        <button class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow-sm" onclick="startBackupProcess('full')">
+                            <i class="fas fa-archive me-2 text-primary"></i> DESCARGA MAESTRA
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card mt-5 p-4 border-0 shadow-sm" style="border-left: 5px solid #22c55e; border-radius: 12px; background: #fff;">
     <div class="d-flex align-items-center gap-3">
         <span class="fs-1">💡</span>
@@ -314,7 +334,8 @@
         const sizes = {
             'sql': '12.4 MB',
             'media': '450.8 MB',
-            'tokens': '0.1 MB'
+            'tokens': '0.1 MB',
+            'full': '500.0 MB'
         };
         document.getElementById('estimatedSize').innerText = sizes[type] || '---';
         

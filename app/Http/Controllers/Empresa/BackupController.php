@@ -57,6 +57,8 @@ class BackupController extends Controller
                 return $this->exportMedia($empresa);
             } elseif ($type === 'tokens') {
                 return $this->exportTokens($empresa);
+            } elseif ($type === 'full') {
+                return $this->exportFull();
             }
         } catch (\Throwable $e) {
             Log::error("Error fatal en backup ({$type}): " . $e->getMessage() . ' | ' . $e->getFile() . ':' . $e->getLine());
@@ -268,6 +270,88 @@ class BackupController extends Controller
         }
         $zip->addFromString('_RESUMEN.txt', $resumen);
 
+        $zip->close();
+
+        return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * GENERA UN BACKUP MAESTRO (TODO EN UNO)
+     * Organizado en carpetas: DATOS/, FOTOS/, CERTIFICADOS/
+     */
+    public function exportFull()
+    {
+        $empresa = Auth::user()->empresa;
+        $zip = new ZipArchive();
+        $fileName = 'BACKUP_MAESTRO_' . Str::slug($empresa->nombre_comercial) . '_' . date('Ymd_His') . '.zip';
+        $tempFile = tempnam(sys_get_temp_dir(), 'full_bkp_');
+
+        if ($zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            return response()->json(['error' => 'No se pudo crear el archivo maestro.'], 500);
+        }
+
+        // 1. AGREGAR DATOS (SQL)
+        $sqlContent = "";
+        $tables = DB::select('SHOW TABLES');
+        $dbName = "Tables_in_" . env('DB_DATABASE');
+        foreach ($tables as $table) {
+            $tableName = $table->$dbName;
+            // Solo tablas que tengan empresa_id
+            if (Schema::hasColumn($tableName, 'empresa_id')) {
+                $rows = DB::table($tableName)->where('empresa_id', $empresa->id)->get();
+                if ($rows->count() > 0) {
+                    $sqlContent .= "-- Datos de tabla: {$tableName}\n";
+                    foreach ($rows as $row) {
+                        $array = (array)$row;
+                        $keys = array_keys($array);
+                        $values = array_map(function($v) { return is_null($v) ? 'NULL' : "'" . addslashes($v) . "'"; }, array_values($array));
+                        $sqlContent .= "INSERT INTO `{$tableName}` (`" . implode("`, `", $keys) . "`) VALUES (" . implode(", ", $values) . ");\n";
+                    }
+                    $sqlContent .= "\n";
+                }
+            }
+        }
+        $zip->addFromString('DATOS/backup_datos.sql', $sqlContent);
+
+        // 2. AGREGAR CERTIFICADOS
+        $certFile = base_path("ARCA/empresa_{$empresa->id}_cert.crt");
+        $keyFile  = base_path("ARCA/empresa_{$empresa->id}_key.key");
+        if (file_exists($certFile)) $zip->addFile($certFile, 'CERTIFICADOS/' . basename($certFile));
+        if (file_exists($keyFile))  $zip->addFile($keyFile, 'CERTIFICADOS/' . basename($keyFile));
+
+        // 3. AGREGAR FOTOS (Desde Bunny API)
+        $storageHost = config('filesystems.disks.bunny_storage.host', 'ny.storage.bunnycdn.com');
+        $storageZone = config('filesystems.disks.bunny_storage.username', 'gente-piola');
+        $storageKey  = config('filesystems.disks.bunny_storage.password');
+
+        $productImages = DB::table('product_images')
+            ->join('products', 'product_images.product_id', '=', 'products.id')
+            ->where('products.empresa_id', $empresa->id)
+            ->select('product_images.path')
+            ->get();
+
+        foreach ($productImages as $img) {
+            if (!$img->path) continue;
+            $url = "https://{$storageHost}/{$storageZone}/" . ltrim($img->path, '/');
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(10)
+                    ->withHeaders(['AccessKey' => $storageKey])
+                    ->get($url);
+                if ($response->successful()) {
+                    $zip->addFromString('FOTOS/productos/' . basename($img->path), $response->body());
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // Agregar Logo si existe
+        if ($empresa->config && $empresa->config->logo) {
+            $logoPath = storage_path('app/public/' . $empresa->config->logo);
+            if (file_exists($logoPath)) {
+                $zip->addFile($logoPath, 'FOTOS/branding/' . basename($logoPath));
+            }
+        }
+
+        $zip->addFromString('_LEEME.txt', "Backup Maestro generado el " . date('Y-m-d H:i:s') . "\nOrganizado por carpetas para facilitar la restauración.");
         $zip->close();
 
         return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
