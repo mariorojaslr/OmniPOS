@@ -12,6 +12,9 @@ use App\Services\VentaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\FinanzaCuenta;
+use App\Models\Empresa;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class VentaController extends Controller
 {
@@ -38,7 +41,7 @@ class VentaController extends Controller
         $prefill = session()->pull('prefill_factura', null);
 
         // Cuentas de tesorería activas
-        $cuentas = \App\Models\FinanzaCuenta::where('empresa_id', $empresaId)
+        $cuentas = FinanzaCuenta::where('empresa_id', $empresaId)
             ->where('activo', 1)
             ->orderBy('nombre')
             ->get();
@@ -264,10 +267,10 @@ class VentaController extends Controller
 
         if ($formato === 'ticket') {
             $user = $venta->user ?? auth()->user();
-            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket_80mm', compact('venta', 'empresa', 'logoBase64', 'qrUrl', 'user'))
+            $pdfContent = Pdf::loadView('pdf.ticket_80mm', compact('venta', 'empresa', 'logoBase64', 'qrUrl', 'user'))
                 ->setPaper([0, 0, 226.77, 700], 'portrait');
         } else {
-            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64', 'qrUrl'))
+            $pdfContent = Pdf::loadView('pdf.comprobante_venta', compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64', 'qrUrl'))
                 ->setPaper('a4', 'portrait');
         }
 
@@ -334,6 +337,7 @@ class VentaController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Error al fiscalizar: ' . $e->getMessage());
         }
+    }
 
     /**
      * 🖨️ Versión HTML para impresión rápida (Directa)
@@ -377,10 +381,10 @@ class VentaController extends Controller
 
         // Generación de PDF
         if ($formato === 'ticket') {
-            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, compact('venta', 'empresa', 'logoBase64', 'qrUrl', 'user'))
+            $pdfContent = Pdf::loadView($viewName, compact('venta', 'empresa', 'logoBase64', 'qrUrl', 'user'))
                 ->setPaper([0, 0, 226.77, 700], 'portrait');
         } else {
-            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64', 'qrUrl'))
+            $pdfContent = Pdf::loadView($viewName, compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64', 'qrUrl'))
                 ->setPaper('a4', 'portrait');
         }
 

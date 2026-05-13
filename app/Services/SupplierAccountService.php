@@ -11,6 +11,9 @@ use App\Models\OrdenPagoImputacion;
 use App\Models\Cheque;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Chequera;
+use App\Models\Empresa;
+use App\Services\TesoreriaService;
 
 class SupplierAccountService
 {
@@ -64,7 +67,7 @@ class SupplierAccountService
                         // IMPACTO EN TESORERIA (Si tiene cuenta elegida y no es cheque)
                         // Los cheques se concilian al cobrarse, pero el efectivo/transferencia impacta directo.
                         if (!empty($p['finanza_cuenta_id']) && $p['metodo_pago'] !== 'cheque_propio' && $p['metodo_pago'] !== 'cheque_tercero') {
-                            app(\App\Services\TesoreriaService::class)->registrarMovimiento(
+                            app(TesoreriaService::class)->registrarMovimiento(
                                 $p['finanza_cuenta_id'],
                                 'egreso',
                                 (float)$p['monto'],
@@ -91,7 +94,7 @@ class SupplierAccountService
 
                         // Si usamos un cheque propio, emitirlo desde la chequera
                         if ($p['metodo_pago'] === 'cheque_propio' && !empty($p['chequera_id'])) {
-                            $chequera = \App\Models\Chequera::find($p['chequera_id']);
+                            $chequera = Chequera::find($p['chequera_id']);
                             if ($chequera) {
                                 $vto = $p['fecha_pago'] ?? $fecha;
                                 $num = $p['numero'] ?? null;
@@ -168,12 +171,12 @@ class SupplierAccountService
         foreach ($deudas as $deuda) {
             if ($montoDisponible <= 0) break;
 
-            $aPagar = min($montoDisponible, $deuda->pending_amount);
+            $aPagar = min((float)$montoDisponible, (float)$deuda->pending_amount);
             
-            $deuda->pending_amount -= $aPagar;
+            $deuda->pending_amount = (float) $deuda->pending_amount - (float) $aPagar;
             if ($deuda->pending_amount <= 0.009) {
                 $deuda->paid = true;
-                $deuda->pending_amount = 0;
+                $deuda->pending_amount = 0.0;
             }
             $deuda->save();
 
@@ -230,7 +233,7 @@ class SupplierAccountService
 
     protected function generarNumeroOrden($empresaId)
     {
-        $empresa = \App\Models\Empresa::find($empresaId);
+        $empresa = Empresa::find($empresaId);
         $pv = str_pad($empresa->punto_venta ?? 1, 4, '0', STR_PAD_LEFT);
         $prox = $empresa->proximo_numero_orden_pago ?? 1;
         

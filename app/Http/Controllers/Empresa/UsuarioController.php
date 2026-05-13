@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\ActivityLog;
 
 class UsuarioController extends Controller
 {
@@ -75,7 +76,7 @@ class UsuarioController extends Controller
         ]);
 
         // REGISTRAR ACTIVIDAD
-        \App\Models\ActivityLog::log("Creó al usuario: {$user->name} ({$user->email})", $user);
+        ActivityLog::log("Creó al usuario: {$user->name} ({$user->email})", $user);
 
         return redirect()
             ->route('empresa.usuarios.index')
@@ -98,7 +99,7 @@ class UsuarioController extends Controller
 
         // REGISTRAR ACTIVIDAD
         $accion = $usuario->activo ? "Activó" : "Desactivó";
-        \App\Models\ActivityLog::log("{$accion} el acceso del usuario: {$usuario->name}", $usuario);
+        ActivityLog::log("{$accion} el acceso del usuario: {$usuario->name}", $usuario);
 
         return back()->with('ok', 'Estado actualizado');
     }
@@ -120,7 +121,7 @@ class UsuarioController extends Controller
         $usuario->save();
 
         // REGISTRAR ACTIVIDAD
-        \App\Models\ActivityLog::log("Reseteó la contraseña del usuario: {$usuario->name}", $usuario);
+        ActivityLog::log("Reseteó la contraseña del usuario: {$usuario->name}", $usuario);
 
         return back()->with('ok', 'Nueva contraseña: ' . $nueva);
     }
@@ -170,7 +171,7 @@ class UsuarioController extends Controller
         $usuario->save();
 
         // REGISTRAR ACTIVIDAD
-        \App\Models\ActivityLog::log("Actualizó el perfil y facultades del usuario: {$usuario->name}", $usuario);
+        ActivityLog::log("Actualizó el perfil y facultades del usuario: {$usuario->name}", $usuario);
 
         return back()->with('ok', 'Usuario actualizado correctamente.');
     }

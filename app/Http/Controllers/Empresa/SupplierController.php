@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Supplier;
 use App\Models\SupplierLedger;
+use App\Models\ActivityLog;
+use App\Models\SupplierPortalToken;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class SupplierController extends Controller
 {
@@ -82,7 +87,7 @@ class SupplierController extends Controller
             'active' => 1
         ]);
 
-        \App\Models\ActivityLog::log("Creó el proveedor: {$supplier->name}");
+        ActivityLog::log("Creó el proveedor: {$supplier->name}");
 
         return redirect()
             ->route('empresa.proveedores.index')
@@ -181,7 +186,7 @@ class SupplierController extends Controller
                 $m->haber = $m->type === 'credit' ? $m->amount : null;
             }
 
-            $movimientos->setCollection($movimientos->reverse());
+            $movimientos->setCollection($movimientos->getCollection()->reverse()->values());
         }
 
         /**
@@ -248,7 +253,7 @@ class SupplierController extends Controller
             'active' => $request->active ?? 1,
         ]);
 
-        \App\Models\ActivityLog::log("Actualizó el proveedor: {$supplier->name}");
+        ActivityLog::log("Actualizó el proveedor: {$supplier->name}");
 
         return redirect()
             ->route('empresa.proveedores.index')
@@ -269,7 +274,7 @@ class SupplierController extends Controller
         $nombreProv = $supplier->name;
         $supplier->delete();
 
-        \App\Models\ActivityLog::log("Eliminó el proveedor: {$nombreProv}");
+        ActivityLog::log("Eliminó el proveedor: {$nombreProv}");
 
         return redirect()
             ->route('empresa.proveedores.index')
@@ -294,24 +299,24 @@ class SupplierController extends Controller
         return back()->with('success', 'Pago registrado correctamente en la cuenta corriente.');
     }
 
-    public function getPortalLink(\App\Models\Supplier $supplier)
+    public function getPortalLink(Supplier $supplier)
     {
         try {
-            $token = \App\Models\SupplierPortalToken::where('supplier_id', $supplier->id)->first();
+            $token = SupplierPortalToken::where('supplier_id', $supplier->id)->first();
 
             if (!$token) {
-                $token = \App\Models\SupplierPortalToken::create([
+                $token = SupplierPortalToken::create([
                     'empresa_id' => $supplier->empresa_id,
                     'supplier_id' => $supplier->id,
-                    'token' => \Illuminate\Support\Str::random(40),
+                    'token' => Str::random(40),
                 ]);
             }
 
             return response()->json([
                 'url' => route('supplier.portal', ['token' => $token->token])
             ]);
-        } catch (\Exception $e) {
-            \Log::error("Error generando link de portal para proveedor {$supplier->id}: " . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error("Error generando link de portal para proveedor {$supplier->id}: " . $e->getMessage());
             return response()->json(['error' => 'No se pudo generar el enlace'], 500);
         }
     }
@@ -324,7 +329,7 @@ class SupplierController extends Controller
         $empresaId = auth()->user()->empresa_id;
         $q = $request->get('q');
 
-        $suppliers = \App\Models\Supplier::where('empresa_id', $empresaId)
+        $suppliers = Supplier::where('empresa_id', $empresaId)
             ->when($q, function($query) use ($q) {
                 $query->where('name', 'like', "%$q%")
                       ->orWhere('cuit', 'like', "%$q%");

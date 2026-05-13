@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class BackupController extends Controller
 {
@@ -30,13 +33,19 @@ class BackupController extends Controller
 
         // Tablas que contienen información sensible de la empresa
         $tables = [
-            'products'      => 'Artículos y Stock',
-            'ventas'        => 'Historial de Ventas',
-            'expenses'      => 'Gastos y Egresos',
-            'clients'       => 'Cartera de Clientes',
-            'suppliers'     => 'Proveedores',
-            'tesoreria_cuentas' => 'Cuentas Bancarias',
-            'asistencias'   => 'Reloj de Personal'
+            'products'          => 'Artículos y Stock',
+            'product_variants'  => 'Variantes de Productos',
+            'ventas'            => 'Historial de Ventas',
+            'venta_items'       => 'Detalle de Ventas',
+            'expenses'          => 'Gastos y Egresos',
+            'clients'           => 'Cartera de Clientes',
+            'suppliers'         => 'Proveedores',
+            'finanzas_cuentas'  => 'Cuentas Bancarias/Cajas',
+            'finanzas_movimientos' => 'Movimientos de Tesorería',
+            'asistencias'       => 'Reloj de Personal',
+            'purchases'         => 'Compras a Proveedores',
+            'client_ledgers'    => 'Cuentas Corrientes Clientes',
+            'supplier_ledgers'  => 'Cuentas Corrientes Proveedores'
         ];
 
         // Por simplicidad en este entorno, generaremos un CSV consolidado o redireccionaremos al tipo
@@ -87,6 +96,8 @@ class BackupController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ]);
+
+        ActivityLog::log("Generó un resguardo de datos en CSV");
 
         return $response;
     }

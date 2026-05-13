@@ -315,9 +315,23 @@
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>CREANDO ARCHIVO...';
                 
                 try {
+                    // Re-verificar permiso antes de escribir (Crucial para handles guardados)
+                    if (currentDirHandle) {
+                        const perm = await currentDirHandle.queryPermission({mode: 'readwrite'});
+                        if (perm !== 'granted') {
+                            const reqPerm = await currentDirHandle.requestPermission({mode: 'readwrite'});
+                            if (reqPerm !== 'granted') {
+                                throw new Error("No se otorgaron los permisos necesarios para escribir en la carpeta.");
+                            }
+                        }
+                    }
+
                     // Descargar el archivo Blob
                     const res = await fetch("{{ route('empresa.backup.download') }}?type=" + currentType);
-                    if (!res.ok) throw new Error("Respuesta de red incorrecta");
+                    if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({}));
+                        throw new Error(errorData.error || `Error del servidor (${res.status})`);
+                    }
                     
                     const blob = await res.blob();
                     
@@ -337,11 +351,21 @@
                     await writable.write(blob);
                     await writable.close();
                     
-                    alert("✅ ¡Copia de seguridad guardada con éxito en la carpeta seleccionada!");
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Resguardo Exitoso!',
+                        text: `El archivo ${finalName} se guardó correctamente en la carpeta seleccionada.`,
+                        confirmButtonColor: '#22c55e'
+                    });
                     
                     wizardModal.hide();
                 } catch(e) {
-                    alert("❌ Error al guardar el archivo: " + e.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Fallo en el Resguardo',
+                        text: e.message,
+                        footer: 'Si el problema persiste, intente cambiar la carpeta de destino.'
+                    });
                     console.error(e);
                 } finally {
                     btn.disabled = false;

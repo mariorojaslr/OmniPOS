@@ -183,6 +183,7 @@ class ClientAccountService
             $query->orderBy('created_at', 'asc')->orderBy('id', 'asc');
         }
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, ClientLedger> $deudas */
         $deudas = $query->get();
 
         foreach ($deudas as $deuda) {
@@ -231,6 +232,7 @@ class ClientAccountService
             $query->whereIn('id', $creditosEspecificos);
         }
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, ClientLedger> $creditosFlotantes */
         $creditosFlotantes = $query->orderBy('created_at', 'asc')->get();
 
         foreach ($creditosFlotantes as $credito) {
