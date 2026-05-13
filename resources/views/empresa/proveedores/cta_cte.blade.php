@@ -35,6 +35,9 @@
                 <a href="{{ route('empresa.compras.create', ['supplier_id' => $supplier->id]) }}" class="btn btn-outline-dark px-3 fw-bold rounded-pill">
                     <i class="fas fa-plus me-1"></i> Nueva Compra
                 </a>
+                <button type="button" class="btn btn-outline-warning px-3 fw-bold rounded-pill text-dark" data-bs-toggle="modal" data-bs-target="#modalCompraManual">
+                    <i class="fas fa-pen-fancy me-1"></i> Compra Manual
+                </button>
                 <a href="{{ route('empresa.proveedores.edit', $supplier->id) }}" class="btn btn-light border px-3 rounded-pill">
                     <i class="fas fa-pen me-1"></i> Editar
                 </a>
@@ -926,5 +929,59 @@
         debitCheckboxes.forEach(c => c.addEventListener('change', updateImputacionDisplay));
     });
 </script>
+
+{{-- ════════════════════════════════════════════════════════
+    MODAL COMPRA MANUAL (Sin producto del catálogo)
+════════════════════════════════════════════════════════ --}}
+<div class="modal fade" id="modalCompraManual" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-0 p-4 bg-warning bg-gradient">
+                <div>
+                    <h5 class="modal-title fw-bold mb-0 text-dark"><i class="fas fa-pen-fancy me-2"></i> Compra Manual</h5>
+                    <small class="text-dark opacity-75">Registrar una compra libre sin producto del catálogo</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('empresa.proveedores.compra_manual', $supplier->id) }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="alert alert-light border small mb-4">
+                        <i class="fas fa-info-circle text-primary me-1"></i>
+                        Usá este formulario para cargar compras que <strong>no están en tu catálogo</strong> (ej: carne, servicios, fletes).
+                        El monto se cargará como deuda en la cuenta corriente de <strong>{{ $supplier->name }}</strong>.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Descripción de la compra *</label>
+                        <input type="text" name="descripcion" class="form-control rounded-pill border-0 bg-light px-3 shadow-sm" 
+                               placeholder="Ej: 5kg de carne picada, Flete a depósito, Reparación equipo..." required maxlength="255">
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-7">
+                            <label class="form-label small fw-bold text-muted">Monto ($) *</label>
+                            <div class="input-group">
+                                <span class="input-group-text border-0 bg-light fw-bold rounded-start-pill">$</span>
+                                <input type="number" step="0.01" min="0.01" name="monto" class="form-control border-0 bg-light fw-bold text-danger rounded-end-pill shadow-sm" 
+                                       placeholder="0.00" required>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label small fw-bold text-muted">Fecha</label>
+                            <input type="date" name="fecha" class="form-control form-control-sm border-0 bg-light rounded-pill shadow-sm" value="{{ date('Y-m-d') }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning text-dark rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="fas fa-check-circle me-1"></i> Registrar Compra
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @endsection

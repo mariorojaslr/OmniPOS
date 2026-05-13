@@ -259,6 +259,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('proveedores/{supplier}/cta_cte', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'show'])->name('proveedores.show');
         Route::post('proveedores/{supplier}/pagos', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'storePayment'])->name('proveedores.pagos.store');
         Route::post('proveedores/{supplier}/imputar', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'imputarMonto'])->name('proveedores.imputar');
+        Route::post('proveedores/{supplier}/compra-manual', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'storeManualPurchase'])->name('proveedores.compra_manual');
         Route::get('proveedores/pagos/{orden}/pdf', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'downloadPayment'])->name('proveedores.pagos.pdf');
         
         // GESTIÓN DE RECIBOS DE PROVEEDORES (NUEVO)

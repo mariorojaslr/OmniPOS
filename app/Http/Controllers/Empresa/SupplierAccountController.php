@@ -153,6 +153,48 @@ class SupplierAccountController extends Controller
     }
 
     /**
+     * Registra una compra manual (sin producto del catálogo) en la cuenta corriente.
+     * Útil para compras personales, servicios, o items que no se revenden.
+     */
+    public function storeManualPurchase(Request $request, Supplier $supplier)
+    {
+        $empresaId = Auth::user()->empresa_id;
+
+        if ($supplier->empresa_id !== $empresaId) {
+            abort(403);
+        }
+
+        $request->validate([
+            'descripcion' => 'required|string|max:255',
+            'monto'       => 'required|numeric|min:0.01',
+            'fecha'       => 'nullable|date',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $supplier, $empresaId) {
+                // Crear débito en la cuenta corriente
+                SupplierLedger::create([
+                    'empresa_id'     => $empresaId,
+                    'supplier_id'    => $supplier->id,
+                    'type'           => 'debit',
+                    'amount'         => $request->monto,
+                    'description'    => 'COMPRA MANUAL: ' . $request->descripcion,
+                    'reference_type' => null,
+                    'reference_id'   => null,
+                    'created_at'     => $request->fecha ?? now(),
+                ]);
+
+                // Actualizar saldo del proveedor
+                $supplier->increment('saldo', $request->monto);
+            });
+
+            return back()->with('success', "Compra manual registrada: \${$request->monto} — {$request->descripcion}");
+        } catch (\Exception $e) {
+            return back()->with('error', "Error al registrar la compra: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Registra una nueva Orden de Pago
      */
     public function storePayment(Request $request, Supplier $supplier)
