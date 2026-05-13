@@ -120,6 +120,9 @@ class SupplierAccountController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
+        // Cuentas de tesorería para pagos
+        $cuentas = \App\Models\FinanzaCuenta::where('empresa_id', $empresaId)->where('activo', true)->get();
+
         return view('empresa.proveedores.cta_cte', compact(
             'supplier', 'movimientos', 'saldo', 'deudas', 'aging', 
             'totalCompras', 'totalPagado', 'ultimasOP', 'creditosAFavorDisponible',
