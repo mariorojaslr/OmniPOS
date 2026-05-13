@@ -134,7 +134,12 @@
         }
     }
     
-    $titulo_comprobante = $hasCae ? "FACTURA " . $letra : "COMPROBANTE DE GESTIÓN";
+    $tipo_doc = "FACTURA";
+    if($venta->tipo_comprobante == 'NC' || $venta->tipo_comprobante == 'nota_credito') $tipo_doc = "NOTA DE CRÉDITO";
+    if($venta->tipo_comprobante == 'ND') $tipo_doc = "NOTA DE DÉBITO";
+
+    $titulo_comprobante = $hasCae ? $tipo_doc . " " . $letra : "COMPROBANTE DE GESTIÓN";
+    $esGestion = !$hasCae;
     $fullNumero = $venta->numero_comprobante;
 @endphp
 
@@ -150,7 +155,7 @@
     <table class="header-table">
         <tr>
             <td width="48%">
-                @if(isset($logoBase64) && $logoBase64)
+                @if($hasCae && isset($logoBase64) && $logoBase64)
                     <img src="{{ $logoBase64 }}" class="company-logo">
                 @else
                     <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
@@ -165,6 +170,9 @@
             <td width="4%"></td>
             <td width="48%" style="text-align: right;">
                 <h1 class="doc-title">{{ $titulo_comprobante }}</h1>
+                @if($esGestion)
+                    <div style="font-size: 7pt; color: #d00; font-weight: bold; margin-bottom: 5px;">DOCUMENTO NO VÁLIDO COMO FACTURA</div>
+                @endif
                 <div class="doc-num">N&deg; {{ $fullNumero }}</div>
                 <div class="doc-data">
                     <p><span class="label">Fecha de Emisión:</span> {{ $venta->created_at->format('d/m/Y') }}</p>
@@ -249,16 +257,23 @@
         <table class="arca-container">
             <tr>
                 <td class="arca-box-left">
-                    @if($venta->qr_data)
+                    @if($venta->qr_data && $hasCae)
                         <img src="data:image/png;base64, {!! base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(150)->generate('https://www.afip.gob.ar/fe/qr/?p=' . $venta->qr_data)) !!}" class="qr-img">
                     @endif
-                    <div style="float: left; width: 60%;">
-                        <div style="font-size: 24pt; font-weight: 900; color: #333; margin-bottom: -5px;">ARCA</div>
-                        <div style="font-size: 6.5pt; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Agencia de Recaudación y Control Aduanero</div>
-                        <div class="arca-legal">
-                            Comprobante Autorizado por AFIP/ARCA.
+                    
+                    @if($hasCae)
+                        <div style="float: left; width: 60%;">
+                            <div style="font-size: 24pt; font-weight: 900; color: #333; margin-bottom: -5px;">ARCA</div>
+                            <div style="font-size: 6.5pt; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Agencia de Recaudación y Control Aduanero</div>
+                            <div class="arca-legal">
+                                Comprobante Autorizado por AFIP/ARCA.
+                            </div>
                         </div>
-                    </div>
+                    @else
+                        <div style="border: 2px dashed #000; padding: 10px; color: #000; text-align: center; font-weight: bold; font-size: 12pt;">
+                            *** DOCUMENTO NO VÁLIDO COMO FACTURA ***
+                        </div>
+                    @endif
                 </td>
                 <td class="arca-box-right">
                     @if($hasCae)
@@ -271,5 +286,17 @@
     </div>
 </div>
 
+    @if(isset($isHtmlPrint) && $isHtmlPrint)
+    <script>
+        window.onload = function() {
+            window.print();
+            setTimeout(function() {
+                if (window.opener || window.name) {
+                    window.close();
+                }
+            }, 500);
+        };
+    </script>
+    @endif
 </body>
 </html>

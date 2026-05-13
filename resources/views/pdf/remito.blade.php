@@ -4,55 +4,64 @@
     <meta charset="utf-8">
     <title>Remito {{ $remito->id }}</title>
     <style>
-        @page { margin: 0.5cm; size: A4; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 8.5pt; color: #000; line-height: 1.35; padding: 0; margin: 0; }
-        .invoice-box { width: 100%; border: 1.2px solid #000; min-height: 27.5cm; position: relative; background: #fff; }
-        
-        /* HEADER */
-        .header-table { width: 100%; border-bottom: 2.5px solid #000; border-collapse: collapse; }
-        .header-table td { vertical-align: top; padding: 12px 10px; }
-        
-        .header-center { width: 66px; text-align: center; border: 2.5px solid #000; border-top: none; background: #fff; position: absolute; left: 50%; margin-left: -33px; top: 0; height: 60px; z-index: 1000; }
-        .header-center .letter { font-size: 36pt; font-weight: bold; line-height: 52px; display: block; }
-        .header-center .cod { font-size: 8pt; font-weight: bold; display: block; margin-top: -6px; padding-bottom: 2px; }
-        
-        .company-name { font-size: 15pt; font-weight: 900; color: #000; text-transform: uppercase; margin-bottom: 3px; }
-        .company-data p { margin: 0; font-size: 8.5pt; color: #1a1a1a; line-height: 1.25; }
-        
-        .doc-title { font-size: 16pt; font-weight: 900; margin: 0 0 8px 0; text-align: right; color: #000; line-height: 1; padding-right: 0.5cm; }
-
-        .doc-num { font-size: 14pt; font-weight: 900; text-align: right; margin-bottom: 8px; padding-right: 0.5cm; }
-        .doc-data p { margin: 0 0 5px 0; font-size: 9pt; text-align: right; padding-right: 0.5cm; }
-
-        /* SECCIONES TRANSVERSALES */
-        .section-bar { background: #f5f5f5; border-top: 1.2px solid #000; border-bottom: 1.2px solid #000; padding: 8px 15px; margin-top: -1px; }
-        .label { font-weight: bold; color: #000; text-transform: uppercase; font-size: 8.5pt; margin-right: 5px; }
-
-        /* TABLA DE ITEMS */
-        .items-table { width: 100%; border-collapse: collapse; }
-        .items-table th { background: #000; color: #fff; padding: 8px; text-transform: uppercase; font-size: 8.5pt; text-align: center; border: 1px solid #000; }
-        .items-table td { padding: 10px 8px; font-size: 9.5pt; color: #000; border-bottom: 1px solid #eee; }
-        
-        /* FOOTER CON FIRMA */
-        .footer-container { 
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            padding: 30px 25px; 
-            box-sizing: border-box; 
+        @page { margin: 1cm; size: A4; }
+        body { 
+            font-family: 'Helvetica', 'Arial', sans-serif; 
+            font-size: 9pt; 
+            color: #333; 
+            line-height: 1.2;
+            margin: 0;
+            padding: 0;
         }
-        
-        .footer-separator { border-top: 1.5px solid #000; margin-bottom: 25px; width: 100%; }
-        
-        .signature-box { float: right; width: 45%; border-top: 1px solid #000; margin-top: 40px; text-align: center; padding-top: 5px; }
-        .obs-box { float: left; width: 50%; padding: 8px; background: #f9f9f9; border: 1px dashed #bbb; min-height: 60px; }
 
-        .attribution { text-align: center; font-size: 7.5pt; color: #666; width: 100%; position: absolute; bottom: 10px; font-style: italic; }
-        .clear { clear: both; }
+        .invoice-box { width: 100%; position: relative; min-height: 27cm; }
 
-        /* LOGO CABECERA */
-        .company-logo { max-width: 220px; max-height: 85px; margin-bottom: 10px; display: block; }
+        /* Encabezado */
+        .header-table { width: 100%; border-bottom: 1px solid #000; margin-bottom: 10px; table-layout: fixed; }
+        .header-table td { vertical-align: top; padding: 5px; }
+        
+        .company-name { font-size: 16pt; font-weight: bold; color: #000; margin-bottom: 2px; }
+        .company-data { font-size: 8pt; color: #444; }
+
+        /* Letra R Central */
+        .doc-type-box {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            margin-left: -20px;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #000;
+            background: #fff;
+            text-align: center;
+            z-index: 10;
+        }
+        .doc-type-letter { font-size: 24pt; font-weight: bold; line-height: 35px; }
+        .doc-type-code { font-size: 5pt; font-weight: bold; margin-top: -5px; display: block; }
+
+        .doc-title { font-size: 14pt; font-weight: bold; margin: 0; text-transform: uppercase; }
+        .doc-num { font-size: 11pt; font-weight: bold; margin: 5px 0; }
+
+        .section-bar { 
+            background: #f0f0f0; 
+            padding: 5px 10px; 
+            border: 1px solid #ccc; 
+            font-weight: bold; 
+            font-size: 9pt; 
+            margin: 10px 0;
+            text-transform: uppercase;
+        }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .items-table th { background: #333; color: #fff; text-align: left; padding: 7px 10px; font-size: 8.5pt; }
+        .items-table td { padding: 7px 10px; border-bottom: 1px solid #eee; font-size: 9pt; }
+        
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .footer-container { position: absolute; bottom: 0; width: 100%; border-top: 2px solid #000; padding-top: 10px; }
+        .obs-box { font-size: 8pt; color: #666; padding: 10px; background: #f9f9f9; border: 1px dashed #ccc; width: 50%; float: left; }
+        .signature-box { float: right; width: 40%; border-top: 1px solid #000; margin-top: 30px; text-align: center; padding-top: 5px; font-size: 8pt; }
     </style>
 </head>
 <body>
@@ -63,106 +72,92 @@
 @endphp
 
 <div class="invoice-box">
-    
-    <div class="header-center">
-        <span class="letter">R</span>
-        <span class="cod">No Válido Fac</span>
+    <div class="doc-type-box">
+        <span class="doc-type-letter">R</span>
+        <span class="doc-type-code">REMITO</span>
     </div>
 
     <table class="header-table">
         <tr>
             <td width="48%">
                 @if(isset($logoBase64) && $logoBase64)
-                    <img src="{{ $logoBase64 }}" class="company-logo">
+                    <img src="{{ $logoBase64 }}" style="max-height: 80px; margin-bottom: 5px;">
+                @else
+                    <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
                 @endif
-                <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
                 <div class="company-data">
-                    <p><strong>{{ $empresa->nombre_comercial ?? 'Casa Central' }}</strong></p>
                     <p>{{ $empresa->direccion_fiscal ?? '-' }}</p>
                     <p>Tel: {{ $empresa->telefono ?? '-' }}</p>
-                    <p><strong>Cond. IVA:</strong> {{ $empresa->condicion_iva ?? 'Responsable Inscripto' }}</p>
+                    <p>CUIT: {{ $empresa->arca_cuit ?? $empresa->cuit }}</p>
                 </div>
             </td>
+            <td width="4%"></td>
             <td width="48%" style="text-align: right;">
                 <h1 class="doc-title">REMITO DE ENTREGA</h1>
                 <div class="doc-num">{{ $remito->numero_remito ?: 'REM-'.str_pad($remito->id, 8, '0', STR_PAD_LEFT) }}</div>
-                <div class="doc-data">
+                <div class="company-data">
                     <p><strong>Fecha Entrega:</strong> {{ $remito->fecha_entrega->format('d/m/Y') }}</p>
                     <p><strong>Hora:</strong> {{ $remito->fecha_entrega->format('H:i') }} hs</p>
-                    <p><strong>Venta Origen:</strong> #{{ $venta->id }}</p>
                     <p><strong>Usuario:</strong> {{ $remito->user->name }}</p>
                 </div>
             </td>
         </tr>
     </table>
 
-    <div class="section-bar">
-        <table width="100%" cellpadding="0" cellspacing="0">
+    <div class="section-bar">Datos del Destinatario</div>
+    <div style="padding: 10px;">
+        <table width="100%">
             <tr>
-                <td width="55%"><span class="label">Entregado a:</span> <span style="font-size: 10pt; font-weight: 900;">{{ strtoupper($remito->cliente->name ?? 'CONSUMIDOR FINAL') }}</span></td>
-                <td width="45%"><span class="label">CUIT / DNI:</span> {{ $remito->cliente->document ?? '-' }}</td>
+                <td><strong>Entregado a:</strong> {{ $remito->cliente->name ?? 'Consumidor Final' }}</td>
+                <td style="text-align: right;"><strong>CUIT/DNI:</strong> {{ $remito->cliente->document ?? '-' }}</td>
             </tr>
             <tr>
-                <td style="padding-top: 5px;"><span class="label">Domicilio Entrega:</span> {{ $remito->cliente->address ?? '-' }}</td>
-                <td style="padding-top: 5px;"><span class="label">Cond. IVA:</span> {{ $remito->cliente->condicion_iva ?? 'Consumidor Final' }}</td>
+                <td><strong>Domicilio Entrega:</strong> {{ $remito->cliente->address ?? '-' }}</td>
+                <td style="text-align: right;"><strong>Venta Origen:</strong> #{{ $venta->id }}</td>
             </tr>
         </table>
     </div>
 
+    <div class="section-bar">Mercadería Detallada</div>
     <table class="items-table">
         <thead>
             <tr>
-                <th width="15%">Cod.</th>
-                <th width="65%" style="text-align: left;">Descripción de Mercadería Entregada</th>
-                <th width="20%">Cantidad</th>
+                <th width="15%" class="text-center">Cant.</th>
+                <th width="65%">Descripción del Producto</th>
+                <th width="20%">Código / Ref.</th>
             </tr>
         </thead>
         <tbody>
             @foreach($remito->items as $item)
             <tr>
-                <td style="text-align: center; color: #444;">{{ $item->product->sku ?? $item->product_id }}</td>
+                <td class="text-center"><strong>{{ number_format($item->cantidad, 2, ',', '.') }}</strong></td>
                 <td>
-                    <span style="font-weight: bold;">{{ $item->product->name }}</span>
+                    {{ $item->product->name }}
                     @if($item->variant) <small style="color: #666;">[{{ $item->variant->size }}/{{ $item->variant->color }}]</small> @endif
-                    <div style="font-size: 7.5pt; color: #666; margin-top: 3px;">
-                        Facturado en Venta #{{ $venta->id }}
-                    </div>
                 </td>
-                <td style="text-align: center; font-size: 11pt; font-weight: bold;">
-                    {{ number_format($item->cantidad, 2, ',', '.') }}
-                </td>
+                <td>{{ $item->product->sku ?? '-' }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
-    <div class="footer-container">
-        
-        <div class="footer-separator"></div>
-
+    <div class="footer-container" style="margin-top: 50px;">
         <div class="obs-box">
-            <span class="label" style="font-size: 7pt;">OBSERVACIONES / DATOS DE RETIRO:</span><br>
-            <div style="font-size: 8.5pt; margin-top: 5px;">
-                {{ $remito->observaciones ?: 'Sin observaciones.' }}
-            </div>
-        </div>
-
-        <div class="signature-box">
-            <span class="label">CONFORMIDAD DEL CLIENTE</span><br>
-            <span style="font-size: 7pt; color: #444;">Firma, Aclaración y DNI</span>
+            <strong>OBSERVACIONES:</strong><br>
+            {{ $remito->observaciones ?: 'Sin observaciones.' }}
         </div>
         
-        <div class="clear"></div>
-
-        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; font-size: 7pt; color: #666;">
-            * El presente remito no es válido como factura. Los productos detallados fueron facturados previamente en la venta indicada en la cabecera.
+        <div class="signature-box">
+            CONFORMIDAD DEL CLIENTE<br>
+            <span style="font-size: 7pt; color: #666;">Firma, Aclaración y DNI</span>
         </div>
 
-        <div class="attribution">
-            MultiPOS SaaS (gentepiola.net) | Comprobante de Entrega Física | Pág. 1 de 1
+        <div style="clear: both;"></div>
+
+        <div style="font-size: 8pt; color: #888; text-align: center; margin-top: 20px;">
+            MultiPOS Commercial Suite | EL PRESENTE REMITO NO ES VÁLIDO COMO FACTURA
         </div>
     </div>
-
 </div>
 
 </body>

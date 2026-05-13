@@ -258,6 +258,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('proveedores/cheques', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'chequesIndex'])->name('proveedores.cheques');
         Route::get('proveedores/{supplier}/cta_cte', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'show'])->name('proveedores.show');
         Route::post('proveedores/{supplier}/pagos', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'storePayment'])->name('proveedores.pagos.store');
+        Route::post('proveedores/{supplier}/imputar', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'imputarMonto'])->name('proveedores.imputar');
         Route::get('proveedores/pagos/{orden}/pdf', [App\Http\Controllers\Empresa\SupplierAccountController::class, 'downloadPayment'])->name('proveedores.pagos.pdf');
         
         // GESTIÓN DE RECIBOS DE PROVEEDORES (NUEVO)
@@ -448,9 +449,12 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      */
         Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
         Route::get('/ventas/manual', [VentaController::class, 'createManual'])->name('ventas.manual');
-        Route::post('/ventas/manual', [VentaController::class, 'storeManual'])->name('ventas.manual.store');
-        Route::get('/ventas/{venta}', [VentaController::class, 'show'])->name('ventas.show'); // Centro de Control
+        Route::post('/ventas/manual', [VentaController::class, 'storeManual'])->name('ventas.store_manual');
+        Route::get('/ventas/{venta}', [VentaController::class, 'show'])->name('ventas.show');
         Route::get('/ventas/{venta}/pdf', [VentaController::class, 'pdf'])->name('ventas.pdf');
+        Route::get('/ventas/{venta}/print-html', [VentaController::class, 'printHtml'])->name('ventas.print_html');
+        Route::get('/ventas/{venta}/credit-note', [VentaController::class, 'creditNote'])->name('ventas.credit_note');
+        Route::post('/ventas/{venta}/fiscalizar', [VentaController::class, 'fiscalizar'])->name('ventas.fiscalizar');
         Route::get('/ventas/{venta}/credit-note', [VentaController::class, 'creditNote'])->name('ventas.credit_note');
 
         /*

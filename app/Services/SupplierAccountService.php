@@ -191,6 +191,43 @@ class SupplierAccountService
         return $montoDisponible;
     }
 
+    /**
+     * Aplica un crédito existente (Pago a cuenta / NC) a deudas pendientes
+     */
+    public function aplicarCreditoExistente($ledgerId, $comprasEspecificas = [])
+    {
+        return DB::transaction(function () use ($ledgerId, $comprasEspecificas) {
+            $ledger = SupplierLedger::lockForUpdate()->findOrFail($ledgerId);
+
+            if ($ledger->type !== 'credit') {
+                throw new \Exception("El movimiento seleccionado no es un crédito.");
+            }
+
+            if ($ledger->paid) {
+                throw new \Exception("Este crédito ya ha sido aplicado totalmente.");
+            }
+
+            $ordenPago = null;
+            if ($ledger->reference_type === OrdenPago::class) {
+                $ordenPago = $ledger->reference;
+            }
+
+            // Usamos el motor de imputación existente
+            $restante = $this->imputarMontoCredito($ledger->supplier_id, $ledger->pending_amount, $ordenPago, $comprasEspecificas);
+
+            $ledger->pending_amount = $restante;
+            if ($restante <= 0.009) {
+                $ledger->paid = true;
+                $ledger->pending_amount = 0;
+            }
+            $ledger->save();
+
+            $ledger->supplier->recalcularSaldo();
+
+            return $ledger;
+        });
+    }
+
     protected function generarNumeroOrden($empresaId)
     {
         $empresa = \App\Models\Empresa::find($empresaId);

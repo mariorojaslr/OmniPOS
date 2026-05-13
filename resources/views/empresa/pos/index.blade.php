@@ -51,15 +51,28 @@
 <div class="d-flex justify-content-between mb-2">
 
 <div class="d-flex align-items-center gap-3">
-<div id="ventaFlash" style="display:none;background:#c8f7c5;color:#1b5e20;padding:6px 12px;border-radius:6px;font-size:14px">
-✔ Venta registrada
+<div id="ventaFlash" class="align-items-center gap-3" style="display:none;background:#c8f7c5;color:#1b5e20;padding:6px 12px;border-radius:6px;font-size:14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <span>✔ Venta registrada</span>
+    <div id="flashActions" style="display:none;">
+        <form id="formFiscalizarFlash" action="" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-primary py-0 px-2 fw-bold" style="font-size: 11px;">
+                🚀 Fiscalizar ARCA
+            </button>
+        </form>
+    </div>
 </div>
 </div>
 
-<div class="d-flex gap-2">
-<div><small>Cols</small><input type="number" id="cols" value="4" min="2" max="8" style="width:60px"></div>
-<div><small>Filas</small><input type="number" id="rows" value="3" min="1" max="6" style="width:60px"></div>
-</div>
+    <div class="d-flex gap-2 align-items-center">
+        <button class="btn btn-outline-dark btn-sm shadow-sm" id="btnConfigPOS" title="Configuración de Terminal">
+            ⚙️ <span class="d-none d-sm-inline">Configurar Terminal</span>
+        </button>
+        <div class="d-flex gap-2">
+            <div><small>Cols</small><input type="number" id="cols" value="4" min="2" max="8" style="width:60px"></div>
+            <div><small>Filas</small><input type="number" id="rows" value="3" min="1" max="6" style="width:60px"></div>
+        </div>
+    </div>
 
 </div>
 
@@ -155,7 +168,20 @@ Clientes
 </div>
 
 <div class="mb-3">
-<label class="form-label"><strong>Tipo de Comprobante</strong></label>
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <label class="form-label mb-0"><strong>Tipo de Comprobante</strong></label>
+        <div id="arcaStatusBadge">
+            @if($empresa->arca_activo)
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size: 10px;">
+                    <i class="fas fa-signal me-1"></i> CONEXIÓN AFIP ACTIVA
+                </span>
+            @else
+                <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25" style="font-size: 10px;">
+                    <i class="fas fa-signal-slash me-1"></i> SOLO GESTIÓN (AFIP OFF)
+                </span>
+            @endif
+        </div>
+    </div>
 <div class="d-flex gap-3">
     <div class="form-check">
         <input class="form-check-input" type="radio" name="tipoComprobante" id="tipoTicket" value="ticket" checked>
@@ -170,6 +196,18 @@ Clientes
         <label class="form-check-label" for="tipoNC" class="text-danger fw-bold">Nota de Crédito (Devolución)</label>
     </div>
 </div>
+
+{{-- Switch rápido para Forzar Gestión (Solo si AFIP está activo) --}}
+@if($empresa->arca_activo)
+<div class="mt-2 p-2 border rounded bg-white" style="border-style: dotted !important;">
+    <div class="form-check form-switch d-flex align-items-center gap-2">
+        <input class="form-check-input" type="checkbox" id="forzarGestion" style="cursor:pointer; transform: scale(1.1);">
+        <label class="form-check-label small fw-bold text-muted mb-0" for="forzarGestion" style="cursor:pointer;">
+            📁 Guardar solo como Gestión (Omitir AFIP)
+        </label>
+    </div>
+</div>
+@endif
 
 <div class="mb-3 p-3 border rounded bg-light border-success" style="border-style: dashed !important;">
     <div class="form-check form-switch d-flex align-items-center gap-2">
@@ -316,6 +354,63 @@ placeholder="Buscar por nombre, documento, CUIT o teléfono...">
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalConfigPOS" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0" style="border-radius:15px;">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-desktop me-2 text-success"></i> Setup del Cajero</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-4 text-center">
+                    <small class="text-muted text-uppercase fw-bold ls-1">Ajustes de Velocidad</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Comprobante por Defecto</label>
+                    <select id="cfg_default_comprobante" class="form-select border-2">
+                        <option value="ticket">Ticket (80mm)</option>
+                        <option value="factura">Factura (A4)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Método de Pago por Defecto</label>
+                    <select id="cfg_default_pago" class="form-select border-2">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="qr">QR</option>
+                    </select>
+                </div>
+
+                <div class="p-3 bg-light rounded border mb-3">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="cfg_auto_print" style="cursor:pointer">
+                        <label class="form-check-label fw-bold" for="cfg_auto_print">🚀 Impresión Instantánea (Sin PDF)</label>
+                    </div>
+                    <small class="text-muted d-block">El ticket sale "chac" ni bien confirmas la venta.</small>
+                </div>
+
+                <div class="p-3 bg-light rounded border">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="cfg_auto_consumidor" style="cursor:pointer" checked>
+                        <label class="form-check-label fw-bold" for="cfg_auto_consumidor">👤 Siempre Consumidor Final</label>
+                    </div>
+                    <small class="text-muted d-block">Ideal para supermercados y venta rápida.</small>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-dark w-100 fw-bold py-2" id="btnSaveConfigPOS">
+                    GUARDAR SETUP
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Iframe oculto para impresión silenciosa --}}
+<iframe id="printIframe" style="display:none;"></iframe>
 
 @push('scripts')
 <script>
@@ -329,6 +424,67 @@ const grid=document.getElementById('productGrid');
 const modalCobrar=new bootstrap.Modal(document.getElementById('modalCobrar'));
 const modalBuscarCliente=new bootstrap.Modal(document.getElementById('modalBuscarCliente'));
 const modalVariante=new bootstrap.Modal(document.getElementById('modalVariante'));
+const modalConfigPOS=new bootstrap.Modal(document.getElementById('modalConfigPOS'));
+
+/* ================= SETUP DEL CAJERO ================= */
+let posSetup = {
+    comprobante: 'ticket',
+    pago: 'efectivo',
+    autoPrint: false,
+    autoConsumidor: true
+};
+
+function loadPosSetup() {
+    const saved = localStorage.getItem('pos_setup');
+    if (saved) {
+        posSetup = JSON.parse(saved);
+        applyPosSetup();
+    }
+}
+
+function applyPosSetup() {
+    // Aplicar a los inputs del modal de configuración
+    document.getElementById('cfg_default_comprobante').value = posSetup.comprobante;
+    document.getElementById('cfg_default_pago').value = posSetup.pago;
+    document.getElementById('cfg_auto_print').checked = posSetup.autoPrint;
+    document.getElementById('cfg_auto_consumidor').checked = posSetup.autoConsumidor;
+
+    // Aplicar a la interfaz del POS
+    document.getElementById('metodoPago').value = posSetup.pago;
+    if (posSetup.comprobante === 'ticket') {
+        document.getElementById('tipoTicket').checked = true;
+    } else {
+        document.getElementById('tipoFactura').checked = true;
+    }
+    
+    if (posSetup.autoConsumidor && consumidorFinal) {
+        document.getElementById('cliente_id').value = consumidorFinal.id;
+        document.getElementById('clienteNombre').innerText = consumidorFinal.name;
+    }
+}
+
+document.getElementById('btnConfigPOS').onclick = () => modalConfigPOS.show();
+
+document.getElementById('btnSaveConfigPOS').onclick = () => {
+    posSetup = {
+        comprobante: document.getElementById('cfg_default_comprobante').value,
+        pago: document.getElementById('cfg_default_pago').value,
+        autoPrint: document.getElementById('cfg_auto_print').checked,
+        autoConsumidor: document.getElementById('cfg_auto_consumidor').checked
+    };
+    localStorage.setItem('pos_setup', JSON.stringify(posSetup));
+    applyPosSetup();
+    modalConfigPOS.hide();
+};
+
+// Cargar al inicio
+loadPosSetup();
+
+function printDirect(ventaId, format) {
+    const url = "{{ url('empresa/ventas') }}/" + ventaId + "/print-html?format=" + format;
+    const iframe = document.getElementById('printIframe');
+    iframe.src = url;
+}
 
 let consumidorFinal = clientes.find(c =>
 c.name?.toUpperCase() === 'CONSUMIDOR FINAL'
@@ -731,7 +887,8 @@ async function procesarVenta(imprimir = false) {
             finanza_cuenta_id: document.getElementById('finanza_cuenta_id').value,
             tipo_comprobante: document.querySelector('input[name="tipoComprobante"]:checked').value,
             hacer_remito: document.getElementById('hacerRemito').checked,
-            items_entregar: getItemsEntregar()
+            items_entregar: getItemsEntregar(),
+            forzar_gestion: document.getElementById('forzarGestion')?.checked || false
         };
 
         const response = await fetch("{{ route('empresa.pos.checkout') }}", {
@@ -759,35 +916,16 @@ async function procesarVenta(imprimir = false) {
         modalCobrar.hide();
 
         if (imprimir) {
-            if (data.es_afip || data.tipo_comprobante === 'factura') {
-                window.open("{{ url('empresa/ventas') }}/" + data.venta_id + "/pdf", '_blank');
+            // Respetamos el formato elegido: Ticket (80mm) o Factura (A4)
+            const tipo = document.querySelector('input[name="tipoComprobante"]:checked').value;
+            
+            if (posSetup.autoPrint) {
+                // MODO RÁPIDO: Impresión directa sin PDF
+                printDirect(data.venta_id, tipo);
             } else {
-                let ticket = `
-                {{ $empresa->nombre_comercial }}
-                ---------------------------
-                Venta #${data.venta_id}
-                Fecha: ${new Date().toLocaleString()}
-                
-                `;
-
-                Object.values(cart).forEach(p=>{
-                    ticket += `${p.name}\n`;
-                    ticket += `${p.qty} x $${p.price.toFixed(2)}\n`;
-                    ticket += `$${(p.qty*p.price).toFixed(2)}\n\n`;
-                });
-
-                ticket += `
-                ---------------------------
-                TOTAL: $${parseFloat(data.total).toFixed(2)}
-                
-                Gracias por su compra
-                `;
-
-                const w = window.open('', 'PRINT', 'height=600,width=350');
-                w.document.write('<pre style="font-family:monospace; font-size:12px;">'+ticket+'</pre>');
-                w.document.close();
-                w.focus();
-                setTimeout(() => { w.print(); w.close(); }, 700);
+                // MODO ESTÁNDAR: Abre PDF en ventana nueva
+                const urlFormat = (tipo === 'ticket') ? '?format=ticket' : '';
+                window.open("{{ url('empresa/ventas') }}/" + data.venta_id + "/pdf" + urlFormat, '_blank');
             }
         }
 
@@ -796,8 +934,28 @@ async function procesarVenta(imprimir = false) {
         renderCart();
 
         const flash = document.getElementById('ventaFlash');
-        flash.style.display = 'block';
-        setTimeout(() => flash.style.display = 'none', 2000);
+        const flashActions = document.getElementById('flashActions');
+        const formFiscalizar = document.getElementById('formFiscalizarFlash');
+        
+        flash.classList.add('d-flex');
+        flash.style.display = 'flex';
+        
+        // Si NO se fiscalizó ya (es gestión), mostramos botón rápido
+        if (!data.es_afip && data.venta_id) {
+            formFiscalizar.action = "{{ url('empresa/ventas') }}/" + data.venta_id + "/fiscalizar";
+            flashActions.style.display = 'block';
+            // Dejamos el cartel 6 segundos para que de tiempo a clickear
+            setTimeout(() => {
+                flash.style.display = 'none';
+                flash.classList.remove('d-flex');
+            }, 6000);
+        } else {
+            flashActions.style.display = 'none';
+            setTimeout(() => {
+                flash.style.display = 'none';
+                flash.classList.remove('d-flex');
+            }, 2000);
+        }
 
         // Resetear estado del modal
         document.getElementById('montoPagado').value = '';

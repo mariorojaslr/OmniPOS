@@ -111,14 +111,42 @@ class SupplierAccountController extends Controller
             ->where('activo', true)
             ->get();
 
-        // Cuentas de tesorería para pagos
-        $cuentas = \App\Models\FinanzaCuenta::where('empresa_id', $empresaId)->where('activo', true)->get();
-            
+        // Créditos disponibles (para el modal de imputación)
+        $creditos = SupplierLedger::where('supplier_id', $supplier->id)
+            ->where('empresa_id', $empresaId)
+            ->where('type', 'credit')
+            ->where('paid', false)
+            ->where('pending_amount', '>', 0)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
         return view('empresa.proveedores.cta_cte', compact(
             'supplier', 'movimientos', 'saldo', 'deudas', 'aging', 
             'totalCompras', 'totalPagado', 'ultimasOP', 'creditosAFavorDisponible',
-            'cheques', 'chequeras', 'cuentas'
+            'cheques', 'chequeras', 'cuentas', 'creditos'
         ));
+    }
+
+    /**
+     * Procesa la imputación de un crédito existente a deudas
+     */
+    public function imputarMonto(Request $request, Supplier $supplier)
+    {
+        $request->validate([
+            'credit_id' => 'required|exists:supplier_ledgers,id',
+            'compras'   => 'nullable|array',
+        ]);
+
+        try {
+            $this->accountService->aplicarCreditoExistente(
+                $request->credit_id,
+                $request->input('compras', [])
+            );
+
+            return back()->with('success', "Imputación realizada con éxito.");
+        } catch (\Exception $e) {
+            return back()->with('error', "Error al imputar: " . $e->getMessage());
+        }
     }
 
     /**

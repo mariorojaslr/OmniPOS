@@ -803,4 +803,128 @@
     </div>
 </div>
 
+{{-- ════════════════════════════════════════════════════════
+    MODAL IMPUTACIÓN DE SALDO A FAVOR (CRÉDITOS)
+════════════════════════════════════════════════════════ --}}
+<div class="modal fade" id="modalAplicarSaldo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-0 p-4 bg-success text-white">
+                <div>
+                    <h5 class="modal-title fw-bold mb-0"><i class="fas fa-exchange-alt me-2"></i> Imputar Créditos a Favor</h5>
+                    <small class="text-light opacity-75">Aplicar pagos o notas de crédito a deudas pendientes</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('empresa.proveedores.imputar', $supplier->id) }}" method="POST">
+                @csrf
+                <div class="modal-body p-0">
+                    <div class="row g-0">
+                        {{-- PANEL IZQUIERDO: CRÉDITOS DISPONIBLES --}}
+                        <div class="col-lg-5 p-4 bg-light" style="border-right: 1px solid #e5e7eb;">
+                            <h6 class="text-uppercase fw-bold text-muted small mb-3">
+                                <i class="fas fa-hand-holding-usd me-1"></i> 1. Seleccionar Crédito (Haber)
+                            </h6>
+                            <div class="overflow-auto custom-scrollbar" style="max-height: 400px;">
+                                @foreach($creditos as $c)
+                                <label class="d-flex justify-content-between align-items-center bg-white p-3 rounded-3 border mb-2 cursor-pointer hover-shadow">
+                                    <div class="d-flex align-items-center">
+                                        <input class="form-check-input me-3 credit-radio" type="radio" name="credit_id" value="{{ $c->id }}" data-monto="{{ $c->pending_amount }}" required style="transform: scale(1.2);">
+                                        <div>
+                                            <span class="fw-bold d-block text-dark">{{ $c->description }}</span>
+                                            <small class="text-muted">{{ $c->created_at->format('d/m/Y') }}</small>
+                                        </div>
+                                    </div>
+                                    <span class="text-success fw-bold fs-6">${{ number_format($c->pending_amount, 2, ',', '.') }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- PANEL DERECHO: COMPROBANTES PENDIENTES --}}
+                        <div class="col-lg-7 p-4 bg-white">
+                            <h6 class="text-uppercase fw-bold text-muted small mb-3">
+                                <i class="fas fa-file-invoice me-1"></i> 2. Seleccionar Facturas a Pagar (Debe)
+                            </h6>
+                            <div class="overflow-auto custom-scrollbar" style="max-height: 350px;">
+                                @foreach($deudas as $d)
+                                <label class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 border mb-2 cursor-pointer hover-shadow">
+                                    <div class="d-flex align-items-center">
+                                        <input class="form-check-input me-3 debit-checkbox" type="checkbox" name="compras[]" value="{{ $d->id }}" data-monto="{{ $d->pending_amount }}" style="transform: scale(1.2);">
+                                        <div>
+                                            <span class="fw-bold d-block text-dark">{{ $d->description }}</span>
+                                            <small class="text-muted">{{ $d->created_at->format('d/m/Y') }}</small>
+                                        </div>
+                                    </div>
+                                    <span class="text-danger fw-bold fs-6">${{ number_format($d->pending_amount, 2, ',', '.') }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+
+                            <div class="mt-4 border-top pt-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <div class="small text-muted mb-1">Monto del Crédito:</div>
+                                        <h5 class="fw-bold text-success mb-0" id="montoCreditoSel">$0,00</h5>
+                                    </div>
+                                    <div class="col-md-6 text-md-end">
+                                        <div class="small text-muted mb-1">Total a Imputar:</div>
+                                        <h5 class="fw-bold text-danger mb-0" id="totalAImputarSel">$0,00</h5>
+                                    </div>
+                                </div>
+                                <div class="d-grid mt-4">
+                                    <button type="submit" class="btn btn-success rounded-pill py-3 fw-bold shadow-sm" id="btnConfirmarImputacion" disabled>
+                                        <i class="fas fa-check-circle me-2"></i> Realizar Imputación
+                                    </button>
+                                    <small id="imputacionFeedback" class="text-center mt-2 text-muted x-small"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const creditRadios = document.querySelectorAll('.credit-radio');
+        const debitCheckboxes = document.querySelectorAll('.debit-checkbox');
+        const btnSubmit = document.getElementById('btnConfirmarImputacion');
+        const feedback = document.getElementById('imputacionFeedback');
+
+        function updateImputacionDisplay() {
+            let selectedCredit = document.querySelector('.credit-radio:checked');
+            let creditAmount = selectedCredit ? parseFloat(selectedCredit.dataset.monto) : 0;
+            
+            let totalDebits = 0;
+            document.querySelectorAll('.debit-checkbox:checked').forEach(chk => {
+                totalDebits += parseFloat(chk.dataset.monto);
+            });
+
+            document.getElementById('montoCreditoSel').innerText = '$' + creditAmount.toLocaleString('es-AR', {minimumFractionDigits:2});
+            document.getElementById('totalAImputarSel').innerText = '$' + totalDebits.toLocaleString('es-AR', {minimumFractionDigits:2});
+
+            if (creditAmount > 0 && totalDebits > 0) {
+                btnSubmit.disabled = false;
+                if (totalDebits > creditAmount) {
+                    feedback.innerText = "Se utilizará todo el crédito disponible para pagar parcialmente las facturas.";
+                    feedback.className = "text-center mt-2 text-warning fw-bold x-small";
+                } else {
+                    feedback.innerText = "Las facturas seleccionadas se cancelarán totalmente.";
+                    feedback.className = "text-center mt-2 text-success fw-bold x-small";
+                }
+            } else {
+                btnSubmit.disabled = true;
+                feedback.innerText = "Seleccione un crédito y al menos una factura.";
+                feedback.className = "text-center mt-2 text-muted x-small";
+            }
+        }
+
+        creditRadios.forEach(r => r.addEventListener('change', updateImputacionDisplay));
+        debitCheckboxes.forEach(c => c.addEventListener('change', updateImputacionDisplay));
+    });
+</script>
+
 @endsection

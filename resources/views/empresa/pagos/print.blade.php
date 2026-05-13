@@ -4,164 +4,140 @@
     <meta charset="UTF-8">
     <title>Recibo #{{ str_pad($recibo->numero_recibo, 8, '0', STR_PAD_LEFT) }}</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            color: #333;
+        @page { margin: 1cm; }
+        body { 
+            font-family: 'Helvetica', 'Arial', sans-serif; 
+            font-size: 9pt; 
+            color: #333; 
+            line-height: 1.2;
             margin: 0;
             padding: 0;
+        }
+
+        .invoice-box { width: 100%; position: relative; min-height: 27cm; }
+
+        /* Encabezado */
+        .header-table { width: 100%; border-bottom: 1px solid #000; margin-bottom: 10px; table-layout: fixed; }
+        .header-table td { vertical-align: top; padding: 5px; }
+        
+        .company-name { font-size: 16pt; font-weight: bold; color: #000; margin-bottom: 2px; }
+        .company-data { font-size: 8pt; color: #444; }
+
+        /* Letra X Central */
+        .doc-type-box {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            margin-left: -20px;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #000;
             background: #fff;
-        }
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
             text-align: center;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            z-index: 10;
         }
-        .company-name {
-            font-size: 24px;
-            font-weight: bold;
+        .doc-type-letter { font-size: 24pt; font-weight: bold; line-height: 35px; }
+        .doc-type-code { font-size: 6pt; font-weight: bold; margin-top: -5px; display: block; }
+
+        .doc-title { font-size: 14pt; font-weight: bold; margin: 0; text-transform: uppercase; }
+        .doc-num { font-size: 11pt; font-weight: bold; margin: 5px 0; }
+
+        .section-bar { 
+            background: #f0f0f0; 
+            padding: 5px 10px; 
+            border: 1px solid #ccc; 
+            font-weight: bold; 
+            font-size: 9pt; 
+            margin: 10px 0;
             text-transform: uppercase;
         }
-        .receipt-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .receipt-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .receipt-info div {
-            flex: 1;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f9f9f9;
-        }
-        .text-right {
-            text-align: right;
-        }
-        .total-row {
-            font-weight: bold;
-            background-color: #f0f0f0;
-        }
-        .footer {
-            text-align: center;
-            font-size: 12px;
-            color: #777;
-            margin-top: 40px;
-        }
-        .signatures {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 60px;
-            padding: 0 40px;
-        }
-        .signature-line {
-            width: 200px;
-            border-top: 1px solid #333;
-            text-align: center;
-            padding-top: 5px;
-        }
-        @media print {
-            .no-print {
-                display: none;
-            }
-        }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .items-table th { background: #333; color: #fff; text-align: left; padding: 7px 10px; font-size: 8.5pt; }
+        .items-table td { padding: 7px 10px; border-bottom: 1px solid #eee; font-size: 9pt; }
+        
+        .text-right { text-align: right; }
+        .total-row { font-size: 14pt; font-weight: bold; color: #000; }
+
+        .footer-container { position: absolute; bottom: 0; width: 100%; border-top: 2px solid #000; padding-top: 10px; text-align: center; }
+        .signatures { margin-top: 50px; margin-bottom: 50px; }
+        .sig-box { display: inline-block; width: 40%; border-top: 1px solid #000; margin: 0 4%; padding-top: 5px; font-size: 8pt; }
     </style>
 </head>
-<body onload="window.print()">
-    <div class="no-print" style="text-align: right; padding: 10px;">
-        <button onclick="window.print()" style="padding: 8px 16px; cursor: pointer; background: #007bff; color: #fff; border: none; border-radius: 4px;">Imprimir</button>
-        <button onclick="window.close()" style="padding: 8px 16px; cursor: pointer; background: #6c757d; color: #fff; border: none; border-radius: 4px;">Cerrar</button>
+<body>
+
+<div class="invoice-box">
+    <div class="doc-type-box">
+        <span class="doc-type-letter">X</span>
+        <span class="doc-type-code">RECIBO</span>
     </div>
 
-    <div class="container">
-        <div class="header">
-            <div class="company-name">{{ $recibo->empresa->nombre_comercial ?? 'Nuestra Empresa' }}</div>
-            <div>{{ $recibo->empresa->cuit ?? '' }} | {{ $recibo->empresa->condicion_iva ?? '' }}</div>
-            <div class="receipt-title">RECIBO OFICIAL X</div>
-            <div>Nº: {{ str_pad($recibo->numero_recibo, 8, '0', STR_PAD_LEFT) }}</div>
-        </div>
+    <table class="header-table">
+        <tr>
+            <td width="48%">
+                <div class="company-name">{{ $recibo->empresa->nombre_comercial ?? $recibo->empresa->razon_social }}</div>
+                <div class="company-data">
+                    <p>{{ $recibo->empresa->direccion_fiscal ?? '-' }}</p>
+                    <p>CUIT: {{ $recibo->empresa->arca_cuit ?? $recibo->empresa->cuit }}</p>
+                    <p>Cond. IVA: {{ $recibo->empresa->condicion_iva ?? 'Responsable Inscripto' }}</p>
+                </div>
+            </td>
+            <td width="4%"></td>
+            <td width="48%" style="text-align: right;">
+                <h1 class="doc-title">RECIBO DE PAGO</h1>
+                <div class="doc-num">N&deg; {{ str_pad($recibo->numero_recibo, 8, '0', STR_PAD_LEFT) }}</div>
+                <div class="company-data">
+                    <p><strong>Fecha:</strong> {{ $recibo->fecha ? $recibo->fecha->format('d/m/Y') : $recibo->created_at->format('d/m/Y') }}</p>
+                    <p><strong>Cajero:</strong> {{ $recibo->user->name ?? 'Sistema' }}</p>
+                </div>
+            </td>
+        </tr>
+    </table>
 
-        <div class="receipt-info">
-            <div>
-                <strong>Recibimos de:</strong><br>
-                {{ $recibo->client->name ?? 'Cliente Desconocido' }}<br>
-                DNI/CUIT: {{ $recibo->client->document ?? 'N/A' }}
-            </div>
-            <div class="text-right">
-                <strong>Fecha:</strong> {{ $recibo->fecha ? $recibo->fecha->format('d/m/Y') : $recibo->created_at->format('d/m/Y') }}<br>
-                <strong>Cajero:</strong> {{ $recibo->user->name ?? 'Sistema' }}
-            </div>
-        </div>
+    <div class="section-bar">Datos del Cliente</div>
+    <div style="padding: 10px;">
+        <strong>Recibimos de:</strong> {{ $recibo->client->name ?? 'Cliente Desconocido' }}<br>
+        <strong>DNI/CUIT:</strong> {{ $recibo->client->document ?? 'N/A' }}<br>
+        <strong>Concepto:</strong> Pago de cuenta corriente / Facturas varias.
+    </div>
 
-        <div>A la suma de <strong>Pesos ${{ number_format($recibo->monto_total, 2, ',', '.') }}</strong>, según el siguiente detalle valorizado:</div>
-        <br>
+    <div class="section-bar">Detalle de Valores</div>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Método de Pago</th>
+                <th>Referencia / Banco</th>
+                <th class="text-right">Importe</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($recibo->pagos as $p)
+            <tr>
+                <td>{{ $p->metodo_pago }}</td>
+                <td>{{ $p->referencia ?? 'N/A' }} {{ $p->banco ? '- '.$p->banco : '' }}</td>
+                <td class="text-right">${{ number_format($p->monto, 2, ',', '.') }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" class="text-right" style="padding-top:15px"><strong>TOTAL RECIBIDO:</strong></td>
+                <td class="text-right total-row" style="padding-top:15px">${{ number_format($recibo->monto_total, 2, ',', '.') }}</td>
+            </tr>
+        </tfoot>
+    </table>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Método de Pago</th>
-                    <th>Referencia</th>
-                    <th class="text-right">Importe</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if($recibo->pagos->count() > 0)
-                    @foreach($recibo->pagos as $p)
-                    <tr>
-                        <td>{{ $p->metodo_pago }}</td>
-                        <td>{{ $p->referencia ?? 'N/A' }}</td>
-                        <td class="text-right">${{ number_format($p->monto, 2, ',', '.') }}</td>
-                    </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td>{{ $recibo->metodo_pago }}</td>
-                        <td>{{ $recibo->referencia ?? 'N/A' }}</td>
-                        <td class="text-right">${{ number_format($recibo->monto_total, 2, ',', '.') }}</td>
-                    </tr>
-                @endif
-            </tbody>
-            <tfoot>
-                <tr class="total-row">
-                    <td colspan="2" class="text-right">Total Recibido</td>
-                    <td class="text-right">${{ number_format($recibo->monto_total, 2, ',', '.') }}</td>
-                </tr>
-            </tfoot>
-        </table>
+    <div class="signatures">
+        <div class="sig-box">Firma del Cliente</div>
+        <div class="sig-box">Firma y Sello Comercial</div>
+    </div>
 
-        <div class="signatures">
-            <div class="signature-line">
-                Firma Cliente
-            </div>
-            <div class="signature-line">
-                Firma Recipiendario
-            </div>
-        </div>
-
-        <div class="footer">
-            Generado por MultiPOS - Documento no válido como factura
+    <div class="footer-container">
+        <div style="font-size: 8pt; color: #666;">
+            MultiPOS - Sistema de Gestión Comercial | Documento no válido como factura
         </div>
     </div>
+</div>
+
 </body>
 </html>

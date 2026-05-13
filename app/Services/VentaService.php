@@ -40,7 +40,7 @@ class VentaService
     |--------------------------------------------------------------------------
     */
 
-    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo', $montoEntrega = null, $pagosDiferenciados = [], $finanza_cuenta_id = null, $parent_id = null): Venta
+    public function registrarVenta($user, array $items, $clienteId = null, $tipoVentaCliente = 'contado', $tipoComprobante = 'ticket', $hacerRemito = false, $itemsEntregados = null, $metodoPago = 'efectivo', $montoEntrega = null, $pagosDiferenciados = [], $finanza_cuenta_id = null, $parent_id = null, bool $forzarGestion = false): Venta
     {
         $empresa = $user->empresa;
 
@@ -70,7 +70,7 @@ class VentaService
         |--------------------------------------------------------------------------
         */
 
-        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago, $montoEntrega, $pagosDiferenciados, $finanza_cuenta_id, $parent_id) {
+        return DB::transaction(function () use ($user, $items, $clienteId, $tipoVentaCliente, $tipoComprobante, $hacerRemito, $itemsEntregados, $metodoPago, $montoEntrega, $pagosDiferenciados, $finanza_cuenta_id, $parent_id, $forzarGestion) {
 
             // Re-obtener empresa con bloqueo para asegurar número correlativo único
             $empresaActual = Empresa::where('id', $user->empresa_id)->lockForUpdate()->first();
@@ -94,7 +94,8 @@ class VentaService
 
             // FACTURACIÓN ELECTRÓNICA AFIP (AUTO-DETECCIÓN)
             // Si la empresa tiene CUIT configurado, AFIP ACTIVO y el comprobante es genérico, lo convertimos a fiscal.
-            if ($empresaActual->arca_cuit && $empresaActual->arca_activo && in_array($tipoComprobante, ['ticket', 'factura', 'F', 'B', 'C', 'X', 'NC', 'nota_credito'])) {
+            // EXCEPCIÓN: Si se marcó "forzarGestion", se omite AFIP.
+            if ($empresaActual->arca_cuit && $empresaActual->arca_activo && !$forzarGestion && in_array($tipoComprobante, ['ticket', 'factura', 'F', 'B', 'C', 'X', 'NC', 'nota_credito'])) {
                 
                 // Mapeo automático de Ticket -> Factura Fiscal según condición IVA
                 if ($tipoComprobante === 'ticket' || $tipoComprobante === 'X' || $tipoComprobante === 'factura') {
@@ -524,5 +525,51 @@ class VentaService
         $next = $empresa->proximo_numero_factura ?? 1;
         
         return $pv . '-' . str_pad($next, 8, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * 🚀 FISCALIZAR UNA VENTA EXISTENTE
+     * Envía una venta de gestión a AFIP para obtener CAE y convertirla en oficial.
+     */
+    public function fiscalizarVentaExistente(Venta $venta, Empresa $empresa)
+    {
+        return DB::transaction(function () use ($venta, $empresa) {
+            
+            // 1. Determinar Tipo de Comprobante Fiscal
+            $tipoComprobante = $venta->tipo_comprobante;
+            if ($empresa->condicion_iva === 'Monotributista') {
+                $tipoComprobante = 'C';
+            } else {
+                $taxCondition = strtoupper(trim($venta->cliente->tax_condition ?? ''));
+                $clienteEsRI = (strpos($taxCondition, 'RESPONSABLE INSCRIPTO') !== false || strpos($taxCondition, 'RESPONSABLE_INSCRIPTO') !== false);
+                $tipoComprobante = $clienteEsRI ? 'A' : 'B';
+            }
+
+            // 2. Solicitar CAE a AFIP
+            $resAfip = app(\App\Services\AfipService::class)->solicitarCAE($empresa, $venta);
+
+            if ($resAfip['success']) {
+                // 3. Actualizar Venta con datos fiscales
+                $venta->update([
+                    'tipo_comprobante'   => $tipoComprobante,
+                    'numero_comprobante' => $resAfip['numero_comprobante'],
+                    'cae'                => $resAfip['cae'],
+                    'cae_vencimiento'    => date('Y-m-d', strtotime($resAfip['cae_vencimiento'])),
+                    'qr_data'            => $resAfip['qr_data'] ?? null,
+                    'afip_error'         => null
+                ]);
+
+                // 4. Sincronizar contador interno de la empresa
+                $empresa->proximo_numero_factura = (int) substr($resAfip['numero_comprobante'], -8) + 1;
+                $empresa->save();
+
+                // 5. Registrar Log
+                ActivityLog::log("Fiscalizó venta #{$venta->id} obteniendo CAE {$venta->cae}", $venta);
+
+                return $venta;
+            } else {
+                throw new \Exception($resAfip['error']);
+            }
+        });
     }
 }

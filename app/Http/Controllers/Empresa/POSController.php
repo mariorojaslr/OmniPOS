@@ -233,7 +233,9 @@ class POSController extends Controller
                 $metodoPago,
                 null, // montoEntrega
                 [],   // pagosDiferenciados
-                $finanza_cuenta_id
+                $finanza_cuenta_id,
+                null, // parent_id
+                $request->boolean('forzar_gestion', false)
             );
 
 

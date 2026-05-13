@@ -212,6 +212,17 @@
                                     Opciones
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 fs-7">
+                                    @if(!$venta->cae)
+                                        <li>
+                                            <form action="{{ route('empresa.ventas.fiscalizar', $venta) }}" method="POST" class="px-2">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item py-2 fw-bold text-primary rounded">
+                                                    <i class="fas fa-rocket me-2"></i> Hacer Factura ARCA
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    @endif
                                     <li><h6 class="dropdown-header">Exportar</h6></li>
                                     <li><a class="dropdown-item py-2" target="_blank" href="{{ route('empresa.ventas.pdf', $venta->id) }}"><i class="fas fa-file-pdf text-danger me-2"></i> Factura A4</a></li>
                                     <li><a class="dropdown-item py-2" target="_blank" href="{{ route('empresa.ventas.pdf', [$venta->id, 'format' => 'ticket']) }}"><i class="fas fa-receipt text-secondary me-2"></i> Formato Ticket</a></li>

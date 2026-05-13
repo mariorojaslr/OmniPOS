@@ -309,4 +309,120 @@ class VentaController extends Controller
         
         return redirect()->route('empresa.ventas.manual')->with('info', "Se pre-cargaron los datos de la Venta #{$venta->numero_comprobante} para emitir la Nota de Crédito.");
     }
+    /**
+     * 🚀 Fiscalizar una venta que nació como "Gestión"
+     */
+    public function fiscalizar(Venta $venta, VentaService $ventaService)
+    {
+        $empresa = auth()->user()->empresa;
+
+        if ($venta->empresa_id !== $empresa->id) {
+            abort(403);
+        }
+
+        if ($venta->cae) {
+            return back()->with('error', 'Esta venta ya ha sido fiscalizada.');
+        }
+
+        if (!$empresa->arca_activo || !$empresa->arca_cuit) {
+            return back()->with('error', 'Debe configurar y activar ARCA en la configuración de la empresa.');
+        }
+
+        try {
+            $ventaService->fiscalizarVentaExistente($venta, $empresa);
+            return back()->with('success', "Venta fiscalizada con éxito. Nuevo comprobante: {$venta->numero_comprobante}");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al fiscalizar: ' . $e->getMessage());
+        }
+
+    /**
+     * 🖨️ Versión HTML para impresión rápida (Directa)
+     */
+    public function printHtml(Venta $venta, Request $request)
+    {
+        return $this->generateResponse($venta, $request, 'html');
+    }
+
+    /**
+     * Lógica compartida para generar comprobantes (PDF o HTML)
+     */
+    private function generateResponse(Venta $venta, Request $request, $outputType = 'pdf')
+    {
+        $empresa = auth()->user()->empresa;
+
+        if ($venta->empresa_id !== $empresa->id) {
+            abort(403);
+        }
+
+        $venta->load(['items.product', 'items.variant', 'user', 'cliente']);
+        $empresa->load('config');
+
+        $formato = $request->get('format', 'a4');
+        if ($venta->tipo_comprobante === 'ticket' && !$request->has('format')) {
+            $formato = 'ticket';
+        }
+
+        $user = $venta->user ?? auth()->user();
+        $logoBase64 = $this->getLogoBase64($empresa);
+        $arcaLogoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAABACAMAAAC9G97XAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAnUExURQAAAD8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/P8fofp8AAAAMdFJOUwBAgMDBwYGBw8PDxG6mXgAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAO5JREFUaN7t2DsSgzAMRNE3YDBYIAnv/9YSUuYFfI9RVsirG9m/vE6O67ou77H+3Pee96Z5Zrqv5/7G8+z5/uO7++Y6f2yZp/z6+f3j+v7o/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j/X8z/L+b/F/P/i/n/xfz/Yv5/Mf+/mP9fzP8v5v8X8/2L+f/F/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j/X8z/L+b/F/P/i/n/xfz/Yv5/Mf+/mP9fzP8v5v8X8/2L+f/F/P9i/n8x/7+Y/1/M/y/m/xfz/4v5/8X8/2L+fzH/v5j93N/9AL/Dclv4I/fBAAAAAElFTkSuQmCC'; 
+        
+        $qrUrl = $this->getQrUrl($venta, $empresa);
+
+        $viewName = ($formato === 'ticket') ? 'pdf.ticket_80mm' : 'pdf.comprobante_venta';
+        
+        if ($outputType === 'html') {
+            return view($viewName, compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64', 'qrUrl', 'user'))
+                ->with('isHtmlPrint', true);
+        }
+
+        // Generación de PDF
+        if ($formato === 'ticket') {
+            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, compact('venta', 'empresa', 'logoBase64', 'qrUrl', 'user'))
+                ->setPaper([0, 0, 226.77, 700], 'portrait');
+        } else {
+            $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, compact('venta', 'empresa', 'logoBase64', 'arcaLogoBase64', 'qrUrl'))
+                ->setPaper('a4', 'portrait');
+        }
+
+        $filename = ($venta->numero_comprobante ?: 'Venta_'.$venta->id) . '.pdf';
+        return $pdfContent->stream($filename);
+    }
+
+    private function getLogoBase64($empresa) {
+        if ($empresa->config && $empresa->config->logo) {
+            try {
+                $path = storage_path('app/public/' . $empresa->config->logo);
+                if (file_exists($path)) {
+                    $type = pathinfo($path, PATHINFO_EXTENSION);
+                    $data = file_get_contents($path);
+                    return 'data:image/' . $type . ';base64,' . base64_encode($data);
+                }
+            } catch (\Exception $e) {}
+        }
+        return null;
+    }
+
+    private function getQrUrl($venta, $empresa) {
+        $qrRaw = $venta->qr_data;
+        if (!$qrRaw && $venta->cae) {
+             $tipoCompAfip = ($empresa->condicion_iva === 'Monotributista') ? 11 : (($venta->tipo_comprobante === 'A') ? 1 : 6);
+             $qrData = [
+                "ver" => 1,
+                "fecha" => $venta->created_at->format('Y-m-d'),
+                "cuit" => (int) str_replace('-', '', $empresa->arca_cuit ?? $empresa->cuit),
+                "ptoVta" => (int) ($empresa->arca_punto_venta ?? 1),
+                "tipoCbte" => (int) $tipoCompAfip,
+                "nroCbte" => (int) substr($venta->numero_comprobante, -8),
+                "importe" => (float) $venta->total_con_iva,
+                "moneda" => "PES",
+                "ctz" => 1,
+                "tipoDocRec" => (int) ($venta->cliente && strlen(str_replace('-', '', $venta->cliente->document)) > 8 ? 80 : 96),
+                "nroDocRec" => (int) str_replace('-', '', $venta->cliente->document ?? 0),
+                "tipoCodAut" => "E",
+                "codAut" => (float) $venta->cae
+            ];
+            $qrRaw = base64_encode(json_encode($qrData));
+        }
+        return $qrRaw ? "https://www.afip.gob.ar/fe/qr/?p=" . $qrRaw : null;
+    }
 }

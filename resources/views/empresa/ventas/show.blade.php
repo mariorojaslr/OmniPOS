@@ -28,6 +28,14 @@
         </div>
     </div>
     <div class="d-flex gap-2">
+        @if(!$venta->cae && auth()->user()->empresa->arca_activo)
+            <form action="{{ route('empresa.ventas.fiscalizar', $venta->id) }}" method="POST" onsubmit="return confirm('¿Está seguro de emitir la FACTURA ARCA para esta venta? Una vez generada no podrá modificarse.')">
+                @csrf
+                <button type="submit" class="btn btn-primary shadow-sm fw-bold">
+                    🚀 Hacer Factura ARCA
+                </button>
+            </form>
+        @endif
         <a href="{{ route('empresa.ventas.pdf', $venta->id) }}" target="_blank" class="btn btn-outline-danger">
             📄 Factura A4
         </a>

@@ -62,15 +62,26 @@
         }
     }
     
-    $titulo_comprobante = $hasCae ? "FACTURA " . $letra : "TICKET DE GESTIÓN";
+    $tipo_doc = "FACTURA";
+    if($venta->tipo_comprobante == 'NC' || $venta->tipo_comprobante == 'nota_credito') $tipo_doc = "NOTA DE CRÉDITO";
+    if($venta->tipo_comprobante == 'ND') $tipo_doc = "NOTA DE DÉBITO";
+
+    $titulo_comprobante = $hasCae ? $tipo_doc . " " . $letra : ($tipo_doc == "FACTURA" ? "TICKET DE GESTIÓN" : $tipo_doc . " DE GESTIÓN");
+    $esGestion = !$hasCae;
     $numeroCompleto = $venta->numero_comprobante;
 @endphp
 
 <div class="header">
-    @if(isset($logoBase64) && $logoBase64)
+    @if($hasCae && isset($logoBase64) && $logoBase64)
         <img src="{{ $logoBase64 }}" class="logo">
     @else
         <div class="company-name">{{ $empresa->razon_social ?? $empresa->nombre_comercial }}</div>
+    @endif
+
+    @if($esGestion)
+        <div style="border: 1px dashed #000; padding: 5px; margin: 5px 0; font-weight: bold; font-size: 11px;">
+            *** NO VÁLIDO COMO FACTURA ***
+        </div>
     @endif
     <div class="company-info">
         CUIT: {{ $empresa->arca_cuit ?? $empresa->cuit }}<br>
@@ -83,6 +94,9 @@
 
 <div class="doc-info">
     <div class="doc-title">{{ $titulo_comprobante }}</div>
+    @if($esGestion)
+        <div style="font-size: 7.5pt; color: #000; font-weight: bold; margin-bottom: 2mm;">*** NO VÁLIDO COMO FACTURA ***</div>
+    @endif
     <div class="doc-num">N&deg; {{ $numeroCompleto }}</div>
 </div>
 
@@ -167,5 +181,18 @@
     {{ $empresa->nombre_comercial }}
 </div>
 
+    @if(isset($isHtmlPrint) && $isHtmlPrint)
+    <script>
+        window.onload = function() {
+            window.print();
+            // Si es un iframe, no hace falta cerrar, pero si es ventana nueva sí
+            setTimeout(function() {
+                if (window.opener || window.name) {
+                    window.close();
+                }
+            }, 500);
+        };
+    </script>
+    @endif
 </body>
 </html>
