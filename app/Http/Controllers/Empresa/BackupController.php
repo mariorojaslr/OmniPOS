@@ -225,17 +225,15 @@ class BackupController extends Controller
             }
 
             try {
-                $ctx = stream_context_create(['http' => ['timeout' => 10]]);
-                $content = @file_get_contents($url, false, $ctx);
+                $response = \Illuminate\Support\Facades\Http::timeout(15)->get($url);
 
-                if ($content !== false) {
+                if ($response->successful()) {
                     $safeName = Str::slug($img->product_name ?: 'producto_' . $img->product_id);
-                    $extension = pathinfo($img->path, PATHINFO_EXTENSION) ?: 'jpg';
                     $zipPath = "productos/{$safeName}_" . basename($img->path);
-                    $zip->addFromString($zipPath, $content);
+                    $zip->addFromString($zipPath, $response->body());
                     $archivosAgregados++;
                 } else {
-                    $errores[] = "No se pudo descargar: {$url}";
+                    $errores[] = "HTTP {$response->status()} en: {$url}";
                 }
             } catch (\Throwable $e) {
                 $errores[] = "Error en {$url}: " . $e->getMessage();
