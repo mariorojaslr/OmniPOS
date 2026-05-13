@@ -72,21 +72,22 @@ class BackupController extends Controller
                 // Separador de sección
                 fputcsv($handle, ["--- SECCIÓN: $label ---"]);
 
-                $query = DB::table($tableName)->where('empresa_id', $empresa->id);
-                
                 // Obtener columnas
                 $columns = Schema::getColumnListing($tableName);
                 fputcsv($handle, $columns);
 
-                $query->chunk(100, function ($rows) use ($handle, $columns) {
-                    foreach ($rows as $row) {
-                        $data = [];
-                        foreach ($columns as $column) {
-                            $data[] = $row->{$column} ?? '';
-                        }
-                        fputcsv($handle, $data);
+                $query = DB::table($tableName);
+                if (in_array('empresa_id', $columns)) {
+                    $query->where('empresa_id', $empresa->id);
+                }
+
+                foreach ($query->lazy() as $row) {
+                    $data = [];
+                    foreach ($columns as $column) {
+                        $data[] = $row->{$column} ?? '';
                     }
-                });
+                    fputcsv($handle, $data);
+                }
 
                 fputcsv($handle, []); // Línea vacía entre tablas
             }
