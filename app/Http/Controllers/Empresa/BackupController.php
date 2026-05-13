@@ -59,9 +59,9 @@ class BackupController extends Controller
             } elseif ($type === 'tokens') {
                 return $this->exportTokens($empresa);
             }
-        } catch (Exception $e) {
-            Log::error("Error en backup ({$type}): " . $e->getMessage());
-            return response()->json(['error' => 'Error al generar el resguardo: ' . $e->getMessage()], 500);
+        } catch (\Throwable $e) {
+            Log::error("Error fatal en backup ({$type}): " . $e->getMessage());
+            return response()->json(['error' => 'Error crítico: ' . $e->getMessage()], 500);
         }
 
         return response()->json(['error' => 'Tipo de resguardo no soportado.'], 400);
@@ -101,10 +101,12 @@ class BackupController extends Controller
                         $val = $row->{$column};
                         if (is_null($val)) {
                             $values[] = 'NULL';
+                        } elseif (is_array($val) || is_object($val)) {
+                            $values[] = "'" . addslashes(json_encode($val)) . "'";
                         } elseif (is_numeric($val) && !in_array($column, ['phone', 'cuit', 'dni', 'cae'])) {
                             $values[] = $val;
                         } else {
-                            $values[] = "'" . addslashes($val) . "'";
+                            $values[] = "'" . addslashes((string)$val) . "'";
                         }
                     }
                     $sql = "INSERT INTO `{$tableName}` (`" . implode("`, `", $columns) . "`) VALUES (" . implode(", ", $values) . ");\n";
