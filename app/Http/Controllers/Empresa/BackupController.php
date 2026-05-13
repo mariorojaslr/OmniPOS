@@ -166,11 +166,11 @@ class BackupController extends Controller
     private function exportMedia($empresa)
     {
         // Nota: Bunny.net no se puede respaldar así, esto es para archivos locales de storage/app/public
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         $fileName = 'media_' . Str::slug($empresa->nombre_comercial) . '_' . date('Ymd_His') . '.zip';
         $tempFile = tempnam(sys_get_temp_dir(), 'zip');
 
-        if ($zip->open($tempFile, \ZipArchive::CREATE) === TRUE) {
+        if ($zip->open($tempFile, ZipArchive::CREATE) === TRUE) {
             // Intentar respaldar logo si existe
             if ($empresa->logo_url && file_exists(public_path($empresa->logo_url))) {
                 $zip->addFile(public_path($empresa->logo_url), 'logo_' . basename($empresa->logo_url));
