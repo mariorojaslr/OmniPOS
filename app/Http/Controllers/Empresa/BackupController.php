@@ -215,17 +215,22 @@ class BackupController extends Controller
             ->select('product_images.path', 'product_images.product_id', 'products.name as product_name')
             ->get();
 
+        // Credenciales de Bunny Storage API (bypasea la protección del CDN)
+        $storageHost = config('filesystems.disks.bunny_storage.host', 'ny.storage.bunnycdn.com');
+        $storageZone = config('filesystems.disks.bunny_storage.username', 'gente-piola');
+        $storageKey  = config('filesystems.disks.bunny_storage.password');
+
         foreach ($productImages as $img) {
             if (!$img->path) continue;
 
-            // Construir la URL completa
-            $url = $img->path;
-            if (!Str::startsWith($url, ['http://', 'https://'])) {
-                $url = rtrim($bunnyUrl, '/') . '/' . ltrim($img->path, '/');
-            }
+            // Construir URL directa a Bunny Storage API
+            $storagePath = ltrim($img->path, '/');
+            $url = "https://{$storageHost}/{$storageZone}/{$storagePath}";
 
             try {
-                $response = \Illuminate\Support\Facades\Http::timeout(15)->get($url);
+                $response = \Illuminate\Support\Facades\Http::timeout(15)
+                    ->withHeaders(['AccessKey' => $storageKey])
+                    ->get($url);
 
                 if ($response->successful()) {
                     $safeName = Str::slug($img->product_name ?: 'producto_' . $img->product_id);
@@ -233,10 +238,10 @@ class BackupController extends Controller
                     $zip->addFromString($zipPath, $response->body());
                     $archivosAgregados++;
                 } else {
-                    $errores[] = "HTTP {$response->status()} en: {$url}";
+                    $errores[] = "HTTP {$response->status()} en: {$storagePath}";
                 }
             } catch (\Throwable $e) {
-                $errores[] = "Error en {$url}: " . $e->getMessage();
+                $errores[] = "Error en {$storagePath}: " . $e->getMessage();
             }
         }
 
