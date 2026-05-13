@@ -186,7 +186,7 @@ class BackupController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  3) RESGUARDO MULTIMEDIA — Logos e imágenes locales en ZIP
+    //  3) RESGUARDO MULTIMEDIA — Descarga imágenes desde Bunny CDN
     // ─────────────────────────────────────────────────────────────
     private function exportMedia($empresa)
     {
@@ -199,31 +199,71 @@ class BackupController extends Controller
         }
 
         $archivosAgregados = 0;
+        $errores = [];
+        $bunnyUrl = config('services.bunny.url') ?: 'https://gentepiola.b-cdn.net';
 
-        // Logo institucional
+        // ── 1. Logo institucional (local) ──
         if ($empresa->logo_url && file_exists(public_path($empresa->logo_url))) {
             $zip->addFile(public_path($empresa->logo_url), 'logo/' . basename($empresa->logo_url));
             $archivosAgregados++;
         }
 
-        // Imágenes de productos (storage/app/public)
-        $productImgPath = storage_path("app/public/products/empresa_{$empresa->id}");
-        if (is_dir($productImgPath)) {
-            $this->addDirectoryToZip($zip, $productImgPath, 'productos');
-            $archivosAgregados++;
+        // ── 2. Imágenes de productos desde Bunny CDN ──
+        $productImages = DB::table('product_images')
+            ->join('products', 'product_images.product_id', '=', 'products.id')
+            ->where('products.empresa_id', $empresa->id)
+            ->select('product_images.path', 'product_images.product_id', 'products.name as product_name')
+            ->get();
+
+        foreach ($productImages as $img) {
+            if (!$img->path) continue;
+
+            // Construir la URL completa
+            $url = $img->path;
+            if (!Str::startsWith($url, ['http://', 'https://'])) {
+                $url = rtrim($bunnyUrl, '/') . '/' . ltrim($img->path, '/');
+            }
+
+            try {
+                $ctx = stream_context_create(['http' => ['timeout' => 10]]);
+                $content = @file_get_contents($url, false, $ctx);
+
+                if ($content !== false) {
+                    $safeName = Str::slug($img->product_name ?: 'producto_' . $img->product_id);
+                    $extension = pathinfo($img->path, PATHINFO_EXTENSION) ?: 'jpg';
+                    $zipPath = "productos/{$safeName}_" . basename($img->path);
+                    $zip->addFromString($zipPath, $content);
+                    $archivosAgregados++;
+                } else {
+                    $errores[] = "No se pudo descargar: {$url}";
+                }
+            } catch (\Throwable $e) {
+                $errores[] = "Error en {$url}: " . $e->getMessage();
+            }
         }
 
-        // Comprobantes PDF locales
-        $comprobantesPath = storage_path("app/public/comprobantes/empresa_{$empresa->id}");
-        if (is_dir($comprobantesPath)) {
-            $this->addDirectoryToZip($zip, $comprobantesPath, 'comprobantes');
-            $archivosAgregados++;
+        // ── 3. Archivos locales (si existen) ──
+        $localPaths = [
+            storage_path("app/public/products/empresa_{$empresa->id}") => 'productos_local',
+            storage_path("app/public/comprobantes/empresa_{$empresa->id}") => 'comprobantes',
+        ];
+
+        foreach ($localPaths as $path => $folder) {
+            if (is_dir($path)) {
+                $this->addDirectoryToZip($zip, $path, $folder);
+                $archivosAgregados++;
+            }
         }
 
-        // Si no hay archivos, agregar un README para que el ZIP no esté vacío
-        if ($archivosAgregados === 0) {
-            $zip->addFromString('README.txt', "No se encontraron archivos multimedia locales para esta empresa.\nLos archivos alojados en Bunny.net no se incluyen en este respaldo.");
+        // ── Resumen ──
+        $resumen = "RESGUARDO MULTIMEDIA - MULTIPOS\n";
+        $resumen .= "Empresa: {$empresa->nombre_comercial}\n";
+        $resumen .= "Fecha: " . date('Y-m-d H:i:s') . "\n";
+        $resumen .= "Archivos incluidos: {$archivosAgregados}\n";
+        if (!empty($errores)) {
+            $resumen .= "\nERRORES:\n" . implode("\n", $errores);
         }
+        $zip->addFromString('_RESUMEN.txt', $resumen);
 
         $zip->close();
 
