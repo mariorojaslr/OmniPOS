@@ -30,6 +30,9 @@ class BackupController extends Controller
      */
     public function download(Request $request)
     {
+        // DIAGNOSTICO: Si ves este mensaje, el controlador está funcionando
+        die("CONEXION EXITOSA - TYPE: " . $request->query('type'));
+        
         $empresa = Auth::user()->empresa;
         $type = $request->query('type', 'sql');
 
