@@ -123,7 +123,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 </style>
 
 
-<div class="container-fluid dashboard-wrapper">
+<div class="container-fluid dashboard-wrapper" style="margin-top: 200px !important;">
 
     {{-- Fondo decorativo CONTENIDO dentro del dashboard --}}
     <div class="empresa-bg"></div>
