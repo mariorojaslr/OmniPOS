@@ -183,7 +183,7 @@ body {
 
 /* CONTENT LAYOUT */
 #main-content {
-    padding-top: var(--navbar-height);
+    padding-top: 90px !important; /* Aumentado para evitar solapamiento con top-bar */
     min-height: 100vh;
     position: relative;
     display: flex;
