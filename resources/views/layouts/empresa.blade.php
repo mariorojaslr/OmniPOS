@@ -478,7 +478,7 @@ body {
 </div>
 @endif
 
-<div id="main-content">
+<div id="main-content" style="margin-left: 105px; width: calc(100% - 105px); padding-top: 70px; min-height: 100vh; position: relative; overflow-x: hidden;">
     <div class="top-bar" style="{{ isset($posMode) ? 'left: 0;' : '' }}">
         <div class="d-flex align-items-center gap-3">
             @if(isset($posMode))
