@@ -19,19 +19,10 @@ $secondary = $config?->color_secondary ?? '#16a34a';
    GLASSMORPHISM PREMIUM - EMPRESA ADMIN DASHBOARD
 ========================================================= */
 
-.dashboard-container {
-    padding: 0;
-    padding-bottom: 2.5rem;
-    margin-left: 0; 
+.dashboard-wrapper {
     position: relative;
+    padding: 0;
     z-index: 1;
-    overflow: hidden; /* Contiene el fondo decorativo */
-}
-
-/* Forzar que el interior respete el espacio */
-.dashboard-container .row {
-    margin-left: 0;
-    margin-right: 0;
 }
 
 /* Background suave animado — CONTENIDO dentro del dashboard, NO fixed */
@@ -42,8 +33,8 @@ $secondary = $config?->color_secondary ?? '#16a34a';
     right: 0; 
     bottom: 0;
     z-index: -1;
-    background: radial-gradient(circle at 10% 20%, {{ $primary }}15, transparent 35%),
-                radial-gradient(circle at 90% 80%, {{ $secondary }}15, transparent 35%);
+    background: radial-gradient(circle at 10% 20%, {{ $primary }}10, transparent 40%),
+                radial-gradient(circle at 90% 80%, {{ $secondary }}10, transparent 40%);
     pointer-events: none;
 }
 
@@ -131,7 +122,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 </style>
 
 
-<div class="dashboard-container" style="padding: 0 15px;">
+<div class="container-fluid dashboard-wrapper">
 
     {{-- Fondo decorativo CONTENIDO dentro del dashboard --}}
     <div class="empresa-bg"></div>

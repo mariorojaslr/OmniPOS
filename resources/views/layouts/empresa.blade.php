@@ -171,18 +171,31 @@ body {
     padding-left: 20px;
 }
 
+/* LAYOUT WRAPPER — Flex container que separa sidebar del contenido */
+#app-layout-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Spacer invisible que ocupa el mismo ancho que el sidebar fixed */
+#sidebar-spacer {
+    width: 105px;
+    min-width: 105px;
+    flex-shrink: 0;
+}
+
 /* CONTENT LAYOUT */
 #main-content {
-    margin-left: 105px !important;
+    flex: 1;
+    min-width: 0; /* Permite que flex-item se achique sin overflow */
     padding-top: var(--navbar-height);
     min-height: 100vh;
     position: relative;
-    overflow-x: hidden;
-    width: calc(100% - 105px) !important;
     display: flex;
     flex-direction: column;
     z-index: 1;
-    isolation: isolate; /* Crea un nuevo stacking context */
+    overflow-x: hidden;
 }
 
 .top-bar {
@@ -478,7 +491,11 @@ body {
 </div>
 @endif
 
-<div id="main-content" style="margin-left: 105px; width: calc(100% - 105px); padding-top: 70px; min-height: 100vh; position: relative; overflow-x: hidden;">
+<div id="app-layout-wrapper">
+@if(!isset($posMode))
+<div id="sidebar-spacer"></div>
+@endif
+<div id="main-content">
     <div class="top-bar" style="{{ isset($posMode) ? 'left: 0;' : '' }}">
         <div class="d-flex align-items-center gap-3">
             @if(isset($posMode))
@@ -614,16 +631,18 @@ body {
         .cursor-pointer { cursor: pointer; }
 
         @if(isset($posMode))
-        #main-content { margin-left: 0 !important; width: 100% !important; }
-        .top-bar { left: 0 !important; }
+        #sidebar-spacer { display: none; }
+        #main-content { width: 100% !important; }
+        .top-bar { left: 0 !important; width: 100% !important; }
         @endif
     </style>
 
     {{-- AREA DE TRABAJO (CONTENIDO REAL) --}}
-    <main class="flex-grow-1 p-3 p-md-4">
+    <main class="flex-grow-1" style="padding: 20px 30px 20px 30px;">
         @yield('content')
     </main>
 </div>
+</div> {{-- cierre #app-layout-wrapper --}}
 
 
 
