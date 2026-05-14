@@ -22,7 +22,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 .dashboard-wrapper {
     position: relative;
     padding: 0;
-    margin-top: 15px; /* Espacio extra para no chocar con la top-bar */
+    margin-top: 25px; /* Más espacio para asegurar visibilidad total */
     z-index: 1;
 }
 
