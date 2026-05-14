@@ -25,6 +25,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
     margin-left: 0; 
     position: relative;
     z-index: 1;
+    overflow: hidden; /* Contiene el fondo decorativo */
 }
 
 /* Forzar que el interior respete el espacio */
@@ -33,23 +34,17 @@ $secondary = $config?->color_secondary ?? '#16a34a';
     margin-right: 0;
 }
 
-/* Background suave animado sutil basado en el color primario de la empresa */
+/* Background suave animado — CONTENIDO dentro del dashboard, NO fixed */
 .empresa-bg {
-    position: fixed;
-    top: var(--navbar-height); 
-    left: 105px !important; /* FORZADO MANUAL ANTI-SOLAPAMIENTO */
+    position: absolute;
+    top: 0;
+    left: 0;
     right: 0; 
     bottom: 0;
     z-index: -1;
     background: radial-gradient(circle at 10% 20%, {{ $primary }}15, transparent 35%),
                 radial-gradient(circle at 90% 80%, {{ $secondary }}15, transparent 35%);
-    animation: bgPulse 12s infinite alternate ease-in-out;
     pointer-events: none;
-}
-
-@keyframes bgPulse {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.05); }
 }
 
 .header-title {
@@ -135,10 +130,11 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 }
 </style>
 
-{{-- Fondo estático para estabilidad --}}
-<div class="empresa-bg" style="background: radial-gradient(circle at 10% 20%, {{ $primary }}05, transparent 50%);"></div>
 
 <div class="dashboard-container" style="padding: 0 15px;">
+
+    {{-- Fondo decorativo CONTENIDO dentro del dashboard --}}
+    <div class="empresa-bg"></div>
 
     {{-- ======================================================
         NOTIFICACIONES / TAREAS PENDIENTES
