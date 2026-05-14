@@ -171,31 +171,25 @@ body {
     padding-left: 20px;
 }
 
-/* LAYOUT WRAPPER — Flex container que separa sidebar del contenido */
-#app-layout-wrapper {
-    display: flex;
-    min-height: 100vh;
-    width: 100%;
-}
-
-/* Spacer invisible que ocupa el mismo ancho que el sidebar fixed */
-#sidebar-spacer {
-    width: 105px;
-    min-width: 105px;
-    flex-shrink: 0;
+/* ESTRUCTURA BASE — FUERZA BRUTA */
+body {
+    margin: 0;
+    padding: 0;
+    @if(!isset($posMode))
+    padding-left: 105px !important;
+    @endif
+    overflow-x: hidden;
 }
 
 /* CONTENT LAYOUT */
 #main-content {
-    flex: 1;
-    min-width: 0; /* Permite que flex-item se achique sin overflow */
     padding-top: var(--navbar-height);
     min-height: 100vh;
     position: relative;
     display: flex;
     flex-direction: column;
     z-index: 1;
-    overflow-x: hidden;
+    width: 100%;
 }
 
 .top-bar {
@@ -491,10 +485,7 @@ body {
 </div>
 @endif
 
-<div id="app-layout-wrapper">
-@if(!isset($posMode))
-<div id="sidebar-spacer"></div>
-@endif
+
 <div id="main-content">
     <div class="top-bar" style="{{ isset($posMode) ? 'left: 0;' : '' }}">
         <div class="d-flex align-items-center gap-3">
@@ -631,7 +622,6 @@ body {
         .cursor-pointer { cursor: pointer; }
 
         @if(isset($posMode))
-        #sidebar-spacer { display: none; }
         #main-content { width: 100% !important; }
         .top-bar { left: 0 !important; width: 100% !important; }
         @endif
@@ -641,8 +631,7 @@ body {
     <main class="flex-grow-1" style="padding: 20px 30px 20px 30px;">
         @yield('content')
     </main>
-</div>
-</div> {{-- cierre #app-layout-wrapper --}}
+</div> {{-- cierre #main-content --}}
 
 
 
