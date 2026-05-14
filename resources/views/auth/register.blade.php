@@ -6,9 +6,9 @@
 
     <div class="auth-card">
 
-        {{-- LOGO MULTIPOS --}}
+        {{-- LOGO OMNIPOS --}}
         <div class="auth-logo">
-            <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS Logo">
+            <img src="{{ asset('images/logo_omnipos.png') }}" alt="OmniPOS Logo">
         </div>
 
         <h4 class="auth-title">Crear cuenta</h4>

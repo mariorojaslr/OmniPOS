@@ -29,6 +29,7 @@ class DashboardController extends Controller
             $usuariosCount    = User::whereNotNull('empresa_id')->count();
             $articulosCount   = Product::count();
             $clientesCount    = Client::count();
+            $resellerCount    = User::where('role', 'revendedor')->count();
 
             // 2. Métricas Financieras
             $facturacionMesNum = Venta::whereMonth('created_at', now()->month)
@@ -92,6 +93,7 @@ class DashboardController extends Controller
                 'usuariosCount'     => $usuariosCount,
                 'articulosCount'    => $articulosCount,
                 'clientesCount'     => $clientesCount,
+                'resellerCount'     => $resellerCount,
                 'facturacionMes'    => '$' . number_format($facturacionMesNum, 0, ',', '.'),
                 'gastosGlobal'      => '$' . number_format($gastosGlobal, 0, ',', '.'),
                 'mrr'               => '$' . number_format($mrrNum, 0, ',', '.'),

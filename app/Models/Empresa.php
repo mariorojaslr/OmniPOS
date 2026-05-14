@@ -35,6 +35,7 @@ class Empresa extends Model
         'fecha_vencimiento',
         'fecha_cierre_ejercicio',
         'plan_id',
+        'reseller_id',
         'custom_price',
         'custom_max_products',
         'custom_max_users',
@@ -162,6 +163,11 @@ class Empresa extends Model
     public function plan()
     {
         return $this->belongsTo(\App\Models\Plan::class);
+    }
+
+    public function reseller()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'reseller_id');
     }
 
     /**

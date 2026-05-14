@@ -3,17 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MultiPOS | Suite Maestra</title>
+    <title>OmniPOS | Suite Maestra</title>
     <link rel="icon" href="{{ asset('favicon.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     @vite(['resources/css/app.css','resources/js/app.js'])
     <style>
-        body { font-family: 'Outfit', sans-serif; background-color: #000; color: #fff; }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: #000;
+            color: #e2e8f0; 
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* ===== OWNER NAVBAR ===== */
+        .owner-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .owner-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        .owner-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .owner-brand-logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            object-fit: contain;
+            background: #fff;
+            padding: 4px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 0 15px rgba(59,130,246,0.15);
+        }
+        .owner-brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .owner-brand-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 3px;
+        }
+        .owner-brand-sub {
+            font-size: 8px;
+            font-weight: 700;
+            color: #60a5fa;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .owner-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255,255,255,0.03);
+            padding: 4px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .owner-nav-link {
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+        }
+        .owner-nav-link:hover {
+            color: #cbd5e1;
+            background: rgba(255,255,255,0.04);
+        }
+        .owner-nav-link.active {
+            color: #fff;
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.12);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .owner-btn-logout {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .owner-btn-logout:hover {
+            background: #dc2626;
+            color: #fff;
+            border-color: #dc2626;
+        }
+
         .nav-link-active { 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08); 
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: #fff !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         /* AYUDA OWNER */
@@ -82,52 +197,48 @@
     </style>
 </head>
 
-<body class="bg-black text-slate-300">
+<body style="background:#000; font-family:'Outfit',sans-serif; color:#e2e8f0; margin:0;">
 
     {{-- NAV SUPERIOR MASTER --}}
-    <nav class="sticky top-0 z-[100] bg-black/80 backdrop-blur-xl border-b border-white/5 px-8 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-10">
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS" style="max-height: 28px;">
-                <span class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] border-l border-white/10 ps-3">Suite Maestra</span>
-            </div>
+    <nav class="owner-nav">
+        <div class="owner-nav-left">
+            <a href="{{ route('owner.dashboard') }}" class="owner-brand">
+                <img src="{{ asset('images/logo_omnipos.png') }}" alt="OmniPOS" class="owner-brand-logo">
+                <div class="owner-brand-text">
+                    <span class="owner-brand-name">OMNIPOS</span>
+                    <span class="owner-brand-sub">Suite Maestra</span>
+                </div>
+            </a>
 
-            <div class="flex items-center gap-2">
-                <a href="{{ route('owner.dashboard') }}" 
-                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.dashboard') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
-                    Panel de Control
+            <div class="owner-nav-links">
+                <a href="{{ route('owner.dashboard') }}" class="owner-nav-link {{ request()->routeIs('owner.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-grid-fill" style="margin-right:6px;"></i>Mando
                 </a>
-                <a href="{{ route('owner.crm.index') }}" 
-                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.crm.*') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
-                    CRM de Ventas
+                <a href="{{ route('owner.crm.index') }}" class="owner-nav-link {{ request()->routeIs('owner.crm.*') ? 'active' : '' }}">
+                    CRM
                 </a>
-                <a href="{{ route('owner.empresas.index') }}" 
-                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.empresas.*') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
+                <a href="{{ route('owner.empresas.index') }}" class="owner-nav-link {{ request()->routeIs('owner.empresas.*') ? 'active' : '' }}">
                     Empresas
                 </a>
-                <a href="{{ route('owner.planes.index') }}" 
-                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.planes.*') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
+                <a href="{{ route('owner.planes.index') }}" class="owner-nav-link {{ request()->routeIs('owner.planes.*') ? 'active' : '' }}">
                     Planes
                 </a>
-                <a href="{{ route('owner.soporte.index') }}" 
-                   class="px-5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all {{ request()->routeIs('owner.soporte.*') ? 'nav-link-active' : 'text-zinc-500 hover:text-white' }}">
+                <a href="{{ route('owner.soporte.index') }}" class="owner-nav-link {{ request()->routeIs('owner.soporte.*') ? 'active' : '' }}">
                     Soporte
                 </a>
             </div>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button class="bg-zinc-900 border border-white/5 text-[10px] uppercase font-black text-zinc-400 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-all">
-                    Salir
-                </button>
+                <button class="owner-btn-logout">Salir</button>
             </form>
         </div>
     </nav>
 
     {{-- MAIN CONTENT (FULL WIDTH) --}}
-    <main class="w-full">
+    <main style="width: 100%;">
         @yield('content')
     </main>
 

@@ -31,13 +31,7 @@ return new class extends Migration
                 $table->boolean('paid')->default(false)->after('description');
             }
 
-            // Agregamos FKs si no existen (simplificado)
-            try {
-                $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
-                $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
-            } catch (\Exception $e) {
-                // Ya existen o no se pueden crear
-            }
+            // Las FKs ya existen en la tabla base según inspección.
         });
     }
 

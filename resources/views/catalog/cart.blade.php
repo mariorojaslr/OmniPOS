@@ -6,7 +6,7 @@
     $primary   = $config->color_primary   ?? '#2563eb';
     $secondary = $config->color_secondary ?? '#16a34a';
     $cartCount = session('cart') ? count(session('cart')) : 0;
-    $logo      = $config ? $config->logo_url : asset('images/logo_premium.png');
+    $logo      = $config ? $config->logo_url : asset('images/logo_omnipos.png');
 @endphp
 
 @section('content')

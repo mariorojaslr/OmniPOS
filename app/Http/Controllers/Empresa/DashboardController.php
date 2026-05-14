@@ -61,6 +61,19 @@ class DashboardController extends Controller
             $pedidosPendientes = Order::where('empresa_id', $empresaId)->whereIn('estado', ['pendiente', 'en_proceso', 'pedido_armado'])->count();
             $pedidosTotales = Order::where('empresa_id', $empresaId)->count();
 
+            /* Métricas Médicas (Específicas para Med Plus o similar) */
+            $isMedical = $empresa->slug === 'med-plus' || ($empresa->config->mod_turnos ?? false);
+            $turnosHoy = 0;
+            $pacientesAtendidosHoy = 0;
+            $cobrosCosegurosHoy = 0;
+
+            if ($isMedical) {
+                $turnosHoy = DB::table('turnos')->where('empresa_id', $empresaId)->whereDate('fecha', today())->count();
+                $pacientesAtendidosHoy = DB::table('medical_records')->where('empresa_id', $empresaId)->whereDate('created_at', today())->count();
+                // Por ahora sumamos las ventas totales del día como ingresos médicos 
+                $cobrosCosegurosHoy = DB::table('ventas')->where('empresa_id', $empresaId)->whereDate('created_at', today())->sum('total_con_iva');
+            }
+
             /* Alertas y Recordatorios */
             $reminders = [];
             $config = $empresa->config;
@@ -129,6 +142,11 @@ class DashboardController extends Controller
                 'gastosPerc' => $gastosPerc,
                 'comprasPerc' => $comprasPerc,
                 'recentActivities' => $recentActivities,
+                // Medical data
+                'isMedical' => $isMedical,
+                'turnosHoy' => $turnosHoy,
+                'pacientesAtendidosHoy' => $pacientesAtendidosHoy,
+                'cobrosCosegurosHoy' => $cobrosCosegurosHoy,
             ]);
 
         } catch (\Throwable $e) {

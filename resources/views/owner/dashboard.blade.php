@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.owner')
 
 @section('styles')
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -58,32 +58,33 @@
         box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
     }
 
-    /* ===== KPI CARDS — Cristal traslúcido con color propio ===== */
+    /* ===== KPI CARDS ===== */
     .kpi-card {
-        background: rgba(15, 20, 35, 0.75);
+        background: rgba(15, 20, 35, 0.85);
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.60);
-        border-radius: 14px; padding: 1.2rem 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px; padding: 1.3rem 1.1rem;
         position: relative; overflow: hidden;
-        transition: all 0.3s ease; text-decoration: none !important; display: block;
-        box-shadow: 0 2px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+        transition: all 0.35s ease; text-decoration: none !important; display: block;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
     }
     .kpi-card:hover {
-        transform: translateY(-4px); border-color: rgba(255,255,255,0.95);
-        box-shadow: 0 12px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+        transform: translateY(-5px); border-color: rgba(255,255,255,0.35);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
     }
     .kpi-card .kpi-icon {
-        width: 36px; height: 36px; border-radius: 10px;
+        width: 40px; height: 40px; border-radius: 11px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1rem; margin-bottom: 0.8rem;
-        border: 1px solid rgba(255,255,255,0.15);
+        font-size: 1.1rem; margin-bottom: 0.9rem;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.03);
     }
-    .kpi-card .kpi-value { font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 0.3rem; }
+    .kpi-card .kpi-value { font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 0.3rem; }
     .kpi-card .kpi-label { font-size: 0.6rem; letter-spacing: 1.5px; color: #94a3b8; font-weight: 700; text-transform: uppercase; }
     .kpi-card .kpi-glow {
         position: absolute; top: -20px; right: -20px;
-        width: 110px; height: 110px; border-radius: 50%;
-        filter: blur(35px); opacity: 0.40; pointer-events: none;
+        width: 120px; height: 120px; border-radius: 50%;
+        filter: blur(40px); opacity: 0.3; pointer-events: none;
     }
 
     /* ===== GAUGE CARDS ===== */
@@ -325,18 +326,23 @@
     {{-- ═══════════════════════════════════════════
          HEADER: CENTRO DE MANDO
     ═══════════════════════════════════════════ --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 pt-2">
+    <div class="d-flex justify-content-between align-items-end mb-4 pt-3" style="padding: 0 10px;">
         <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="live-dot"></span>
-                <span class="header-subtitle">SISTEMA OPERATIVO MASTER</span>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div style="padding: 4px 14px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); border-radius: 20px; display: flex; align-items: center; gap: 8px;">
+                    <span class="live-dot"></span>
+                    <span style="font-size: 9px; font-weight: 800; color: #60a5fa; text-transform: uppercase; letter-spacing: 3px;">Sistema Operativo Master</span>
+                </div>
                 <span class="header-version">v1.02.0</span>
             </div>
             <h1 class="header-title mb-0">Centro de Mando</h1>
         </div>
-        <a href="{{ route('owner.empresas.create') }}" class="deploy-btn">
-            <i class="bi bi-plus-lg me-2"></i> DESPLEGAR EMPRESA
-        </a>
+        <div>
+            <a href="{{ route('owner.empresas.create') }}" class="deploy-btn d-flex align-items-center gap-2">
+                <i class="bi bi-plus-lg"></i>
+                <span>DESPLEGAR EMPRESA</span>
+            </a>
+        </div>
     </div>
 
     {{-- ═══════════════════════════════════════════
@@ -362,9 +368,9 @@
         <div class="col-md-2">
             <div class="kpi-card">
                 <div class="kpi-glow" style="background: #22d3ee;"></div>
-                <div class="kpi-icon" style="background: rgba(34, 211, 238, 0.1);"><i class="bi bi-box-seam" style="color: #22d3ee;"></i></div>
-                <div class="kpi-value" style="text-shadow: 0 0 20px rgba(34, 211, 238, 0.4);">{{ $articulosCount }}</div>
-                <div class="kpi-label">SKU TOTAL</div>
+                <div class="kpi-icon" style="background: rgba(34, 211, 238, 0.1);"><i class="bi bi-person-badge" style="color: #22d3ee;"></i></div>
+                <div class="kpi-value" style="text-shadow: 0 0 20px rgba(34, 211, 238, 0.4);">{{ $resellerCount }}</div>
+                <div class="kpi-label">REVENDEDORES</div>
             </div>
         </div>
         <div class="col-md-2">
@@ -757,7 +763,7 @@
                 track: { background: "#111", strokeWidth: '97%', margin: 5 },
                 dataLabels: {
                     name: { show: false },
-                    value: { offsetY: -2, fontSize: '28px', fontWeight: '800', color: '#fff', formatter: v => v + '%' }
+                    value: { offsetY: -2, fontSize: '38px', fontWeight: '800', color: '#fff', formatter: v => v + '%' }
                 }
             }
         },

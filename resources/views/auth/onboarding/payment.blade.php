@@ -11,7 +11,7 @@
     <!-- Header -->
     <div class="text-center text-md-start mb-5">
         <div class="d-flex align-items-center gap-3 mb-3 justify-content-center justify-content-md-start">
-            <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS" class="shadow-lg rounded-circle" style="width: 50px; height: 50px; border: 1px solid #3b82f6;">
+            <img src="{{ asset('images/logo_omnipos.png') }}" alt="OmniPOS" class="shadow-lg rounded-circle" style="width: 50px; height: 50px; border: 1px solid #3b82f6;">
             <h2 class="text-white fw-bold mb-0">Estás a un paso 🚀</h2>
         </div>
         <p class="text-secondary">Activa tu cuenta comercial para comenzar a facturar.</p>

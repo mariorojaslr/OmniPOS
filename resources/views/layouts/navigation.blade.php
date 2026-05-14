@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS" style="height: 38px;">
+                        <img src="{{ asset('images/logo_omnipos.png') }}" alt="OmniPOS" style="height: 38px;">
                     </a>
                 </div>
 

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>{{ config('app.name', 'MultiPOS') }}</title>
+<title>{{ config('app.name', 'OmniPOS') }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -15,7 +15,7 @@
     $config  = $empresa?->config ?? null;
     $colorPrimario = $config?->color_primary ?? '#0d6efd';
     $modoOscuro = ($config?->theme ?? 'light') === 'dark';
-    $logo = ($config && $config->logo_url) ? $config->logo_url : asset('images/logo_premium.png');
+    $logo = ($config && $config->logo_url) ? $config->logo_url : asset('images/logo_omnipos.png');
 @endphp
 
 <style>
@@ -42,13 +42,13 @@ body {
 
 /* SIDEBAR SLIM MEJORADO */
 #sidebar {
-    width: var(--sidebar-width);
+    width: 105px !important;
     height: 100vh;
     background: var(--sidebar-bg);
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 999999;
+    z-index: 1050; /* Por debajo de modales pero por encima del contenido */
     border-right: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
@@ -173,30 +173,33 @@ body {
 
 /* CONTENT LAYOUT */
 #main-content {
-    margin-left: var(--sidebar-width);
+    margin-left: 105px !important;
     padding-top: var(--navbar-height);
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
-    width: calc(100% - var(--sidebar-width));
+    width: calc(100% - 105px) !important;
     display: flex;
     flex-direction: column;
+    z-index: 1;
 }
 
 .top-bar {
     position: fixed;
     top: 0;
     right: 0;
-    left: var(--sidebar-width);
+    left: 105px !important;
     background: #ffffff;
     backdrop-filter: blur(15px);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 30px;
+    height: var(--navbar-height);
     z-index: 1040;
     border-bottom: 3px solid var(--color-primario);
     box-sizing: border-box;
+    width: calc(100% - 105px) !important;
 }
 
 .top-bar h4, .top-bar div, .top-bar i, .top-bar span {
@@ -280,6 +283,7 @@ body {
         </div>
 
         {{-- VENTAS --}}
+        @if($config?->mod_ventas)
         <div class="nav-link-item">
             <i class="bi bi-shop" style="color: #ffc107;"></i>
             <span class="nav-icon-label">Ventas</span>
@@ -293,8 +297,10 @@ body {
                 </div>
             </div>
         </div>
+        @endif
 
         {{-- LOGÍSTICA --}}
+        @if($config?->mod_logistica)
         <div onclick="window.location='{{ route('empresa.gps.index') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-truck-flatbed" style="color: #fff;"></i>
             <span class="nav-icon-label">Logística</span>
@@ -311,8 +317,10 @@ body {
                 </div>
             </div>
         </div>
+        @endif
 
         {{-- FINANZAS --}}
+        @if($config?->mod_tesoreria)
         <div onclick="window.location='{{ route('empresa.tesoreria.index') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-bank" style="color: #4da3ff;"></i>
             <span class="nav-icon-label">Finanzas</span>
@@ -328,8 +336,10 @@ body {
                 </div>
             </div>
         </div>
+        @endif
 
         {{-- ABASTO --}}
+        @if($config?->mod_compras)
         <div onclick="window.location='{{ route('empresa.compras.index') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-cart-check" style="color: #ff4d4d;"></i>
             <span class="nav-icon-label">Abasto</span>
@@ -342,6 +352,7 @@ body {
                 </div>
             </div>
         </div>
+        @endif
 
         {{-- CLIENTES --}}
         <div onclick="window.location='{{ route('empresa.clientes.index') }}'" class="nav-link-item" style="cursor: pointer;">
@@ -404,6 +415,15 @@ body {
                     <div class="submenu-list">
                         <a href="{{ route('empresa.turnos.index') }}" class="submenu-link">📋 Agenda de Turnos</a>
                         <a href="{{ route('empresa.turnos.create') }}" class="submenu-link">⚙️ Nuevo Turno</a>
+                        
+                        @if($config?->mod_hce)
+                            <a href="{{ route('empresa.medical_records.index') }}" class="submenu-link text-info">🩺 Historia Clínica (HCE)</a>
+                        @endif
+
+                        @if($config?->mod_afiliados)
+                            <a href="{{ route('empresa.affiliates.index') }}" class="submenu-link text-success">👥 Plan Afiliados</a>
+                        @endif
+
                         <a href="{{ route('empresa.liquidaciones.index') }}" class="submenu-link">💰 Liquidaciones</a>
                         <a href="{{ route('empresa.liquidaciones.create') }}" class="submenu-link">⚡ Motor de Pago</a>
                         <hr class="my-1 border-white border-opacity-10">
@@ -466,7 +486,7 @@ body {
                 </a>
                 <h4 class="mb-0 fw-bold ms-2">📦 Terminal de Ventas (POS)</h4>
             @else
-                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa->nombre_comercial ?? 'MultiPOS' }}</h4>
+                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa->nombre_comercial ?? 'OmniPOS' }}</h4>
                 {{-- Novedades con Contraste --}}
                 <a href="{{ route('empresa.novedades') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-2 d-none d-lg-flex align-items-center gap-2 fw-bold" style="font-size: 0.7rem; border-color: var(--color-primario)40; color: var(--color-primario);">
                     <span class="d-flex align-items-center justify-content-center bg-primary rounded-circle" style="width: 8px; height: 8px; background-color: var(--color-primario) !important;"></span>
@@ -599,7 +619,7 @@ body {
     </style>
 
     {{-- AREA DE TRABAJO (CONTENIDO REAL) --}}
-    <main class="flex-grow-1 p-3 p-md-4" style="padding-left: 20px !important; padding-top: 25px !important;">
+    <main class="flex-grow-1 p-3 p-md-4">
         @yield('content')
     </main>
 </div>

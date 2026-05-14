@@ -3,512 +3,482 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MultiPOS - El Futuro de tu Negocio Hoy</title>
-    <!-- CSS Standard -->
+    <title>OmniPOS | La Suite Intergaláctica de Software</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link rel="icon" href="{{ asset('favicon.png') }}">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #8b5cf6;
-            --primary-dark: #6366f1;
-            --accent: #10b981;
-            --bg-dark: #09090b;
-            --card-bg: rgba(24, 24, 27, 0.95);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #fafafa;
-            --text-dim: #d1d1d6; /* MEJORADO: Más claro para legibilidad total */
-            --whatsapp: #25d366;
+            --color-primario: #0d6efd;
+            --bg-deep: #020617;
+            --bg-accent: #0b1120;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-deep);
+            color: #ffffff;
+            overflow-x: hidden;
         }
 
-        body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Outfit', sans-serif; overflow-x: hidden; }
-
-        .bg-mesh {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
-                        radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 55%);
+        /* HERO CAROUSEL PREMIUM */
+        .hero-section {
+            position: relative;
+            height: 90vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .carousel-item {
+            height: 90vh;
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.4);
+            animation: kenburns 20s infinite alternate;
+        }
+        @keyframes kenburns {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+        .carousel-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(0deg, var(--bg-deep) 0%, transparent 50%);
+            z-index: 2;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 10;
+        }
+        .hero-title {
+            font-size: 5rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -2px;
+            margin-bottom: 2rem;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .navbar { background: rgba(0,0,0,0.9) !important; backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 1rem 0; }
-        .nav-link { color: #ccc !important; font-weight: 500; transition: 0.3s; }
-        .nav-link:hover { color: white !important; }
-        
-        .hero { padding: 10rem 0 5rem; min-height: 90vh; display: flex; align-items: center; }
-        .btn-premium { padding: 1rem 2.5rem; border-radius: 50px; font-weight: 700; transition: 0.3s; text-decoration: none; border: none; }
-        .btn-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3); }
-
-        .feature-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 30px; padding: 3rem; transition: 0.4s; height: 100%; }
-        .feature-card:hover { border-color: var(--primary); transform: translateY(-10px); }
-        .feature-card i { font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem; display: block; }
-        .feature-card p { color: var(--text-dim); }
-
-        .price-card { background: var(--card-bg); border: 1px solid var(--glass-border); padding: 3rem 2rem; border-radius: 30px; text-align: center; }
-        .price-card.featured { border: 2px solid var(--primary); position: relative; }
-        .price-card.featured::after { content: 'MÁS POPULAR'; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 2px 15px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
-        .price-card p { color: var(--text-dim); }
-
-        #chat-window { width: 400px; height: 600px; max-height: 85vh; transform-origin: bottom right; }
-        @media (max-width: 576px) { #chat-window { width: 92vw !important; height: 75vh !important; } }
-
-        .scroll-custom::-webkit-scrollbar { width: 4px; }
-        .scroll-custom::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        
-        .footer-link { color: var(--text-dim); text-decoration: none; transition: 0.3s; }
-        .footer-link:hover { color: white; }
-
-        .text-gradient { background: linear-gradient(135deg, #fff 0%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* Efecto de escucha activa */
-        .listening-ring {
-            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        /* SECCIONES DE VERTICALES */
+        .sector-section {
+            padding: 100px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.85); opacity: 0.5; }
-            50% { opacity: 0.3; }
-            100% { transform: scale(1.5); opacity: 0; }
+        .sector-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
         }
+        .sector-desc {
+            font-size: 1.25rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+        .sector-image-container {
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .sector-image {
+            width: 100%;
+            transition: transform 0.5s ease;
+        }
+        .sector-image:hover {
+            transform: scale(1.05);
+        }
+
+        .narrative-card {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .narrative-title { font-weight: 800; color: #fff; margin-bottom: 10px; }
+        .narrative-text { color: rgba(255,255,255,0.6); margin-bottom: 0; }
+
+        .feature-box {
+            background: rgba(255,255,255,0.02);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+            height: 100%;
+        }
+        .feature-icon { font-size: 2rem; margin-bottom: 15px; display: block; color: var(--color-primario); }
+
+        .btn-premium {
+            background: #fff;
+            color: #000;
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            border: none;
+        }
+        .btn-premium:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(255,255,255,0.2);
+            background: #fff;
+        }
+
+        .tracking-widest { letter-spacing: 2px; }
+        .text-readable { color: rgba(255,255,255,0.7); }
     </style>
 </head>
 <body>
 
-    <div class="bg-mesh"></div>
-
-    @php 
-        $wa_clean = preg_replace('/[^0-9]/', '', config('platform.whatsapp')); 
-        
-        $plan_info = "";
-        foreach($plans as $p) {
-            $storage = ($p->max_storage_mb >= 1024) ? (($p->max_storage_mb/1024) . "GB") : ($p->max_storage_mb . "MB");
-            $plan_info .= "Plan " . $p->name . " por $" . number_format($p->price, 0, ',', '.') . " con " . $p->max_users . " usuarios y " . $storage . " de espacio. ";
-        }
-
-        function formatMB($mb) {
-            if ($mb >= 1024) {
-                $gb = $mb / 1024;
-                return (round($gb) == $gb ? number_format($gb, 0) : number_format($gb, 1)) . 'GB';
-            }
-            return number_format($mb, 0) . 'MB';
-        }
-    @endphp
-
-    {{-- NAVBAR RESPONSIVE --}}
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container px-4">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
-                <img src="{{ asset('images/logo_premium.png') }}" alt="MultiPOS" style="height: 40px">
-                <span class="fw-bold fs-3 mt-1">MultiPOS</span>
+    <!-- NAVBAR PREMIUM -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top px-4 py-3" style="background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(20px);">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="#">
+                <img src="{{ asset('images/logo_omnipos.png') }}" alt="OmniPOS" style="height: 40px;">
+                <span class="fw-bold tracking-widest fs-4">OMNIPOS</span>
             </a>
-            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav ms-auto align-items-center gap-3 py-3 py-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="#experiencia">Experiencia</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#tecnologia">Tecnología</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#planes">Planes</a></li>
-                    <li class="nav-item"><a class="nav-link text-white fw-bold" href="{{ route('demo.mode') }}"><i class="bi bi-stars text-primary"></i> Demo</a></li>
-                    <li class="nav-item ms-lg-3 d-flex align-items-center">
-                        <a href="{{ route('login') }}" class="btn-premium bg-white text-black py-2 px-4 shadow">Loguearme</a>
-                        <a href="{{ route('login') }}" onclick="event.preventDefault(); document.getElementById('logout-form-secret').submit();" style="color: #888; text-decoration: none; font-size: 1rem; margin-left: 10px; opacity: 0.3;">o</a>
-                    </li>
-                </ul>
+            <div class="d-flex gap-3">
+                <a href="{{ route('login') }}" class="btn btn-outline-light rounded-pill px-4 fw-bold">ACCESO AGENTES</a>
+                <a href="{{ route('demo.mode') }}" class="btn btn-primary rounded-pill px-4 fw-bold">VER DEMO</a>
             </div>
         </div>
     </nav>
 
-    {{-- HERO SECTION --}}
-    <section class="hero">
-        <div class="w-100 px-3 px-lg-5">
-            <div class="row align-items-center">
-                <div class="col-lg-7 text-center text-lg-start">
-                    <span class="badge rounded-pill bg-primary px-3 py-2 mb-4 animate__animated animate__fadeInLeft">🚀 NUEVA VERSIÓN 4.0</span>
-                    <h1 class="display-1 fw-bold mb-4">Controlá tu Negocio <span class="text-primary">como un Pro.</span></h1>
-                    <p class="fs-4 mb-5" style="color: #e2e2e7;">La plataforma SaaS definitiva que unifica Ventas, Stock por Escáner y Finanzas con una estética de alto nivel y tecnología de punta.</p>
-                    <div class="d-flex flex-column flex-md-row gap-3 justify-content-center justify-content-lg-start">
-                        <a href="{{ route('register') }}" class="btn-premium bg-primary text-white fs-5">Empezar Ahora</a>
-                        <a href="{{ route('demo.mode') }}" class="btn-premium border border-primary text-white fs-5">✨ PROBAR DEMO</a>
-                    </div>
-                </div>
-                <div class="col-lg-5 d-none d-lg-block">
-                    <img src="{{ asset('images/escaneo_movil_premium.png') }}" class="img-fluid rounded-5 shadow-2xl animate__animated animate__fadeInRight" style="transform: perspective(1000px) rotateY(-15deg) rotateX(5deg); border: 1px solid var(--glass-border); width: 100%; height: auto; object-fit: cover;" alt="MultiPOS Mobile">
-                </div>
-            </div>
+    <!-- HERO SECTION -->
+    <div id="heroCarousel" class="carousel slide carousel-fade hero-section" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active" style="background-image: url('{{ asset('images/c_1.png') }}');"></div>
+            <div class="carousel-item" style="background-image: url('{{ asset('images/c_2.png') }}');"></div>
+            <div class="carousel-item" style="background-image: url('{{ asset('images/c_3.png') }}');"></div>
         </div>
-    </section>
-
-    {{-- TECNOLOGIA - MAGIC SCAN --}}
-    <section id="tecnologia" class="py-5">
-        <div class="w-100 px-3 px-lg-6 py-6 bg-black border-y border-secondary shadow-lg">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-5 mb-lg-0">
-                    <img src="{{ asset('images/escaneo_movil_premium.png') }}" class="img-fluid rounded-4 shadow-lg border border-primary" alt="Escaneo Móvil">
-                </div>
-                <div class="col-lg-6 ps-lg-5">
-                    <span class="badge bg-primary mb-3">EXCLUSIVO 4.0</span>
-                    <h2 class="display-4 fw-bold mb-4 text-white">Vendé Desde Donde Estés: <span class="text-primary text-gradient">Tu teléfono es tu POS.</span></h2>
-                    <p class="fs-5 mb-4" style="color: #d1d1d6;">Olvidá las cajas registradoras pesadas. Con MultiPOS Mobile, transformás cualquier smartphone en un punto de venta profesional con escaneo ultra-rápido de productos.</p>
-                    <div class="d-flex gap-4">
-                        <div class="text-center p-3 bg-dark rounded-4 border border-secondary flex-grow-1">
-                            <i class="bi bi-phone text-primary fs-1"></i>
-                            <h5 class="mt-2 text-white">POS Portátil</h5>
-                        </div>
-                        <div class="text-center p-3 bg-dark rounded-4 border border-secondary flex-grow-1">
-                            <i class="bi bi-qr-code-scan text-primary fs-1"></i>
-                            <h5 class="mt-2 text-white">Magic Scan</h5>
-                        </div>
-                    </div>
-                </div>
+        <div class="carousel-overlay"></div>
+        
+        <div class="hero-content">
+            <div class="container">
+                <h1 class="hero-title">OmniPOS: <br>La Suite Intergaláctica.</h1>
+                <p class="lead text-white mx-auto mb-5" style="max-width: 800px; font-size: 1.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
+                    El ecosistema de gestión definitivo para empresas que no conocen fronteras. 
+                    Módulos especializados para Salud, Gastronomía, Retail y más.
+                </p>
+                <a href="#soluciones" class="btn btn-premium">Explorar Galaxia de Soluciones</a>
             </div>
-        </div>
-    </section>
-
-    {{-- NUEVO: CONTROL DE CAMPO & QR --}}
-    <section class="py-5 mt-5">
-        <div class="container px-4">
-            <div class="row g-5 align-items-center">
-                <div class="col-lg-6 order-2 order-lg-1">
-                    <span class="badge bg-success mb-3">CONTROL TOTAL</span>
-                    <h2 class="display-4 fw-bold mb-4">Eliminá el Faltante de Caja <br><span class="text-success text-gradient">en Tiempo Real.</span></h2>
-                    <p class="fs-5 mb-5 text-muted">Nuestro sistema de **Asistencia por QR** y **Registro de Gasto Rápido** permite que tu personal de campo rinda cuentas al instante. Sacá una foto a la factura y restalo de la caja en segundos.</p>
-                    
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success"><i class="bi bi-camera fs-3"></i></div>
-                                <div><h6 class="fw-bold text-white">Fotos de Facturas</h6><p class="small text-muted">Prueba visual inmediata de cada gasto realizado.</p></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success"><i class="bi bi-geo-alt fs-3"></i></div>
-                                <div><h6 class="fw-bold text-white">Control de Ubicación</h6><p class="small text-muted">Sabés dónde y cuándo se hizo cada arqueo.</p></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 order-1 order-lg-2">
-                    <div class="position-relative">
-                        <img src="{{ asset('images/control_qr_v2.png') }}" class="img-fluid rounded-5 shadow-2xl skew-right border border-success border-opacity-25" alt="Control QR Premium">
-                        <div class="position-absolute bottom-0 start-0 m-4 bg-dark bg-opacity-75 p-3 rounded-4 backdrop-blur border border-white border-opacity-10 d-none d-md-block animate__animated animate__fadeInLeft">
-                            <div class="small fw-bold text-success animate__animated animate__flash animate__infinite">● MARCACIÓN CORRECTA</div>
-                            <div class="small text-white-50">Juan Pérez · Entrada: 08:30hs</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- NUEVO: CEREBRO DE PRODUCCIÓN & BOM --}}
-    <section id="produccion" class="py-5 mt-5">
-        <div class="container px-4">
-            <div class="row g-5 align-items-center">
-                <div class="col-lg-6">
-                    <img src="{{ asset('images/novedades/production_bom_module.png') }}" class="img-fluid rounded-5 shadow-2xl border border-primary border-opacity-25" alt="Producción Inteligente BOM">
-                </div>
-                <div class="col-lg-6">
-                    <span class="badge bg-primary mb-3">TECNOLOGÍA INDUSTRIAL</span>
-                    <h2 class="display-4 fw-bold mb-4">Cerebro de Producción: <br><span class="text-primary text-gradient">De Insumos a Éxito.</span></h2>
-                    <p class="fs-5 mb-5 text-muted">¿Cocinás, fabricás o ensamblás? MultiPOS calcula el **Costo Real** de cada receta. Transformamos automáticamente tus insumos en productos terminados, descontando el stock en cascada y dándote la rentabilidad neta al centavo.</p>
-                    
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i class="bi bi-recipe fs-3"></i></div>
-                                <div><h6 class="fw-bold text-white">Smart Costing</h6><p class="small text-muted">Calculá el costo exacto de cada plato o producto final.</p></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i class="bi bi-diagram-3 fs-3"></i></div>
-                                <div><h6 class="fw-bold text-white">Stock en Cascada</h6><p class="small text-muted">Vendé 1 unidad y descontá todos sus componentes a la vez.</p></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- SECCIÓN OMNICANALIDAD --}}
-    <section class="py-5" style="background: linear-gradient(180deg, #09090b 0%, #000 100%);">
-        <div class="container px-4 text-center">
-            <h2 class="display-3 fw-bold mb-5">Un Solo Motor, <span class="text-primary">Múltiples Canales.</span></h2>
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="feature-card">
-                        <i class="bi bi-shop"></i>
-                        <h4 class="fw-bold text-white mb-3">Ventas Locales</h4>
-                        <p>Gestión de mostrador ultra rápida con soporte para múltiples cajeros, turnos y arqueos automáticos.</p>
-                        <div class="mt-4 pt-3 border-top border-secondary">
-                            <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3">SINCRO TOTAL</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="feature-card">
-                        <i class="bi bi-globe"></i>
-                        <h4 class="fw-bold text-white mb-3">Ventas Online</h4>
-                        <p>Tu propio catálogo autogestionado. Recibí pedidos por WhatsApp o Web y visualizalos en tiempo real.</p>
-                        <div class="mt-4 pt-3 border-top border-secondary">
-                            <span class="badge rounded-pill bg-success bg-opacity-10 text-success px-3">24/7 ACTIVO</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- CARINA ASSISTANT (CON MÁS PODER) --}}
-    <section id="asistente" class="py-5 mt-5">
-        <div class="container px-4">
-            <div class="row align-items-center bg-black border border-secondary p-4 p-lg-5 rounded-5 shadow-lg">
-                <div class="col-lg-4 text-center mb-4 mb-lg-0">
-                    <div class="position-relative d-inline-block">
-                        <div id="voice-pulse" class="position-absolute top-50 start-50 translate-middle rounded-circle bg-primary opacity-25 d-none" style="width: 250px; height: 250px;"></div>
-                        <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle border border-primary p-2 animate__animated animate__pulse animate__infinite" style="width: 220px; height: 220px; object-fit: cover; position: relative; z-index: 2;" alt="Carina AI">
-                        <span class="position-absolute bottom-0 start-50 translate-middle-x badge rounded-pill bg-success border border-black px-4 py-2 shadow" style="margin-bottom: -15px; z-index: 3;">ESTADO: ONLINE</span>
-                    </div>
-                </div>
-                <div class="col-lg-8 ps-lg-5 text-center text-lg-start">
-                    <div class="badge bg-primary px-3 py-1 mb-3">ASISTENTE CON IA GEN</div>
-                    <h2 class="display-4 fw-bold mb-3">Hola, soy <span class="text-primary text-gradient">Carina AI</span>.</h2>
-                    <p class="fs-4 mb-4 italic" style="color: #f1f1f1; opacity: 0.95;">"Mi voz es amable, dulce y estoy aquí para asesorarte en vivo. ¡Hablame!"</p>
-                    <p class="fs-5 mb-5" style="color: #d1d1d6;">Preguntame lo que quieras: Precios, cómo funciona el stock colaborativo, qué es Bunny.net o incluso el clima. ¡Yo sé todo sobre tu éxito!</p>
-                    <div class="d-flex flex-column flex-md-row gap-3">
-                        <a href="https://wa.me/{{ $wa_clean }}?text=Hola%20Carina,%20quiero%20conocer%20mas" class="btn btn-lg rounded-pill px-5 fw-bold shadow text-white d-flex align-items-center justify-content-center" style="background: var(--whatsapp)">
-                            <i class="bi bi-whatsapp me-2 fs-4"></i> Hablar con Carina
-                        </a>
-                        <button id="activate-voice-btn" class="btn btn-outline-light btn-lg rounded-pill px-5 fw-bold d-flex align-items-center justify-content-center">
-                            <i class="bi bi-volume-up-fill me-2 fs-4"></i> <span id="voice-status">Escuchar Voz</span>
-                        </button>
-                        <button id="listen-btn" class="btn btn-outline-primary btn-lg rounded-pill px-4 fw-bold d-flex align-items-center justify-content-center">
-                            <i class="bi bi-mic-fill me-2 fs-4"></i> Hablarle
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- PLANES --}}
-    <section id="planes" class="py-5 mt-5">
-        <div class="w-100 px-3 px-lg-5">
-            <div class="text-center mb-5">
-                <h2 class="display-3 fw-bold">Planes Sin Sorpresas.</h2>
-                <p class="fs-4" style="color: #d1d1d6;">Elegí la escala de tu negocio hoy.</p>
-            </div>
-            <div class="row g-4 justify-content-center">
-                @foreach ($plans as $plan)
-                <div class="col-md-6 col-lg-3">
-                    <div class="price-card {{ $plan->name == 'PROFESSIONAL' ? 'featured' : '' }}">
-                        <h4 class="text-uppercase" style="color: #fff; letter-spacing: 1px">{{ $plan->name }}</h4>
-                        <div class="amount text-white">${{ number_format($plan->price, 0, ',', '.') }}<span class="fs-6 opacity-50">/mes</span></div>
-                        
-                        @if($plan->description)
-                            <p class="small mt-2 mb-3" style="color: #ccc; font-style: italic;">{{ $plan->description }}</p>
-                        @endif
-
-                        <ul class="list-unstyled text-start my-4 py-3 border-top border-bottom border-secondary small" style="color: #f1f1f1;">
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> {{ $plan->max_users }} Usuarios</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> {{ $plan->max_products }} Productos</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> {{ formatMB($plan->max_storage_mb) }} Almacén</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Escaneo Móvil</li>
-                        </ul>
-                        <a href="{{ route('register', ['plan' => $plan->id]) }}" class="btn {{ $plan->name == 'PROFESSIONAL' ? 'btn-primary' : 'btn-outline-light' }} w-100 rounded-pill py-3 fw-bold">Elegir Este Plan</a>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    {{-- FOOTER --}}
-    <footer class="py-5 mt-5 bg-black border-top border-secondary">
-        <div class="container text-center">
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <i class="bi bi-telephone text-primary fs-1 mb-3 d-block"></i>
-                    <h5 class="text-white">Llamanos</h5>
-                    <p style="color: #f1f1f1;">{{ config('platform.phone') }}</p>
-                </div>
-                <div class="col-md-4">
-                    <i class="bi bi-envelope text-primary fs-1 mb-3 d-block"></i>
-                    <h5 class="text-white">Email</h5>
-                    <p style="color: #f1f1f1;">{{ config('platform.email') }}</p>
-                </div>
-                <div class="col-md-4">
-                    <a href="https://wa.me/{{ $wa_clean }}" class="text-decoration-none">
-                        <i class="bi bi-whatsapp fs-1 mb-3 d-block" style="color: var(--whatsapp)"></i>
-                        <h5 class="text-white">WhatsApp</h5>
-                        <p style="color: var(--whatsapp);">Chat en Vivo 24/7</p>
-                    </a>
-                </div>
-            </div>
-            <p style="color: #ccc;">&copy; 2026 MultiPOS Cloud Management. <br> <span class="small opacity-50">El estándar de oro en gestión comercial.</span></p>
-            
-            <!-- Atajo Secreto para Mario (Dueño) -->
-            <a href="{{ route('login') }}" onclick="event.preventDefault(); document.getElementById('logout-form-secret').submit();" style="position: fixed; bottom: 5px; right: 5px; color: #111; text-decoration: none; font-size: 0.6rem; opacity: 0.2; cursor: default;">o</a>
-            <form id="logout-form-secret" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
-        </div>
-    </footer>
-
-    {{-- CHAT SYSTEM --}}
-    <div id="carina-chat-system" class="position-fixed bottom-0 end-0 p-4 d-flex flex-column align-items-end" style="z-index: 10000;">
-        <div id="chat-window" class="card shadow-2xl animate__animated animate__fadeInUp" style="background: #09090b; border: 1px solid var(--glass-border); border-radius: 25px; margin-bottom: 20px; display: none; flex-direction: column; overflow: hidden;">
-            <div class="card-header bg-black border-bottom border-secondary p-4 d-flex align-items-center gap-3">
-                <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle border border-primary p-1" style="width: 50px; height: 50px; object-fit: cover;">
-                <div class="flex-grow-1">
-                    <h5 class="mb-0 fw-bold text-white">Carina AI</h5>
-                    <small class="text-success fw-bold">● ONLINE / ESCUCHANDO</small>
-                </div>
-                <button id="close-chat" class="btn btn-sm text-muted fs-3">×</button>
-            </div>
-            <div id="chat-body" class="card-body p-4 overflow-auto scroll-custom" style="flex: 1; background: #000;">
-                <div class="mb-4">
-                    <div class="bg-dark p-3 rounded-4 d-inline-block border border-secondary text-light" style="max-width: 90%; line-height: 1.4;">
-                        ¡Hola! Soy <strong>Carina</strong> ✨ <br> ¿Querés saber sobre precios, cómo usar tu celular como escáner o qué tan rápido es nuestro sistema con Bunny.net? <br><br> <strong>Hablame o escribime aquí abajo.</strong>
-                    </div>
-                </div>
-                <div id="chat-interactions"></div>
-                <div id="typing-indicator" class="d-none text-muted small italic mb-3 ps-2">Carina está analizando tu respuesta...</div>
-            </div>
-            <div class="card-footer bg-black border-top border-secondary p-4">
-                <div class="input-group">
-                    <button id="chat-mic-btn" class="btn btn-outline-secondary rounded-circle me-2" style="width: 50px; height: 50px;"><i class="bi bi-mic-fill"></i></button>
-                    <input type="text" id="chat-input" class="form-control bg-dark border-secondary text-white rounded-pill px-4" placeholder="Escribir mensaje...">
-                    <button id="send-btn" class="btn btn-primary rounded-circle ms-2" style="width: 50px; height: 50px;"><i class="bi bi-send-fill text-white"></i></button>
-                </div>
-            </div>
-        </div>
-        <div id="chat-bubble" class="rounded-circle shadow-lg d-flex align-items-center justify-content-center bg-black border-2 border-primary" style="width: 80px; height: 80px; cursor: pointer; border-style: solid; position: relative;">
-            <img src="{{ asset('images/ai_avatar.png') }}" class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover;">
-            <span class="position-absolute bottom-0 start-50 translate-middle badge rounded-pill bg-success border border-black shadow" style="font-size: 0.7rem; padding: 0.4rem 0.8rem; z-index: 10;">CARINA AI</span>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- VERTICALES -->
+    <div id="soluciones">
+
+        {{-- OMNIHEALTH --}}
+        <section class="sector-section" style="background: linear-gradient(180deg, #020617 0%, #0b1120 100%);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-4 fw-bold tracking-widest">VERTICAL SALUD</span>
+                        <h2 class="sector-title">OmniHealth Pro</h2>
+                        <p class="sector-desc">
+                            Transforma la gestión médica con una plataforma que integra historias clínicas, turnos inteligentes y liquidaciones de obras sociales en un solo lugar.
+                        </p>
+                        <div class="narrative-card border-primary border-opacity-25">
+                            <h5 class="narrative-title">Precisión & Cuidado:</h5>
+                            <p class="narrative-text">
+                                Diseñado para clínicas y consultorios que exigen máxima eficiencia. 
+                                Desde la primera cita hasta la facturación electrónica, cada paso está optimizado.
+                            </p>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-heart-pulse feature-icon"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Historia Clínica</h6>
+                                    <p class="text-readable small mb-0">Evoluciones, diagnósticos y adjuntos médicos con seguridad de grado militar.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-calendar-check feature-icon"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Agenda Inteligente</h6>
+                                    <p class="text-readable small mb-0">Gestión de turnos por profesional, recordatorios automáticos y salas de espera.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="sector-image-container">
+                            <img src="{{ asset('images/h_health.png') }}" alt="Salud" class="sector-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- OMNIGASTRO --}}
+        <section class="sector-section" style="background: linear-gradient(180deg, #0b1120 0%, #020617 100%);">
+            <div class="container">
+                <div class="row align-items-center g-5 flex-lg-row-reverse">
+                    <div class="col-lg-6">
+                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill mb-4 fw-bold tracking-widest">VERTICAL GASTRONOMÍA</span>
+                        <h2 class="sector-title">OmniGastro Elite</h2>
+                        <p class="sector-desc">
+                            El latido de tu restaurante en tiempo real. OmniGastro controla desde la comanda en cocina hasta la entrega a domicilio, pasando por la gestión de mozos y mesas.
+                        </p>
+                        <div class="narrative-card border-warning border-opacity-25">
+                            <h5 class="narrative-title">Sabor & Tecnología:</h5>
+                            <p class="narrative-text">
+                                No importa si vendes pizzas, lomitos o alta cocina. Maneja pedidos para llevar, delivery con seguimiento y mesas con la agilidad que tu salón requiere.
+                            </p>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-egg-fried feature-icon text-warning"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Monitor KDS</h6>
+                                    <p class="text-readable small mb-0">Control visual de pedidos en cocina, tiempos de preparación y avisos a mozos.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-bicycle feature-icon text-warning"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Logística de Entrega</h6>
+                                    <p class="text-readable small mb-0">Gestión de repartidores propia, zonas de entrega y cobros en domicilio.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="sector-image-container">
+                            <img src="{{ asset('images/h_gastro.png') }}" alt="Gastronomía" class="sector-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- OMNIMARKET --}}
+        <section class="sector-section" style="background: linear-gradient(180deg, #020617 0%, #0b1120 100%);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill mb-4 fw-bold tracking-widest">VERTICAL RETAIL</span>
+                        <h2 class="sector-title">OmniMarket Super</h2>
+                        <p class="sector-desc">
+                            Velocidad de checkout inigualable. Diseñado para supermercados y tiendas de alto tráfico que requieren facturación electrónica instantánea y control de stock masivo.
+                        </p>
+                        <div class="narrative-card border-success border-opacity-25">
+                            <h5 class="narrative-title">Volumen & Velocidad:</h5>
+                            <p class="narrative-text">
+                                Escaneo ultra-rápido, manejo de múltiples cajas y sincronización total con el inventario central. La eficiencia que tu retail necesita para crecer.
+                            </p>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-upc-scan feature-icon text-success"></i>
+                                    <h6 class="fw-bold fs-5 text-white">POS Ultra-Fast</h6>
+                                    <p class="text-readable small mb-0">Facturación en un solo clic, compatible con cualquier hardware fiscal.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-boxes feature-icon text-success"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Multi-Almacén</h6>
+                                    <p class="text-readable small mb-0">Transferencias entre sucursales, auditoría de stock y reposición automática.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="sector-image-container">
+                            <img src="{{ asset('images/h_market.png') }}" alt="Supermercados" class="sector-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- OMNIRETAIL --}}
+        <section class="sector-section" style="background: linear-gradient(180deg, #0b1120 0%, #020617 100%);">
+            <div class="container">
+                <div class="row align-items-center g-5 flex-lg-row-reverse">
+                    <div class="col-lg-6">
+                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill mb-4 fw-bold tracking-widest">VERTICAL COMERCIO</span>
+                        <h2 class="sector-title">OmniRetail Studio</h2>
+                        <p class="sector-desc">
+                            La moda y el diseño merecen una gestión a su altura. Controla talles, colores y colecciones con una interfaz elegante que potencia tu marca.
+                        </p>
+                        <div class="narrative-card border-info border-opacity-25">
+                            <h5 class="narrative-title">Estilo & Organización:</h5>
+                            <p class="narrative-text">
+                                Perfectamente adaptado para boutiques, zapaterías y tiendas de diseño. Gestiona tu catálogo online y tus ventas físicas en una sola plataforma.
+                            </p>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-grid-3x3-gap feature-icon text-info"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Matriz de Variantes</h6>
+                                    <p class="text-readable small mb-0">Control total sobre talles, colores y temporadas sin complicaciones.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-phone-vibrate feature-icon text-info"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Venta Móvil</h6>
+                                    <p class="text-readable small mb-0">Vende desde cualquier lugar del local con tablets o smartphones.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="sector-image-container">
+                            <img src="{{ asset('images/h_retail.png') }}" alt="Tiendas" class="sector-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- OMNISTAY --}}
+        <section class="sector-section" style="background: linear-gradient(180deg, #020617 0%, #0b1120 100%);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-4 fw-bold tracking-widest">VERTICAL HOSPITALIDAD</span>
+                        <h2 class="sector-title">OmniStay Resort</h2>
+                        <p class="sector-desc">
+                            Hospitalidad de alta gama. OmniStay integra cada rincón del hotel para una experiencia de huésped superior. Desde la reserva hasta el bar, todo fluye en una sola cuenta maestra.
+                        </p>
+                        <div class="narrative-card border-primary border-opacity-25">
+                            <h5 class="narrative-title">Lujo & Control:</h5>
+                            <p class="narrative-text">
+                                Gestiona habitaciones (UTI, Terapia, Ambulatoria), personal de limpieza y cargos directos desde el restaurante o spa a la cuenta del huésped.
+                            </p>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-door-open feature-icon"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Recepción Master</h6>
+                                    <p class="text-readable small mb-0">Check-in digital, mapa visual de habitaciones y estados de mantenimiento.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-receipt-cutoff feature-icon"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Folio Integrado</h6>
+                                    <p class="text-readable small mb-0">Cargos automáticos desde el Bar, Room Service y Minibar a la habitación.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="sector-image-container">
+                            <img src="{{ asset('images/h_stay.png') }}" alt="Hotelería" class="sector-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- OMNIASSOC --}}
+        <section class="sector-section" style="background: linear-gradient(180deg, #0b1120 0%, #020617 100%);">
+            <div class="container">
+                <div class="row align-items-center g-5 flex-lg-row-reverse">
+                    <div class="col-lg-6">
+                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill mb-4 fw-bold tracking-widest">VERTICAL INSTITUCIONAL</span>
+                        <h2 class="sector-title">OmniAssoc Elite</h2>
+                        <p class="sector-desc">
+                            La solución definitiva para Gremios, Asociaciones y Clubes con membresías. OmniAssoc transforma la gestión de socios en una experiencia digital fluida.
+                        </p>
+                        <div class="narrative-card border-success border-opacity-25">
+                            <h5 class="narrative-title">Comunidad Conectada:</h5>
+                            <p class="narrative-text">
+                                Emite credenciales digitales, gestiona el cobro masivo de cuotas y envía comunicaciones oficiales con un solo clic.
+                            </p>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-people feature-icon text-success"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Padrón de Socios</h6>
+                                    <p class="text-readable small mb-0">Control de categorías, antigüedades y estados de deuda en tiempo real.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-patch-check feature-icon text-success"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Certificaciones</h6>
+                                    <p class="text-readable small mb-0">Emisión automática de certificados de cumplimiento y carnés digitales.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="sector-image-container">
+                            <img src="{{ asset('images/h_assoc.png') }}" alt="Asociaciones" class="sector-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- OMNIDOC --}}
+        <section class="sector-section" style="background: linear-gradient(180deg, #020617 0%, #0b1120 100%);">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill mb-4 fw-bold tracking-widest">SOLUCIÓN TRANSVERSAL</span>
+                        <h2 class="sector-title">OmniDoc Vault</h2>
+                        <p class="sector-desc">
+                            Potencia cualquier vertical con nuestra Bóveda Documental de alta seguridad. Diseñado para el resguardo de información sensible.
+                        </p>
+                        <div class="narrative-card border-info border-opacity-25">
+                            <h5 class="narrative-title">Seguridad Intergaláctica:</h5>
+                            <p class="narrative-text">
+                                Desde el resguardo de análisis clínicos para OmniHealth hasta contratos legales y DDJJ.
+                            </p>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-shield-lock feature-icon text-info"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Bóveda Encriptada</h6>
+                                    <p class="text-readable small mb-0">Almacenamiento seguro de archivos pesados vía Bunny.net.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-box">
+                                    <i class="bi bi-cloud-upload feature-icon text-info"></i>
+                                    <h6 class="fw-bold fs-5 text-white">Solicitud Digital</h6>
+                                    <p class="text-readable small mb-0">Portal para que tus clientes suban su documentación de forma ágil.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 text-center">
+                        <img src="{{ asset('images/v_security.png') }}" alt="Seguridad" class="sector-image" style="max-width: 400px;">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FOOTER CORPORATIVO -->
+    <footer class="py-5" style="background: #000; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="container text-center">
+            <img src="{{ asset('images/logo_omnipos.png') }}" alt="OmniPOS" style="height: 50px; margin-bottom: 20px;">
+            <p class="text-readable mb-4">© 2026 OmniPOS Enterprise Suite. Todos los derechos reservados.</p>
+            <div class="d-flex justify-content-center gap-4">
+                <a href="#" class="text-white text-decoration-none opacity-50 hover-opacity-100">Privacidad</a>
+                <a href="#" class="text-white text-decoration-none opacity-50 hover-opacity-100">Términos</a>
+                <a href="#" class="text-white text-decoration-none opacity-50 hover-opacity-100">Soporte</a>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const bubble = document.getElementById('chat-bubble');
-        const windowChat = document.getElementById('chat-window');
-        const closeChat = document.getElementById('close-chat');
-        const sendBtn = document.getElementById('send-btn');
-        const chatInput = document.getElementById('chat-input');
-        const chatInteractions = document.getElementById('chat-interactions');
-        const typingId = document.getElementById('typing-indicator');
-        const voiceBtn = document.getElementById('activate-voice-btn');
-        const listenBtn = document.getElementById('listen-btn');
-        const chatMicBtn = document.getElementById('chat-mic-btn');
-        const voicePulse = document.getElementById('voice-pulse');
-
-        let voiceActive = false;
-
-        // CEREBRO MAESTRO DE CARINA - AHORA DINÁMICO DESDE PHP
-        const kb = {
-            "precio": "Actualmente tenemos estos planes disponibles: {!! $plan_info !!} ¿Cuál se adapta mejor a tu negocio?",
-            "plan": "Tenemos opciones desde la STARTER hasta la BUSINESS. {!! $plan_info !!}",
-            "stock": "¡El stock es mi especialidad! Con Magic Scan Pro, usás la cámara de tu iPhone o Android como un escáner industrial. Es tan rápido que podés cargar 100 productos en minutos. Además, varios empleados pueden contar stock al mismo tiempo por QR.",
-            "bunny": "Bunny.net es el secreto de nuestra velocidad. Guardamos tus videos y fotos pesadas allí para que tu sistema cargue en menos de 1 segundo, sin importar cuántos archivos tengas. ¡Es tecnología de nivel mundial!",
-            "hola": "¡Hola! Soy Carina, tu asistente de éxito en MultiPOS. Estoy aquí para que tu negocio pase al siguiente nivel. ¿Qué duda tenés hoy? ✨",
-            "carina": "Esa soy yo! Una inteligencia creada para servirte. Puedo explicarte desde cómo vender hasta cómo ver tus ganancias en tiempo real.",
-            "franquicia": "Para franquicias, el plan BUSINESS es imbatible. Podés ver lo que pasa en cada sucursal desde tu casa, unificar el stock y ver reportes consolidados.",
-            "demo": "¡La demo es genial! Podés probar el escáner ahora mismo haciendo clic en el botón DEMO de arriba. Te va a encantar.",
-            "clima": "Si te dijera que hace calor en New York, te mentiría porque soy una IA, pero lo que sí sé es que en MultiPOS siempre hay un clima de éxito y crecimiento. 😊",
-            "dueño": "El dueño se llama Mario y es un apasionado de que tu negocio funcione. Si querés hablar con él, hacé clic en el botón de WhatsApp y te atenderá personalmente."
-        };
-
-        // RECONOCIMIENTO DE VOZ (OÍDO)
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'es-ES';
-            recognition.continuous = false;
-
-            recognition.onstart = () => {
-                voicePulse.classList.remove('d-none');
-                chatMicBtn.classList.add('btn-primary', 'listening-ring');
-                if(!windowChat.classList.contains('d-none') && windowChat.style.display !== 'none') {
-                    chatInput.placeholder = "Escuchando...";
-                }
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                chatInput.value = transcript;
-                sendBtn.click();
-            };
-
-            recognition.onend = () => {
-                voicePulse.classList.add('d-none');
-                chatMicBtn.classList.remove('btn-primary', 'listening-ring');
-                chatInput.placeholder = "Escribir mensaje...";
-            };
-
-            listenBtn.onclick = () => {
-                if(windowChat.style.display === 'none' || windowChat.classList.contains('d-none')) {
-                    bubble.click();
-                }
-                recognition.start();
-            };
-            chatMicBtn.onclick = () => recognition.start();
-        } else {
-            listenBtn.style.display = 'none';
-            chatMicBtn.style.display = 'none';
-        }
-
-        bubble.onclick = () => { windowChat.style.display = windowChat.style.display === 'flex' ? 'none' : 'flex'; };
-        closeChat.onclick = () => { windowChat.style.display = 'none'; };
-
-        voiceBtn.onclick = () => {
-            voiceActive = !voiceActive;
-            voiceBtn.classList.toggle('btn-primary');
-            document.getElementById('voice-status').innerText = voiceActive ? "Voz: ACTIVADA 🌸" : "Escuchar Voz";
-            if(voiceActive) speak("¡Hola! Soy Carina. Ahora te responderé hablando con todo mi cariño. ¿En qué te ayudo hoy?");
-        };
-
-        function speak(text) {
-            if(!voiceActive) return;
-            window.speechSynthesis.cancel();
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.lang = 'es-ES'; msg.rate = 1.0; msg.pitch = 1.1;
-            window.speechSynthesis.speak(msg);
-        }
-
-        function addMessage(text, isUser = false) {
-            const div = document.createElement('div');
-            div.className = `mb-4 ${isUser ? 'text-end' : ''} animate__animated animate__fadeInUp`;
-            div.innerHTML = `<div class="${isUser ? 'bg-primary text-white shadow-lg' : 'bg-dark text-light border border-secondary shadow'} p-3 rounded-4 d-inline-block" style="max-width: 85%; font-size: 1.05rem;">${text}</div>`;
-            chatInteractions.appendChild(div);
-            document.getElementById('chat-body').scrollTop = document.getElementById('chat-body').scrollHeight;
-        }
-
-        sendBtn.onclick = () => {
-            const msg = chatInput.value.trim();
-            if(!msg) return;
-            addMessage(msg, true);
-            chatInput.value = '';
-            typingId.classList.remove('d-none');
-            setTimeout(() => {
-                typingId.classList.add('d-none');
-                let response = "¡Qué buena pregunta! Me encantaría explicarte eso en detalle por WhatsApp para darte una atención VIP. 🌸 Pero te adelanto que MultiPOS es la mejor opción para vos.";
-                const lower = msg.toLowerCase();
-                Object.keys(kb).forEach(key => { if(lower.includes(key)) response = kb[key]; });
-                addMessage(response);
-                speak(response);
-                
-                // Si la pregunta es técnica, invitar a WhatsApp después
-                if(!lower.includes('hola') && !lower.includes('carina')) {
-                    setTimeout(() => {
-                        addMessage(`<a href="https://wa.me/{{ $wa_clean }}?text=Me%20intereso%20lo%20que%20dijo%20Carina" target="_blank" class="btn btn-sm btn-outline-success rounded-pill mt-2 fw-bold px-3 py-2"><i class="bi bi-whatsapp me-2"></i> Continuar por WhatsApp 📱</a>`);
-                    }, 1500);
-                }
-            }, 1200);
-        };
-        chatInput.onkeypress = (e) => { if(e.key === 'Enter') sendBtn.click(); };
-    </script>
 </body>
 </html>

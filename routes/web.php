@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function() {
     Route::get('/dashboard', function () {
         $user = auth()->user();
         if ($user->role === 'owner') { return redirect()->route('owner.dashboard'); }
+        if ($user->role === 'revendedor') { return redirect()->route('revendedor.dashboard'); }
         if ($user->role === 'usuario') { return redirect()->route('empresa.usuario.dashboard'); }
         return redirect()->route('empresa.dashboard');
     })->name('dashboard');
@@ -148,6 +149,16 @@ Route::middleware(['auth', 'owner'])
         Route::post('crm/promote', [App\Http\Controllers\Owner\CRMController::class, 'promote'])->name('crm.promote');
         Route::post('settings', [OwnerDashboardController::class, 'updateSettings'])->name('settings.update');
 
+    });
+
+/* |-------------------------------------------------------------------------- | REVENDEDOR (GESTIÓN DE CARTERA) |-------------------------------------------------------------------------- */
+Route::middleware(['auth', 'can:isRevendedor'])
+    ->prefix('revendedor')
+    ->name('revendedor.')
+    ->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Revendedor\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/empresas/{empresa}/config', [App\Http\Controllers\Revendedor\DashboardController::class, 'editConfig'])->name('empresas.config');
+        Route::post('/empresas/{empresa}/config', [App\Http\Controllers\Revendedor\DashboardController::class, 'updateConfig'])->name('empresas.update_config');
     });
 
 
@@ -565,6 +576,13 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('liquidaciones/pendientes', [\App\Http\Controllers\Empresa\LiquidacionController::class, 'getPendientes'])->name('liquidaciones.pendientes');
         Route::resource('liquidaciones', \App\Http\Controllers\Empresa\LiquidacionController::class);
 
+        // MÓDULO MÉDICO (HISTORIA CLÍNICA Y AFILIADOS)
+        Route::resource('historias-clinicas', \App\Http\Controllers\Empresa\MedicalRecordController::class)->names('medical_records');
+        Route::get('pacientes/{client}/historia', [\App\Http\Controllers\Empresa\MedicalRecordController::class, 'patientHistory'])->name('patients.history');
+        
+        Route::get('afiliados', [\App\Http\Controllers\Empresa\AffiliateController::class, 'index'])->name('affiliates.index');
+        Route::post('afiliados/generar-cuotas', [\App\Http\Controllers\Empresa\AffiliateController::class, 'generateFees'])->name('affiliates.generate_fees');
+        Route::get('afiliados/{client}/cuenta', [\App\Http\Controllers\Empresa\AffiliateController::class, 'accountStatement'])->name('affiliates.account');
     });
 
 

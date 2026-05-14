@@ -22,12 +22,12 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 .dashboard-container {
     padding: 0;
     padding-bottom: 2.5rem;
-    margin-left: 0; /* Ya lo maneja el padre #main-content, pero aseguramos limpieza */
+    margin-left: 0; 
     position: relative;
     z-index: 1;
 }
 
-/* Forzar que el interior respete el espacio si hay algún conflicto de ancho */
+/* Forzar que el interior respete el espacio */
 .dashboard-container .row {
     margin-left: 0;
     margin-right: 0;
@@ -36,7 +36,10 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 /* Background suave animado sutil basado en el color primario de la empresa */
 .empresa-bg {
     position: fixed;
-    top: var(--navbar-height); left: var(--sidebar-width); right: 0; bottom: 0;
+    top: var(--navbar-height); 
+    left: 105px !important; /* FORZADO MANUAL ANTI-SOLAPAMIENTO */
+    right: 0; 
+    bottom: 0;
     z-index: -1;
     background: radial-gradient(circle at 10% 20%, {{ $primary }}15, transparent 35%),
                 radial-gradient(circle at 90% 80%, {{ $secondary }}15, transparent 35%);
@@ -89,7 +92,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
     top: -10px;
     right: -10px;
     font-size: 6rem;
-    opacity: 0.45; /* Aumentada considerablemente la visibilidad */
+    opacity: 0.45;
     transform: rotate(-10deg);
 }
 
@@ -113,7 +116,6 @@ $secondary = $config?->color_secondary ?? '#16a34a';
     border-color: rgba(128, 128, 128, 0.1);
 }
 
-/* Botones Premium */
 .btn-glass {
     background: rgba(var(--bs-body-bg-rgb), 0.4);
     backdrop-filter: blur(8px);
@@ -139,32 +141,7 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 <div class="dashboard-container" style="padding: 0 15px;">
 
     {{-- ======================================================
-        CENTRO DE MANDO MÓVIL (SOLO CELULARES)
-    ====================================================== --}}
-    <div class="d-md-none mb-4 animate__animated animate__fadeInDown">
-        <div class="row g-2">
-            <div class="col-6">
-                <a href="{{ route('empresa.gastos.quick') }}" class="glass-panel text-center py-3 text-decoration-none" style="border: 1px solid rgba(239, 68, 68, 0.15); background: white;">
-                    <div class="fs-4 mb-1">💸</div>
-                    <div class="fw-bold text-danger small" style="font-size: 0.65rem; letter-spacing: 0.5px;">GASTO RÁPIDO</div>
-                </a>
-            </div>
-            <div class="col-6">
-                <a href="{{ route('empresa.personal.asistencia.qr') }}" class="glass-panel text-center py-3 text-decoration-none" style="border: 1px solid {{ $primary }}25; background: white;">
-                    <div class="fs-4 mb-1">📸</div>
-                    <div class="fw-bold small" style="color: {{ $primary }}; font-size: 0.65rem; letter-spacing: 0.5px;">FICHAJE QR</div>
-                </a>
-            </div>
-            <div class="col-12">
-                <a href="{{ route('empresa.pos.index') }}" class="glass-panel text-center py-2 text-decoration-none" style="border: 1px solid #16a34a30; background: white;">
-                    <div class="fw-bold text-success small" style="font-size: 0.7rem;">NUEVA VENTA (POS)</div>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    {{-- ======================================================
-        NOTIFICACIONES / TAREAS PENDIENTES (CARTELES DE ALERTA)
+        NOTIFICACIONES / TAREAS PENDIENTES
     ====================================================== --}}
     @if(count($reminders) > 0)
     <div class="row mb-4">
@@ -195,11 +172,9 @@ $secondary = $config?->color_secondary ?? '#16a34a';
 
 
     {{-- ======================================================
-        DASHBOARD ESTRATÉGICO DUAL (LOCAL VS INTERNET)
+        DASHBOARD ESTRATÉGICO DUAL
     ====================================================== --}}
     <div class="row g-4 mb-5">
-        
-        {{-- COLUMNA 1: OPERACIÓN LOCAL (POS) --}}
         <div class="col-lg-6">
             <h5 class="fw-bold mb-4 text-center text-uppercase letter-spacing-1" style="color: {{ $primary }};">🏪 Operación Local (Punto de Venta)</h5>
             <div class="glass-panel p-4">
@@ -225,7 +200,6 @@ $secondary = $config?->color_secondary ?? '#16a34a';
             </div>
         </div>
 
-        {{-- COLUMNA 2: OPERACIÓN INTERNET (CATÁLOGO) --}}
         <div class="col-lg-6">
             <h5 class="fw-bold mb-4 text-center text-uppercase letter-spacing-1" style="color: #8b5cf6;">🌐 Operación Internet (Catálogo)</h5>
             <div class="glass-panel p-4" style="border-top: 4px solid #8b5cf6;">
@@ -245,16 +219,37 @@ $secondary = $config?->color_secondary ?? '#16a34a';
                 </div>
             </div>
         </div>
-
     </div>
 
-    {{-- ======================================================
-        RESUMEN COMERCIAL RÁPIDO
-    ====================================================== --}}
+    @if($isMedical)
+    <h5 class="fw-bold mb-3" style="color: #0d6efd;">Monitor Médico (Hoy)</h5>
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="glass-panel" style="border-left: 4px solid #0d6efd; background: #f0f7ff;">
+                <div class="stat-label">Turnos Programados</div>
+                <div class="stat-value text-primary">{{ $turnosHoy }}</div>
+                <p class="small text-muted mb-0">Atenciones agendadas para hoy.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-panel" style="border-left: 4px solid #16a34a; background: #f0fdf4;">
+                <div class="stat-label">Pacientes Atendidos</div>
+                <div class="stat-value text-success">{{ $pacientesAtendidosHoy }}</div>
+                <p class="small text-muted mb-0">Historias clínicas generadas hoy.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-panel" style="border-left: 4px solid #f59e0b; background: #fffbeb;">
+                <div class="stat-label">Cobros Coseguros</div>
+                <div class="stat-value text-warning">$ {{ number_format($cobrosCosegurosHoy, 0, ',', '.') }}</div>
+                <p class="small text-muted mb-0">Ingresos por diferenciales sociales.</p>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <h5 class="fw-bold mb-3 text-secondary">Rendimiento Consolidado (Hoy)</h5>
     <div class="row g-4 mb-4">
-
-        {{-- Total Ventas --}}
         <div class="col-md-4">
             <div class="glass-panel" style="border-left: 4px solid #22c55e; min-height: 120px;">
                 <div class="glass-icon text-success" style="font-size: 4rem; top: 10px;">💰</div>
@@ -262,8 +257,6 @@ $secondary = $config?->color_secondary ?? '#16a34a';
                 <div class="stat-value text-success">$ {{ number_format($ventasHoy, 0, ',', '.') }}</div>
             </div>
         </div>
-
-        {{-- Facturacion Mes --}}
         <div class="col-md-4">
             <div class="glass-panel" style="border-left: 4px solid {{ $primary }}; min-height: 120px;">
                 <div class="glass-icon" style="color: {{ $primary }}; font-size: 4rem; top: 10px;">📊</div>
@@ -271,8 +264,6 @@ $secondary = $config?->color_secondary ?? '#16a34a';
                 <div class="stat-value" style="color: {{ $primary }};">$ {{ number_format($ventasMes, 0, ',', '.') }}</div>
             </div>
         </div>
-
-        {{-- Ticket Promedio --}}
         <div class="col-md-4">
             <div class="glass-panel" style="border-left: 4px solid #8b5cf6; min-height: 120px;">
                 <div class="glass-icon" style="color: #8b5cf6; font-size: 4rem; top: 10px;">🧾</div>
@@ -280,221 +271,65 @@ $secondary = $config?->color_secondary ?? '#16a34a';
                 <div class="stat-value" style="color: #8b5cf6;">{{ $cantidadVentasHoy }}</div>
             </div>
         </div>
-
     </div>
 
     <hr class="section-divider">
 
-    {{-- ======================================================
-        BLOQUE 2 · GESTIÓN DEL NEGOCIO
-    ====================================================== --}}
     <h5 class="fw-bold mb-3 text-secondary">Recursos y Gestión</h5>
     <div class="row g-4 mb-4">
-
-        {{-- Usuarios --}}
         <div class="col-xl-3 col-lg-6 col-md-6">
             <div class="glass-panel text-center pb-4">
                 <div class="stat-label">Empleados y Cajeros</div>
                 <div class="stat-value mb-3">{{ $usuariosCount }}</div>
-                <a href="{{ route('empresa.usuarios.index') }}" class="btn btn-sm btn-glass px-4">
-                    Administrar
-                </a>
+                <a href="{{ route('empresa.usuarios.index') }}" class="btn btn-sm btn-glass px-4">Administrar</a>
             </div>
         </div>
-
-        {{-- CLIENTES ACTIVADO --}}
         <div class="col-xl-3 col-lg-6 col-md-6">
             <div class="glass-panel text-center pb-4">
                 <div class="stat-label">Cartera de Clientes</div>
                 <div class="stat-value mb-3">{{ $clientesCount ?? 0 }}</div>
-                <a href="{{ route('empresa.clientes.index') }}" class="btn btn-sm px-4 text-white" style="background: {{ $primary }};">
-                    Cuentas Corrientes
-                </a>
+                <a href="{{ route('empresa.clientes.index') }}" class="btn btn-sm px-4 text-white" style="background: {{ $primary }};">Cuentas Corrientes</a>
             </div>
         </div>
-
-        {{-- PEDIDOS CATALOGO NUEVO --}}
         <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="glass-panel text-center pb-4" style="border: 2px solid {{ $pedidosPendientes > 0 ? '#f59e0b' : 'transparent' }};">
+            <div class="glass-panel text-center pb-4">
                 <div class="stat-label">Ventas por Catálogo</div>
-                <div class="stat-value mb-1 {{ $pedidosPendientes > 0 ? 'text-warning' : '' }}">
-                    {{ $pedidosPendientes }}
-                </div>
-                <div class="small text-muted mb-3">Pedidos Pendientes</div>
-                <a href="{{ route('empresa.orders.index') }}" class="btn btn-sm w-100 mb-1 fw-bold" style="background: #8b5cf6; color: white;">
-                    Gestionar Pedidos
-                </a>
-                <div class="x-small text-muted" style="font-size: 0.7rem;">{{ $pedidosTotales }} totales registrados</div>
+                <div class="stat-value mb-1 {{ $pedidosPendientes > 0 ? 'text-warning' : '' }}">{{ $pedidosPendientes }}</div>
+                <a href="{{ route('empresa.orders.index') }}" class="btn btn-sm w-100 mb-1 fw-bold" style="background: #8b5cf6; color: white;">Gestionar Pedidos</a>
             </div>
         </div>
-
-        {{-- REPORTES --}}
         <div class="col-xl-3 col-lg-6 col-md-6">
             <div class="glass-panel text-center pb-4">
                 <div class="stat-label">Motor de Reportes</div>
                 <div class="stat-value mb-3">5+</div>
-                <a href="{{ route('empresa.reportes.panel') }}" class="btn btn-sm btn-success px-4" style="background: {{ $secondary }}; border-color:{{ $secondary }};">
-                    Generar PDF/Excel
-                </a>
-            </div>
-        </div>
-
-        {{-- GASTO RÁPIDO (RESTAURADO) --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="glass-panel text-center pb-4" style="background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
-                <div class="stat-label text-danger">⚠️ CONTROL DE GASTOS</div>
-                <div class="stat-value text-danger mb-3">RÁPIDO</div>
-                <a href="{{ route('empresa.gastos.quick') }}" class="btn btn-danger w-100 fw-bold rounded-pill shadow-sm">
-                    <i class="bi bi-phone-fill me-1"></i> REGISTRAR PAGO
-                </a>
-            </div>
-        </div>
-
-        {{-- Listas de precios --}}
-        <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="glass-panel text-center pb-4 opacity-75">
-                <div class="stat-label">Listas de Precios</div>
-                <div class="stat-value text-muted mb-2">--</div>
-                <span class="badge bg-secondary badge-glow mt-2">Próximamente</span>
-            </div>
-        </div>
-
-    </div>
-
-    <hr class="section-divider">
-
-    {{-- ======================================================
-        BLOQUE 3 · INVENTARIO Y OPERATIVA
-    ====================================================== --}}
-    <div class="row g-4">
-        <div class="col-md-8">
-            <h5 class="fw-bold mb-3 text-secondary">Inventario</h5>
-            <div class="row g-4">
-                {{-- Productos cargados --}}
-                <div class="col-sm-6">
-                    <div class="glass-panel">
-                        <div class="stat-label text-info">Productos en Catálogo</div>
-                        <div class="fs-2 fw-bold">{{ $productosCount }}</div>
-                        <div class="progress mt-2" style="height: 6px;">
-                            <div class="progress-bar" style="width: {{ min(($productosCount/200)*100, 100) }}%; background: {{ $primary }};"></div>
-                        </div>
-                        <div class="small mt-1 text-muted">{{ $productosCount }} / 200 límite plan</div>
-                    </div>
-                </div>
-
-                {{-- Stock bajo --}}
-                <div class="col-sm-6">
-                    <div class="glass-panel" style="border-left: 4px solid #f59e0b;">
-                        <div class="glass-icon" style="color: #f59e0b;">⚠️</div>
-                        <div class="stat-label text-warning">Alertas de Stock</div>
-                        <div class="fs-2 fw-bold text-warning mb-2">{{ $stockBajo }}</div>
-                        <p class="small text-muted mb-3">Productos por debajo del mínimo</p>
-                        <a href="{{ route('empresa.stock.faltantes') }}" class="btn btn-sm btn-outline-warning w-100">
-                            🤖 Gestionar Faltantes
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <h5 class="fw-bold mb-3 text-secondary">Suscripción SaaS</h5>
-            <div class="glass-panel d-flex flex-column justify-content-center">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted fw-bold">Plan Actual:</span>
-                    <span class="badge" style="background: {{ $primary }};">Profesional</span>
-                </div>
-                
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted fw-bold">Vencimiento:</span>
-                    <span class="fw-bold">{{ optional($empresa->fecha_vencimiento)->format('d/m/Y') ?? 'N/A' }}</span>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted fw-bold">Almacenamiento de Activos:</span>
-                    <span class="fw-bold text-success">Sincronizado</span>
-                </div>
+                <a href="{{ route('empresa.reportes.panel') }}" class="btn btn-sm btn-success px-4">Generar PDF/Excel</a>
             </div>
         </div>
     </div>
 
-
     <hr class="section-divider">
 
-    {{-- ======================================================
-        BLOQUE 4 · BITÁCORA DE ACTIVIDAD RECIENTE
-    ====================================================== --}}
-    <h5 class="fw-bold mb-3 text-secondary">
-        <i class="bi bi-clock-history me-2"></i> Bitácora de Actividad del Equipo
-    </h5>
-    <div class="glass-panel p-0 mb-5 overflow-hidden">
-        <div class="p-4 bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
-            <div>
-                <h6 class="fw-bold mb-0 text-primary">Historial de Auditoría</h6>
-                <p class="x-small text-muted mb-0">Seguimiento en tiempo real de operaciones críticas.</p>
-            </div>
-            <i class="bi bi-shield-check text-primary fs-3"></i>
-        </div>
-        <div class="activity-feed p-4" style="max-height: 450px; overflow-y: auto;">
+    <h5 class="fw-bold mb-3 text-secondary"><i class="bi bi-clock-history me-2"></i> Actividad Reciente</h5>
+    <div class="glass-panel p-4 mb-5">
+        <div class="activity-feed" style="max-height: 400px; overflow-y: auto;">
             @forelse($recentActivities as $activity)
-                <div class="d-flex mb-4 position-relative">
-                    {{-- Timeline Line --}}
-                    @if(!$loop->last)
-                    <div style="position: absolute; left: 17px; top: 35px; bottom: -20px; width: 2px; background: rgba(0,0,0,0.05);"></div>
-                    @endif
-
-                    <div class="flex-shrink-0">
-                        <div class="bg-white shadow-sm border rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; z-index: 2; position: relative;">
-                            @if(str_contains($activity->description, 'venta'))
-                                <i class="bi bi-cart-check text-success"></i>
-                            @elseif(str_contains($activity->description, 'usuario'))
-                                <i class="bi bi-person-badge text-info"></i>
-                            @elseif(str_contains($activity->description, 'producto'))
-                                <i class="bi bi-box-seam text-primary"></i>
-                            @elseif(str_contains($activity->description, 'presupuesto'))
-                                <i class="bi bi-file-earmark-text text-warning"></i>
-                            @else
-                                <i class="bi bi-lightning-charge text-muted"></i>
-                            @endif
-                        </div>
+                <div class="d-flex mb-3">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-lightning-charge text-primary"></i>
                     </div>
-                    <div class="flex-grow-1 ms-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="mb-1 fw-bold small text-dark">
-                                {{ $activity->user->name ?? 'Sistema' }}
-                            </h6>
-                            <span class="text-muted x-small">
-                                {{ $activity->created_at->diffForHumans() }}
-                            </span>
-                        </div>
-                        <p class="mb-0 text-muted small" style="line-height: 1.4;">
-                            {{ $activity->description }}
-                        </p>
-                        @if($activity->ip_address)
-                        <div class="x-small text-muted opacity-50">{{ $activity->ip_address }}</div>
-                        @endif
+                    <div>
+                        <div class="fw-bold small">{{ $activity->user->name ?? 'Sistema' }}</div>
+                        <div class="small text-muted">{{ $activity->description }}</div>
+                        <div class="x-small text-muted opacity-50">{{ $activity->created_at->diffForHumans() }}</div>
                     </div>
                 </div>
             @empty
-                <div class="text-center py-5">
-                    <i class="bi bi-clipboard-x fs-1 text-muted opacity-25"></i>
-                    <p class="text-muted mt-2">No se han registrado actividades aún.</p>
-                </div>
+                <p class="text-center text-muted">Sin actividad reciente.</p>
             @endforelse
-        </div>
-        <div class="p-3 bg-light text-center border-top">
-            <a href="#" class="text-decoration-none small fw-bold text-muted opacity-75">Ver Reporte de Auditoría Completo</a>
         </div>
     </div>
 
 </div>
-
-<style>
-/* Estilos adicionales para la bitácora */
-.activity-feed::-webkit-scrollbar { width: 5px; }
-.activity-feed::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-.x-small { font-size: 0.75rem; }
-</style>
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -515,60 +350,20 @@ $secondary = $config?->color_secondary ?? '#16a34a';
         stroke: { lineCap: "round" }
     };
 
-    // --- SECTOR LOCAL ---
-    
-    // 1. Ritmo Ventas Local (Verde)
     new ApexCharts(document.querySelector("#chartLocalVentas"), {
-        ...commonOptions,
-        series: [{{ $saludLocal }}],
-        colors: ["#22c55e"]
+        ...commonOptions, series: [{{ $saludLocal }}], colors: ["#22c55e"]
     }).render();
 
-    // 2. Gasto vs Inversión Local (Doble Arco Concéntrico Premium)
     new ApexCharts(document.querySelector("#chartLocalEgresos"), {
-        chart: { 
-            type: 'radialBar', 
-            height: 200, 
-            sparkline: { enabled: true },
-            animations: { enabled: true, easing: 'easeinout', speed: 800 }
-        },
-        series: [{{ $gastosPerc }}, {{ $comprasPerc }}],
-        colors: ["#ef4444", "#3b82f6"], // Rojo: Gasto | Azul: Inversión
-        plotOptions: {
-            radialBar: {
-                startAngle: -90,
-                endAngle: 90,
-                hollow: { size: '45%' }, // Espacio central elegante
-                track: { 
-                    background: "#f1f5f9", 
-                    strokeWidth: '95%',
-                    margin: 5 // Separación sutil entre los dos arcos
-                },
-                dataLabels: {
-                    name: { show: false },
-                    value: { show: false }
-                }
-            }
-        },
-        grid: { padding: { top: -20 } },
-        stroke: { lineCap: "round", width: 2 }
+        ...commonOptions, series: [{{ $gastosPerc }}], colors: ["#ef4444"]
     }).render();
 
-    // 3. Evaluación Local (Verde/Rojo)
     new ApexCharts(document.querySelector("#chartLocalEval"), {
-        ...commonOptions,
-        series: [{{ $evaluacionLocal }}],
-        colors: ["{{ $balanceLocal >= 0 ? '#22c55e' : '#ef4444' }}"]
+        ...commonOptions, series: [{{ $evaluacionLocal }}], colors: ["{{ $balanceLocal >= 0 ? '#22c55e' : '#ef4444' }}"]
     }).render();
 
-    // --- SECTOR INTERNET ---
-
-    // 1. Ventas Online (Púrpura)
     new ApexCharts(document.querySelector("#chartInternetVentas"), {
-        ...commonOptions,
-        series: [{{ $saludInternet }}],
-        colors: ["#8b5cf6"]
+        ...commonOptions, series: [{{ $saludInternet }}], colors: ["#8b5cf6"]
     }).render();
-
 </script>
 @endsection

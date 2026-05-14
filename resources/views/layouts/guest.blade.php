@@ -95,13 +95,55 @@
             transition: all 0.3s ease;
         }
 
+        .auth-logo {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 35px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-logo::after {
+            content: '';
+            position: absolute;
+            top: -10%; left: -10%; right: -10%; bottom: -10%;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+            opacity: 0.2;
+            filter: blur(15px);
+            z-index: 0;
+            animation: pulse-glow 4s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            from { opacity: 0.1; transform: scale(0.95); }
+            to { opacity: 0.3; transform: scale(1.05); }
+        }
+
         .auth-logo img {
-            max-width: 280px;
-            height: auto;
-            margin: 0 auto 25px auto;
-            display: block;
-            filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.5));
-            border-radius: 12px;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Cambiado a contain para no cortar el logo */
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            padding: 18px; /* Más padding para que el logo respire */
+            position: relative;
+            z-index: 1;
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.3),
+                inset 0 0 15px rgba(37, 99, 235, 0.1);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .auth-logo img:hover {
+            transform: scale(1.08) rotate(-3deg);
+            border-color: var(--color-primary);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(37, 99, 235, 0.2);
         }
 
         .auth-title {

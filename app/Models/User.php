@@ -64,10 +64,20 @@ class User extends Authenticatable
     | ROLES
     |--------------------------------------------------------------------------
     */
+    public const ROLE_OWNER = 'owner';
+    public const ROLE_REVENDEDOR = 'revendedor';
+    public const ROLE_EMPRESA = 'empresa';
+    public const ROLE_USUARIO = 'usuario';
+
 
     public function isOwner(): bool
     {
-        return $this->role === 'owner';
+        return $this->role === self::ROLE_OWNER;
+    }
+
+    public function isRevendedor(): bool
+    {
+        return $this->role === self::ROLE_REVENDEDOR;
     }
 
     public function isEmpresa(): bool

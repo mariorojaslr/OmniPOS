@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>{{ config('app.name', 'MultiPOS') }}</title>
+    <title>{{ config('app.name', 'OmniPOS') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     {{-- PREVENIR CACHÉ DESPUÉS DE LOGOUT --}}
@@ -179,8 +179,8 @@
     <div class="{{ auth()->check() ? 'container-fluid px-4 px-md-5' : 'container' }}">
 
         <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ route('dashboard') }}">
-            <img src="{{ asset('images/logo_premium.png') }}" alt="Logo" style="height:40px; width:auto; border-radius: 10px;" class="me-2 shadow">
-            MultiPOS Central
+            <img src="{{ asset('images/logo_omnipos.png') }}" alt="Logo" style="height:40px; width:auto; border-radius: 10px;" class="me-2 shadow">
+            OmniPOS Central
         </a>
 
         @if(auth()->user()->role === 'owner' && !request()->routeIs('owner.dashboard'))
