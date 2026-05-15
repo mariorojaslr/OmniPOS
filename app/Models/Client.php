@@ -28,6 +28,23 @@ class Client extends Model
         'lng',
         'plus_code',
         'active',
+        // Plan Med Plus (Afiliados)
+        'is_affiliate',
+        'affiliate_number',
+        'affiliate_since',
+        'affiliate_status',
+        'monthly_fee',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | CASTS
+    |--------------------------------------------------------------------------
+    |*/
+    protected $casts = [
+        'is_affiliate'    => 'boolean',
+        'affiliate_since' => 'date',
+        'active'          => 'boolean',
     ];
 
     // =========================================================
@@ -88,6 +105,14 @@ class Client extends Model
     public function ventas()
     {
         return $this->hasMany(Venta::class);
+    }
+
+    /**
+     * HISTORIAS CLÍNICAS (Paciente)
+     */
+    public function medicalRecords()
+    {
+        return $this->hasMany(MedicalRecord::class, 'client_id');
     }
 
     public function bankAccounts()

@@ -106,7 +106,14 @@
                         @foreach($clientes as $i => $c)
                         <tr class="{{ $i % 2 == 0 ? 'fila-blanca' : 'fila-celeste' }} cliente-row">
 
-                            <td class="fw-semibold text-nowrap">{{ $c->name }}</td>
+                            <td class="fw-semibold text-nowrap">
+                                {{ $c->name }}
+                                @if($c->is_affiliate)
+                                    <span class="ms-1 badge rounded-pill bg-info text-dark" style="font-size: 0.6rem;" title="Afiliado Med Plus">
+                                        <i class="bi bi-heart-pulse-fill"></i> MED+
+                                    </span>
+                                @endif
+                            </td>
                             <td class="text-nowrap">{{ $c->email }}</td>
                             <td class="text-nowrap">{{ $c->phone }}</td>
                             <td class="text-nowrap">{{ $c->document }}</td>
@@ -244,10 +251,14 @@ input.addEventListener('input', function(){
         data.forEach((c,i)=>{
 
             let nombre = c.name ?? '';
-
+            
             if(q.length>0){
                 const regex = new RegExp(`(${q})`,'gi');
                 nombre = nombre.replace(regex, `<mark>$1</mark>`);
+            }
+
+            if(c.is_affiliate){
+                nombre += ` <span class="ms-1 badge rounded-pill bg-info text-dark" style="font-size: 0.6rem;" title="Afiliado Med Plus"><i class="bi bi-heart-pulse-fill"></i> MED+</span>`;
             }
 
             let tipo = c.type

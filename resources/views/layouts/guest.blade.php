@@ -5,12 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ config('app.name', 'MultiPOS') }}</title>
+    <title>{{ config('app.name', 'OmniPOS') }}</title>
+    <link rel="icon" href="{{ asset('favicon.png') }}" type="image/png">
 
     {{-- ======================================================
-        FAVICON MULTIPOS
+        FAVICON OMNIPOS
     ====================================================== --}}
-    <link rel="icon" href="{{ asset('favicon.png') }}" type="image/png">
 
     {{-- ======================================================
         BOOTSTRAP (solo GRID + UTILIDADES)

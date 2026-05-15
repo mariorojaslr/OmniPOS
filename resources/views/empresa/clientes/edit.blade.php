@@ -130,6 +130,46 @@
                         </select>
                     </div>
 
+                    {{-- SECCIÓN PLAN MED PLUS / AFILIADOS --}}
+                    <div class="col-12 mt-4">
+                        <div class="card border-primary border-opacity-25 shadow-sm rounded-3" style="background: rgba(13, 110, 253, 0.02);">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-heart-pulse-fill text-primary fs-4 me-2"></i>
+                                    <h5 class="fw-bold mb-0 text-primary">Plan Med Plus / Afiliación</h5>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <div class="form-check form-switch mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_affiliate" id="is_affiliate" {{ $cliente->is_affiliate ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold" for="is_affiliate">¿Es Afiliado?</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Nro de Afiliado</label>
+                                        <input type="text" name="affiliate_number" class="form-control" value="{{ old('affiliate_number', $cliente->affiliate_number) }}" placeholder="Ej: 102938475">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Afiliado desde</label>
+                                        <input type="date" name="affiliate_since" class="form-control" value="{{ old('affiliate_since', $cliente->affiliate_since ? $cliente->affiliate_since->format('Y-m-d') : '') }}">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Cuota Mensual ($)</label>
+                                        <input type="number" step="0.01" name="monthly_fee" class="form-control" value="{{ old('monthly_fee', $cliente->monthly_fee) }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Estado de Afiliación</label>
+                                        <select name="affiliate_status" class="form-select">
+                                            <option value="active" {{ $cliente->affiliate_status == 'active' ? 'selected' : '' }}>Activo</option>
+                                            <option value="inactive" {{ $cliente->affiliate_status == 'inactive' ? 'selected' : '' }}>Inactivo</option>
+                                            <option value="overdue" {{ $cliente->affiliate_status == 'overdue' ? 'selected' : '' }}>Deuda Pendiente</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="mt-4 d-flex justify-content-between">

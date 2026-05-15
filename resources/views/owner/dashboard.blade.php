@@ -45,32 +45,32 @@
 
     /* ===== OLED CARDS — Cristal con borde blanco fuerte ===== */
     .oled-card {
-        background: rgba(15, 20, 35, 0.80);
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.65);
-        border-radius: 16px; padding: 1.5rem;
-        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        position: relative; overflow: hidden;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
+        background: rgba(15, 20, 35, 0.98);
+        backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+        border: 2px solid #ffffff; /* Blanco puro sólido */
+        border-radius: 20px; padding: 2rem;
+        transition: all 0.4s ease;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1); /* Resplandor exterior */
+        position: relative;
     }
     .oled-card:hover {
-        border-color: rgba(255,255,255,0.95);
-        box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+        border-color: #fff;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.2);
     }
 
     /* ===== KPI CARDS ===== */
     .kpi-card {
-        background: rgba(15, 20, 35, 0.85);
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 16px; padding: 1.3rem 1.1rem;
-        position: relative; overflow: hidden;
-        transition: all 0.35s ease; text-decoration: none !important; display: block;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+        background: rgba(25, 30, 50, 0.95);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.6); /* Borde más fuerte */
+        border-radius: 18px; padding: 1.5rem 1.2rem;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-decoration: none !important; display: block;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
     .kpi-card:hover {
-        transform: translateY(-5px); border-color: rgba(255,255,255,0.35);
-        box-shadow: 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+        transform: translateY(-8px); border-color: #fff;
+        box-shadow: 0 0 30px rgba(255,255,255,0.2);
     }
     .kpi-card .kpi-icon {
         width: 40px; height: 40px; border-radius: 11px;
@@ -125,19 +125,19 @@
 
     /* ===== COMMAND BUTTONS ===== */
     .cmd-btn {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.50);
-        color: #94a3b8; border-radius: 12px; padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: #fff !important; border-radius: 12px; padding: 12px 16px;
         font-weight: 600; font-size: 0.8rem; transition: all 0.25s ease;
         display: flex; align-items: center; gap: 10px;
-        width: 100%; text-align: left; margin-bottom: 8px; text-decoration: none;
+        width: 100%; text-align: left; margin-bottom: 8px; text-decoration: none !important;
     }
     .cmd-btn:hover {
-        background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.90);
-        color: #fff; transform: translateX(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        background: rgba(255,255,255,0.12); border-color: #fff;
+        color: #fff !important; transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
-    .cmd-btn i { font-size: 1.1rem; opacity: 0.85; }
-    .cmd-btn .cmd-label { font-size: 0.75rem; font-weight: 700; color: #e2e8f0; }
+    .cmd-btn i { font-size: 1.1rem; opacity: 1; }
+    .cmd-btn .cmd-label { font-size: 0.75rem; font-weight: 700; color: #fff; }
     .cmd-btn .cmd-sub { font-size: 0.6rem; color: #94a3b8; font-weight: 500; }
 
     /* ===== COMPANY ROWS — Cristal blanco ===== */
@@ -404,21 +404,21 @@
     ═══════════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
         <div class="col-md-4">
-            <div class="gauge-card" style="--gauge-color: #3b82f6;">
-                <div id="chartSales" style="min-height: 170px;"></div>
-                <div class="gauge-label text-primary">VELOCIDAD DE VENTAS</div>
+            <div class="oled-card h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                <div id="chartSales" style="min-height: 170px; width: 100%;"></div>
+                <div class="gauge-label text-primary fw-800 mt-2">VELOCIDAD DE VENTAS</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="gauge-card" style="--gauge-color: #ef4444;">
-                <div id="chartExpenses" style="min-height: 170px;"></div>
-                <div class="gauge-label text-danger">CONTROL DE GASTOS</div>
+            <div class="oled-card h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                <div id="chartExpenses" style="min-height: 170px; width: 100%;"></div>
+                <div class="gauge-label text-danger fw-800 mt-2">CONTROL DE GASTOS</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="gauge-card" style="--gauge-color: #22c55e;">
-                <div id="chartGlobal" style="min-height: 170px;"></div>
-                <div class="gauge-label text-success">SALUD GLOBAL</div>
+            <div class="oled-card h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                <div id="chartGlobal" style="min-height: 170px; width: 100%;"></div>
+                <div class="gauge-label text-success fw-800 mt-2">SALUD GLOBAL</div>
             </div>
         </div>
     </div>
@@ -431,7 +431,7 @@
             <span class="widget-header"><span class="live-dot live-dot-red"></span> RADAR DE ADQUISICIÓN EXTERNA</span>
         </div>
         <div class="col-md-4">
-            <a href="{{ route('owner.crm.index') }}" class="kpi-card" style="border-color: rgba(168, 85, 247, 0.2); padding: 1.4rem;">
+            <a href="{{ route('owner.crm.index') }}" class="kpi-card" style="padding: 1.4rem !important;">
                 <div class="radar-sweep"></div>
                 <div class="kpi-label" style="color: #c084fc; font-size: 0.55rem;">VISITANTES LANDING</div>
                 <div class="d-flex align-items-end gap-2 mt-2">
@@ -442,7 +442,7 @@
             </a>
         </div>
         <div class="col-md-4">
-            <a href="{{ route('owner.crm.index') }}" class="kpi-card" style="border-color: rgba(59, 130, 246, 0.2); padding: 1.4rem;">
+            <a href="{{ route('owner.crm.index') }}" class="kpi-card" style="padding: 1.4rem !important;">
                 <div class="radar-sweep" style="background: linear-gradient(110deg, transparent 40%, rgba(59, 130, 246, 0.07) 50%, transparent 60%);"></div>
                 <div class="kpi-label" style="color: #93c5fd; font-size: 0.55rem;">ENTRADAS AL DEMO</div>
                 <div class="d-flex align-items-end gap-2 mt-2">
@@ -453,7 +453,7 @@
             </a>
         </div>
         <div class="col-md-4">
-            <a href="{{ route('owner.crm.index') }}" class="kpi-card" style="border-color: rgba(34, 197, 94, 0.2); padding: 1.4rem;">
+            <a href="{{ route('owner.crm.index') }}" class="kpi-card" style="padding: 1.4rem !important;">
                 <div class="radar-sweep" style="background: linear-gradient(110deg, transparent 40%, rgba(34, 197, 94, 0.07) 50%, transparent 60%);"></div>
                 <div class="kpi-label" style="color: #86efac; font-size: 0.55rem;">CONVERSIÓN DE BOT</div>
                 <div class="d-flex align-items-end gap-2 mt-2">
@@ -474,11 +474,10 @@
 
         {{-- ══ COLUMNA PRINCIPAL (8/12) ══ --}}
         <div class="col-lg-8">
-
             {{-- WIDGET: BITÁCORA GLOBAL DE OPERACIONES (NUEVO) --}}
-            <div class="oled-card mb-3" style="border-color: rgba(34, 197, 94, 0.45);">
+            <div class="oled-card mb-3" style="border-color: rgba(255, 255, 255, 0.85); background: rgba(15, 20, 35, 0.98);">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="widget-header"><span class="live-dot"></span> <i class="bi bi-clock-history me-1 text-success"></i> MONITOR DE OPERACIONES GLOBAL (SaaS)</span>
+                    <span class="widget-header" style="color: #fff; font-weight: 800;"><span class="live-dot"></span> <i class="bi bi-clock-history me-1 text-success"></i> MONITOR DE OPERACIONES GLOBAL (SaaS)</span>
                     <span class="header-version" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; border-color: rgba(34, 197, 94, 0.3);">TIEMPO REAL</span>
                 </div>
                 <div class="custom-scroll" style="max-height: 400px; overflow-y: auto;">
@@ -545,7 +544,7 @@
             </div>
 
             {{-- WIDGET: TICKETS DE SOPORTE --}}
-            <div class="oled-card mb-3" style="border-color: rgba(239, 68, 68, 0.1);">
+            <div class="oled-card mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="widget-header"><i class="bi bi-headset me-1 text-danger"></i> TICKETS DE SOPORTE</span>
                     <a href="{{ route('owner.soporte.index') }}" class="widget-link">VER TODOS <i class="bi bi-arrow-right"></i></a>
@@ -620,9 +619,9 @@
 
             {{-- WIDGET: PANEL DE OPERACIONES --}}
             <div class="oled-card mb-3">
-                <span class="widget-header d-block mb-3"><i class="bi bi-grid-3x3-gap me-1"></i> PANEL DE CONTROL</span>
+                <span class="widget-header d-block mb-3" style="color:#fff;"><i class="bi bi-grid-3x3-gap me-1 text-white"></i> PANEL DE CONTROL</span>
 
-                <a href="{{ route('owner.crm.index') }}" class="cmd-btn" style="border-color: rgba(59, 130, 246, 0.2); background: rgba(59, 130, 246, 0.03);">
+                <a href="{{ route('owner.crm.index') }}" class="cmd-btn" style="border-color: rgba(59, 130, 246, 0.5); background: rgba(59, 130, 246, 0.03);">
                     <i class="bi bi-people-fill text-primary"></i>
                     <div><div class="cmd-label">CRM ESTRATÉGICO</div><div class="cmd-sub">Prospectos · Kanban · Leads</div></div>
                 </a>
@@ -657,7 +656,7 @@
             </div>
 
             {{-- WIDGET: AGENTE SOCIAL LIVE --}}
-            <div class="oled-card mb-3" style="border-color: rgba(34, 211, 238, 0.12);">
+            <div class="oled-card mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="widget-header"><span class="live-dot live-dot-cyan"></span> AGENTE SOCIAL</span>
                 </div>
@@ -675,7 +674,7 @@
             </div>
 
             {{-- WIDGET: MONITOR DE RECURSOS --}}
-            <div class="oled-card" style="border-color: rgba(234, 179, 8, 0.1);">
+            <div class="oled-card">
                 <span class="widget-header d-block mb-3"><i class="bi bi-cpu me-1"></i> INFRAESTRUCTURA</span>
 
                 {{-- Costo Proyectado --}}

@@ -101,7 +101,13 @@ class ClientController extends Controller
             'lat' => $request->lat ?? null,
             'lng' => $request->lng ?? null,
             'plus_code' => $request->plus_code ?? null,
-            'active' => 1
+            'active' => 1,
+            // Plan Med Plus (Afiliados)
+            'is_affiliate' => $request->has('is_affiliate'),
+            'affiliate_number' => $request->affiliate_number,
+            'affiliate_since' => $request->affiliate_since,
+            'affiliate_status' => $request->affiliate_status ?? 'active',
+            'monthly_fee' => $request->monthly_fee ?? 0,
         ]);
 
         \App\Models\ActivityLog::log("Creó el cliente: {$cliente->name}");
@@ -301,6 +307,12 @@ class ClientController extends Controller
             'credit_limit' => $request->credit_limit ?? 0,
             'discount_percentage' => $request->discount_percentage ?? 0,
             'active' => $request->active ?? 1,
+            // Plan Med Plus (Afiliados)
+            'is_affiliate' => $request->has('is_affiliate'),
+            'affiliate_number' => $request->affiliate_number,
+            'affiliate_since' => $request->affiliate_since,
+            'affiliate_status' => $request->affiliate_status,
+            'monthly_fee' => $request->monthly_fee ?? 0,
         ]);
 
         \App\Models\ActivityLog::log("Actualizó el cliente: {$cliente->name}");
