@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\BelongsToEmpresa;
 
 class AffiliateFee extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToEmpresa;
 
     protected $fillable = [
         'empresa_id',
@@ -21,17 +22,12 @@ class AffiliateFee extends Model
     ];
 
     protected $casts = [
-        'paid_at' => 'datetime',
         'due_date' => 'date',
+        'paid_at' => 'datetime',
     ];
 
-    public function affiliate()
+    public function client()
     {
-        return $this->belongsTo(Client::class, 'client_id');
-    }
-
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
+        return $this->belongsTo(Client::class);
     }
 }

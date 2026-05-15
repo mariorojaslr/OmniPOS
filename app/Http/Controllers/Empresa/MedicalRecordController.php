@@ -33,25 +33,26 @@ class MedicalRecordController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'specialty' => 'nullable|string',
-            'reason_for_visit' => 'nullable|string',
-            'diagnosis' => 'nullable|string',
-            'treatment' => 'nullable|string',
+            'client_id'        => 'required|exists:clients,id',
+            'specialty'       => 'nullable|string|max:255',
+            'reason_for_visit' => 'nullable|string|max:500',
+            'diagnosis'        => 'nullable|string',
+            'treatment'        => 'nullable|string',
+            'internal_notes'   => 'nullable|string',
         ]);
 
         MedicalRecord::create([
-            'empresa_id' => Auth::user()->empresa_id,
-            'client_id' => $request->client_id,
-            'user_id' => Auth::id(),
-            'specialty' => $request->specialty,
+            'client_id'        => $request->client_id,
+            'user_id'          => Auth::id(), // El médico que atiende
+            'specialty'       => $request->specialty,
             'reason_for_visit' => $request->reason_for_visit,
-            'diagnosis' => $request->diagnosis,
-            'treatment' => $request->treatment,
-            'internal_notes' => $request->internal_notes,
+            'diagnosis'        => $request->diagnosis,
+            'treatment'        => $request->treatment,
+            'internal_notes'   => $request->internal_notes,
         ]);
 
-        return redirect()->route('empresa.medical_records.index')->with('success', 'Historia clínica guardada correctamente.');
+        return redirect()->route('empresa.medical_records.index')
+            ->with('success', 'Historia clínica guardada correctamente.');
     }
 
     public function show(MedicalRecord $medical_record)

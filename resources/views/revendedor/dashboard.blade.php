@@ -87,19 +87,19 @@
         </div>
         <div class="col-md-3">
             <div class="kpi-card">
-                <div class="kpi-value text-info">{{ $activas }}</div>
-                <div class="kpi-label">Empresas Activas</div>
+                <div class="kpi-value text-info">{{ $nuevasEsteMes }}</div>
+                <div class="kpi-label">Altas este Mes</div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="kpi-card">
                 <div class="kpi-value text-success">${{ number_format($mrr, 0, ',', '.') }}</div>
-                <div class="kpi-label">Volumen Suscripciones</div>
+                <div class="kpi-label">MRR de Cartera</div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="kpi-card">
-                <div class="kpi-value text-warning">10%</div>
+                <div class="kpi-value text-warning">{{ $tasaComision }}%</div>
                 <div class="kpi-label">Tasa de Comisión</div>
             </div>
         </div>

@@ -183,7 +183,7 @@ body {
 
 /* CONTENT LAYOUT */
 #main-content {
-    padding-top: 70px !important;
+    padding-top: 85px !important;
     min-height: 100vh;
     position: relative;
     display: flex;

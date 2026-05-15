@@ -21,28 +21,38 @@ class DashboardController extends Controller
         $totalEmpresas = $empresas->count();
         $activas = $empresas->where('activo', true)->count();
         
+        // Nuevas empresas este mes
+        $nuevasEsteMes = Empresa::where('reseller_id', $user->id)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+
         // Cálculo de MRR (Suscripciones de sus clientes)
         $mrr = 0;
         foreach($empresas as $emp) {
             if($emp->activo) {
+                // Si tiene precio personalizado lo usamos, si no el del plan
                 $mrr += $emp->custom_price ?? ($emp->plan->price ?? 0);
             }
         }
 
-        // Supongamos una comisión del 10% para el revendedor
-        $comisionEstimada = $mrr * 0.10;
+        // Tasa de comisión dinámica (por ahora fija al 10%)
+        $tasaComision = 0.10;
+        $comisionEstimada = $mrr * $tasaComision;
 
         // Últimos pagos de sus clientes
         $ultimosPagos = SuscripcionPago::whereIn('empresa_id', $empresas->pluck('id'))
             ->with('empresa')
             ->orderByDesc('created_at')
-            ->limit(5)
+            ->limit(8)
             ->get();
 
         return view('revendedor.dashboard', [
             'totalEmpresas' => $totalEmpresas,
             'activas' => $activas,
+            'nuevasEsteMes' => $nuevasEsteMes,
             'mrr' => $mrr,
+            'tasaComision' => $tasaComision * 100,
             'comisionEstimada' => $comisionEstimada,
             'empresas' => $empresas,
             'ultimosPagos' => $ultimosPagos,
