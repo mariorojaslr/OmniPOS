@@ -207,9 +207,12 @@
                         if (is_string($specData)) {
                             $specData = json_decode($specData, true) ?? [];
                         }
-                        $vitals = $specData['vitals'] ?? [];
-                        $meds = $specData['medications'] ?? [];
-                        $labs = $specData['labs'] ?? [];
+                        if (!is_array($specData)) {
+                            $specData = [];
+                        }
+                        $vitals = (isset($specData['vitals']) && is_array($specData['vitals'])) ? $specData['vitals'] : [];
+                        $meds = (isset($specData['medications']) && is_array($specData['medications'])) ? $specData['medications'] : [];
+                        $labs = (isset($specData['labs']) && is_array($specData['labs'])) ? $specData['labs'] : [];
                     @endphp
                     <div class="accordion-item medical-record-card" data-specialty="{{ strtolower(trim($rec->specialty ?? 'General')) }}">
                         <h2 class="accordion-header">
@@ -448,7 +451,10 @@
                     if (is_string($specData)) {
                         $specData = json_decode($specData, true) ?? [];
                     }
-                    $meds = $specData['medications'] ?? [];
+                    if (!is_array($specData)) {
+                        $specData = [];
+                    }
+                    $meds = (isset($specData['medications']) && is_array($specData['medications'])) ? $specData['medications'] : [];
                     foreach($meds as $m) {
                         $medName = trim(strtolower($m['name']));
                         if (!isset($allMedications[$medName])) {
@@ -735,7 +741,10 @@
             if (is_string($specData)) {
                 $specData = json_decode($specData, true) ?? [];
             }
-            $vitals = $specData['vitals'] ?? [];
+            if (!is_array($specData)) {
+                $specData = [];
+            }
+            $vitals = (isset($specData['vitals']) && is_array($specData['vitals'])) ? $specData['vitals'] : [];
         @endphp
         
         @if(!empty($vitals['sys']) || !empty($vitals['dia']) || !empty($vitals['glucose']) || !empty($vitals['weight']))

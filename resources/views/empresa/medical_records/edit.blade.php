@@ -63,10 +63,13 @@
     if (is_string($specData)) {
         $specData = json_decode($specData, true) ?? [];
     }
-    $vitals = $specData['vitals'] ?? [];
-    $meds = $specData['medications'] ?? [];
-    $labs = $specData['labs'] ?? [];
-    $dynamicFields = $specData['dynamic_fields'] ?? [];
+    if (!is_array($specData)) {
+        $specData = [];
+    }
+    $vitals = (isset($specData['vitals']) && is_array($specData['vitals'])) ? $specData['vitals'] : [];
+    $meds = (isset($specData['medications']) && is_array($specData['medications'])) ? $specData['medications'] : [];
+    $labs = (isset($specData['labs']) && is_array($specData['labs'])) ? $specData['labs'] : [];
+    $dynamicFields = (isset($specData['dynamic_fields']) && is_array($specData['dynamic_fields'])) ? $specData['dynamic_fields'] : [];
     $config = auth()->user()->empresa->config;
 @endphp
 
