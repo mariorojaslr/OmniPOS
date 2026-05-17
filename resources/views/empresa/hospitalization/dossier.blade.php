@@ -13,10 +13,10 @@
                     </div>
                     <div>
                         <span class="badge bg-danger mb-2 px-2 py-1 text-uppercase small" style="font-size: 0.65rem; letter-spacing: 1px;">Internación Activa</span>
-                        <h4 class="fw-bold mb-1 text-white">{{ $hospitalization->patient->nombre }}</h4>
+                        <h4 class="fw-bold mb-1 text-white">{{ $hospitalization->patient?->nombre ?? 'Paciente Desconocido' }}</h4>
                         <div class="small text-muted text-light opacity-75">
-                            <i class="bi bi-card-text me-1"></i> Documento: <strong>{{ $hospitalization->patient->cuit_cuil ?? 'No Registrado' }}</strong> | 
-                            <i class="bi bi-telephone me-1 ms-2"></i> Tel: <strong>{{ $hospitalization->patient->telefono ?? 'Sin Teléfono' }}</strong>
+                            <i class="bi bi-card-text me-1"></i> Documento: <strong>{{ $hospitalization->patient?->cuit_cuil ?? 'No Registrado' }}</strong> | 
+                            <i class="bi bi-telephone me-1 ms-2"></i> Tel: <strong>{{ $hospitalization->patient?->telefono ?? 'Sin Teléfono' }}</strong>
                         </div>
                     </div>
                 </div>
@@ -25,18 +25,19 @@
                 <div class="d-flex gap-4 align-items-center text-center text-md-start flex-wrap">
                     <div class="p-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-3">
                         <span class="small text-muted d-block uppercase text-xs" style="font-size: 0.7rem;">HABITACIÓN</span>
-                        <strong class="text-white fs-6"><i class="bi bi-door-open-fill me-1 text-primary"></i> {{ $hospitalization->currentBedAssignment->bed->room->nombre ?? 'N/A' }}</strong>
+                        <strong class="text-white fs-6"><i class="bi bi-door-open-fill me-1 text-primary"></i> {{ $hospitalization->currentBedAssignment?->bed?->room?->nombre ?? 'N/A' }}</strong>
                     </div>
                     <div class="p-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-3">
                         <span class="small text-muted d-block uppercase text-xs" style="font-size: 0.7rem;">CAMA CLINICA</span>
-                        <strong class="text-white fs-6"><i class="bi bi-hospital me-1 text-success"></i> {{ $hospitalization->currentBedAssignment->bed->nombre ?? 'N/A' }}</strong>
+                        <strong class="text-white fs-6"><i class="bi bi-hospital me-1 text-success"></i> {{ $hospitalization->currentBedAssignment?->bed?->nombre ?? 'N/A' }}</strong>
                     </div>
                     <div class="p-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-3">
                         <span class="small text-muted d-block uppercase text-xs" style="font-size: 0.7rem;">DÍAS HOSPITALIZADO</span>
                         <strong class="text-white fs-6">
                             <i class="bi bi-hourglass-split me-1 text-warning"></i>
                             @php
-                                $dias = max(1, $hospitalization->fecha_ingreso->diffInDays(now()));
+                                $fechaIngreso = \Carbon\Carbon::parse($hospitalization->fecha_ingreso);
+                                $dias = max(1, $fechaIngreso->diffInDays(now()));
                                 echo $dias . ($dias === 1 ? ' día' : ' días');
                             @endphp
                         </strong>

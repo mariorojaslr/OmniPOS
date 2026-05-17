@@ -70,15 +70,15 @@
                             @foreach($hospitalizations as $h)
                                 <tr>
                                     <td class="px-4 py-3">
-                                        <div class="fw-bold text-dark">{{ $h->patient->nombre }}</div>
-                                        <small class="text-muted">Doc: {{ $h->patient->cuit_cuil ?? 'Sin Documento' }}</small>
+                                        <div class="fw-bold text-dark">{{ $h->patient?->nombre ?? 'Paciente Desconocido' }}</div>
+                                        <small class="text-muted">Doc: {{ $h->patient?->cuit_cuil ?? 'Sin Documento' }}</small>
                                     </td>
                                     <td class="py-3">
                                         @if($h->estado === 'activo' && $h->currentBedAssignment)
                                             <span class="text-dark fw-bold">
                                                 <i class="bi bi-door-open text-primary me-1"></i>
-                                                {{ $h->currentBedAssignment->bed->room->nombre ?? 'N/A' }} 
-                                                ({{ $h->currentBedAssignment->bed->nombre ?? 'N/A' }})
+                                                {{ $h->currentBedAssignment?->bed?->room?->nombre ?? 'N/A' }} 
+                                                ({{ $h->currentBedAssignment?->bed?->nombre ?? 'N/A' }})
                                             </span>
                                         @else
                                             <span class="text-muted italic small">Cama Liberada (Alta)</span>
