@@ -168,10 +168,173 @@ class SaaSClinicaDemoSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // 8. Historias Clínicas (HCE) con Campos Dinámicos JSON (Med Plus & Demo tags)
+        // 8. Historias Clínicas (HCE) con Evolución de Múltiples Visitas (5 Visitas para Carlos Mendoza)
         DB::table('medical_records')->where('empresa_id', $empresaDemo->id)->delete();
 
-        // Registro 1: Odontología con Tags Dinámicos
+        // VISITA 1 de Carlos Mendoza (15 de Enero 2026) - Dra. Sofía Martínez (Repetición 1/3)
+        $hce1 = MedicalRecord::create([
+            'empresa_id' => $empresaDemo->id,
+            'client_id' => $pacienteCarlosId,
+            'user_id' => $doctorUser->id,
+            'specialty' => 'Cardiología',
+            'reason_for_visit' => 'Check-up inicial por hipertensión reactiva leve y mareos esporádicos.',
+            'diagnosis' => "Presión arterial levemente elevada en tomas sucesivas. Ritmo cardíaco regular, sin soplos ni soplos carotídeos.",
+            'treatment' => "Se indica inicio de dieta hiposódica estricta, evitar estimulantes (café, de forma regular).\nMonitoreo diario de presión en casa.",
+            'internal_notes' => 'Paciente algo receptivo pero preocupado por antecedentes familiares. Se explica la importancia de la prevención.',
+            'specialized_data' => [
+                'vitals' => [
+                    'sys' => '142', 'dia' => '91', 'glucose' => '105', 'heart' => '80', 'weight' => '85'
+                ],
+                'medications' => [],
+                'labs' => [],
+                'dynamic_fields' => [
+                    'Presión Promedio' => '140/90 mmHg',
+                    'Factores de Riesgo' => 'Sedentarismo y estrés laboral',
+                    'Electrocardiograma' => 'Ritmo sinusal regular a 80 lpm'
+                ]
+            ]
+        ]);
+        $hce1->timestamps = false;
+        $hce1->created_at = '2026-01-15 10:00:00';
+        $hce1->updated_at = '2026-01-15 10:00:00';
+        $hce1->save();
+
+        // VISITA 2 de Carlos Mendoza (12 de Febrero 2026) - Dr. Leandro Gómez (Diferente Profesional)
+        $hce2 = MedicalRecord::create([
+            'empresa_id' => $empresaDemo->id,
+            'client_id' => $pacienteCarlosId,
+            'user_id' => $adminUser->id,
+            'specialty' => 'Medicina General',
+            'reason_for_visit' => 'Consulta por cuadro respiratorio agudo de 4 días de evolución con congestión y febrícula.',
+            'diagnosis' => "Rinofaringitis aguda bronquial leve. Faringe congestiva con mucosidad posterior, pulmones limpios sin ruidos agregados.",
+            'treatment' => "Reposo clínico por 48 horas, paracetamol 500mg vía oral cada 8 horas en caso de fiebre.\nNebulizaciones con solución fisiológica.",
+            'internal_notes' => 'Cuadro estacional típico. Se sugiere control si persiste fiebre más de 72 horas.',
+            'specialized_data' => [
+                'vitals' => [
+                    'sys' => '125', 'dia' => '78', 'glucose' => '', 'heart' => '78', 'weight' => '84'
+                ],
+                'medications' => [
+                    [
+                        'name' => 'Paracetamol 500mg',
+                        'dose' => '1 comprimido',
+                        'frequency' => 'cada 8 horas si hay fiebre/dolor',
+                        'route' => 'Oral'
+                    ]
+                ],
+                'labs' => [],
+                'dynamic_fields' => [
+                    'Temperatura' => '38.2 °C',
+                    'Saturación O2' => '97%',
+                    'Días de Reposo' => '2 días'
+                ]
+            ]
+        ]);
+        $hce2->timestamps = false;
+        $hce2->created_at = '2026-02-12 11:30:00';
+        $hce2->updated_at = '2026-02-12 11:30:00';
+        $hce2->save();
+
+        // VISITA 3 de Carlos Mendoza (15 de Marzo 2026) - Dra. Sofía Martínez (Repetición 2/3)
+        $hce3 = MedicalRecord::create([
+            'empresa_id' => $empresaDemo->id,
+            'client_id' => $pacienteCarlosId,
+            'user_id' => $doctorUser->id,
+            'specialty' => 'Cardiología',
+            'reason_for_visit' => 'Control mensual de presión arterial y revisión de bitácora hogareña.',
+            'diagnosis' => "Hipertensión arterial estadio 1. Presenta mejoría con la dieta pero registra picos matutinos de hasta 145/95.",
+            'treatment' => "Se decide iniciar tratamiento farmacológico con dosis bajas de Atenolol.\nContinuar con dieta baja en sodio y caminatas.",
+            'internal_notes' => 'El paciente ha bajado 1 kg de peso. Muy buena adherencia a los cambios dietarios.',
+            'specialized_data' => [
+                'vitals' => [
+                    'sys' => '138', 'dia' => '88', 'glucose' => '98', 'heart' => '74', 'weight' => '84'
+                ],
+                'medications' => [
+                    [
+                        'name' => 'Atenolol 25mg',
+                        'dose' => '1 comprimido',
+                        'frequency' => 'cada 24 horas (mañana)',
+                        'route' => 'Oral'
+                    ]
+                ],
+                'labs' => [],
+                'dynamic_fields' => [
+                    'Riesgo Cardiovascular' => 'Bajo-Moderado',
+                    'Presión en Consultorio' => '138/88 mmHg',
+                    'Próximo Control' => 'En 30 días para evaluar respuesta'
+                ]
+            ]
+        ]);
+        $hce3->timestamps = false;
+        $hce3->created_at = '2026-03-15 09:15:00';
+        $hce3->updated_at = '2026-03-15 09:15:00';
+        $hce3->save();
+
+        // VISITA 4 de Carlos Mendoza (22 de Abril 2026) - Dr. Leandro Gómez (Diferente Profesional)
+        $hce4 = MedicalRecord::create([
+            'empresa_id' => $empresaDemo->id,
+            'client_id' => $pacienteCarlosId,
+            'user_id' => $adminUser->id,
+            'specialty' => 'Medicina General',
+            'reason_for_visit' => 'Chequeo metabólico anual y análisis de sangre completo rutinario.',
+            'diagnosis' => "Perfil hepático y renal normales. Se detecta hipercolesterolemia leve con elevación de LDL y triglicéridos.",
+            'treatment' => "Plan nutricional específico para dislipidemia. Incorporar omega-3 naturales y aumentar actividad aeróbica.\nControl de laboratorio en 90 días.",
+            'internal_notes' => 'Se explican pautas de alimentación saludable. Paciente motivado.',
+            'specialized_data' => [
+                'vitals' => [
+                    'sys' => '128', 'dia' => '80', 'glucose' => '92', 'heart' => '68', 'weight' => '83'
+                ],
+                'medications' => [],
+                'labs' => [
+                    'hemo' => '15.2', 'red' => '5.1', 'white' => '6800', 'chol' => '245'
+                ],
+                'dynamic_fields' => [
+                    'Colesterol LDL' => '160 mg/dL',
+                    'Triglicéridos' => '180 mg/dL',
+                    'Plan Nutricional' => 'Entregado e impreso'
+                ]
+            ]
+        ]);
+        $hce4->timestamps = false;
+        $hce4->created_at = '2026-04-22 08:30:00';
+        $hce4->updated_at = '2026-04-22 08:30:00';
+        $hce4->save();
+
+        // VISITA 5 de Carlos Mendoza (15 de Mayo 2026) - Dra. Sofía Martínez (Repetición 3/3 - ¡Se repite el profesional!)
+        $hce5 = MedicalRecord::create([
+            'empresa_id' => $empresaDemo->id,
+            'client_id' => $pacienteCarlosId,
+            'user_id' => $doctorUser->id,
+            'specialty' => 'Cardiología',
+            'reason_for_visit' => 'Control trimestral de hipertensión y tolerancia al Atenolol.',
+            'diagnosis' => "Excelente evolución clínica. Presión arterial controlada en rangos óptimos. Ausencia de mareos y buena tolerancia física.",
+            'treatment' => "Mantener Atenolol 25mg diario por la mañana.\nAutorizado para realizar actividad física moderada. Control en 6 meses.",
+            'internal_notes' => 'El paciente manifiesta sentirse mucho más enérgico. Peso estabilizado en 82.5 kg.',
+            'specialized_data' => [
+                'vitals' => [
+                    'sys' => '120', 'dia' => '78', 'glucose' => '90', 'heart' => '65', 'weight' => '82'
+                ],
+                'medications' => [
+                    [
+                        'name' => 'Atenolol 25mg',
+                        'dose' => '1 comprimido',
+                        'frequency' => 'cada 24 horas (mañana)',
+                        'route' => 'Oral'
+                    ]
+                ],
+                'labs' => [],
+                'dynamic_fields' => [
+                    'FC Promedio' => '65 lpm',
+                    'Adherencia al fármaco' => '100% óptima',
+                    'Apto Físico Caminatas' => 'Otorgado'
+                ]
+            ]
+        ]);
+        $hce5->timestamps = false;
+        $hce5->created_at = '2026-05-15 10:00:00';
+        $hce5->updated_at = '2026-05-15 10:00:00';
+        $hce5->save();
+
+        // Registro 6: Odontopediatría de Ámbar Gómez (Infante) - Dr. Leandro Gómez
         MedicalRecord::create([
             'empresa_id' => $empresaDemo->id,
             'client_id' => $pacienteAmbarId,
@@ -183,8 +346,7 @@ class SaaSClinicaDemoSeeder extends Seeder
             'internal_notes' => 'El paciente se muestra ansioso. Se sugiere técnica de manejo conductual para niños en próxima consulta.',
             'specialized_data' => [
                 'vitals' => [
-                    'sys' => '', 'dia' => '', 'glucose' => '', 'heart' => '',
-                    'weight' => '24'
+                    'sys' => '', 'dia' => '', 'glucose' => '', 'heart' => '', 'weight' => '24'
                 ],
                 'medications' => [
                     [
@@ -194,65 +356,16 @@ class SaaSClinicaDemoSeeder extends Seeder
                         'route' => 'Oral'
                     ]
                 ],
-                'labs' => [
-                    'hemo' => '', 'red' => '', 'white' => '', 'chol' => ''
-                ],
+                'labs' => [],
                 'dynamic_fields' => [
                     'Pieza Dental' => '74 (Segundo Molar Inferior Izq)',
                     'Urgencia' => 'Moderada',
-                    'Tipo de Caries' => 'Dentina superficial activa',
-                    'Higiene Bucal' => 'Buena (se refuerza técnica de cepillado)'
+                    'Tipo de Caries' => 'Dentina superficial activa'
                 ]
             ]
         ]);
 
-        // Registro 2: Cardiología con Votación Completa
-        MedicalRecord::create([
-            'empresa_id' => $empresaDemo->id,
-            'client_id' => $pacienteCarlosId,
-            'user_id' => $doctorUser->id,
-            'specialty' => 'Cardiología',
-            'reason_for_visit' => 'Control de rutina post-arritmia y fatiga crónica.',
-            'diagnosis' => "Ritmo sinusal regular. No se auscultan soplos. Eje eléctrico normal.\nLeve extrasistolia ventricular esporádica sin repercusión hemodinámica.",
-            'treatment' => "Continuar con Atenolol diario.\nReducir ingesta de sodio. Ejercicios aeróbicos livianos 3 veces por semana.",
-            'internal_notes' => 'Paciente colaborador. Trae bitácora de presión arterial en rango normal.',
-            'specialized_data' => [
-                'vitals' => [
-                    'sys' => '130',
-                    'dia' => '82',
-                    'glucose' => '98',
-                    'heart' => '72',
-                    'weight' => '84'
-                ],
-                'medications' => [
-                    [
-                        'name' => 'Atenolol 50mg',
-                        'dose' => '1 comprimido',
-                        'frequency' => 'cada 24 horas (mañana)',
-                        'route' => 'Oral'
-                    ],
-                    [
-                        'name' => 'Aspirina Prevent 100mg',
-                        'dose' => '1 comprimido',
-                        'frequency' => 'cada 24 horas (almuerzo)',
-                        'route' => 'Oral'
-                    ]
-                ],
-                'labs' => [
-                    'hemo' => '15.2',
-                    'red' => '5.1',
-                    'white' => '6800',
-                    'chol' => '210'
-                ],
-                'dynamic_fields' => [
-                    'Riesgo Cardiovascular' => 'Moderado-Alto',
-                    'Electrocardiograma' => 'Ritmo sinusal, FC 72 lpm, sin signos de isquemia aguda',
-                    'Próxima Visita' => 'En 6 meses con nuevo laboratorio'
-                ]
-            ]
-        ]);
-
-        // Registro 3: Kinesiología
+        // Registro 7: Kinesiología de Sofía Rodríguez - Dr. Leandro Gómez
         MedicalRecord::create([
             'empresa_id' => $empresaDemo->id,
             'client_id' => $pacienteSofiaId,
@@ -264,13 +377,10 @@ class SaaSClinicaDemoSeeder extends Seeder
             'internal_notes' => 'Evolución favorable. Segunda sesión de diez indicadas.',
             'specialized_data' => [
                 'vitals' => [
-                    'sys' => '', 'dia' => '', 'glucose' => '', 'heart' => '',
-                    'weight' => '62'
+                    'sys' => '', 'dia' => '', 'glucose' => '', 'heart' => '', 'weight' => '62'
                 ],
                 'medications' => [],
-                'labs' => [
-                    'hemo' => '', 'red' => '', 'white' => '', 'chol' => ''
-                ],
+                'labs' => [],
                 'dynamic_fields' => [
                     'Articulación' => 'Tobillo Derecho',
                     'Sesión Nro' => '2 de 10',
