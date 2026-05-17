@@ -78,6 +78,11 @@ class MedicalRecordController extends Controller
             }
         }
 
+        if ($request->has('redirect_to_history')) {
+            return redirect()->route('empresa.medical_records.patient_history', $request->client_id)
+                ->with('success', 'Estudio o archivo adjunto subido correctamente.');
+        }
+
         return redirect()->route('empresa.medical_records.index')
             ->with('success', 'Historia clínica y archivos adjuntos guardados correctamente.');
     }
@@ -90,6 +95,67 @@ class MedicalRecordController extends Controller
         }
 
         return view('empresa.medical_records.show', compact('medical_record'));
+    }
+
+    public function edit(MedicalRecord $medical_record)
+    {
+        if ($medical_record->empresa_id !== Auth::user()->empresa_id) {
+            abort(403, 'Acción no autorizada.');
+        }
+
+        $empresaId = Auth::user()->empresa_id;
+        $patients = Client::where('empresa_id', $empresaId)->get();
+        $selectedPatientId = $medical_record->client_id;
+
+        return view('empresa.medical_records.edit', compact('medical_record', 'patients', 'selectedPatientId'));
+    }
+
+    public function update(Request $request, MedicalRecord $medical_record)
+    {
+        if ($medical_record->empresa_id !== Auth::user()->empresa_id) {
+            abort(403, 'Acción no autorizada.');
+        }
+
+        $request->validate([
+            'client_id'        => 'required|exists:clients,id',
+            'specialty'       => 'nullable|string|max:255',
+            'reason_for_visit' => 'nullable|string|max:500',
+            'diagnosis'        => 'nullable|string',
+            'treatment'        => 'nullable|string',
+            'internal_notes'   => 'nullable|string',
+        ]);
+
+        $medical_record->update([
+            'client_id'        => $request->client_id,
+            'specialty'       => $request->specialty,
+            'reason_for_visit' => $request->reason_for_visit,
+            'diagnosis'        => $request->diagnosis,
+            'treatment'        => $request->treatment,
+            'internal_notes'   => $request->internal_notes,
+            'specialized_data' => $request->has('specialized_data') ? json_decode($request->specialized_data, true) : null,
+        ]);
+
+        // Procesar Adjuntos Nuevos -> Bunny.net
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('medical_records/' . $medical_record->id, 'bunny_storage');
+                \App\Models\MedicalRecordAttachment::create([
+                    'medical_record_id' => $medical_record->id,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'file_type' => $file->getClientOriginalExtension(),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
+        }
+
+        if ($request->has('redirect_to_history')) {
+            return redirect()->route('empresa.medical_records.patient_history', $request->client_id)
+                ->with('success', 'Evolución y estudios actualizados correctamente.');
+        }
+
+        return redirect()->route('empresa.medical_records.index')
+            ->with('success', 'Evolución médica actualizada correctamente.');
     }
 
     public function patientHistory(Client $client)

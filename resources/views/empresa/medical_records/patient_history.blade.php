@@ -228,9 +228,14 @@
                         <div id="collapse{{ $rec->id }}" class="accordion-collapse collapse {{ $index == 0 ? 'show' : '' }}" data-bs-parent="#accordionHistory">
                             <div class="accordion-body p-4 bg-white">
                                 <!-- Diagnóstico Principal -->
-                                <div class="mb-4">
-                                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-file-text-fill text-muted me-2"></i>Diagnóstico y Evolución</h6>
-                                    <p class="text-secondary mb-0" style="white-space: pre-wrap; font-size: 0.95rem;">{{ $rec->diagnosis ?? 'Sin diagnóstico registrado.' }}</p>
+                                <div class="mb-4 d-flex justify-content-between align-items-start gap-3">
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-file-text-fill text-muted me-2"></i>Diagnóstico y Evolución</h6>
+                                        <p class="text-secondary mb-0" style="white-space: pre-wrap; font-size: 0.95rem;">{{ $rec->diagnosis ?? 'Sin diagnóstico registrado.' }}</p>
+                                    </div>
+                                    <a href="{{ route('empresa.medical_records.edit', $rec->id) }}" class="btn btn-xs btn-outline-primary fw-bold rounded-pill px-3 py-2 text-uppercase shadow-sm border-2 border-opacity-25 flex-shrink-0" style="font-size: 0.7rem; border-color: rgba(13, 110, 253, 0.25);">
+                                        <i class="bi bi-pencil-square me-1"></i> Editar / Cargar Estudios
+                                    </a>
                                 </div>
 
                                 <!-- Tratamiento -->
@@ -308,6 +313,23 @@
                                     </div>
                                     @endif
                                 </div>
+
+                                <!-- Campos Dinámicos / Etiquetas de Especialidad -->
+                                @php
+                                    $dynamicFields = $specData['dynamic_fields'] ?? [];
+                                @endphp
+                                @if(!empty($dynamicFields))
+                                <div class="p-3 bg-light rounded-4 border mb-4">
+                                    <h6 class="fw-bold text-dark mb-2" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-primario, #0d6efd) !important;"><i class="bi bi-tags-fill me-2"></i>Campos Personalizados / Tags HCE</h6>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach($dynamicFields as $key => $val)
+                                            <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-sm small" style="font-size: 0.8rem;">
+                                                <strong class="text-primary">{{ $key }}:</strong> {{ $val }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
 
                                 <!-- Laboratorios e Informes Clínicos -->
                                 @if(!empty($labs['hemo']) || !empty($labs['red']) || !empty($labs['white']) || !empty($labs['chol']))
@@ -490,9 +512,14 @@
                     <h5 class="fw-bold text-dark mb-0">
                         <i class="bi bi-file-earmark-medical text-primary me-2"></i>Estudios y Reportes
                     </h5>
-                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 px-2 py-1 rounded-pill small fw-bold">
-                        {{ count($allAttachments) }} {{ count($allAttachments) == 1 ? 'archivo' : 'archivos' }}
-                    </span>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-xs btn-primary fw-bold px-2 py-1 rounded-3" data-bs-toggle="modal" data-bs-target="#uploadStudyModal" style="font-size: 0.75rem;">
+                            <i class="bi bi-cloud-arrow-up-fill me-1"></i> Subir
+                        </button>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 px-2 py-1 rounded-pill small fw-bold">
+                            {{ count($allAttachments) }}
+                        </span>
+                    </div>
                 </div>
                 <p class="small text-muted mb-3">Consolidado de radiografías, resonancias, análisis de laboratorio y reportes clínicos adjuntos.</p>
 
@@ -520,7 +547,10 @@
                 @else
                     <div class="text-center py-4 bg-light rounded-4 border">
                         <i class="bi bi-folder-symlink fs-2 text-muted opacity-25 d-block mb-2"></i>
-                        <span class="text-muted small fw-semibold">Sin estudios o archivos cargados</span>
+                        <span class="text-muted small fw-semibold d-block mb-3">Sin estudios o archivos cargados</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#uploadStudyModal">
+                            <i class="bi bi-cloud-arrow-up-fill me-1"></i> Subir Primer Estudio
+                        </button>
                     </div>
                 @endif
             </div>
@@ -565,6 +595,54 @@
                     </button>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Carga Rápida de Estudios -->
+<div class="modal fade" id="uploadStudyModal" tabindex="-1" aria-labelledby="uploadStudyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-primary text-white border-0 py-3" style="border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                <h5 class="modal-title fw-bold" id="uploadStudyModalLabel">
+                    <i class="bi bi-cloud-arrow-up-fill me-2"></i>Subir Estudio o Reporte Clínico
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('empresa.medical_records.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="client_id" value="{{ $client->id }}">
+                <input type="hidden" name="redirect_to_history" value="1">
+                <input type="hidden" name="specialty" value="Estudio / Reporte">
+                <input type="hidden" name="reason_for_visit" value="Carga de Archivo Adjunto">
+
+                <div class="modal-body p-4">
+                    <div class="mb-4 text-center">
+                        <div class="p-3 bg-light rounded-4 border d-inline-block mb-3">
+                            <i class="bi bi-file-earmark-medical fs-1 text-primary"></i>
+                        </div>
+                        <p class="small text-muted mb-0">Seleccione los archivos (radiografías, análisis de sangre, informes en PDF) para subirlos directamente a la ficha del paciente.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem;"><i class="bi bi-paperclip me-1 text-primary"></i> Seleccionar Archivos</label>
+                        <input type="file" name="attachments[]" class="form-control form-control-premium" multiple required>
+                        <div class="form-text x-small text-muted mt-1">Soporta múltiples archivos como PDFs, imágenes (JPG, PNG). Se guardarán en Bunny.net.</div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem;"><i class="bi bi-chat-left-text me-1 text-primary"></i> Descripción / Comentario</label>
+                        <textarea name="diagnosis" class="form-control form-control-premium" rows="3" placeholder="Ej: Radiografía de tórax de control. Sin hallazgos patológicos relevantes..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 p-3 bg-light" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold border" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="bi bi-upload me-2"></i>Comenzar Carga
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

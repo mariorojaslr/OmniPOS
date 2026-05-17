@@ -218,6 +218,84 @@
     function showTurnoDetails(event) {
         const props = event.extendedProps;
         
+        let clinicalDashboardHtml = '';
+        if (props.has_medical_history && props.clinical_json) {
+            try {
+                const clinicalData = JSON.parse(props.clinical_json);
+                const vitals = clinicalData.vitals || {};
+                const meds = clinicalData.medications || [];
+                const labs = clinicalData.labs || {};
+                const dynamicFields = clinicalData.dynamic_fields || {};
+
+                let vitalsHtml = '';
+                if (vitals.sys || vitals.dia || vitals.heart || vitals.glucose || vitals.weight) {
+                    vitalsHtml = `
+                        <div class="mb-3">
+                            <label class="x-small fw-bold text-muted d-block mb-1"><i class="bi bi-heart-pulse-fill text-danger me-1"></i> Signos Vitales</label>
+                            <div class="d-flex flex-wrap gap-1">
+                                ${vitals.sys ? `<span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.7rem;">PA: <strong>${vitals.sys}/${vitals.dia || ''} mmHg</strong></span>` : ''}
+                                ${vitals.glucose ? `<span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.7rem;">Glucemia: <strong>${vitals.glucose} mg/dL</strong></span>` : ''}
+                                ${vitals.heart ? `<span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.7rem;">FC: <strong>${vitals.heart} lpm</strong></span>` : ''}
+                                ${vitals.weight ? `<span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.7rem;">Peso: <strong>${vitals.weight} kg</strong></span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let medsHtml = '';
+                if (meds.length > 0) {
+                    const pills = meds.map(m => `<span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.7rem;"><i class="bi bi-capsule text-primary me-1"></i><strong>${m.name}</strong> (${m.dose || ''} ${m.frequency || ''})</span>`).join(' ');
+                    medsHtml = `
+                        <div class="mb-3">
+                            <label class="x-small fw-bold text-muted d-block mb-1"><i class="bi bi-capsule-solid text-primary me-1"></i> Receta / Medicamentos</label>
+                            <div class="d-flex flex-wrap gap-1">${pills}</div>
+                        </div>
+                    `;
+                }
+
+                let dynamicFieldsHtml = '';
+                const dfKeys = Object.keys(dynamicFields);
+                if (dfKeys.length > 0) {
+                    const pills = dfKeys.map(k => `<span class="badge bg-white text-dark border px-2 py-1 rounded-pill" style="font-size:0.7rem;"><strong class="text-primary">${k}:</strong> ${dynamicFields[k]}</span>`).join(' ');
+                    dynamicFieldsHtml = `
+                        <div class="mb-3">
+                            <label class="x-small fw-bold text-muted d-block mb-1"><i class="bi bi-tags-fill text-primary me-1"></i> Campos Personalizados HCE</label>
+                            <div class="d-flex flex-wrap gap-1">${pills}</div>
+                        </div>
+                    `;
+                }
+
+                let labsHtml = '';
+                if (labs.hemo || labs.red || labs.white || labs.chol) {
+                    labsHtml = `
+                        <div class="mb-3">
+                            <label class="x-small fw-bold text-muted d-block mb-1"><i class="bi bi-clipboard2-pulse-fill text-info me-1"></i> Laboratorio</label>
+                            <div class="d-flex flex-wrap gap-1">
+                                ${labs.hemo ? `<span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.7rem;">Hb: <strong>${labs.hemo} g/dL</strong></span>` : ''}
+                                ${labs.red ? `<span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.7rem;">Glób. Rojos: <strong>${labs.red} M/uL</strong></span>` : ''}
+                                ${labs.white ? `<span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.7rem;">Glób. Blancos: <strong>${labs.white} /uL</strong></span>` : ''}
+                                ${labs.chol ? `<span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.7rem;">Colesterol: <strong>${labs.chol} mg/dL</strong></span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (vitalsHtml || medsHtml || dynamicFieldsHtml || labsHtml) {
+                    clinicalDashboardHtml = `
+                        <div class="col-12 mt-3 pt-3 border-top" style="background: rgba(13, 110, 253, 0.01); border-radius: 12px;">
+                            <h6 class="fw-bold text-dark mb-3" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-primario, #0d6efd) !important;"><i class="bi bi-journal-check me-2"></i>Últimos Datos HCE Consolidados</h6>
+                            ${vitalsHtml}
+                            ${medsHtml}
+                            ${dynamicFieldsHtml}
+                            ${labsHtml}
+                        </div>
+                    `;
+                }
+            } catch(e) {
+                console.error("Error al parsear clinical_json", e);
+            }
+        }
+
         const hceButtonHtml = props.client_id ? `
             <div class="col-12 mt-2">
                 <a href="/empresa/pacientes/${props.client_id}/historia" class="btn btn-outline-primary w-100 fw-bold rounded-pill">
@@ -229,10 +307,10 @@
         const jsonHtml = (props.has_medical_history && props.clinical_json) ? `
             <div class="col-12 mt-3 pt-3 border-top">
                 <label class="x-small fw-bold text-muted d-block mb-2">
-                    <i class="bi bi-braces text-primary me-1"></i> Último Registro Clínico JSON
+                    <i class="bi bi-braces text-primary me-1"></i> Último Registro Clínico JSON Técnico
                 </label>
                 <button class="btn btn-xs btn-outline-secondary w-100 border-dashed rounded-3 py-1 font-monospace text-start" type="button" data-bs-toggle="collapse" data-bs-target="#jsonTurnoCollapse" style="font-size: 0.7rem;">
-                    <i class="bi bi-eye me-1"></i> Expandir Data Especializada (JSON)
+                    <i class="bi bi-eye me-1"></i> Ver JSON Técnico (Opcional)
                 </button>
                 <div class="collapse mt-2" id="jsonTurnoCollapse">
                     <div class="card card-body bg-dark text-success p-3 border-0 rounded-3 position-relative shadow-inner" style="background-color: #090d16 !important;">
@@ -261,6 +339,7 @@
                 <div class="col-12"><label class="x-small fw-bold text-muted d-block">Notas</label><p class="small mb-0">${props.notas || 'Sin observaciones'}</p></div>
                 
                 ${hceButtonHtml}
+                ${clinicalDashboardHtml}
                 ${jsonHtml}
 
                 <div class="col-12 mt-4 pt-3 border-top">
