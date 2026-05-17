@@ -278,6 +278,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         // HISTORIA CLÍNICA (HCE)
         Route::resource('medical_records', App\Http\Controllers\Empresa\MedicalRecordController::class);
         Route::get('clients/{client}/medical-history', [App\Http\Controllers\Empresa\MedicalRecordController::class, 'patientHistory'])->name('medical_records.patient_history');
+        Route::post('medical_records/{medical_record}/attach', [App\Http\Controllers\Empresa\MedicalRecordController::class, 'attachFile'])->name('medical_records.attach');
 
         Route::get('/soporte', function() { 
             return "Módulo de Soporte Técnico y Tickets en desarrollo."; 
@@ -654,6 +655,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         // MÓDULO MÉDICO (HISTORIA CLÍNICA Y AFILIADOS)
         Route::resource('historias-clinicas', \App\Http\Controllers\Empresa\MedicalRecordController::class)->names('medical_records');
         Route::get('pacientes/{client}/historia', [\App\Http\Controllers\Empresa\MedicalRecordController::class, 'patientHistory'])->name('patients.history');
+        Route::post('historias-clinicas/{medical_record}/attach', [\App\Http\Controllers\Empresa\MedicalRecordController::class, 'attachFile'])->name('medical_records.attach_modular');
         
         Route::get('afiliados', [\App\Http\Controllers\Empresa\AffiliateController::class, 'index'])->name('affiliates.index');
         Route::post('afiliados/generar-cuotas', [\App\Http\Controllers\Empresa\AffiliateController::class, 'generateFees'])->name('affiliates.generate_fees');

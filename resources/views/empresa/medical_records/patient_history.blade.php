@@ -233,9 +233,14 @@
                                         <h6 class="fw-bold text-dark mb-2"><i class="bi bi-file-text-fill text-muted me-2"></i>Diagnóstico y Evolución</h6>
                                         <p class="text-secondary mb-0" style="white-space: pre-wrap; font-size: 0.95rem;">{{ $rec->diagnosis ?? 'Sin diagnóstico registrado.' }}</p>
                                     </div>
-                                    <a href="{{ route('empresa.medical_records.edit', $rec->id) }}" class="btn btn-xs btn-outline-primary fw-bold rounded-pill px-3 py-2 text-uppercase shadow-sm border-2 border-opacity-25 flex-shrink-0" style="font-size: 0.7rem; border-color: rgba(13, 110, 253, 0.25);">
-                                        <i class="bi bi-pencil-square me-1"></i> Editar / Cargar Estudios
-                                    </a>
+                                    <div class="d-flex gap-2 flex-shrink-0">
+                                        <button type="button" class="btn btn-xs btn-outline-success fw-bold rounded-pill px-3 py-2 text-uppercase shadow-sm border-2 border-opacity-25" style="font-size: 0.7rem; border-color: rgba(16, 185, 129, 0.25);" onclick="openDirectAttachModal('{{ $rec->id }}', '{{ $rec->specialty ?? \'General\' }} - {{ $rec->created_at->format(\'d/m/Y\') }}', '{{ route(\'empresa.medical_records.attach\', $rec->id) }}')">
+                                            <i class="bi bi-paperclip me-1"></i> Adjuntar Estudio
+                                        </button>
+                                        <a href="{{ route('empresa.medical_records.edit', $rec->id) }}" class="btn btn-xs btn-outline-primary fw-bold rounded-pill px-3 py-2 text-uppercase shadow-sm border-2 border-opacity-25" style="font-size: 0.7rem; border-color: rgba(13, 110, 253, 0.25);">
+                                            <i class="bi bi-pencil-square me-1"></i> Editar
+                                        </a>
+                                    </div>
                                 </div>
 
                                 <!-- Tratamiento -->
@@ -646,6 +651,48 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Adjuntar Estudio Directo a una Consulta Específica -->
+<div class="modal fade" id="directAttachModal" tabindex="-1" aria-labelledby="directAttachModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-success text-white border-0 py-3" style="border-top-left-radius: 20px; border-top-right-radius: 20px; background: linear-gradient(135deg, #10b981, #059669) !important;">
+                <h5 class="modal-title fw-bold" id="directAttachModalLabel">
+                    <i class="bi bi-paperclip me-2"></i>Adjuntar Estudios a esta Visita
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="directAttachForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-4 text-center">
+                        <div class="p-3 bg-light rounded-4 border d-inline-block mb-3">
+                            <i class="bi bi-file-earmark-arrow-up fs-1 text-success"></i>
+                        </div>
+                        <p class="small text-muted mb-0">Suba los archivos del estudio (radiografías, análisis de sangre, etc.) solicitados en esta evolución.</p>
+                        <div class="mt-2 bg-light p-2 rounded-3 border">
+                            <span class="x-small text-secondary d-block">Visita Seleccionada:</span>
+                            <strong id="directAttachVisitName" class="text-dark small">-</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem;"><i class="bi bi-paperclip me-1 text-success"></i> Seleccionar Archivos</label>
+                        <input type="file" name="attachments[]" class="form-control form-control-premium" multiple required>
+                        <div class="form-text x-small text-muted mt-1">Soporta múltiples archivos como PDFs o imágenes. Se guardarán en Bunny.net.</div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 p-3 bg-light" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold border" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" style="background: linear-gradient(135deg, #10b981, #059669); border: none;">
+                        <i class="bi bi-upload me-2"></i>Subir Archivos
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -879,6 +926,13 @@
                 icon.classList.remove('text-success');
             }, 2000);
         });
+    }
+
+    function openDirectAttachModal(recordId, name, actionUrl) {
+        document.getElementById('directAttachVisitName').innerText = name;
+        document.getElementById('directAttachForm').setAttribute('action', actionUrl);
+        const modal = new bootstrap.Modal(document.getElementById('directAttachModal'));
+        modal.show();
     }
 </script>
 @endpush

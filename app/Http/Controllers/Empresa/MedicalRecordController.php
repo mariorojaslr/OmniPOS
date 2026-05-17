@@ -170,4 +170,32 @@ class MedicalRecordController extends Controller
 
         return view('empresa.medical_records.patient_history', compact('client', 'records'));
     }
+
+    public function attachFile(Request $request, MedicalRecord $medical_record)
+    {
+        if ($medical_record->empresa_id !== Auth::user()->empresa_id) {
+            abort(403, 'Acción no autorizada.');
+        }
+
+        $request->validate([
+            'attachments' => 'required|array',
+            'attachments.*' => 'file|max:20480', // 20MB por archivo
+        ]);
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('medical_records/' . $medical_record->id, 'bunny_storage');
+                \App\Models\MedicalRecordAttachment::create([
+                    'medical_record_id' => $medical_record->id,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'file_type' => $file->getClientOriginalExtension(),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
+        }
+
+        return redirect()->route('empresa.medical_records.patient_history', $medical_record->client_id)
+            ->with('success', 'Estudios o reportes cargados y asociados correctamente a la visita.');
+    }
 }
