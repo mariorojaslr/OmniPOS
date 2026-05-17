@@ -10,15 +10,26 @@ use Illuminate\Support\Facades\Auth;
 
 class MedicalRecordController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $empresaId = Auth::user()->empresa_id;
-        $records = MedicalRecord::where('empresa_id', $empresaId)
-            ->with(['patient', 'doctor'])
-            ->latest()
-            ->paginate(15);
+        $search = $request->input('search');
 
-        return view('empresa.medical_records.index', compact('records'));
+        $query = Client::where('empresa_id', $empresaId)
+            ->withCount('medicalRecords')
+            ->with(['latestMedicalRecord.doctor', 'obraSocial']);
+
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('document', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $patients = $query->orderBy('name', 'asc')->paginate(15);
+
+        return view('empresa.medical_records.index', compact('patients', 'search'));
     }
 
     public function create(Request $request)

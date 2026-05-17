@@ -81,8 +81,8 @@
             <h1 class="fw-800 mb-1">Dossier Clínico Histórico</h1>
             <p class="text-muted mb-0">Evolución, diagnóstico y constantes vitales del paciente.</p>
         </div>
-        <a href="{{ route('empresa.affiliates.index') }}" class="btn btn-light rounded-pill px-4 fw-bold border">
-            <i class="bi bi-arrow-left me-2"></i> VOLVER A AFILIADOS
+        <a href="{{ route('empresa.medical_records.index') }}" class="btn btn-light rounded-pill px-4 fw-bold border">
+            <i class="bi bi-arrow-left me-2"></i> VOLVER
         </a>
     </div>
 
@@ -134,7 +134,7 @@
                 </div>
             </div>
             <div class="col-md-auto text-end">
-                <a href="{{ route('empresa.medical_records.create', ['selected_patient_id' => $client->id]) }}" class="btn btn-primary px-4 py-3 fw-bold rounded-pill shadow-lg border-0" style="background: linear-gradient(135deg, #3b82f6, #0d6efd);">
+                <a href="{{ route('empresa.medical_records.create', ['patient_id' => $client->id]) }}" class="btn btn-primary px-4 py-3 fw-bold rounded-pill shadow-lg border-0" style="background: linear-gradient(135deg, #3b82f6, #0d6efd);">
                     <i class="bi bi-plus-lg me-2"></i> NUEVA CONSULTA
                 </a>
             </div>
@@ -175,6 +175,20 @@
 
             <!-- Bloque de Acordeón Cronológico -->
             <h4 class="fw-bold text-dark mb-3"><i class="bi bi-clock-history text-secondary me-2"></i>Cronología de Evoluciones Clínicas</h4>
+
+            <!-- Filtro de Especialidad Premium -->
+            <div class="mb-4 p-3 rounded-4 bg-white border border-opacity-10 d-flex flex-wrap align-items-center gap-3">
+                <span class="fw-bold text-muted small uppercase text-spacing"><i class="bi bi-funnel-fill me-1 text-primary"></i> Filtrar por Especialidad:</span>
+                <div class="d-flex flex-wrap gap-2" id="specialtyFilterTags">
+                    <button class="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-bold specialty-filter-btn" data-filter="all">Todas</button>
+                    @php
+                        $uniqueSpecialties = $records->pluck('specialty')->unique()->filter();
+                    @endphp
+                    @foreach($uniqueSpecialties as $spec)
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-bold specialty-filter-btn" data-filter="{{ strtolower(trim($spec)) }}">{{ $spec }}</button>
+                    @endforeach
+                </div>
+            </div>
             
             <div class="accordion timeline-accordion" id="accordionHistory">
                 @forelse($records as $index => $rec)
@@ -185,7 +199,7 @@
                         $meds = $specData['medications'] ?? [];
                         $labs = $specData['labs'] ?? [];
                     @endphp
-                    <div class="accordion-item">
+                    <div class="accordion-item medical-record-card" data-specialty="{{ strtolower(trim($rec->specialty ?? 'General')) }}">
                         <h2 class="accordion-header">
                             <button class="accordion-button {{ $index > 0 ? 'collapsed' : '' }}" type="button" data-bs-toggle="tab" data-bs-target="#collapse{{ $rec->id }}" aria-expanded="{{ $index == 0 ? 'true' : 'false' }}">
                                 <div class="d-flex flex-wrap align-items-center justify-content-between w-100 pe-3 gap-2">
@@ -571,7 +585,7 @@
         renderChart(value);
     }
 
-    // Inicializar gráfico al cargar la página
+    // Inicializar gráfico al cargar la página e instalar el filtro de especialidades
     document.addEventListener('DOMContentLoaded', function() {
         if (historicalData.length > 0) {
             renderChart('all');
@@ -583,6 +597,56 @@
             ctx.textAlign = 'center';
             ctx.fillText('Aún no hay mediciones cargadas para trazar gráficos.', ctx.canvas.width / 2, ctx.canvas.height / 2);
         }
+
+        // Filtrado Reactivo de Especialidades
+        document.querySelectorAll('.specialty-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Actualizar clases activas de los botones de filtro
+                document.querySelectorAll('.specialty-filter-btn').forEach(b => {
+                    b.classList.remove('btn-primary');
+                    b.classList.add('btn-outline-secondary');
+                });
+                this.classList.add('btn-primary');
+                this.classList.remove('btn-outline-secondary');
+
+                const filterValue = this.getAttribute('data-filter');
+                
+                // Filtrar las tarjetas de evolución
+                let countVisible = 0;
+                document.querySelectorAll('.medical-record-card').forEach(card => {
+                    const cardSpecialty = card.getAttribute('data-specialty');
+                    if (filterValue === 'all' || cardSpecialty === filterValue) {
+                        card.style.display = 'block';
+                        countVisible++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Si no hay registros visibles, mostrar un mensaje de estado vacío
+                const emptyState = document.getElementById('filterEmptyState');
+                if (countVisible === 0) {
+                    if (!emptyState) {
+                        const container = document.getElementById('accordionHistory');
+                        const div = document.createElement('div');
+                        div.id = 'filterEmptyState';
+                        div.className = 'text-center py-5 glass-card bg-white border rounded-4';
+                        div.innerHTML = `
+                            <i class="bi bi-folder-x fs-1 text-muted opacity-25 d-block mb-3"></i>
+                            <h5 class="text-muted fw-bold">Sin evoluciones para esta especialidad</h5>
+                            <p class="text-muted small mb-0">No se encontraron atenciones registradas bajo la especialidad elegida.</p>
+                        `;
+                        container.appendChild(div);
+                    } else {
+                        emptyState.style.display = 'block';
+                    }
+                } else {
+                    if (emptyState) {
+                        emptyState.style.display = 'none';
+                    }
+                }
+            });
+        });
     });
 </script>
 @endpush

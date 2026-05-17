@@ -121,6 +121,11 @@ class Client extends Model
         return $this->hasMany(MedicalRecord::class, 'client_id');
     }
 
+    public function latestMedicalRecord()
+    {
+        return $this->hasOne(MedicalRecord::class, 'client_id')->latestOfMany();
+    }
+
     public function obraSocial()
     {
         return $this->belongsTo(ObraSocial::class, 'obra_social_id');
