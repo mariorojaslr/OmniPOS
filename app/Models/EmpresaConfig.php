@@ -42,17 +42,8 @@ class EmpresaConfig extends Model
             return $this->logo;
         }
 
-        // Soportamos configuración vía config/services.php (BunnyCDN)
-        $bunnyUrl = config('services.bunny.url');
-        $useBunny = config('services.bunny.enabled');
-
-        // Solo usamos Bunny si está habilitado Y estamos en producción REAL
-        // Esto evita bloqueos de seguridad (ORB) en el servidor de Staging
-        if ($useBunny && $bunnyUrl && app()->environment('production') && !str_contains(request()->getHost(), 'staging')) {
-            return rtrim($bunnyUrl, '/') . '/' . ltrim($this->logo, '/');
-        }
-
-        // Para evitar problemas con APP_URL en .env incorrecto en Hostinger, usamos ruta relativa a la raíz
+        // El logo siempre se guarda localmente en el disco public de Hostinger a través de ConfiguracionEmpresaController.
+        // Por ende, para máxima velocidad y evitar problemas con CDN, lo servimos localmente.
         return '/local-media/' . ltrim($this->logo, '/');
     }
 

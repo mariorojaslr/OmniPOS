@@ -75,7 +75,7 @@ class SaaSClinicaDemoSeeder extends Seeder
                 'mod_pagos' => true,
                 'mod_backups' => true,
                 'mod_internaciones' => true, // Activo!
-                'theme' => 'dark', // OLED Dark Mode
+                'theme' => 'light', // Modo Claro por defecto para mostrar los colores corporativos
             ]
         );
 
