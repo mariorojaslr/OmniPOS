@@ -107,7 +107,16 @@
             <div class="col-md">
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                     <h2 class="fw-bold mb-0 me-2">{{ $client->name }}</h2>
-                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 rounded-pill px-3 py-1">Afiliado Activo</span>
+                    @if($client->is_affiliate)
+                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 rounded-pill px-3 py-1">Afiliado Activo</span>
+                    @else
+                        <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-25 rounded-pill px-3 py-1">Paciente Particular</span>
+                    @endif
+
+                    @if($client->affiliatePlan)
+                        <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1">⭐ Plan: {{ $client->affiliatePlan->name }}</span>
+                    @endif
+
                     @if($client->obraSocial)
                         <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-25 rounded-pill px-3 py-1">🏥 {{ $client->obraSocial->nombre }}</span>
                     @endif

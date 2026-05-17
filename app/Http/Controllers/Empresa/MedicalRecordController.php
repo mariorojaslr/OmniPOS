@@ -94,6 +94,8 @@ class MedicalRecordController extends Controller
 
     public function patientHistory(Client $client)
     {
+        $client->load(['obraSocial', 'affiliatePlan']);
+
         $records = MedicalRecord::where('client_id', $client->id)
             ->where('empresa_id', Auth::user()->empresa_id)
             ->with(['doctor', 'attachments'])
