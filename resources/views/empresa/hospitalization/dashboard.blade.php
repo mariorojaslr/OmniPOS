@@ -162,7 +162,7 @@
                                                         </div>
                                                         <div class="col-6">
                                                             <span class="text-muted small d-block">Ingreso:</span>
-                                                            <strong class="small">{{ $activeH->fecha_ingreso->format('d/m/Y H:i') }}</strong>
+                                                            <strong class="small">{{ $activeH->fecha_ingreso ? \Carbon\Carbon::parse($activeH->fecha_ingreso)->format('d/m/Y H:i') : 'Sin fecha' }}</strong>
                                                         </div>
                                                         <div class="col-6 text-end">
                                                             <span class="text-muted small d-block">Motivo:</span>

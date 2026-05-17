@@ -255,7 +255,7 @@
                                                         <span class="fw-extrabold text-primary small"><i class="bi bi-shield-pulse me-1"></i> {{ $reg->nombre }}</span>
                                                     </div>
                                                     <div class="text-end">
-                                                        <span class="badge bg-light text-dark border x-small fw-bold"><i class="bi bi-calendar3 me-1"></i> {{ $reg->fecha_registro->format('d/m/Y H:i') }}</span>
+                                                        <span class="badge bg-light text-dark border x-small fw-bold"><i class="bi bi-calendar3 me-1"></i> {{ $reg->fecha_registro ? \Carbon\Carbon::parse($reg->fecha_registro)->format('d/m/Y H:i') : 'Sin fecha' }}</span>
                                                     </div>
                                                 </div>
 
@@ -483,10 +483,10 @@
                                                         <span class="badge bg-light text-dark small border">{{ $med->via ?? 'N/A' }}</span>
                                                     </td>
                                                     <td class="text-center small">{{ $med->frecuencia ?? 'N/A' }}</td>
-                                                    <td class="text-center small">{{ $med->fecha_registro->format('d/m H:i') }}</td>
+                                                    <td class="text-center small">{{ $med->fecha_registro ? \Carbon\Carbon::parse($med->fecha_registro)->format('d/m H:i') : 'Sin fecha' }}</td>
                                                     <td class="text-center small">
                                                         @if($med->proxima_aplicacion)
-                                                            <span class="text-danger fw-bold">{{ $med->proxima_aplicacion->format('d/m H:i') }}</span>
+                                                            <span class="text-danger fw-bold">{{ \Carbon\Carbon::parse($med->proxima_aplicacion)->format('d/m H:i') }}</span>
                                                         @else
                                                             <span class="text-muted italic">No programada</span>
                                                         @endif
@@ -572,7 +572,7 @@
                                                 <tr>
                                                     <td>
                                                         <strong class="text-dark">{{ $ins->nombre }}</strong>
-                                                        <div class="x-small text-muted">{{ $ins->fecha_registro->format('d/m/Y H:i') }}</div>
+                                                        <div class="x-small text-muted">{{ $ins->fecha_registro ? \Carbon\Carbon::parse($ins->fecha_registro)->format('d/m/Y H:i') : 'Sin fecha' }}</div>
                                                     </td>
                                                     <td class="text-center fw-bold">{{ number_format($ins->cantidad, 2) }}</td>
                                                     <td class="text-end">${{ number_format($ins->precio_unitario ?? 0, 2) }}</td>
@@ -640,8 +640,8 @@
                                                 <span class="badge bg-light text-dark border small text-uppercase">{{ str_replace('_', ' ', $ass->tipo_internacion) }}</span>
                                             </div>
                                             <div class="small text-muted mb-2">
-                                                Desde: <strong>{{ $ass->fecha_desde->format('d/m/Y H:i') }}</strong> | 
-                                                Hasta: <strong>{{ $ass->fecha_hasta ? $ass->fecha_hasta->format('d/m/Y H:i') : 'Actualidad' }}</strong>
+                                                Desde: <strong>{{ $ass->fecha_desde ? \Carbon\Carbon::parse($ass->fecha_desde)->format('d/m/Y H:i') : 'N/A' }}</strong> | 
+                                                Hasta: <strong>{{ $ass->fecha_hasta ? \Carbon\Carbon::parse($ass->fecha_hasta)->format('d/m/Y H:i') : 'Actualidad' }}</strong>
                                             </div>
                                             @if($ass->notas)
                                                 <p class="mb-0 small text-muted font-monospace italic">Nota: {{ $ass->notas }}</p>

@@ -85,11 +85,11 @@
                                         @endif
                                     </td>
                                     <td class="py-3 text-dark small">
-                                        {{ $h->fecha_ingreso->format('d/m/Y H:i') }}
+                                        {{ $h->fecha_ingreso ? \Carbon\Carbon::parse($h->fecha_ingreso)->format('d/m/Y H:i') : 'Sin fecha' }}
                                     </td>
                                     <td class="py-3 small">
                                         @if($h->fecha_egreso)
-                                            <span class="text-secondary">{{ $h->fecha_egreso->format('d/m/Y H:i') }}</span>
+                                            <span class="text-secondary">{{ \Carbon\Carbon::parse($h->fecha_egreso)->format('d/m/Y H:i') }}</span>
                                         @else
                                             <span class="text-danger fw-bold"><i class="bi bi-hourglass-split"></i> Internado</span>
                                         @endif
