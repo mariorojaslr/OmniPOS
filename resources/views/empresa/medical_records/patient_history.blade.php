@@ -382,8 +382,68 @@
             </div>
         </div>
 
-        <!-- 3. Formulario de Carga Rápida (Columna Derecha 4/12) -->
+        <!-- 3. Columna Derecha (4/12) -->
         <div class="col-lg-4">
+            <!-- Perfil Farmacológico Consolidado (Medicación Activa) -->
+            @php
+                $allMedications = [];
+                foreach($records as $rec) {
+                    $specData = $rec->specialized_data ?? [];
+                    $meds = $specData['medications'] ?? [];
+                    foreach($meds as $m) {
+                        $medName = trim(strtolower($m['name']));
+                        if (!isset($allMedications[$medName])) {
+                            $allMedications[$medName] = [
+                                'name' => $m['name'],
+                                'route' => $m['route'] ?? 'Oral',
+                                'dose' => $m['dose'] ?? '—',
+                                'frequency' => $m['frequency'] ?? '—',
+                                'date' => $rec->created_at->format('d/m/Y'),
+                                'doctor' => $rec->doctor->name
+                            ];
+                        }
+                    }
+                }
+            @endphp
+            
+            <div class="glass-card p-4 quick-vitals-card bg-white mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-capsule-pill text-success me-2"></i>Perfil Farmacológico
+                    </h5>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 px-2 py-1 rounded-pill small fw-bold">
+                        {{ count($allMedications) }} {{ count($allMedications) == 1 ? 'medicamento' : 'medicamentos' }}
+                    </span>
+                </div>
+                <p class="small text-muted mb-3">Consolidado de medicamentos recetados al paciente en su historial clínico.</p>
+
+                @if(count($allMedications) > 0)
+                    <div class="d-flex flex-column gap-3" style="max-height: 280px; overflow-y: auto; padding-right: 5px;">
+                        @foreach($allMedications as $med)
+                            <div class="p-3 bg-light rounded-4 border">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <strong class="text-dark" style="font-size: 0.9rem;">{{ $med['name'] }}</strong>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary x-small py-1 px-2 rounded-pill fw-bold" style="font-size: 0.6rem;">{{ $med['route'] }}</span>
+                                </div>
+                                <div class="text-muted small mb-2" style="font-size: 0.75rem;">
+                                    Dosis: <strong>{{ $med['dose'] }}</strong> | Frecuencia: <strong>{{ $med['frequency'] }}</strong>
+                                </div>
+                                <div class="pt-2 border-top border-white d-flex justify-content-between text-muted" style="font-size: 0.65rem;">
+                                    <span>📅 Recetado: <strong>{{ $med['date'] }}</strong></span>
+                                    <span>🩺 Dr. {{ explode(' ', $med['doctor'])[0] ?? $med['doctor'] }}</span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-4 bg-light rounded-4 border">
+                        <i class="bi bi-shield-slash fs-2 text-muted opacity-25 d-block mb-2"></i>
+                        <span class="text-muted small fw-semibold">Sin medicamentos recetados</span>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Formulario de Carga Rápida (Columna Derecha 4/12) -->
             <div class="glass-card p-4 quick-vitals-card bg-white position-sticky" style="top: 24px;">
                 <h5 class="fw-bold text-dark mb-3"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Control de Constantes Rápido</h5>
                 <p class="small text-muted mb-4">Ingresa signos vitales directos para sumarlos instantáneamente a la curva evolutiva del paciente.</p>
