@@ -5,8 +5,12 @@
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 <style>
     :root {
-        --fc-border-color: #f1f5f9;
+        --fc-border-color: #b8c2cc;
         --fc-daygrid-dot-event-bg-color: #3b82f6;
+    }
+
+    .fc td, .fc th, .fc-theme-standard td, .fc-theme-standard th {
+        border-color: #a1a1aa !important; /* Gris de mayor contraste */
     }
 
     .calendar-container {
@@ -213,6 +217,12 @@
                 <div class="col-6"><label class="x-small fw-bold text-muted d-block">Servicio</label><span class="small fw-bold">${props.servicio}</span></div>
                 <div class="col-6"><label class="x-small fw-bold text-muted d-block">Profesional</label><span class="small fw-bold">${props.profesional}</span></div>
                 <div class="col-12"><label class="x-small fw-bold text-muted d-block">Notas</label><p class="small mb-0">${props.notas || 'Sin observaciones'}</p></div>
+                
+                <div class="col-12 mt-4 pt-3 border-top">
+                    <a href="/empresa/turnos/${event.id}/checkout" class="btn btn-success w-100 fw-bold rounded-pill">
+                        <i class="bi bi-cart-check me-2"></i> COBRAR TURNO / COSEGURO (POS)
+                    </a>
+                </div>
             </div>
         `;
         document.getElementById('modalContent').innerHTML = html;

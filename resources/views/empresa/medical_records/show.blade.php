@@ -72,6 +72,34 @@
                 </div>
             </div>
 
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 16px;">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="fw-bold mb-0">Estudios y Adjuntos</h6>
+                </div>
+                <div class="card-body">
+                    @forelse($medical_record->attachments as $attachment)
+                        <div class="d-flex align-items-center mb-3 p-2 bg-light rounded-3">
+                            <div class="me-3">
+                                @if(in_array($attachment->file_type, ['jpg', 'png', 'jpeg']))
+                                    <i class="bi bi-file-earmark-image text-primary fs-3"></i>
+                                @else
+                                    <i class="bi bi-file-earmark-pdf text-danger fs-3"></i>
+                                @endif
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="text-dark fw-bold small text-truncate">{{ $attachment->file_name }}</div>
+                                <div class="text-muted x-small">{{ number_format($attachment->file_size / 1024, 2) }} KB</div>
+                            </div>
+                            <a href="{{ config('filesystems.disks.bunny_storage.url') }}/{{ $attachment->file_path }}" target="_blank" class="btn btn-sm btn-link text-primary">
+                                <i class="bi bi-download"></i>
+                            </a>
+                        </div>
+                    @empty
+                        <p class="text-muted small text-center mb-0">Sin archivos adjuntos.</p>
+                    @endforelse
+                </div>
+            </div>
+
             @if($medical_record->internal_notes)
             <div class="card shadow-sm border-0 mb-4 bg-warning bg-opacity-10 border-warning" style="border-radius: 16px;">
                 <div class="card-body">

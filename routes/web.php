@@ -14,6 +14,7 @@ use App\Http\Controllers\Owner\PlanController;
 use App\Http\Controllers\Owner\SuscripcionPagoController;
 use App\Http\Controllers\Owner\SupportTicketController as OwnerSupportTicketController;
 use App\Http\Controllers\Owner\SystemUpdateController;
+use App\Http\Controllers\Owner\ResellerController;
 
 // ================= EMPRESA =================
 use App\Http\Controllers\Empresa\DashboardController as EmpresaDashboardController;
@@ -81,11 +82,20 @@ Route::middleware('auth')->group(function() {
             
             if($owner) {
                 Auth::login($owner);
+                
+                // Limpieza profunda para evitar Error 419
+                $request->session()->forget('impersonator_id');
                 $request->session()->regenerate();
-                return redirect()->route('owner.dashboard')->with('success', 'Has vuelto a tu sesiÃ³n de Propietario');
+                $request->session()->regenerateToken();
+
+                return redirect()->route('owner.dashboard')->with('success', 'Has vuelto a tu sesión de Propietario');
             }
         }
-        return redirect('/');
+        
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
     })->name('owner.return-to-owner');
 
     // AYUDA CONTEXTUAL (MANUAL INTERACTIVO)
@@ -113,6 +123,8 @@ Route::middleware(['auth', 'owner'])
 
         Route::resource('empresas', EmpresaController::class)->except(['show'])->parameters(['empresas' => 'empresaId']);
         Route::resource('planes', PlanController::class)->except(['show'])->parameters(['planes' => 'plan']);
+        Route::resource('resellers', ResellerController::class);
+        Route::get('resellers/{reseller}/impersonate', [ResellerController::class, 'impersonate'])->name('resellers.impersonate');
         Route::resource('updates', SystemUpdateController::class);
 
         Route::get('suscripciones', [SuscripcionPagoController::class , 'index'])->name('facturacion.index');
@@ -157,8 +169,20 @@ Route::middleware(['auth', 'can:isRevendedor'])
     ->name('revendedor.')
     ->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Revendedor\DashboardController::class, 'index'])->name('dashboard');
+        
+        // GESTIÓN DE EMPRESAS POR REVENDEDOR
+        Route::resource('empresas', App\Http\Controllers\Revendedor\EmpresaController::class);
+        Route::get('/empresas/{empresa}/impersonate', [App\Http\Controllers\Revendedor\DashboardController::class, 'impersonate'])->name('empresas.impersonate');
         Route::get('/empresas/{empresa}/config', [App\Http\Controllers\Revendedor\DashboardController::class, 'editConfig'])->name('empresas.config');
         Route::post('/empresas/{empresa}/config', [App\Http\Controllers\Revendedor\DashboardController::class, 'updateConfig'])->name('empresas.update_config');
+        Route::get('/empresas/{empresa}/stats', [App\Http\Controllers\Revendedor\DashboardController::class, 'stats'])->name('empresas.stats');
+        
+        // SOPORTE E INCIDENCIAS
+        Route::get('/soporte', [App\Http\Controllers\Revendedor\DashboardController::class, 'soporte'])->name('soporte.index');
+
+        // MARCA BLANCA
+        Route::get('/marca-blanca', [App\Http\Controllers\Revendedor\WhiteLabelController::class, 'edit'])->name('white_label.edit');
+        Route::put('/marca-blanca', [App\Http\Controllers\Revendedor\WhiteLabelController::class, 'update'])->name('white_label.update');
     });
 
 
@@ -240,7 +264,58 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
      */
         Route::get('clientes/export', [ClientController::class , 'export'])->name('clientes.export');
         Route::post('clientes/import', [ClientController::class , 'import'])->name('clientes.import');
+
+        // TURNOS Y SERVICIOS
+        Route::resource('turnos', App\Http\Controllers\Empresa\TurnoController::class);
+        Route::get('/turnos-events', [App\Http\Controllers\Empresa\TurnoController::class, 'events'])->name('turnos.events');
+        Route::get('/turnos/{turno}/checkout', [App\Http\Controllers\Empresa\TurnoController::class, 'checkout'])->name('turnos.checkout');
+        
+        Route::resource('servicios', App\Http\Controllers\Empresa\ServicioController::class);
+
+        // LIQUIDACIONES A PROFESIONALES
+        Route::resource('liquidaciones', App\Http\Controllers\Empresa\LiquidacionController::class);
+
+        // HISTORIA CLÍNICA (HCE)
+        Route::resource('medical_records', App\Http\Controllers\Empresa\MedicalRecordController::class);
+        Route::get('clients/{client}/medical-history', [App\Http\Controllers\Empresa\MedicalRecordController::class, 'patientHistory'])->name('medical_records.patient_history');
+
+        Route::get('/soporte', function() { 
+            return "Módulo de Soporte Técnico y Tickets en desarrollo."; 
+        })->name('soporte.index');
+
+        Route::resource('affiliate_plans', App\Http\Controllers\Empresa\AffiliatePlanController::class);
+
+        // AFILIADOS (PLAN MEDPLUS)
+        Route::get('affiliates/export', [App\Http\Controllers\Empresa\AffiliateController::class, 'exportExcel'])->name('affiliates.export');
+        Route::post('affiliates/import-excel', [App\Http\Controllers\Empresa\AffiliateController::class, 'importExcel'])->name('affiliates.import_excel');
+        Route::resource('affiliates', App\Http\Controllers\Empresa\AffiliateController::class);
+        Route::post('affiliates/generate-fees', [App\Http\Controllers\Empresa\AffiliateController::class, 'generateFees'])->name('affiliates.generate_fees');
+        Route::get('affiliates/{client}/account', [App\Http\Controllers\Empresa\AffiliateController::class, 'accountStatement'])->name('affiliates.account');
+
+        // OBRAS SOCIALES
+        Route::get('obras_sociales/export', [App\Http\Controllers\Empresa\ObraSocialController::class, 'exportExcel'])->name('obras_sociales.export');
+        Route::post('obras_sociales/import', [App\Http\Controllers\Empresa\ObraSocialController::class, 'importExcel'])->name('obras_sociales.import');
+        Route::resource('obras_sociales', App\Http\Controllers\Empresa\ObraSocialController::class)->parameters(['obras_sociales' => 'obra_social']);
         Route::post('clientes/quick-store', [ClientController::class, 'quickStore'])->name('clientes.quick-store');
+
+        // HOSPITALIZACIÓN / INTERNACIONES (MODULAR)
+        Route::get('hospitalization/dashboard', [App\Http\Controllers\Empresa\HospitalizationController::class, 'dashboard'])->name('hospitalization.dashboard');
+        Route::get('hospitalization', [App\Http\Controllers\Empresa\HospitalizationController::class, 'index'])->name('hospitalization.index');
+        Route::get('hospitalization/create', [App\Http\Controllers\Empresa\HospitalizationController::class, 'create'])->name('hospitalization.create');
+        Route::post('hospitalization', [App\Http\Controllers\Empresa\HospitalizationController::class, 'store'])->name('hospitalization.store');
+        Route::get('hospitalization/{hospitalization}/dossier', [App\Http\Controllers\Empresa\HospitalizationController::class, 'dossier'])->name('hospitalization.dossier');
+        Route::post('hospitalization/{hospitalization}/transfer', [App\Http\Controllers\Empresa\HospitalizationController::class, 'transfer'])->name('hospitalization.transfer');
+        Route::post('hospitalization/{hospitalization}/administrations', [App\Http\Controllers\Empresa\HospitalizationController::class, 'storeAdministration'])->name('hospitalization.administrations.store');
+        Route::post('hospitalization/{hospitalization}/discharge', [App\Http\Controllers\Empresa\HospitalizationController::class, 'discharge'])->name('hospitalization.discharge');
+
+        // ABM DE INFRAESTRUCTURA (HABITACIONES Y CAMAS)
+        Route::get('hospitalization/rooms', [App\Http\Controllers\Empresa\RoomController::class, 'index'])->name('hospitalization.rooms');
+        Route::post('hospitalization/rooms', [App\Http\Controllers\Empresa\RoomController::class, 'storeRoom'])->name('hospitalization.rooms.store');
+        Route::post('hospitalization/rooms/{room}/toggle', [App\Http\Controllers\Empresa\RoomController::class, 'toggleRoomStatus'])->name('hospitalization.rooms.toggle');
+        Route::delete('hospitalization/rooms/{room}', [App\Http\Controllers\Empresa\RoomController::class, 'deleteRoom'])->name('hospitalization.rooms.delete');
+        Route::post('hospitalization/beds', [App\Http\Controllers\Empresa\RoomController::class, 'storeBed'])->name('hospitalization.beds.store');
+        Route::post('hospitalization/beds/{bed}/toggle-mantenimiento', [App\Http\Controllers\Empresa\RoomController::class, 'toggleBedMantenimiento'])->name('hospitalization.beds.toggle_mantenimiento');
+        Route::delete('hospitalization/beds/{bed}', [App\Http\Controllers\Empresa\RoomController::class, 'deleteBed'])->name('hospitalization.beds.delete');
         Route::resource('clientes', ClientController::class)->except(['destroy', 'show']);
         Route::get('clientes/{client}', [App\Http\Controllers\Empresa\ClientAccountController::class, 'show'])->name('clientes.show');
         Route::post('clientes/{client}/recibos', [App\Http\Controllers\Empresa\ClientAccountController::class, 'storeReceipt'])->name('clientes.recibos.store');

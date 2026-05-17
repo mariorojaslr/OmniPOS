@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UnitSeeder::class,
+            HospitalizationSeeder::class,
         ]);
 
         // User::factory(10)->create();

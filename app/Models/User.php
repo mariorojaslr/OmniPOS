@@ -162,4 +162,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Turno::class, 'user_id');
     }
+
+    public function empresasAsignadas()
+    {
+        return $this->hasMany(Empresa::class, 'reseller_id');
+    }
+    public function resellerConfig()
+    {
+        return $this->hasOne(ResellerConfig::class, 'user_id');
+    }
 }

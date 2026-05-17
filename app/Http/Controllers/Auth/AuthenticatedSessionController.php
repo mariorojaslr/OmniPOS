@@ -39,6 +39,11 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('empresa.dashboard');
         }
 
+        // ================= REVENDEDOR =================
+        if ($user->role === 'revendedor' || $user->role === 'reseller') {
+            return redirect()->route('revendedor.dashboard');
+        }
+
         // ================= USUARIO =================
         if ($user->role === 'usuario') {
             return redirect()->route('empresa.usuario.dashboard');

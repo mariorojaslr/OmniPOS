@@ -67,18 +67,17 @@ class MedPlusSeeder extends Seeder
                 'mod_afip' => true,
                 'mod_pagos' => true,
                 'mod_backups' => true,
-                'theme' => 'dark',
+                'theme' => 'light',
             ]
         );
 
-        // 5. Crear algunos datos de ejemplo (Pacientes y Turnos)
-        $paciente = \DB::table('pacientes')->insertGetId([
+        // 5. Crear algunos datos de ejemplo (Pacientes/Clientes y Turnos)
+        $pacienteId = \DB::table('clients')->insertGetId([
             'empresa_id' => $medPlus->id,
-            'nombre' => 'Juan',
-            'apellido' => 'Pérez',
-            'dni' => '12345678',
+            'name' => 'Juan Pérez',
             'email' => 'juan@example.com',
-            'telefono' => '1122334455',
+            'phone' => '1122334455',
+            'is_affiliate' => 1,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -86,18 +85,20 @@ class MedPlusSeeder extends Seeder
         for ($i = 8; $i <= 18; $i++) {
             \DB::table('turnos')->insert([
                 'empresa_id' => $medPlus->id,
-                'paciente_id' => $paciente,
-                'profesional_id' => 1,
+                'client_id' => $pacienteId,
+                'user_id' => 1, // Asumimos que hay un profesional con ID 1
                 'fecha' => now()->format('Y-m-d'),
-                'hora' => str_pad($i, 2, '0', STR_PAD_LEFT) . ':00',
-                'estado' => $i < 12 ? 'atendido' : 'pendiente',
-                'motivo' => 'Consulta de Control',
+                'hora_inicio' => str_pad($i, 2, '0', STR_PAD_LEFT) . ':00:00',
+                'hora_fin' => str_pad($i + 1, 2, '0', STR_PAD_LEFT) . ':00:00',
+                'estado' => $i < 12 ? 'completado' : 'pendiente',
+                'notas' => 'Consulta de Control',
+                'monto' => 15000,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
 
-        // 5. Crear Administrador de Med Plus
+        // 6. Crear Administrador de Med Plus
         User::updateOrCreate(
             ['email' => 'admin@medplus.com'],
             [

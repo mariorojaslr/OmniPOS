@@ -19,6 +19,11 @@ class MedicalRecord extends Model
         'diagnosis',
         'treatment',
         'internal_notes',
+        'specialized_data',
+    ];
+
+    protected $casts = [
+        'specialized_data' => 'array',
     ];
 
     public function patient()
@@ -34,5 +39,10 @@ class MedicalRecord extends Model
     public function empresa()
     {
         return $this->belongsTo(Empresa::class);
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(MedicalRecordAttachment::class);
     }
 }

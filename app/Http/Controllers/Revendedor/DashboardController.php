@@ -36,8 +36,11 @@ class DashboardController extends Controller
             }
         }
 
-        // Tasa de comisión dinámica (por ahora fija al 10%)
-        $tasaComision = 0.10;
+        // Tasa de comisión dinámica desde la configuración del revendedor
+        $config = $user->resellerConfig()->first();
+        $tasaComisionPorcentaje = $config ? $config->owner_commission_percentage : 10.00;
+        $tasaComision = $tasaComisionPorcentaje / 100;
+        
         $comisionEstimada = $mrr * $tasaComision;
 
         // Últimos pagos de sus clientes
@@ -86,6 +89,18 @@ class DashboardController extends Controller
             'mod_afip' => 'boolean',
             'mod_pagos' => 'boolean',
             'mod_backups' => 'boolean',
+            'custom_price' => 'required|numeric|min:0',
+        ]);
+
+        $plan = $empresa->plan;
+        if ($plan && $request->custom_price < $plan->price) {
+            return back()->withErrors(['custom_price' => 'El precio acordado no puede ser menor al precio base del plan ($' . number_format($plan->price) . ')'])
+                         ->withInput();
+        }
+
+        // Actualizamos el precio personalizado de la empresa
+        $empresa->update([
+            'custom_price' => $request->custom_price
         ]);
 
         // Actualizamos los toggles
@@ -104,5 +119,47 @@ class DashboardController extends Controller
         ]);
 
         return redirect()->route('revendedor.dashboard')->with('success', "Configuración de {$empresa->nombre_comercial} actualizada.");
+    }
+
+    /**
+     * Entrar al sistema como la empresa (Mimetización)
+     */
+    public function impersonate(Empresa $empresa)
+    {
+        // Seguridad: validar propiedad
+        if ($empresa->reseller_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para acceder a esta empresa.');
+        }
+
+        // Buscar el usuario "dueño" de la empresa
+        $userEmpresa = User::where('empresa_id', $empresa->id)
+            ->where('role', 'empresa')
+            ->first();
+
+        if (!$userEmpresa) {
+            return back()->with('error', 'Esta empresa no tiene un usuario principal configurado.');
+        }
+
+        // Guardar la sesión del revendedor para poder volver
+        session(['impersonator_id' => Auth::id()]);
+
+        // Iniciar sesión como la empresa
+        Auth::login($userEmpresa);
+
+        return redirect()->route('empresa.dashboard')->with('info', 'Estás navegando la plataforma mimetizado en tu cliente: ' . $empresa->nombre_comercial);
+    }
+
+    public function stats(Empresa $empresa)
+    {
+        if ($empresa->reseller_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('revendedor.empresas.stats', compact('empresa'));
+    }
+
+    public function soporte()
+    {
+        return view('revendedor.soporte.index');
     }
 }

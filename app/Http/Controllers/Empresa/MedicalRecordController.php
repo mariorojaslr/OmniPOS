@@ -41,7 +41,8 @@ class MedicalRecordController extends Controller
             'internal_notes'   => 'nullable|string',
         ]);
 
-        MedicalRecord::create([
+        $record = MedicalRecord::create([
+            'empresa_id'       => Auth::user()->empresa_id,
             'client_id'        => $request->client_id,
             'user_id'          => Auth::id(), // El médico que atiende
             'specialty'       => $request->specialty,
@@ -49,15 +50,34 @@ class MedicalRecordController extends Controller
             'diagnosis'        => $request->diagnosis,
             'treatment'        => $request->treatment,
             'internal_notes'   => $request->internal_notes,
+            'specialized_data' => $request->has('specialized_data') ? json_decode($request->specialized_data, true) : null,
         ]);
 
+        // Procesar Adjuntos (Radiografías, estudios, etc.) -> Bunny.net
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('medical_records/' . $record->id, 'bunny_storage');
+                \App\Models\MedicalRecordAttachment::create([
+                    'medical_record_id' => $record->id,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'file_type' => $file->getClientOriginalExtension(),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
+        }
+
         return redirect()->route('empresa.medical_records.index')
-            ->with('success', 'Historia clínica guardada correctamente.');
+            ->with('success', 'Historia clínica y archivos adjuntos guardados correctamente.');
     }
 
     public function show(MedicalRecord $medical_record)
     {
-        $this->authorize('view', $medical_record);
+        // Chequeo manual de seguridad para asegurar el aislamiento de datos (Multi-tenancy)
+        if ($medical_record->empresa_id !== Auth::user()->empresa_id) {
+            abort(403, 'Acción no autorizada.');
+        }
+
         return view('empresa.medical_records.show', compact('medical_record'));
     }
 

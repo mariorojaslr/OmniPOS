@@ -142,9 +142,9 @@
             <div class="glass-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="fw-800 m-0"><i class="bi bi-list-stars me-2 text-info"></i> LISTADO DE CLIENTES</h5>
-                    <div class="input-group input-group-sm w-auto">
-                        <span class="input-group-text bg-transparent border-secondary text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control bg-transparent border-secondary text-white" placeholder="Buscar empresa...">
+                    <div class="input-group input-group-sm w-auto shadow-sm">
+                        <span class="input-group-text bg-dark border-secondary text-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control bg-dark border-secondary text-white border-start-0 ps-0" placeholder="Buscar empresa..." style="color: #fff !important;">
                     </div>
                 </div>
 
@@ -157,24 +157,28 @@
                         <div>
                             <div class="fw-bold text-white fs-6">{{ $emp->nombre_comercial }}</div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-dark border border-secondary text-muted" style="font-size: 0.6rem;">{{ $emp->plan->name ?? 'Plan Custom' }}</span>
-                                <span class="text-muted" style="font-size: 0.6rem;">ID: #{{ str_pad($emp->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                <span class="badge bg-primary bg-opacity-25 border border-primary border-opacity-50 text-white" style="font-size: 0.6rem; letter-spacing: 0.5px;">{{ $emp->plan->name ?? 'Plan Custom' }}</span>
+                                <span class="text-white-50" style="font-size: 0.6rem;">ID: #{{ str_pad($emp->id, 4, '0', STR_PAD_LEFT) }}</span>
                             </div>
                         </div>
                     </div>
                     <div class="d-flex align-items-center gap-4">
                         <div class="text-end d-none d-md-block">
-                            <div class="stat-label mt-0" style="font-size: 0.55rem;">PAGO MENSUAL</div>
+                            <div class="stat-label mt-0" style="font-size: 0.55rem; color: #94a3b8;">PAGO MENSUAL</div>
                             <div class="fw-800 text-white">${{ number_format($emp->custom_price ?? ($emp->plan->price ?? 0), 0, ',', '.') }}</div>
                         </div>
                         <div class="text-end">
                             <span class="commission-badge">+${{ number_format(($emp->custom_price ?? ($emp->plan->price ?? 0)) * ($tasaComision/100), 0, ',', '.') }}</span>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('revendedor.empresas.config', $emp->id) }}" class="btn btn-sm btn-outline-info" title="Configurar Módulos">
+                            <!-- Botón de Mimetización (Entrar) -->
+                            <a href="{{ route('revendedor.empresas.impersonate', $emp->slug) }}" class="btn btn-sm btn-primary border-0" title="Entrar a esta Empresa">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                            </a>
+                            <a href="{{ route('revendedor.empresas.config', $emp->slug) }}" class="btn btn-sm btn-outline-info" title="Configurar Módulos">
                                 <i class="bi bi-sliders"></i>
                             </a>
-                            <a href="#" class="btn btn-sm btn-outline-light" title="Ver Reportes">
+                            <a href="{{ route('revendedor.empresas.stats', $emp->slug) }}" class="btn btn-sm btn-outline-light" title="Ver Reportes">
                                 <i class="bi bi-bar-chart"></i>
                             </a>
                         </div>
@@ -194,13 +198,13 @@
             <div class="glass-card mb-4" style="border-color: rgba(34, 211, 238, 0.3);">
                 <h5 class="fw-800 mb-4"><i class="bi bi-lightning-charge me-2 text-warning"></i> ACCIONES MASTER</h5>
                 <div class="d-flex flex-column gap-2">
-                    <a href="#" class="btn-action">
+                    <a href="{{ route('revendedor.empresas.create') }}" class="btn-action">
                         <i class="bi bi-plus-square"></i> ALTA DE NUEVA EMPRESA
                     </a>
-                    <a href="#" class="btn-action">
+                    <a href="#" class="btn-action" onclick="alert('Selecciona una empresa del listado para activar el Módulo Médico en su configuración.')">
                         <i class="bi bi-file-earmark-medical"></i> SOLICITAR MÓDULO MÉDICO
                     </a>
-                    <a href="#" class="btn-action">
+                    <a href="{{ route('revendedor.soporte.index') }}" class="btn-action">
                         <i class="bi bi-megaphone"></i> REPORTAR INCIDENCIA
                     </a>
                 </div>

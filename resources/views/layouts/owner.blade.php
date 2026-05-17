@@ -98,12 +98,14 @@
         .owner-nav-link:hover {
             color: #cbd5e1;
             background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
         }
         .owner-nav-link.active {
             color: #fff;
-            background: rgba(255,255,255,0.08);
-            border-color: rgba(255,255,255,0.12);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            background: rgba(59, 130, 246, 0.08);
+            border-color: rgba(59, 130, 246, 0.3);
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+            box-shadow: inset 0 0 8px rgba(59, 130, 246, 0.25), 0 2px 12px rgba(59, 130, 246, 0.15);
         }
 
         .owner-btn-logout {
@@ -196,6 +198,7 @@
         .manual-body { line-height: 1.6; color: #d1d5db; }
         .manual-body h1, .manual-body h2, .manual-body h3 { color: #d4af37; margin-top: 1rem; }
     </style>
+    @yield('styles')
 </head>
 
 <body style="background:#000; font-family:'Outfit',sans-serif; color:#e2e8f0; margin:0;">
@@ -217,6 +220,9 @@
                 </a>
                 <a href="{{ route('owner.crm.index') }}" class="owner-nav-link {{ request()->routeIs('owner.crm.*') ? 'active' : '' }}">
                     CRM
+                </a>
+                <a href="{{ route('owner.resellers.index') }}" class="owner-nav-link {{ request()->routeIs('owner.resellers.*') ? 'active' : '' }}">
+                    Revendedores
                 </a>
                 <a href="{{ route('owner.empresas.index') }}" class="owner-nav-link {{ request()->routeIs('owner.empresas.*') ? 'active' : '' }}">
                     Empresas
@@ -313,7 +319,7 @@
                     if(res.success && res.data) {
                         area.innerHTML = `<h4 style="color:#d4af37;">${res.data.title}</h4><div class="manual-body">${res.data.content}</div>`;
                     } else {
-                        area.innerHTML = `<div style="text-align:center; padding:50px; opacity:0.5;">Sin manual. <button class="btn btn-sm btn-warning" onclick="activateEditor()">Crear</button></div>`;
+                        area.innerHTML = `<div style="text-align:center; padding:50px; opacity:0.5;">Sin manual. ${(userRole === 'owner' || userRole === 'revendedor' || userRole === 'reseller' || isImpersonated) ? `<button class="btn btn-sm btn-warning" onclick="activateEditor()">Crear</button>` : ''}</div>`;
                     }
                 });
         }

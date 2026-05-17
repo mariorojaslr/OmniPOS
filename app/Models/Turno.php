@@ -24,7 +24,10 @@ class Turno extends Model
         'monto',
         'comision_monto',
         'liquidacion_id',
-        'notas'
+        'notas',
+        'obra_social_id',
+        'nro_afiliado_os',
+        'venta_id'
     ];
 
     public function servicio()
@@ -50,5 +53,15 @@ class Turno extends Model
     public function liquidacion()
     {
         return $this->belongsTo(Liquidacion::class);
+    }
+
+    public function obraSocial()
+    {
+        return $this->belongsTo(ObraSocial::class, 'obra_social_id');
+    }
+
+    public function venta()
+    {
+        return $this->belongsTo(Venta::class, 'venta_id');
     }
 }

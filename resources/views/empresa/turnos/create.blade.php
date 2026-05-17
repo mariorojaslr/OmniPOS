@@ -69,6 +69,21 @@
                             </div>
                         </div>
 
+                        {{-- OBRA SOCIAL --}}
+                        <div class="col-md-6 mt-4">
+                            <label class="form-label fw-bold small">Obra Social (Opcional)</label>
+                            <select name="obra_social_id" id="obra_social_id" class="form-select border-2">
+                                <option value="">Sin Obra Social (Particular)</option>
+                                @foreach($obrasSociales as $os)
+                                    <option value="{{ $os->id }}" {{ old('obra_social_id') == $os->id ? 'selected' : '' }}>{{ $os->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mt-4">
+                            <label class="form-label fw-bold small">Nro. Afiliado OS</label>
+                            <input type="text" name="nro_afiliado_os" class="form-control border-2" value="{{ old('nro_afiliado_os') }}" placeholder="Ej: 40012345">
+                        </div>
+
                         {{-- FECHA Y HORA --}}
                         <div class="col-md-6">
                             <label class="form-label fw-bold small">Fecha</label>

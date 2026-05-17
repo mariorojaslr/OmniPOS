@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>{{ config('app.name', 'OmniPOS') }}</title>
+<title>{{ $platformName ?? config('app.name', 'OmniPOS') }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -13,9 +13,36 @@
     $user = auth()->user();
     $empresa = $user->empresa ?? null;
     $config  = $empresa?->config ?? null;
-    $colorPrimario = $config?->color_primary ?? '#0d6efd';
-    $modoOscuro = ($config?->theme ?? 'light') === 'dark';
-    $logo = ($config && $config->logo_url) ? $config->logo_url : asset('images/logo_omnipos.png');
+    
+    // Marca Blanca (Revendedor)
+    $resellerConfig = null;
+    if ($empresa && $empresa->reseller_id) {
+        $resellerConfig = \App\Models\ResellerConfig::where('user_id', $empresa->reseller_id)->first();
+    }
+
+    // Determinar Color
+    if ($config && $config->color_primary) {
+        $colorPrimario = $config->color_primary;
+    } elseif ($resellerConfig && $resellerConfig->primary_color) {
+        $colorPrimario = $resellerConfig->primary_color;
+    } else {
+        $colorPrimario = '#0d6efd';
+    }
+
+    // El Owner indicó que por defecto los clientes usan formato claro, pero respetamos si activan explícitamente el Modo Nocturno en su config.
+    $modoOscuro = ($config?->theme === 'dark');
+
+    // Determinar Logo
+    if ($config && $config->logo_url) {
+        $logo = $config->logo_url;
+    } elseif ($resellerConfig && $resellerConfig->logo_path) {
+        $logo = asset('storage/' . $resellerConfig->logo_path);
+    } else {
+        $logo = asset('images/logo_omnipos.png');
+    }
+
+    // Determinar Nombre de Plataforma
+    $platformName = $resellerConfig && $resellerConfig->brand_name ? $resellerConfig->brand_name : config('app.name', 'OmniPOS');
 @endphp
 
 <style>
@@ -98,9 +125,12 @@ body {
 .nav-link-item i { font-size: 1.6rem; margin-bottom: 6px; transition: transform 0.2s; }
 .nav-icon-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; line-height: 1.1; }
 
-.nav-link-item:hover {
+.nav-link-item:hover, .nav-link-item.active {
     color: #fff;
     background: rgba(255,255,255,0.05);
+}
+.nav-link-item.active {
+    border-left: 3px solid var(--color-primario);
 }
 .nav-link-item:hover i { transform: scale(1.1); }
 
@@ -430,12 +460,30 @@ body {
 
                         @if($config?->mod_afiliados)
                             <a href="{{ route('empresa.affiliates.index') }}" class="submenu-link text-success">👥 Plan Afiliados</a>
+                            <a href="{{ route('empresa.affiliate_plans.index') }}" class="submenu-link text-success">⚙️ Configurar Planes</a>
+                            <a href="{{ route('empresa.obras_sociales.index') }}" class="submenu-link text-success">🏥 Obras Sociales</a>
                         @endif
 
                         <a href="{{ route('empresa.liquidaciones.index') }}" class="submenu-link">💰 Liquidaciones</a>
                         <a href="{{ route('empresa.liquidaciones.create') }}" class="submenu-link">⚡ Motor de Pago</a>
                         <hr class="my-1 border-white border-opacity-10">
                         <a href="{{ route('empresa.servicios.index') }}" class="submenu-link">💆 Servicios</a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- INTERNACIONES (MODULAR) --}}
+        @if($config?->mod_internaciones)
+            <div onclick="window.location='{{ route('empresa.hospitalization.dashboard') }}'" class="nav-link-item" style="cursor: pointer;">
+                <i class="bi bi-hospital" style="color: #10b981;"></i>
+                <span class="nav-icon-label text-center">Internación</span>
+                <div class="floating-balloon" onclick="event.stopPropagation()">
+                    <h6>🏥 HOSPITALIZACIÓN</h6>
+                    <div class="submenu-list">
+                        <a href="{{ route('empresa.hospitalization.dashboard') }}" class="submenu-link text-success"><i class="bi bi-grid-3x3-gap-fill me-1"></i> Mapa de Camas</a>
+                        <a href="{{ route('empresa.hospitalization.rooms') }}" class="submenu-link"><i class="bi bi-door-open-fill me-1"></i> Habitaciones y Camas</a>
+                        <a href="{{ route('empresa.hospitalization.index') }}" class="submenu-link"><i class="bi bi-clock-history me-1"></i> Historial Clínico</a>
                     </div>
                 </div>
             </div>
@@ -470,6 +518,7 @@ body {
                         <a href="{{ route('empresa.units.index') }}" class="submenu-link">⚖️ Unidades de Medida</a>
                     @endif
                     <a href="{{ route('empresa.backup.index') }}" class="submenu-link">🛡️ Bóveda de Backups</a>
+                    <a href="{{ route('empresa.soporte.index') }}" class="submenu-link text-warning fw-bold">🎫 Generar Ticket</a>
                     <a href="{{ route('empresa.suscripcion.index') }}" class="submenu-link text-primary">⭐ Mi Suscripción</a>
                 </div>
             </div>
@@ -495,7 +544,7 @@ body {
                 </a>
                 <h4 class="mb-0 fw-bold ms-2">📦 Terminal de Ventas (POS)</h4>
             @else
-                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa->nombre_comercial ?? 'OmniPOS' }}</h4>
+                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa->nombre_comercial ?? $platformName }}</h4>
                 {{-- Novedades con Contraste --}}
                 <a href="{{ route('empresa.novedades') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-2 d-none d-lg-flex align-items-center gap-2 fw-bold" style="font-size: 0.7rem; border-color: var(--color-primario)40; color: var(--color-primario);">
                     <span class="d-flex align-items-center justify-content-center bg-primary rounded-circle" style="width: 8px; height: 8px; background-color: var(--color-primario) !important;"></span>
@@ -589,6 +638,7 @@ body {
                     <li><a class="dropdown-item rounded-3 py-2" href="#"><i class="bi bi-bell me-2"></i> Mis Notificaciones</a></li>
                     <li><a class="dropdown-item rounded-3 py-2" href="{{ route('password.edit') }}"><i class="bi bi-key me-2"></i> Cambiar Contraseña</a></li>
                     <li><a class="dropdown-item rounded-3 py-2" href="{{ route('empresa.configuracion.index') }}"><i class="bi bi-gear me-2"></i> Ajustes App</a></li>
+                    <li><a class="dropdown-item rounded-3 py-2 text-warning fw-bold" href="{{ route('empresa.soporte.index') }}"><i class="bi bi-headset me-2"></i> Soporte / Tickets</a></li>
                     @if($user->role === 'owner')
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item rounded-3 py-2 text-primary fw-bold" href="{{ route('owner.dashboard') }}"><i class="bi bi-shield-check me-2"></i> Panel Owner</a></li>
@@ -640,7 +690,7 @@ body {
     <div class="multipos-header-pro d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-2">
             <i class="bi bi-robot text-white"></i>
-            <h6 class="mb-0 fw-bold small text-uppercase tracking-wider text-white">Centro de Ayuda MultiPOS</h6>
+            <h6 class="mb-0 fw-bold small text-uppercase tracking-wider text-white">Centro de Ayuda {{ $platformName ?? 'OmniPOS' }}</h6>
         </div>
         <div class="d-flex align-items-center gap-1">
             <button class="btn-multipos-tool" id="btnEditHelp" title="Editar Manual"><i class="bi bi-pencil-square"></i></button>
@@ -897,7 +947,7 @@ body {
                     <div class="text-center py-5 opacity-40">
                         <i class="bi bi-robot fs-1"></i>
                         <p class="mt-2 mb-0 fw-bold">No hay instrucciones registradas para esta sección.</p>
-                        ${(userRole === 'owner' || isImpersonated) ? '<button class="btn btn-sm btn-primary rounded-pill px-4 mt-3" onclick="activateEditor()">REGISTRAR MANUAL</button>' : ''}
+                        ${(userRole === 'owner' || userRole === 'revendedor' || userRole === 'reseller' || isImpersonated) ? '<button class="btn btn-sm btn-primary rounded-pill px-4 mt-3" onclick="activateEditor()">REGISTRAR MANUAL</button>' : ''}
                     </div>
                 `);
             }

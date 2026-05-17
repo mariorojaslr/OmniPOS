@@ -101,9 +101,13 @@
                                         <input class="form-check-input" type="checkbox" id="modTurnos" name="mod_turnos" value="1" {{ ($config->mod_turnos ?? false) ? 'checked' : '' }}>
                                         <label class="form-check-label small fw-bold" for="modTurnos">📅 Gestión de Turnos</label>
                                     </div>
-                                    <div class="form-check form-switch">
+                                    <div class="form-check form-switch mb-2">
                                         <input class="form-check-input" type="checkbox" id="modUnidades" name="mod_unidades_medida" value="1" {{ ($config->mod_unidades_medida ?? false) ? 'checked' : '' }}>
                                         <label class="form-check-label small fw-bold" for="modUnidades">⚖️ Unidades de Medida</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="modInternaciones" name="mod_internaciones" value="1" {{ ($config->mod_internaciones ?? false) ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold" for="modInternaciones">🏥 Módulo de Internaciones</label>
                                     </div>
                                 </div>
 

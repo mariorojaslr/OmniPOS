@@ -34,6 +34,11 @@ class Client extends Model
         'affiliate_since',
         'affiliate_status',
         'monthly_fee',
+        'photo_path',
+        'workplace',
+        'obra_social_id',
+        'additional_insurances',
+        'affiliate_plan_id',
     ];
 
     /*
@@ -45,6 +50,7 @@ class Client extends Model
         'is_affiliate'    => 'boolean',
         'affiliate_since' => 'date',
         'active'          => 'boolean',
+        'additional_insurances' => 'array',
     ];
 
     // =========================================================
@@ -113,6 +119,16 @@ class Client extends Model
     public function medicalRecords()
     {
         return $this->hasMany(MedicalRecord::class, 'client_id');
+    }
+
+    public function obraSocial()
+    {
+        return $this->belongsTo(ObraSocial::class, 'obra_social_id');
+    }
+
+    public function affiliatePlan()
+    {
+        return $this->belongsTo(AffiliatePlan::class, 'affiliate_plan_id');
     }
 
     public function bankAccounts()

@@ -99,8 +99,9 @@ class TurnoController extends Controller
             ->with('profesionalConfig') // Cargamos la configuración para saber qué hacen
             ->get();
         $clientes = $empresa->clients()->orderBy('name')->get();
+        $obrasSociales = \App\Models\ObraSocial::where('empresa_id', $empresa->id)->where('activo', true)->get();
 
-        return view('empresa.turnos.create', compact('servicios', 'profesionales', 'clientes'));
+        return view('empresa.turnos.create', compact('servicios', 'profesionales', 'clientes', 'obrasSociales'));
     }
 
     public function store(Request $request)
@@ -185,6 +186,8 @@ class TurnoController extends Controller
                 'monto' => $servicio->precio,
                 'comision_monto' => $comision,
                 'notas' => $request->notas,
+                'obra_social_id' => $request->obra_social_id,
+                'nro_afiliado_os' => $request->nro_afiliado_os,
                 'estado' => 'pendiente'
             ]);
 
@@ -196,5 +199,38 @@ class TurnoController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Error al guardar el turno: ' . $e->getMessage());
         }
+    }
+
+    public function checkout(Turno $turno)
+    {
+        // 1. Verificar si el turno ya fue cobrado
+        if ($turno->venta_id) {
+            return redirect()->route('empresa.turnos.index')->with('error', 'Este turno ya ha sido facturado.');
+        }
+
+        // 2. Si no tiene monto, asignar 0 o rechazar
+        $monto = $turno->monto ?? 0;
+
+        // 3. Crear una Venta en estado "Pendiente de Pago" o usar sesión para el POS
+        // Como tenemos Venta Manual (Session), inyectamos los datos en la sesión para que el cajero los cobre
+        $posData = [
+            'origen' => 'turno',
+            'turno_id' => $turno->id,
+            'cliente_id' => $turno->client_id,
+            'cliente_nombre' => $turno->client_id ? $turno->cliente->name : $turno->cliente_nombre_manual,
+            'items' => [
+                [
+                    'descripcion' => 'Coseguro / Práctica: ' . ($turno->servicio ? $turno->servicio->nombre : 'Consulta'),
+                    'cantidad' => 1,
+                    'precio_unitario' => $monto,
+                    'subtotal' => $monto,
+                ]
+            ],
+            'total' => $monto
+        ];
+
+        session()->put('pos_cart', $posData);
+
+        return redirect()->route('empresa.ventas.manual')->with('success', 'Turno cargado en caja. Por favor, procese el pago.');
     }
 }

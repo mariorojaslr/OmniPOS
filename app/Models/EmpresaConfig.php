@@ -19,6 +19,7 @@ class EmpresaConfig extends Model
         'mod_orden_pedido_extra',
         'mod_turnos',
         'mod_unidades_medida',
+        'mod_internaciones',
         'mod_afip',
         'mod_pagos',
         'mod_backups',

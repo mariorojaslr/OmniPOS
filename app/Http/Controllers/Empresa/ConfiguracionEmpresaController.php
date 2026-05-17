@@ -59,6 +59,7 @@ class ConfiguracionEmpresaController extends Controller
                 'mod_orden_pedido_extra' => 'nullable|boolean',
                 'mod_turnos' => 'nullable|boolean',
                 'mod_unidades_medida' => 'nullable|boolean',
+                'mod_internaciones' => 'nullable|boolean',
                 
                 // Fiscales / ARCA
                 'arca_cuit'            => 'nullable|string|max:20',
@@ -148,6 +149,7 @@ class ConfiguracionEmpresaController extends Controller
                 'mod_orden_pedido_extra' => $request->has('mod_orden_pedido_extra'),
                 'mod_turnos' => $request->has('mod_turnos'),
                 'mod_unidades_medida' => $request->has('mod_unidades_medida'),
+                'mod_internaciones' => $request->has('mod_internaciones'),
             ];
 
             if ($logoPath) {
