@@ -443,6 +443,62 @@
                 @endif
             </div>
 
+            <!-- Estudios y Archivos Adjuntos Consolidados (Radiografías, resonancias, análisis, etc.) -->
+            @php
+                $allAttachments = [];
+                foreach($records as $rec) {
+                    foreach($rec->attachments as $att) {
+                        $allAttachments[] = [
+                            'name' => $att->file_name,
+                            'type' => strtoupper($att->file_type ?? 'PDF'),
+                            'date' => $rec->created_at->format('d/m/Y'),
+                            'doctor' => $rec->doctor->name,
+                            'file_path' => $att->file_path
+                        ];
+                    }
+                }
+            @endphp
+
+            <div class="glass-card p-4 quick-vitals-card bg-white mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-file-earmark-medical text-primary me-2"></i>Estudios y Reportes
+                    </h5>
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 px-2 py-1 rounded-pill small fw-bold">
+                        {{ count($allAttachments) }} {{ count($allAttachments) == 1 ? 'archivo' : 'archivos' }}
+                    </span>
+                </div>
+                <p class="small text-muted mb-3">Consolidado de radiografías, resonancias, análisis de laboratorio y reportes clínicos adjuntos.</p>
+
+                @if(count($allAttachments) > 0)
+                    <div class="d-flex flex-column gap-2" style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                        @foreach($allAttachments as $file)
+                            @php
+                                $path = str_replace('bunny:', '', $file['file_path']);
+                                $url = config('filesystems.disks.bunny_storage.url') . '/' . $path;
+                            @endphp
+                            <a href="{{ $url }}" target="_blank" class="p-3 bg-light rounded-4 border text-decoration-none d-block hover-shadow transition-all" style="transition: all 0.2s;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <strong class="text-dark d-block text-truncate pe-2" style="font-size: 0.85rem; max-width: 80%;">
+                                        <i class="bi bi-file-earmark-arrow-down-fill text-primary me-1"></i>{{ $file['name'] }}
+                                    </strong>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary x-small py-1 px-2 rounded-pill fw-bold" style="font-size: 0.6rem;">{{ $file['type'] }}</span>
+                                </div>
+                                <div class="pt-2 border-top border-white d-flex justify-content-between text-muted" style="font-size: 0.65rem;">
+                                    <span>📅 Subido: <strong>{{ $file['date'] }}</strong></span>
+                                    <span>🩺 Dr. {{ explode(' ', $file['doctor'])[0] ?? $file['doctor'] }}</span>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-4 bg-light rounded-4 border">
+                        <i class="bi bi-folder-symlink fs-2 text-muted opacity-25 d-block mb-2"></i>
+                        <span class="text-muted small fw-semibold">Sin estudios o archivos cargados</span>
+                    </div>
+                @endif
+            </div>
+
             <!-- Formulario de Carga Rápida (Columna Derecha 4/12) -->
             <div class="glass-card p-4 quick-vitals-card bg-white position-sticky" style="top: 24px;">
                 <h5 class="fw-bold text-dark mb-3"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Control de Constantes Rápido</h5>

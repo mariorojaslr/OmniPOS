@@ -96,7 +96,7 @@ class MedicalRecordController extends Controller
     {
         $records = MedicalRecord::where('client_id', $client->id)
             ->where('empresa_id', Auth::user()->empresa_id)
-            ->with('doctor')
+            ->with(['doctor', 'attachments'])
             ->latest()
             ->get();
 
