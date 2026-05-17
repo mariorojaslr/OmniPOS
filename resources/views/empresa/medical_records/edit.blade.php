@@ -60,6 +60,9 @@
 
 @php
     $specData = $medical_record->specialized_data ?? [];
+    if (is_string($specData)) {
+        $specData = json_decode($specData, true) ?? [];
+    }
     $vitals = $specData['vitals'] ?? [];
     $meds = $specData['medications'] ?? [];
     $labs = $specData['labs'] ?? [];

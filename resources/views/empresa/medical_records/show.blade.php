@@ -53,6 +53,9 @@
 
                     @php
                         $specData = $medical_record->specialized_data;
+                        if (is_string($specData)) {
+                            $specData = json_decode($specData, true) ?? [];
+                        }
                         $config = auth()->user()->empresa->config;
                     @endphp
 

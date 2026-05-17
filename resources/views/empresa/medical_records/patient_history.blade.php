@@ -204,6 +204,9 @@
                     <!-- Extraer variables estructuradas -->
                     @php
                         $specData = $rec->specialized_data ?? [];
+                        if (is_string($specData)) {
+                            $specData = json_decode($specData, true) ?? [];
+                        }
                         $vitals = $specData['vitals'] ?? [];
                         $meds = $specData['medications'] ?? [];
                         $labs = $specData['labs'] ?? [];
@@ -442,6 +445,9 @@
                 $allMedications = [];
                 foreach($records as $rec) {
                     $specData = $rec->specialized_data ?? [];
+                    if (is_string($specData)) {
+                        $specData = json_decode($specData, true) ?? [];
+                    }
                     $meds = $specData['medications'] ?? [];
                     foreach($meds as $m) {
                         $medName = trim(strtolower($m['name']));
@@ -726,6 +732,9 @@
     @foreach($records->reverse() as $rec)
         @php
             $specData = $rec->specialized_data ?? [];
+            if (is_string($specData)) {
+                $specData = json_decode($specData, true) ?? [];
+            }
             $vitals = $specData['vitals'] ?? [];
         @endphp
         
