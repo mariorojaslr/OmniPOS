@@ -114,6 +114,17 @@
                                 <input class="form-check-input" type="checkbox" name="mod_hce" {{ $config->mod_hce ? 'checked' : '' }}>
                             </div>
                         </div>
+
+                        {{-- Campos Dinámicos / Tags --}}
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded-4 border border-info border-opacity-20" style="background: rgba(13, 202, 240, 0.05);">
+                            <div>
+                                <h6 class="fw-bold mb-1 text-info">Campos Dinámicos / Tags HCE</h6>
+                                <p class="small opacity-75 mb-0 text-white">Habilita registro flexible con chips/cápsulas inteligentes (ej. odontología, kinesiología).</p>
+                            </div>
+                            <div class="form-check form-switch fs-4">
+                                <input class="form-check-input" type="checkbox" name="mod_campos_dinamicos" {{ ($config->mod_campos_dinamicos ?? false) ? 'checked' : '' }}>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -50,6 +50,132 @@
                             {{ $medical_record->treatment ?: 'Sin indicaciones registradas.' }}
                         </div>
                     </div>
+
+                    @php
+                        $specData = $medical_record->specialized_data;
+                        $config = auth()->user()->empresa->config;
+                    @endphp
+
+                    @if($specData)
+                        <div class="row g-4 mt-5 pt-4 border-top">
+                            {{-- SIGNOS VITALES --}}
+                            @if(!empty($specData['vitals']) && array_filter($specData['vitals']))
+                                <div class="col-md-6">
+                                    <div class="card bg-light border-0 rounded-4 p-4">
+                                        <h6 class="text-danger fw-bold text-uppercase small mb-3" style="letter-spacing: 1px;"><i class="bi bi-heart-pulse-fill me-2"></i>Signos Vitales</h6>
+                                        <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
+                                            @if(!empty($specData['vitals']['sys']) || !empty($specData['vitals']['dia']))
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">Presión Arterial:</span>
+                                                    <strong class="text-dark">{{ $specData['vitals']['sys'] ?? 'N/A' }}/{{ $specData['vitals']['dia'] ?? 'N/A' }} mmHg</strong>
+                                                </li>
+                                            @endif
+                                            @if(!empty($specData['vitals']['glucose']))
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">Glucemia:</span>
+                                                    <strong class="text-dark">{{ $specData['vitals']['glucose'] }} mg/dL</strong>
+                                                </li>
+                                            @endif
+                                            @if(!empty($specData['vitals']['heart']))
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">Frecuencia Cardíaca:</span>
+                                                    <strong class="text-dark">{{ $specData['vitals']['heart'] }} lpm</strong>
+                                                </li>
+                                            @endif
+                                            @if(!empty($specData['vitals']['weight']))
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">Peso Corporal:</span>
+                                                    <strong class="text-dark">{{ $specData['vitals']['weight'] }} kg</strong>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- LABORATORIO --}}
+                            @if(!empty($specData['labs']) && array_filter($specData['labs']))
+                                <div class="col-md-6">
+                                    <div class="card bg-light border-0 rounded-4 p-4">
+                                        <h6 class="text-info fw-bold text-uppercase small mb-3" style="letter-spacing: 1px;"><i class="bi bi-clipboard2-pulse-fill me-2"></i>Resultados Laboratorio</h6>
+                                        <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
+                                            @if(!empty($specData['labs']['hemo']))
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">Hemoglobina:</span>
+                                                    <strong class="text-dark">{{ $specData['labs']['hemo'] }} g/dL</strong>
+                                                </li>
+                                            @endif
+                                            @if(!empty($specData['labs']['red']))
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">Glóbulos Rojos:</span>
+                                                    <strong class="text-dark">{{ $specData['labs']['red'] }} M/uL</strong>
+                                                </li>
+                                            @endif
+                                            @if(!empty($specData['labs']['white']))
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">Glóbulos Blancos:</span>
+                                                    <strong class="text-dark">{{ $specData['labs']['white'] }} /uL</strong>
+                                                </li>
+                                            @endif
+                                            @if(!empty($specData['labs']['chol']))
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">Colesterol Total:</span>
+                                                    <strong class="text-dark">{{ $specData['labs']['chol'] }} mg/dL</strong>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- MEDICAMENTOS --}}
+                            @if(!empty($specData['medications']))
+                                <div class="col-12 mt-4">
+                                    <div class="card bg-light border-0 rounded-4 p-4">
+                                        <h6 class="text-primary fw-bold text-uppercase small mb-3" style="letter-spacing: 1px;"><i class="bi bi-capsule me-2"></i>Medicamentos Prescritos</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-borderless align-middle mb-0 small">
+                                                <thead>
+                                                    <tr class="text-muted border-bottom">
+                                                        <th class="py-2">Medicamento</th>
+                                                        <th class="py-2">Dosis</th>
+                                                        <th class="py-2">Frecuencia</th>
+                                                        <th class="py-2">Vía</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($specData['medications'] as $med)
+                                                        <tr>
+                                                            <td class="fw-bold text-dark py-2">{{ $med['name'] }}</td>
+                                                            <td class="text-secondary py-2">{{ $med['dose'] ?? 'N/A' }}</td>
+                                                            <td class="text-secondary py-2">{{ $med['frequency'] ?? 'N/A' }}</td>
+                                                            <td class="py-2"><span class="badge bg-secondary bg-opacity-10 text-secondary">{{ $med['route'] ?? 'Oral' }}</span></td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- CAMPOS DINÁMICOS Y TAGS HCE --}}
+                            @if($config && $config->mod_campos_dinamicos && !empty($specData['dynamic_fields']))
+                                <div class="col-12 mt-4">
+                                    <div class="card border border-primary border-opacity-10 rounded-4 p-4" style="background: rgba(13, 110, 253, 0.01);">
+                                        <h6 class="text-primary fw-bold text-uppercase small mb-3" style="letter-spacing: 1px;"><i class="bi bi-tags-fill me-2"></i>Atributos Especializados (Tags Dinámicos)</h6>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach($specData['dynamic_fields'] as $key => $val)
+                                                <span class="badge bg-primary text-white px-3 py-2 rounded-pill shadow-sm" style="font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1);">
+                                                    <strong>{{ $key }}:</strong> {{ $val }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

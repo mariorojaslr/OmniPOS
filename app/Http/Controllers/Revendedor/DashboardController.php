@@ -85,6 +85,7 @@ class DashboardController extends Controller
         $request->validate([
             'mod_afiliados' => 'boolean',
             'mod_hce' => 'boolean',
+            'mod_campos_dinamicos' => 'boolean',
             'mod_turnos' => 'boolean',
             'mod_afip' => 'boolean',
             'mod_pagos' => 'boolean',
@@ -111,6 +112,7 @@ class DashboardController extends Controller
             'mod_compras' => $request->has('mod_compras'),
             'mod_afiliados' => $request->has('mod_afiliados'),
             'mod_hce' => $request->has('mod_hce'),
+            'mod_campos_dinamicos' => $request->has('mod_campos_dinamicos'),
             'mod_turnos' => $request->has('mod_turnos'),
             'mod_afip' => $request->has('mod_afip'),
             'mod_pagos' => $request->has('mod_pagos'),

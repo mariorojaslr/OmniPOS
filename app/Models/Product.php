@@ -46,6 +46,7 @@ class Product extends Model
 
         // Inventario
         'stock',
+        'stock_actual',
         'stock_min',
         'stock_ideal',
 

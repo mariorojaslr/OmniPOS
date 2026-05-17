@@ -20,6 +20,7 @@ class EmpresaConfig extends Model
         'mod_turnos',
         'mod_unidades_medida',
         'mod_internaciones',
+        'mod_campos_dinamicos',
         'mod_afip',
         'mod_pagos',
         'mod_backups',

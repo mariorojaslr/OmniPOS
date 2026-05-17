@@ -110,6 +110,35 @@
                                 <textarea name="treatment" class="form-control form-control-premium" rows="3" placeholder="Indicaciones médicas generales o próximos pasos...">{{ old('treatment') }}</textarea>
                             </div>
 
+                            @php
+                                $config = auth()->user()->empresa->config;
+                            @endphp
+
+                            @if($config && $config->mod_campos_dinamicos)
+                            <div class="mb-4 p-4 rounded-4 border border-primary border-opacity-10 shadow-sm" style="background: rgba(13, 110, 253, 0.02);">
+                                <label class="form-label-premium text-primary"><i class="bi bi-tags-fill me-1"></i> Campos Dinámicos & Tags HCE</label>
+                                <p class="x-small text-muted mb-3">Agrega etiquetas personalizadas con valores clave para adaptar la consulta (ej. Odontología, Kinesiología, Oftalmología).</p>
+                                
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-5">
+                                        <input type="text" id="dyn_key" class="form-control form-control-premium bg-white py-2" placeholder="Propiedad (Ej: Piezas Dentales, Dolor)">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input type="text" id="dyn_value" class="form-control form-control-premium bg-white py-2" placeholder="Valor (Ej: 14 y 15, Lumbar, 8/10)">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-primary w-100 py-2 fw-bold" onclick="addDynamicField()" style="border-radius: 12px; height: 48px;">
+                                            <i class="bi bi-plus-lg fs-5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2" id="dynamicFieldsContainer">
+                                    <!-- Aquí se inyectarán las cápsulas de tags -->
+                                </div>
+                            </div>
+                            @endif
+
                             <hr class="my-4">
 
                             <!-- Módulo de Pestañas de Carga Especializada Estructurada -->
@@ -294,6 +323,42 @@
         }
     }
 
+    // Función para agregar Campos Dinámicos / Tags
+    function addDynamicField() {
+        const keyInput = document.getElementById('dyn_key');
+        const valInput = document.getElementById('dyn_value');
+        if (!keyInput || !valInput) return;
+
+        const key = keyInput.value.trim();
+        const val = valInput.value.trim();
+
+        if (!key || !val) {
+            alert('Por favor, ingresa tanto la propiedad como el detalle del campo.');
+            return;
+        }
+
+        const container = document.getElementById('dynamicFieldsContainer');
+        
+        // Crear elemento badge
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-primary text-white d-flex align-items-center gap-2 px-3 py-2 dynamic-field-badge rounded-pill shadow-sm';
+        badge.setAttribute('data-key', key);
+        badge.setAttribute('data-value', val);
+        badge.style.fontSize = '0.85rem';
+        badge.style.border = '1px solid rgba(255,255,255,0.1)';
+        badge.innerHTML = `
+            <strong>${key}:</strong> ${val}
+            <i class="bi bi-x-circle-fill text-white-50 ms-1 fs-6" style="cursor:pointer;" onclick="this.parentElement.remove()" title="Eliminar"></i>
+        `;
+
+        container.appendChild(badge);
+
+        // Limpiar inputs
+        keyInput.value = '';
+        valInput.value = '';
+        keyInput.focus();
+    }
+
     // Interceptar el envío del formulario para serializar la data estructurada
     document.querySelector('form').addEventListener('submit', function(e) {
         // Signos Vitales
@@ -327,11 +392,22 @@
             chol: document.getElementById('lab_chol').value
         };
 
+        // Obtener Campos Dinámicos / Tags si el contenedor existe
+        const dynamicFields = {};
+        document.querySelectorAll('.dynamic-field-badge').forEach(badge => {
+            const key = badge.getAttribute('data-key');
+            const val = badge.getAttribute('data-value');
+            if (key && val) {
+                dynamicFields[key] = val;
+            }
+        });
+
         // Combinar en un único objeto estructurado
         const specializedData = {
             vitals: vitals,
             medications: medications,
-            labs: labs
+            labs: labs,
+            dynamic_fields: dynamicFields
         };
 
         // Inyectar en el input oculto en formato string JSON
