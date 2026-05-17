@@ -98,6 +98,44 @@ class MedPlusSeeder extends Seeder
             ]);
         }
 
+        // 5.5 Crear Planes de Afiliación internos de Med Plus
+        \App\Models\AffiliatePlan::updateOrCreate(
+            ['empresa_id' => $medPlus->id, 'name' => 'Plan Bronce'],
+            [
+                'description' => 'Cobertura de consultas básicas y medicina general.',
+                'price' => 5000,
+                'active' => true,
+                'features' => ['Consultas clínicas 100% bonificadas', 'Descuento 15% en farmacias adheridas']
+            ]
+        );
+        \App\Models\AffiliatePlan::updateOrCreate(
+            ['empresa_id' => $medPlus->id, 'name' => 'Plan Plata'],
+            [
+                'description' => 'Cobertura de consultas especializadas.',
+                'price' => 12000,
+                'active' => true,
+                'features' => ['Consultas clínicas y especialidades 100% bonificadas', 'Descuento 30% en farmacias adheridas']
+            ]
+        );
+        \App\Models\AffiliatePlan::updateOrCreate(
+            ['empresa_id' => $medPlus->id, 'name' => 'Plan Oro'],
+            [
+                'description' => 'Plan premium con cobertura médica total.',
+                'price' => 25000,
+                'active' => true,
+                'features' => ['Cobertura médica 100% sin coseguros', 'Descuento 50% en farmacias adheridas']
+            ]
+        );
+        \App\Models\AffiliatePlan::updateOrCreate(
+            ['empresa_id' => $medPlus->id, 'name' => 'Plan Platino (VIP)'],
+            [
+                'description' => 'El máximo nivel de cuidado y exclusividad médica.',
+                'price' => 50000,
+                'active' => true,
+                'features' => ['Atención domiciliaria 100% bonificada', 'Descuento 70% en farmacias adheridas']
+            ]
+        );
+
         // 6. Crear Administrador de Med Plus
         User::updateOrCreate(
             ['email' => 'admin@medplus.com'],
