@@ -240,7 +240,7 @@
                                         <p class="text-secondary mb-0" style="white-space: pre-wrap; font-size: 0.95rem;">{{ $rec->diagnosis ?? 'Sin diagnóstico registrado.' }}</p>
                                     </div>
                                     <div class="d-flex gap-2 flex-shrink-0">
-                                        <button type="button" class="btn btn-xs btn-outline-success fw-bold rounded-pill px-3 py-2 text-uppercase shadow-sm border-2 border-opacity-25" style="font-size: 0.7rem; border-color: rgba(16, 185, 129, 0.25);" onclick="openDirectAttachModal('{{ $rec->id }}', '{{ $rec->specialty ?? \'General\' }} - {{ $rec->created_at->format(\'d/m/Y\') }}', '{{ route(\'empresa.medical_records.attach\', $rec->id) }}')">
+                                        <button type="button" class="btn btn-xs btn-outline-success fw-bold rounded-pill px-3 py-2 text-uppercase shadow-sm border-2 border-opacity-25" style="font-size: 0.7rem; border-color: rgba(16, 185, 129, 0.25);" onclick="openDirectAttachModal('{{ $rec->id }}', '{{ $rec->specialty ?? 'General' }} - {{ $rec->created_at->format('d/m/Y') }}', '{{ route('empresa.medical_records.attach', $rec->id) }}')">
                                             <i class="bi bi-paperclip me-1"></i> Adjuntar Estudio
                                         </button>
                                         <a href="{{ route('empresa.medical_records.edit', $rec->id) }}" class="btn btn-xs btn-outline-primary fw-bold rounded-pill px-3 py-2 text-uppercase shadow-sm border-2 border-opacity-25" style="font-size: 0.7rem; border-color: rgba(13, 110, 253, 0.25);">
