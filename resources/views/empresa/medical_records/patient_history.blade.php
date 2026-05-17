@@ -201,7 +201,7 @@
                     @endphp
                     <div class="accordion-item medical-record-card" data-specialty="{{ strtolower(trim($rec->specialty ?? 'General')) }}">
                         <h2 class="accordion-header">
-                            <button class="accordion-button {{ $index > 0 ? 'collapsed' : '' }}" type="button" data-bs-toggle="tab" data-bs-target="#collapse{{ $rec->id }}" aria-expanded="{{ $index == 0 ? 'true' : 'false' }}">
+                            <button class="accordion-button {{ $index > 0 ? 'collapsed' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $rec->id }}" aria-expanded="{{ $index == 0 ? 'true' : 'false' }}">
                                 <div class="d-flex flex-wrap align-items-center justify-content-between w-100 pe-3 gap-2">
                                     <div>
                                         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 rounded-pill me-2 px-3 py-1">
@@ -211,7 +211,7 @@
                                         <span class="text-muted small ms-2">({{ $rec->created_at->format('H:i') }} Hs)</span>
                                     </div>
                                     <div class="text-muted small fw-semibold">
-                                        Atendido por: <span class="text-dark font-semibold">Dr. {{ $rec->doctor->name }}</span>
+                                        Atendido por: <span class="text-dark font-semibold">{{ str_starts_with(strtolower($rec->doctor->name), 'dr') ? $rec->doctor->name : 'Dr. ' . $rec->doctor->name }}</span>
                                     </div>
                                 </div>
                             </button>
@@ -430,7 +430,7 @@
                                 </div>
                                 <div class="pt-2 border-top border-white d-flex justify-content-between text-muted" style="font-size: 0.65rem;">
                                     <span>📅 Recetado: <strong>{{ $med['date'] }}</strong></span>
-                                    <span>🩺 Dr. {{ explode(' ', $med['doctor'])[0] ?? $med['doctor'] }}</span>
+                                    <span>🩺 {{ str_starts_with(strtolower($med['doctor']), 'dr') ? $med['doctor'] : 'Dr. ' . $med['doctor'] }}</span>
                                 </div>
                             </div>
                         @endforeach
@@ -486,7 +486,7 @@
                                 </div>
                                 <div class="pt-2 border-top border-white d-flex justify-content-between text-muted" style="font-size: 0.65rem;">
                                     <span>📅 Subido: <strong>{{ $file['date'] }}</strong></span>
-                                    <span>🩺 Dr. {{ explode(' ', $file['doctor'])[0] ?? $file['doctor'] }}</span>
+                                    <span>🩺 {{ str_starts_with(strtolower($file['doctor']), 'dr') ? $file['doctor'] : 'Dr. ' . $file['doctor'] }}</span>
                                 </div>
                             </a>
                         @endforeach
