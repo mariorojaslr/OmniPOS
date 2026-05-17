@@ -121,7 +121,6 @@
                                 <textarea name="treatment" class="form-control form-control-premium" rows="3" placeholder="Indicaciones médicas generales o próximos pasos...">{{ old('treatment', $medical_record->treatment) }}</textarea>
                             </div>
 
-                            @if($config && $config->mod_campos_dinamicos)
                             <div class="mb-4 p-4 rounded-4 border border-primary border-opacity-10 shadow-sm" style="background: rgba(13, 110, 253, 0.02);">
                                 <label class="form-label-premium text-primary"><i class="bi bi-tags-fill me-1"></i> Campos Dinámicos & Tags HCE</label>
                                 <p class="x-small text-muted mb-3">Agrega etiquetas personalizadas con valores clave para adaptar la consulta (ej. Odontología, Kinesiología, Oftalmología).</p>
@@ -144,7 +143,6 @@
                                     <!-- Aquí se inyectarán las cápsulas de tags -->
                                 </div>
                             </div>
-                            @endif
 
                             <hr class="my-4">
 

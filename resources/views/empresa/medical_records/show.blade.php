@@ -160,7 +160,7 @@
                             @endif
 
                             {{-- CAMPOS DINÁMICOS Y TAGS HCE --}}
-                            @if($config && $config->mod_campos_dinamicos && !empty($specData['dynamic_fields']))
+                            @if(!empty($specData['dynamic_fields']))
                                 <div class="col-12 mt-4">
                                     <div class="card border border-primary border-opacity-10 rounded-4 p-4" style="background: rgba(13, 110, 253, 0.01);">
                                         <h6 class="text-primary fw-bold text-uppercase small mb-3" style="letter-spacing: 1px;"><i class="bi bi-tags-fill me-2"></i>Atributos Especializados (Tags Dinámicos)</h6>
