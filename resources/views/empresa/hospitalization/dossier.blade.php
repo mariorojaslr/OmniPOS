@@ -91,7 +91,7 @@
                         <div class="col-lg-5">
                             <div class="p-4 border rounded-4 bg-light">
                                 <h6 class="fw-bold text-primary mb-3"><i class="bi bi-heart-pulse-fill me-1"></i> Registrar Control Clínico / Visita</h6>
-                                <form action="{{ route('empresa.hospitalization.administrations.store', $hospitalization->id) }}" method="POST">
+                                <form action="{{ route('empresa.hospitalization.administrations.store', $hospitalization->id) }}" method="POST" id="inpatientControlForm">
                                     @csrf
                                     <input type="hidden" name="tipo" value="control_signos">
                                     <input type="hidden" name="cantidad" value="1">
@@ -105,9 +105,100 @@
                                         <input type="datetime-local" name="fecha_registro" value="{{ now()->format('Y-m-d\TH:i') }}" class="form-control shadow-sm" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted">Anotaciones Clínicas (Signos vitales, evolución)</label>
-                                        <textarea name="notas" rows="4" class="form-control shadow-sm" placeholder="Temperatura: 36.5 °C&#10;Presión: 120/80 mmHg&#10;Frecuencia Cardíaca: 75 lpm&#10;Notas de evolución..." required></textarea>
+                                        <label class="form-label small fw-bold text-muted">Anotación de Evolución / Notas de la Visita</label>
+                                        <textarea id="control_evolucion" rows="3" class="form-control shadow-sm" placeholder="Escribe el control clínico general, evolución del día..." required></textarea>
                                     </div>
+
+                                    <!-- Módulo Opcional Estructurado -->
+                                    <label class="form-label small fw-bold text-muted d-block mb-2"><i class="bi bi-patch-plus text-primary"></i> Data Especializada (Opcional)</label>
+                                    <ul class="nav nav-pills gap-1 mb-2" id="controlTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active btn-sm py-1 px-2 fw-bold border" id="vitals-control-tab" data-bs-toggle="pill" data-bs-target="#vitals-control" type="button" role="tab" style="font-size:0.75rem;">🩺 Signos</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link btn-sm py-1 px-2 fw-bold border" id="labs-control-tab" data-bs-toggle="pill" data-bs-target="#labs-control" type="button" role="tab" style="font-size:0.75rem;">🧪 Lab</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link btn-sm py-1 px-2 fw-bold border" id="tags-control-tab" data-bs-toggle="pill" data-bs-target="#tags-control" type="button" role="tab" style="font-size:0.75rem;">🏷️ Tags</button>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content p-3 border rounded-3 bg-white mb-3" id="controlTabsContent">
+                                        <!-- TAB 1: SIGNOS VITALES -->
+                                        <div class="tab-pane fade show active" id="vitals-control" role="tabpanel">
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">Temperatura (°C)</label>
+                                                    <input type="number" step="0.1" id="vital_temp" class="form-control form-control-sm" placeholder="36.5" min="0">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">F. Cardíaca (lpm)</label>
+                                                    <input type="number" id="vital_heart" class="form-control form-control-sm" placeholder="75" min="0">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">P. Sistólica (mmHg)</label>
+                                                    <input type="number" id="vital_sys" class="form-control form-control-sm" placeholder="120" min="0">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">P. Diastólica (mmHg)</label>
+                                                    <input type="number" id="vital_dia" class="form-control form-control-sm" placeholder="80" min="0">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">Sat. Oxígeno (%)</label>
+                                                    <input type="number" id="vital_sat" class="form-control form-control-sm" placeholder="98" min="0">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">Glucemia (mg/dL)</label>
+                                                    <input type="number" id="vital_glucose" class="form-control form-control-sm" placeholder="110" min="0">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">Peso Corporal (kg)</label>
+                                                    <input type="number" step="0.1" id="vital_weight" class="form-control form-control-sm" placeholder="72.4" min="0">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- TAB 2: LABORATORIO -->
+                                        <div class="tab-pane fade" id="labs-control" role="tabpanel">
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">Hemoglobina (g/dL)</label>
+                                                    <input type="number" step="0.1" id="lab_hemo" class="form-control form-control-sm" placeholder="14.2">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">G. Rojos (M/uL)</label>
+                                                    <input type="number" step="0.1" id="lab_red" class="form-control form-control-sm" placeholder="4.8">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">G. Blancos (/uL)</label>
+                                                    <input type="number" id="lab_white" class="form-control form-control-sm" placeholder="6500">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted x-small fw-bold mb-1" style="font-size: 0.65rem;">Plaquetas (/uL)</label>
+                                                    <input type="number" id="lab_platelets" class="form-control form-control-sm" placeholder="250000">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- TAB 3: TAGS PERSONALIZADOS -->
+                                        <div class="tab-pane fade" id="tags-control" role="tabpanel">
+                                            <div class="row g-1 align-items-end mb-2">
+                                                <div class="col-5">
+                                                    <input type="text" id="dyn_key" class="form-control form-control-sm" placeholder="Propiedad (Ej: Dolor)" style="font-size:0.75rem;">
+                                                </div>
+                                                <div class="col-5">
+                                                    <input type="text" id="dyn_value" class="form-control form-control-sm" placeholder="Valor (Ej: Lumbar)" style="font-size:0.75rem;">
+                                                </div>
+                                                <div class="col-2 text-end">
+                                                    <button type="button" class="btn btn-primary btn-sm w-100 fw-bold py-1" onclick="addDynamicFieldInpatient()"><i class="bi bi-plus-lg"></i></button>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex flex-wrap gap-1 mt-2" id="dynamicFieldsContainerInpatient"></div>
+                                        </div>
+                                    </div>
+
+                                    <input type="hidden" name="notas" id="notas_serialized">
+
                                     <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm">
                                         Guardar Registro Clínico
                                     </button>
@@ -143,18 +234,156 @@
                                     No se han cargado controles clínicos en esta internación todavía.
                                 </div>
                             @else
-                                <div class="timeline-container">
+                                <div class="timeline-container" style="max-height: 600px; overflow-y: auto; padding-right: 5px;">
                                     @foreach($controles as $reg)
-                                        <div class="card mb-3 border-0 bg-light shadow-sm">
+                                        @php
+                                            $isJson = false;
+                                            $clinicalData = null;
+                                            if ($reg->notas) {
+                                                $decoded = json_decode($reg->notas, true);
+                                                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                                    $isJson = true;
+                                                    $clinicalData = $decoded;
+                                                }
+                                            }
+                                        @endphp
+                                        <div class="card mb-3 border-0 shadow-sm rounded-4 bg-white border-start border-4 border-primary">
                                             <div class="card-body p-3">
-                                                <div class="d-flex align-items-center justify-content-between mb-2 border-bottom border-light pb-2">
-                                                    <span class="fw-bold text-primary small"><i class="bi bi-clipboard-pulse"></i> {{ $reg->nombre }}</span>
-                                                    <span class="text-muted small fw-normal"><i class="bi bi-calendar3"></i> {{ $reg->fecha_registro->format('d/m/Y H:i') }}</span>
+                                                {{-- Cabecera del control --}}
+                                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-light">
+                                                    <div>
+                                                        <span class="fw-extrabold text-primary small"><i class="bi bi-shield-pulse me-1"></i> {{ $reg->nombre }}</span>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="badge bg-light text-dark border x-small fw-bold"><i class="bi bi-calendar3 me-1"></i> {{ $reg->fecha_registro->format('d/m/Y H:i') }}</span>
+                                                    </div>
                                                 </div>
-                                                <p class="mb-0 text-dark small font-monospace" style="white-space: pre-line;">{{ $reg->notas }}</p>
-                                                <div class="text-end mt-2">
-                                                    <small class="text-muted small">Registrado por: <strong>{{ $reg->user->nombre ?? 'Profesional' }}</strong></small>
+
+                                                {{-- Anotaciones Clínicas / Evolución --}}
+                                                <div class="mb-2 mt-2">
+                                                    @if($isJson)
+                                                        <p class="mb-0 text-dark small" style="white-space: pre-line; line-height: 1.4;">{{ $clinicalData['evolucion'] ?? 'Sin anotaciones' }}</p>
+                                                    @else
+                                                        <p class="mb-0 text-dark small font-monospace" style="white-space: pre-line; line-height: 1.4;">{{ $reg->notas }}</p>
+                                                    @endif
                                                 </div>
+
+                                                {{-- Si es JSON, renderizar Signos Vitales, Laboratorio y Tags --}}
+                                                @if($isJson)
+                                                    {{-- Signos Vitales --}}
+                                                    @php
+                                                        $vitals = $clinicalData['vitals'] ?? [];
+                                                        $hasVitals = collect($vitals)->filter()->isNotEmpty();
+                                                    @endphp
+                                                    @if($hasVitals)
+                                                        <div class="mb-2 mt-3">
+                                                            <span class="text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="bi bi-heart-pulse text-danger"></i> Signos Vitales</span>
+                                                            <div class="d-flex flex-wrap gap-1">
+                                                                @if(!empty($vitals['temp']))
+                                                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        🌡️ {{ $vitals['temp'] }} °C
+                                                                    </span>
+                                                                @endif
+                                                                @if(!empty($vitals['heart']))
+                                                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        💓 {{ $vitals['heart'] }} lpm
+                                                                    </span>
+                                                                @endif
+                                                                @if(!empty($vitals['sys']) || !empty($vitals['dia']))
+                                                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        🩺 {{ $vitals['sys'] ?? 'N/A' }}/{{ $vitals['dia'] ?? 'N/A' }} mmHg
+                                                                    </span>
+                                                                @endif
+                                                                @if(!empty($vitals['sat']))
+                                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        𫓧 {{ $vitals['sat'] }} %
+                                                                    </span>
+                                                                @endif
+                                                                @if(!empty($vitals['glucose']))
+                                                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        🩸 {{ $vitals['glucose'] }} mg/dL
+                                                                    </span>
+                                                                @endif
+                                                                @if(!empty($vitals['weight']))
+                                                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        ⚖️ {{ $vitals['weight'] }} kg
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endif
+
+                                                    {{-- Laboratorio --}}
+                                                    @php
+                                                        $labs = $clinicalData['labs'] ?? [];
+                                                        $hasLabs = collect($labs)->filter()->isNotEmpty();
+                                                    @endphp
+                                                    @if($hasLabs)
+                                                        <div class="mb-2 mt-2">
+                                                            <span class="text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="bi bi-activity text-info"></i> Laboratorio</span>
+                                                            <div class="d-flex flex-wrap gap-1">
+                                                                @if(!empty($labs['hemo']))
+                                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        🩸 Hemo: {{ $labs['hemo'] }} g/dL
+                                                                    </span>
+                                                                @endif
+                                                                @if(!empty($labs['red']))
+                                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        🔴 G.Rojos: {{ $labs['red'] }} M/uL
+                                                                    </span>
+                                                                @endif
+                                                                @if(!empty($labs['white']))
+                                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        ⚪ G.Blancos: {{ $labs['white'] }} /uL
+                                                                    </span>
+                                                                @endif
+                                                                @if(!empty($labs['platelets']))
+                                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-10 px-2 py-1 rounded-2 text-start x-small">
+                                                                        🧬 Plaq: {{ $labs['platelets'] }} /uL
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endif
+
+                                                    {{-- Tags --}}
+                                                    @php
+                                                        $tags = $clinicalData['dynamic_fields'] ?? [];
+                                                    @endphp
+                                                    @if(!empty($tags))
+                                                        <div class="mb-0 mt-2">
+                                                            <div class="d-flex flex-wrap gap-1">
+                                                                @foreach($tags as $key => $val)
+                                                                    <span class="badge bg-light text-dark border px-2 py-1 rounded-pill x-small">
+                                                                        <strong>{{ $key }}:</strong> {{ $val }}
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                @endif
+
+                                                <div class="text-end mt-2 pt-2 border-top border-light">
+                                                    <small class="text-muted x-small">Registrado por: <strong class="text-secondary">{{ $reg->user->nombre ?? 'Profesional' }}</strong></small>
+                                                </div>
+
+                                                @if($isJson)
+                                                    {{-- Botón para ver JSON Técnico --}}
+                                                    <div class="mt-2 pt-2 border-top border-light d-flex justify-content-between align-items-center">
+                                                        <button class="btn btn-xs btn-outline-secondary border-dashed px-2 py-1 text-uppercase fw-bold rounded-2 font-monospace" type="button" data-bs-toggle="collapse" data-bs-target="#jsonCollapse-{{ $reg->id }}" aria-expanded="false" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                                            <i class="bi bi-braces me-1"></i> Ver JSON Técnico
+                                                        </button>
+                                                        <span class="x-small text-muted font-monospace" style="font-size: 0.6rem;">ID Control: #{{ $reg->id }}</span>
+                                                    </div>
+                                                    <div class="collapse mt-2" id="jsonCollapse-{{ $reg->id }}">
+                                                        <div class="card card-body bg-dark text-success p-3 border-0 rounded-3 position-relative shadow-inner" style="background-color: #0c0f16 !important;">
+                                                            <button class="btn btn-link btn-xs text-secondary position-absolute top-0 end-0 m-2 p-0 text-decoration-none" type="button" onclick="copyToClipboardInInpatient('{{ addslashes(json_encode($clinicalData)) }}', this)" title="Copiar al portapapeles">
+                                                                <i class="bi bi-clipboard"></i>
+                                                            </button>
+                                                            <pre class="mb-0 font-monospace text-success" style="font-size: 0.75rem; white-space: pre-wrap; overflow-x: auto; line-height: 1.3; color: #10b981 !important;"><code>{{ json_encode($clinicalData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</code></pre>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     @endforeach
@@ -459,4 +688,95 @@
     </div>
 
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    let dynamicFields = {};
+
+    function addDynamicFieldInpatient() {
+        const keyInput = document.getElementById('dyn_key');
+        const valInput = document.getElementById('dyn_value');
+        const key = keyInput.value.trim();
+        const val = valInput.value.trim();
+
+        if (!key || !val) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor ingresa un nombre de propiedad y su valor.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2500
+            });
+            return;
+        }
+
+        dynamicFields[key] = val;
+        renderDynamicFields();
+
+        keyInput.value = '';
+        valInput.value = '';
+        keyInput.focus();
+    }
+
+    function removeDynamicFieldInpatient(key) {
+        delete dynamicFields[key];
+        renderDynamicFields();
+    }
+
+    function renderDynamicFields() {
+        const container = document.getElementById('dynamicFieldsContainerInpatient');
+        container.innerHTML = '';
+        Object.entries(dynamicFields).forEach(([key, val]) => {
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-light text-dark border px-2 py-1 rounded-pill x-small me-1 mb-1';
+            badge.innerHTML = `<strong>${key}:</strong> ${val} <i class="bi bi-x-circle text-danger ms-1 cursor-pointer" style="font-size: 0.85rem; vertical-align: middle;" onclick="removeDynamicFieldInpatient('${key}')"></i>`;
+            container.appendChild(badge);
+        });
+    }
+
+    document.getElementById('inpatientControlForm').addEventListener('submit', function(e) {
+        const evolucion = document.getElementById('control_evolucion').value.trim();
+        
+        const vitals = {
+            temp: document.getElementById('vital_temp').value || '',
+            heart: document.getElementById('vital_heart').value || '',
+            sys: document.getElementById('vital_sys').value || '',
+            dia: document.getElementById('vital_dia').value || '',
+            sat: document.getElementById('vital_sat').value || '',
+            glucose: document.getElementById('vital_glucose').value || '',
+            weight: document.getElementById('vital_weight').value || ''
+        };
+
+        const labs = {
+            hemo: document.getElementById('lab_hemo').value || '',
+            red: document.getElementById('lab_red').value || '',
+            white: document.getElementById('lab_white').value || '',
+            platelets: document.getElementById('lab_platelets').value || ''
+        };
+
+        const payload = {
+            evolucion: evolucion,
+            vitals: vitals,
+            labs: labs,
+            dynamic_fields: dynamicFields
+        };
+
+        document.getElementById('notas_serialized').value = JSON.stringify(payload);
+    });
+
+    function copyToClipboardInInpatient(text, btn) {
+        navigator.clipboard.writeText(text).then(() => {
+            const icon = btn.querySelector('i');
+            icon.classList.replace('bi-clipboard', 'bi-check-lg');
+            icon.classList.add('text-success');
+            setTimeout(() => {
+                icon.classList.replace('bi-check-lg', 'bi-clipboard');
+                icon.classList.remove('text-success');
+            }, 2000);
+        });
+    }
+</script>
 @endsection

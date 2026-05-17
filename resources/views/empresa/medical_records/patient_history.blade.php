@@ -378,6 +378,23 @@
                                     <p class="text-muted small mb-0">{{ $rec->internal_notes }}</p>
                                 </div>
                                 @endif
+
+                                {{-- Visor JSON Clínico Puro --}}
+                                @if(!empty($specData))
+                                    <div class="mt-4 pt-3 border-top border-light">
+                                        <button class="btn btn-xs btn-outline-secondary border-dashed px-2 py-1 text-uppercase fw-bold rounded-2 font-monospace" type="button" data-bs-toggle="collapse" data-bs-target="#jsonCollapse-{{ $rec->id }}" aria-expanded="false" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                            <i class="bi bi-braces me-1"></i> Ver JSON Clínico Puro
+                                        </button>
+                                        <div class="collapse mt-2" id="jsonCollapse-{{ $rec->id }}">
+                                            <div class="card card-body bg-dark text-success p-3 border-0 rounded-3 position-relative shadow-inner" style="background-color: #0c0f16 !important;">
+                                                <button class="btn btn-link btn-xs text-secondary position-absolute top-0 end-0 m-2 p-0 text-decoration-none" type="button" onclick="copyToClipboardInHistory('{{ addslashes(json_encode($specData)) }}', this)" title="Copiar al portapapeles">
+                                                    <i class="bi bi-clipboard"></i>
+                                                </button>
+                                                <pre class="mb-0 font-monospace text-success" style="font-size: 0.75rem; white-space: pre-wrap; overflow-x: auto; line-height: 1.3; color: #10b981 !important;"><code>{{ json_encode($specData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -773,5 +790,17 @@
             });
         });
     });
+
+    function copyToClipboardInHistory(text, btn) {
+        navigator.clipboard.writeText(text).then(() => {
+            const icon = btn.querySelector('i');
+            icon.classList.replace('bi-clipboard', 'bi-check-lg');
+            icon.classList.add('text-success');
+            setTimeout(() => {
+                icon.classList.replace('bi-check-lg', 'bi-clipboard');
+                icon.classList.remove('text-success');
+            }, 2000);
+        });
+    }
 </script>
 @endpush

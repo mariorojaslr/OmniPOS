@@ -201,8 +201,50 @@
         // Lógica de filtrado por departamento (refetch events con parámetro)
     }
 
+    function copyToClipboardInCalendar(btn) {
+        const encodedJson = btn.getAttribute('data-json');
+        const text = decodeURIComponent(encodedJson);
+        navigator.clipboard.writeText(text).then(() => {
+            const icon = btn.querySelector('i');
+            icon.classList.replace('bi-clipboard', 'bi-check-lg');
+            icon.classList.add('text-success');
+            setTimeout(() => {
+                icon.classList.replace('bi-check-lg', 'bi-clipboard');
+                icon.classList.remove('text-success');
+            }, 2000);
+        });
+    }
+
     function showTurnoDetails(event) {
         const props = event.extendedProps;
+        
+        const hceButtonHtml = props.client_id ? `
+            <div class="col-12 mt-2">
+                <a href="/empresa/pacientes/${props.client_id}/historia" class="btn btn-outline-primary w-100 fw-bold rounded-pill">
+                    <i class="bi bi-journal-medical me-2"></i> VER HISTORIA CLÍNICA (HCE)
+                </a>
+            </div>
+        ` : '';
+
+        const jsonHtml = (props.has_medical_history && props.clinical_json) ? `
+            <div class="col-12 mt-3 pt-3 border-top">
+                <label class="x-small fw-bold text-muted d-block mb-2">
+                    <i class="bi bi-braces text-primary me-1"></i> Último Registro Clínico JSON
+                </label>
+                <button class="btn btn-xs btn-outline-secondary w-100 border-dashed rounded-3 py-1 font-monospace text-start" type="button" data-bs-toggle="collapse" data-bs-target="#jsonTurnoCollapse" style="font-size: 0.7rem;">
+                    <i class="bi bi-eye me-1"></i> Expandir Data Especializada (JSON)
+                </button>
+                <div class="collapse mt-2" id="jsonTurnoCollapse">
+                    <div class="card card-body bg-dark text-success p-3 border-0 rounded-3 position-relative shadow-inner" style="background-color: #090d16 !important;">
+                        <button class="btn btn-link btn-xs text-secondary position-absolute top-0 end-0 m-2 p-0 text-decoration-none" type="button" onclick="copyToClipboardInCalendar(this)" data-json="${encodeURIComponent(props.clinical_json)}" title="Copiar JSON">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                        <pre class="mb-0 font-monospace text-success" style="font-size: 0.75rem; white-space: pre-wrap; overflow-x: auto; line-height: 1.3; color: #10b981 !important;"><code>${props.clinical_json}</code></pre>
+                    </div>
+                </div>
+            </div>
+        ` : '';
+
         const html = `
             <div class="d-flex align-items-center gap-3 mb-4">
                 <div class="bg-primary bg-opacity-10 text-primary rounded-4 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
@@ -218,6 +260,9 @@
                 <div class="col-6"><label class="x-small fw-bold text-muted d-block">Profesional</label><span class="small fw-bold">${props.profesional}</span></div>
                 <div class="col-12"><label class="x-small fw-bold text-muted d-block">Notas</label><p class="small mb-0">${props.notas || 'Sin observaciones'}</p></div>
                 
+                ${hceButtonHtml}
+                ${jsonHtml}
+
                 <div class="col-12 mt-4 pt-3 border-top">
                     <a href="/empresa/turnos/${event.id}/checkout" class="btn btn-success w-100 fw-bold rounded-pill">
                         <i class="bi bi-cart-check me-2"></i> COBRAR TURNO / COSEGURO (POS)

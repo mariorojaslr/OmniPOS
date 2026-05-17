@@ -53,7 +53,7 @@ class TurnoController extends Controller
         $end = $request->get('end');
 
         $turnos = $empresa->turnos()
-            ->with(['cliente', 'servicio', 'user'])
+            ->with(['cliente.latestMedicalRecord', 'servicio', 'user'])
             ->whereBetween('fecha', [$start, $end])
             ->get();
 
@@ -82,7 +82,12 @@ class TurnoController extends Controller
                     'servicio' => $t->servicio ? $t->servicio->nombre : 'S/D',
                     'profesional' => $t->user ? $t->user->name : 'S/D',
                     'estado' => $t->estado,
-                    'notas' => $t->notas
+                    'notas' => $t->notas,
+                    'client_id' => $t->client_id,
+                    'has_medical_history' => $t->cliente && $t->cliente->latestMedicalRecord ? true : false,
+                    'clinical_json' => ($t->cliente && $t->cliente->latestMedicalRecord && $t->cliente->latestMedicalRecord->specialized_data)
+                        ? json_encode($t->cliente->latestMedicalRecord->specialized_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+                        : null
                 ]
             ];
         });
