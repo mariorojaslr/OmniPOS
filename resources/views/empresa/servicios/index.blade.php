@@ -3,13 +3,13 @@
 @section('content')
 <div class="container-fluid px-4 pb-5">
 
-    <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-3 flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold text-dark mb-0">Configuración de Servicios</h2>
-            <p class="text-muted small mb-0">Define tus especialidades, precios y comisiones por trabajo.</p>
+            <h2 class="fw-bold text-dark mb-0">🏥 Configuración de Especialidades & Prestaciones</h2>
+            <p class="text-muted small mb-0">Gestione los aranceles, duración de turnos y comisiones médicas de su clínica.</p>
         </div>
-        <button class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalServicio">
-            <i class="bi bi-plus-lg me-2"></i> NUEVO SERVICIO
+        <button class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none;" data-bs-toggle="modal" data-bs-target="#modalServicio">
+            <i class="bi bi-plus-lg me-2"></i> NUEVA PRESTACIÓN / SERVICIO
         </button>
     </div>
 
@@ -18,11 +18,11 @@
             <table class="table align-middle mb-0">
                 <thead class="bg-light">
                     <tr class="x-small text-muted text-uppercase">
-                        <th class="ps-4 py-3">Categoría</th>
-                        <th class="py-3">Servicio</th>
+                        <th class="ps-4 py-3">Categoría / Especialidad</th>
+                        <th class="py-3">Práctica / Prestación</th>
                         <th class="py-3 text-center">Duración</th>
                         <th class="py-3 text-end">Precio</th>
-                        <th class="py-3 text-center">Comisión</th>
+                        <th class="py-3 text-center">Comisión Médica</th>
                         <th class="py-3 text-center" width="80">Editar</th>
                         <th class="py-3 text-center pe-4" width="80">Borrar</th>
                     </tr>
@@ -49,7 +49,7 @@
                             </td>
                             <td class="text-center">
                                 <button class="btn btn-sm text-dark border-0" onclick="editarServicio({{ $s }})" title="Editar">
-                                    <i class="bi bi-pencil-square fs-5"></i>
+                                    <i class="bi bi-pencil-square fs-5 text-primary"></i>
                                 </button>
                             </td>
                             <td class="text-center pe-4">
@@ -63,7 +63,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5">No hay servicios configurados.</td>
+                            <td colspan="7" class="text-center py-5 text-muted">No hay prestaciones ni servicios configurados.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -75,43 +75,44 @@
 {{-- MODAL CREAR/EDITAR --}}
 <div class="modal fade" id="modalServicio" tabindex="-1">
     <div class="modal-dialog">
-        <form id="formServicio" action="{{ route('empresa.servicios.store') }}" method="POST" class="modal-content border-0 shadow-lg rounded-4">
+        <form id="formServicio" action="{{ route('empresa.servicios.store') }}" method="POST" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             @csrf
+            <div style="height: 6px; background: linear-gradient(90deg, #2563eb, #10b981);"></div>
             <div id="methodField"></div>
             <div class="modal-header border-0 p-4 pb-0">
-                <h5 class="modal-title fw-bold" id="tituloModal">Nuevo Servicio</h5>
+                <h5 class="modal-title fw-bold text-dark" id="tituloModal">Nueva Práctica / Servicio</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="mb-3">
-                    <label class="form-label fw-bold small">Categoría / Especialidad</label>
-                    <input type="text" name="categoria" id="categoria" class="form-control" placeholder="Ej: Manicura, Masajes" required>
+                    <label class="form-label fw-bold small text-secondary">Categoría / Especialidad</label>
+                    <input type="text" name="categoria" id="categoria" class="form-control border-slate" placeholder="Ej: Cardiología, Odontología, Pediatría" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold small">Nombre del Servicio</label>
-                    <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej: Esmaltado Semipermanente" required>
+                    <label class="form-label fw-bold small text-secondary">Nombre de la Práctica / Servicio</label>
+                    <input type="text" name="nombre" id="nombre" class="form-control border-slate" placeholder="Ej: Consulta Médica General, Ecografía" required>
                 </div>
                 <div class="row g-3">
                     <div class="col-6">
-                        <label class="form-label fw-bold small">Precio de Venta ($)</label>
-                        <input type="number" name="precio" id="precio" step="0.01" class="form-control" required>
+                        <label class="form-label fw-bold small text-secondary">Precio de Venta ($)</label>
+                        <input type="number" name="precio" id="precio" step="0.01" class="form-control border-slate" required>
                     </div>
                     <div class="col-6">
-                        <label class="form-label fw-bold small">Duración (min)</label>
-                        <input type="number" name="duracion_minutos" id="duracion_minutos" class="form-control" required>
+                        <label class="form-label fw-bold small text-secondary">Duración (min)</label>
+                        <input type="number" name="duracion_minutos" id="duracion_minutos" class="form-control border-slate" required>
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-bold small">Comisión para el Profesional (%)</label>
+                        <label class="form-label fw-bold small text-secondary">Comisión para el Profesional (%)</label>
                         <div class="input-group">
-                            <input type="number" name="comision_porcentaje" id="comision_porcentaje" step="0.1" class="form-control" required>
-                            <span class="input-group-text">%</span>
+                            <input type="number" name="comision_porcentaje" id="comision_porcentaje" step="0.1" class="form-control border-slate" required>
+                            <span class="input-group-text bg-light">%</span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 pt-0">
                 <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">GUARDAR SERVICIO</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none;">GUARDAR SERVICIO</button>
             </div>
         </form>
     </div>
