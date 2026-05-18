@@ -24,7 +24,8 @@ class HospitalizationController extends Controller
      */
     public function dashboard()
     {
-        $empresaId = Auth::user()->empresa_id;
+        $user = Auth::user();
+        $empresaId = $user->empresa_id ?: \App\Models\Empresa::first()?->id ?? 1;
 
         // Cargar todas las habitaciones de la empresa con sus camas
         $rooms = Room::where('empresa_id', $empresaId)
@@ -57,12 +58,18 @@ class HospitalizationController extends Controller
      */
     public function index(Request $request)
     {
-        $empresaId = Auth::user()->empresa_id;
+        $user = Auth::user();
+        $empresaId = $user->empresa_id;
         $search = $request->get('search');
 
-        $query = Hospitalization::where('empresa_id', $empresaId)
-            ->with(['patient', 'currentBedAssignment.bed.room'])
-            ->orderBy('fecha_ingreso', 'desc');
+        if ($user->role === 'owner' && !$empresaId) {
+            $query = Hospitalization::with(['patient', 'currentBedAssignment.bed.room'])
+                ->orderBy('fecha_ingreso', 'desc');
+        } else {
+            $query = Hospitalization::where('empresa_id', $empresaId)
+                ->with(['patient', 'currentBedAssignment.bed.room'])
+                ->orderBy('fecha_ingreso', 'desc');
+        }
 
         if ($search) {
             $query->whereHas('patient', function ($q) use ($search) {
@@ -82,7 +89,8 @@ class HospitalizationController extends Controller
      */
     public function create(Request $request)
     {
-        $empresaId = Auth::user()->empresa_id;
+        $user = Auth::user();
+        $empresaId = $user->empresa_id ?: \App\Models\Empresa::first()?->id ?? 1;
         $preselectedCamaId = $request->get('cama_id');
 
         // Obtener todos los pacientes/afiliados de la empresa
@@ -116,7 +124,8 @@ class HospitalizationController extends Controller
             'diagnostico_ingreso' => 'required|string',
         ]);
 
-        $empresaId = Auth::user()->empresa_id;
+        $user = Auth::user();
+        $empresaId = $user->empresa_id ?: Client::find($request->client_id)?->empresa_id ?: \App\Models\Empresa::first()?->id ?? 1;
 
         // Iniciar transacción de base de datos para asegurar consistencia
         DB::beginTransaction();
@@ -174,14 +183,17 @@ class HospitalizationController extends Controller
      */
     public function dossier(Hospitalization $hospitalization)
     {
-        if ($hospitalization->empresa_id !== Auth::user()->empresa_id) {
-            abort(403, 'Acción no autorizada.');
+        $user = Auth::user();
+        if ($hospitalization->empresa_id !== $user->empresa_id) {
+            if (!($user->role === 'owner' && !$user->empresa_id)) {
+                abort(403, 'Acción no autorizada.');
+            }
         }
 
         // Cargar relaciones
         $hospitalization->load(['patient', 'assignments.bed.room', 'administrations.user']);
 
-        $empresaId = Auth::user()->empresa_id;
+        $empresaId = $user->empresa_id ?: $hospitalization->empresa_id;
 
         // Obtener camas disponibles para traslados
         $availableBeds = Bed::where('empresa_id', $empresaId)
@@ -206,8 +218,11 @@ class HospitalizationController extends Controller
      */
     public function transfer(Request $request, Hospitalization $hospitalization)
     {
-        if ($hospitalization->empresa_id !== Auth::user()->empresa_id) {
-            abort(403, 'Acción no autorizada.');
+        $user = Auth::user();
+        if ($hospitalization->empresa_id !== $user->empresa_id) {
+            if (!($user->role === 'owner' && !$user->empresa_id)) {
+                abort(403, 'Acción no autorizada.');
+            }
         }
 
         $request->validate([
@@ -219,7 +234,7 @@ class HospitalizationController extends Controller
         DB::beginTransaction();
 
         try {
-            $empresaId = Auth::user()->empresa_id;
+            $empresaId = $user->empresa_id ?: $hospitalization->empresa_id;
             $newBed = Bed::where('id', $request->cama_id)
                 ->where('empresa_id', $empresaId)
                 ->with('room')
@@ -269,8 +284,11 @@ class HospitalizationController extends Controller
      */
     public function storeAdministration(Request $request, Hospitalization $hospitalization)
     {
-        if ($hospitalization->empresa_id !== Auth::user()->empresa_id) {
-            abort(403, 'Acción no autorizada.');
+        $user = Auth::user();
+        if ($hospitalization->empresa_id !== $user->empresa_id) {
+            if (!($user->role === 'owner' && !$user->empresa_id)) {
+                abort(403, 'Acción no autorizada.');
+            }
         }
 
         $request->validate([
@@ -288,7 +306,7 @@ class HospitalizationController extends Controller
 
         HospitalizationAdministration::create([
             'internacion_id' => $hospitalization->id,
-            'user_id' => Auth::user()->id,
+            'user_id' => $user->id,
             'tipo' => $request->tipo,
             'nombre' => $request->nombre,
             'cantidad' => $request->cantidad,
@@ -309,8 +327,11 @@ class HospitalizationController extends Controller
      */
     public function discharge(Request $request, Hospitalization $hospitalization)
     {
-        if ($hospitalization->empresa_id !== Auth::user()->empresa_id) {
-            abort(403, 'Acción no autorizada.');
+        $user = Auth::user();
+        if ($hospitalization->empresa_id !== $user->empresa_id) {
+            if (!($user->role === 'owner' && !$user->empresa_id)) {
+                abort(403, 'Acción no autorizada.');
+            }
         }
 
         $request->validate([
