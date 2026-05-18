@@ -182,6 +182,124 @@
             </div>
         </div>
     </div>
+
+    {{-- SIMULADOR DE API OBRAS SOCIALES --}}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background: #0f172a; color: #f1f5f9;">
+                <div style="height: 6px; background: linear-gradient(90deg, #3b82f6, #10b981, #f59e0b);"></div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="row align-items-center g-4">
+                        <div class="col-lg-5">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <span class="p-3 rounded-4 bg-primary bg-opacity-20 text-primary d-inline-flex border border-primary border-opacity-25">
+                                    <i class="bi bi-cpu-fill" style="font-size: 1.8rem; color: #3b82f6;"></i>
+                                </span>
+                                <div>
+                                    <h4 class="fw-bold mb-0 text-white">Simulador API Obras Sociales</h4>
+                                    <span class="badge bg-success bg-opacity-20 text-success rounded-pill border border-success border-opacity-25" style="font-size: 0.7rem;">MODO HOMOLOGACIÓN ACTIVO</span>
+                                </div>
+                            </div>
+                            <p class="opacity-75 small">Pruebe la conexión por API con las Obras Sociales autorizadas en tiempo real. Este módulo simula la llamada segura REST enviada por la clínica para comprobar la elegibilidad de los afiliados al momento del checkout.</p>
+                            
+                            <form id="formSimuladorApi" class="mt-4">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-secondary text-uppercase tracking-wider" style="color: #94a3b8 !important;">1. Seleccionar Obra Social</label>
+                                    <select name="obra_social_id" id="sim_os_id" class="form-select bg-dark border-secondary text-white rounded-3 py-2" required>
+                                        <option value="" style="background:#0f172a;">-- Seleccione Convenio --</option>
+                                        @foreach($obrasSociales as $os)
+                                            <option value="{{ $os->id }}" data-token="{{ $os->api_token }}" style="background:#0f172a;">{{ $os->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-secondary text-uppercase tracking-wider" style="color: #94a3b8 !important;">2. Credencial / Nº Afiliado</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-card-text"></i></span>
+                                        <input type="text" name="credential_number" id="sim_credencial" class="form-control bg-dark border-secondary text-white rounded-end-3 py-2" placeholder="Ej: 1024392 o 99-3829" required>
+                                    </div>
+                                    <div class="mt-2 text-muted x-small" style="font-size: 0.75rem;">
+                                        💡 <strong>Tip para Demos:</strong> Comience con <code class="text-warning">99</code> para simular rechazo por mora o con <code class="text-warning">88</code> para fuera de cartilla. Un número par dará cobertura 100% y un impar un coseguro de $1.500.
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold text-uppercase shadow-sm d-flex align-items-center justify-content-center gap-2 border-0" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+                                    <i class="bi bi-lightning-charge-fill"></i> Validar Afiliación Online
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div class="col-lg-7">
+                            <div class="border border-secondary border-opacity-25 rounded-4 p-4 h-100" style="background: rgba(2, 6, 23, 0.5); min-height: 320px;">
+                                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                                    <div class="small fw-bold text-secondary text-uppercase tracking-wider" style="color: #94a3b8 !important;"><i class="bi bi-terminal me-2"></i>Consola de Transacciones API</div>
+                                    <span class="badge bg-secondary text-muted rounded-pill px-3 font-monospace x-small" style="font-size: 0.65rem;">POST HTTP/1.1</span>
+                                </div>
+                                
+                                {{-- ESTADO VACÍO --}}
+                                <div id="consolaVacia" class="text-center py-5">
+                                    <i class="bi bi-hdd-network fs-1 text-secondary opacity-25 d-block mb-3"></i>
+                                    <p class="text-muted small">Complete los campos de la izquierda y presione <strong>Validar</strong> para iniciar la validación.</p>
+                                </div>
+
+                                {{-- PANTALLA CARGANDO --}}
+                                <div id="consolaCargando" class="text-center py-5 d-none">
+                                    <div class="spinner-grow text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                                    <h6 class="fw-bold text-white mb-2 animate__animated animate__pulse animate__infinite">Estableciendo túnel HTTPS TLS v1.3...</h6>
+                                    <p class="x-small font-monospace text-secondary" id="consoleHeaders">Enviando cabeceras de autorización...</p>
+                                </div>
+
+                                {{-- PANTALLA RESULTADOS --}}
+                                <div id="consolaResultados" class="d-none">
+                                    <div class="alert border-0 rounded-3 p-3 mb-4 d-flex align-items-center gap-3" id="resultadoAlert">
+                                        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; flex-shrink: 0;" id="resultadoIconBg">
+                                            <i class="bi" id="resultadoIcon" style="font-size: 1.5rem;"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold mb-1 text-white" id="resultadoStatusText">HABILITADO</h5>
+                                            <p class="mb-0 x-small text-white opacity-75" id="resultadoMensaje">Afiliado validado correctamente.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-md-6">
+                                            <div class="p-2 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-10">
+                                                <div class="x-small text-secondary fw-bold text-uppercase">Convenio Activo</div>
+                                                <div class="small fw-bold text-white" id="resultadoObraSocial">Swiss Medical</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="p-2 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-10">
+                                                <div class="x-small text-secondary fw-bold text-uppercase">Plan Detectado</div>
+                                                <div class="small fw-bold text-white" id="resultadoPlan">Plan Standard</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="p-2 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-10">
+                                                <div class="x-small text-secondary fw-bold text-uppercase">Código Autorización</div>
+                                                <div class="small fw-bold text-success font-monospace" id="resultadoAutorizacion">AUT-184920</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="p-2 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-10">
+                                                <div class="x-small text-secondary fw-bold text-uppercase">Coseguro / Co-pago</div>
+                                                <div class="small fw-bold text-warning" id="resultadoCoseguro">$ 0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-dark p-3 rounded-3 border border-secondary border-opacity-25">
+                                        <div class="x-small text-secondary fw-bold text-uppercase mb-2"><i class="bi bi-braces me-1"></i>Trama JSON Homologada de Respuesta</div>
+                                        <pre class="small text-info mb-0 font-monospace" style="font-size: 0.72rem; max-height: 120px; overflow-y: auto;" id="resultadoJson">{}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Add -->
@@ -303,6 +421,68 @@
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // SIMULADOR DE API OBRAS SOCIALES
+        $('#formSimuladorApi').on('submit', function(e) {
+            e.preventDefault();
+
+            const osSelect = document.getElementById('sim_os_id');
+            const token = osSelect.options[osSelect.selectedIndex].getAttribute('data-token');
+            
+            // Mostrar Cargando
+            $('#consolaVacia').addClass('d-none');
+            $('#consolaResultados').addClass('d-none');
+            $('#consolaCargando').removeClass('d-none');
+            $('#consoleHeaders').html(`Authorization: Bearer ${token.substring(0, 10)}...<br>POST {{ url('/empresa/obras_sociales/simulate') }}`);
+
+            $.ajax({
+                url: "{{ route('empresa.obras_sociales.simulate') }}",
+                method: "POST",
+                data: $(this).serialize(),
+                dataType: "json",
+                success: function(res) {
+                    $('#consolaCargando').addClass('d-none');
+                    $('#consolaResultados').removeClass('d-none');
+
+                    // Setear Textos
+                    $('#resultadoObraSocial').text(res.obra_social);
+                    $('#resultadoPlan').text(res.plan_afiliado);
+                    $('#resultadoAutorizacion').text(res.autorizacion);
+                    $('#resultadoCoseguro').text(res.coseguro > 0 ? '$ ' + res.coseguro : 'SIN COSTO ($0)');
+                    $('#resultadoStatusText').text(res.status_text);
+                    $('#resultadoMensaje').text(res.mensaje);
+                    $('#resultadoJson').text(JSON.stringify(res, null, 4));
+
+                    // Clases CSS por Estado
+                    const alertEl = $('#resultadoAlert');
+                    const iconBgEl = $('#resultadoIconBg');
+                    const iconEl = $('#resultadoIcon');
+
+                    alertEl.removeClass('alert-success alert-warning alert-danger');
+                    iconBgEl.removeClass('bg-success bg-warning bg-danger');
+                    iconEl.removeClass('bi-check-circle-fill bi-exclamation-triangle-fill bi-x-circle-fill');
+
+                    if (res.status === 'APPROVED') {
+                        alertEl.addClass('bg-success bg-opacity-20 text-success border border-success border-opacity-25');
+                        iconBgEl.addClass('bg-success text-white');
+                        iconEl.addClass('bi-check-circle-fill');
+                    } else if (res.status === 'COPAY') {
+                        alertEl.addClass('bg-warning bg-opacity-20 text-warning border border-warning border-opacity-25');
+                        iconBgEl.addClass('bg-warning text-dark');
+                        iconEl.addClass('bi-exclamation-triangle-fill');
+                    } else {
+                        alertEl.addClass('bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25');
+                        iconBgEl.addClass('bg-danger text-white');
+                        iconEl.addClass('bi-x-circle-fill');
+                    }
+                },
+                error: function(xhr) {
+                    $('#consolaCargando').addClass('d-none');
+                    $('#consolaVacia').removeClass('d-none');
+                    alert('Error al simular la transacción de API. Intente de nuevo.');
+                }
+            });
         });
     });
 </script>

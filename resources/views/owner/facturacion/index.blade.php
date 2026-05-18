@@ -60,7 +60,13 @@
                         <button class="accordion-button collapsed bg-transparent text-white py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $empresa->id }}">
                             <div class="d-flex w-100 justify-content-between align-items-center pe-4">
                                 <div>
-                                    <span class="fw-bold h5 mb-0">{{ $empresa->nombre_comercial }}</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-secondary rounded-pill px-2 py-1" style="font-size: 10px; background-color: #64748b !important;">ID: {{ $empresa->id }}</span>
+                                        <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-secondary rounded-pill px-2 py-1" style="font-size: 10px; background-color: #64748b !important;">ID: {{ $empresa->id }}</span>
+                                        <span class="fw-bold h5 mb-0">{{ $empresa->nombre_comercial }}</span>
+                                    </div>
+                                    </div>
                                     <div class="small text-secondary mt-1">
                                         Plan: {{ $empresa->plan->name ?? 'N/A' }} | 
                                         Cuit: {{ $empresa->cuit ?? 'N/A' }}

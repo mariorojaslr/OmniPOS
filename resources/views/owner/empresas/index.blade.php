@@ -65,7 +65,13 @@
                     <tr>
                         {{-- Empresa --}}
                         <td class="ps-4">
-                            <div class="fw-bold">{{ $empresa->nombre_comercial }}</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-secondary rounded-pill px-2 py-1" style="font-size: 10px; background-color: #64748b !important;">ID: {{ $empresa->id }}</span>
+                                <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-secondary rounded-pill px-2 py-1" style="font-size: 10px; background-color: #64748b !important;">ID: {{ $empresa->id }}</span>
+                                <div class="fw-bold text-dark">{{ $empresa->nombre_comercial }}</div>
+                            </div>
+                            </div>
                             <small class="text-muted">{{ $empresa->email }}</small>
                         </td>
 

@@ -13,7 +13,11 @@ class ServicioController extends Controller
     {
         $empresa = Auth::user()->empresa;
         $servicios = $empresa->servicios()->orderBy('categoria')->orderBy('nombre')->get();
-        return view('empresa.servicios.index', compact('servicios'));
+        $especialidades = \App\Models\Especialidad::where('empresa_id', $empresa->id)
+            ->where('activo', true)
+            ->orderBy('nombre')
+            ->get();
+        return view('empresa.servicios.index', compact('servicios', 'especialidades'));
     }
 
     public function store(Request $request)

@@ -251,4 +251,63 @@ class ObraSocialController extends Controller
 
         return redirect()->back()->with('success', 'Convenios de Obras Sociales importados correctamente.');
     }
+
+    /**
+     * Simula la validación de elegibilidad en tiempo real a través de API homologadora.
+     */
+    public function simulateEligibility(Request $request)
+    {
+        $request->validate([
+            'obra_social_id' => 'required|exists:obras_sociales,id',
+            'credential_number' => 'required|string|min:4|max:50',
+        ]);
+
+        $empresa = Auth::user()->empresa;
+        $os = ObraSocial::where('empresa_id', $empresa->id)->findOrFail($request->obra_social_id);
+
+        // Simulamos un retraso de red de 1.2 segundos para wowear visualmente con el loader
+        usleep(1200000);
+
+        $num = trim($request->credential_number);
+        $status = 'APPROVED';
+        $statusText = 'ACTIVO / HABILITADO';
+        $message = 'El afiliado cuenta con cobertura vigente y activa en el plan seleccionado.';
+        $coseguro = 0;
+        $authNumber = 'AUT-' . rand(100000, 999999);
+        $plan = 'Plan Standard Cobertura Plena';
+
+        if (str_starts_with($num, '99')) {
+            $status = 'REJECTED';
+            $statusText = 'RECHAZADO / INACTIVO';
+            $message = 'El afiliado se encuentra temporalmente inactivo o suspendido por mora administrativa.';
+            $authNumber = 'N/A';
+            $plan = 'N/A';
+        } elseif (str_starts_with($num, '88')) {
+            $status = 'REJECTED';
+            $statusText = 'PLAN SIN COBERTURA';
+            $message = 'El plan de este afiliado no cubre prestaciones ambulatorias en este centro médico.';
+            $authNumber = 'N/A';
+            $plan = 'Plan Básico (Co-pago Total)';
+        } elseif (intval(substr($num, -1)) % 2 !== 0) {
+            $status = 'COPAY';
+            $statusText = 'HABILITADO CON CO-PAGO';
+            $coseguro = 1500;
+            $message = 'El afiliado requiere el pago de un coseguro fijo en recepción de $1.500.';
+            $plan = 'Plan Oro / Co-pago Parcial';
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => $status,
+            'status_text' => $statusText,
+            'obra_social' => $os->nombre,
+            'api_token_used' => substr($os->api_token, 0, 8) . '****************************',
+            'afiliado_cuit' => $os->cuit ?: 'No configurado',
+            'coseguro' => $coseguro,
+            'autorizacion' => $authNumber,
+            'plan_afiliado' => $plan,
+            'mensaje' => $message,
+            'timestamp' => now()->toIso8601String()
+        ]);
+    }
 }

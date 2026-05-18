@@ -370,6 +370,7 @@ body {
                             <a href="{{ route('empresa.affiliates.index') }}" class="submenu-link text-success">👥 Plan Afiliados & Obras</a>
                         @endif
                         <a href="{{ route('empresa.servicios.index') }}" class="submenu-link">💆 Servicios & Prestaciones</a>
+                        <a href="{{ route('empresa.especialidades.index') }}" class="submenu-link text-info fw-bold"><i class="bi bi-tags-fill me-1"></i> Especialidades Médicas</a>
                         <a href="{{ route('empresa.liquidaciones.index') }}" class="submenu-link">💰 Liquidaciones & Pagos</a>
                         <hr class="my-1 border-white border-opacity-10">
                         <a href="{{ route('empresa.certificados.index') }}" class="submenu-link text-warning fw-bold"><i class="bi bi-patch-check-fill me-1"></i> Certificados QR</a>

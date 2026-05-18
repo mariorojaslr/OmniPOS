@@ -119,6 +119,7 @@
         @php
             $analiticos = [
                 ['titulo' => 'Venta por Día', 'ruta' => 'empresa.reportes.ventas_fecha', 'icon' => '🗓️', 'bg' => 'primary'],
+                ['titulo' => 'Rendición Médica', 'ruta' => 'empresa.reportes.rendicion_medica', 'icon' => '🩺', 'bg' => 'primary'],
                 ['titulo' => 'Ranking Productos', 'ruta' => 'empresa.reportes.productos', 'icon' => '📦', 'bg' => 'primary'],
                 ['titulo' => 'Ranking Clientes', 'ruta' => 'empresa.reportes.clientes', 'icon' => '👥', 'bg' => 'primary'],
                 ['titulo' => 'Ventas por Vendedor', 'ruta' => 'empresa.reportes.vendedores', 'icon' => '👤', 'bg' => 'primary'],

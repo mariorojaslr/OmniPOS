@@ -86,7 +86,18 @@
             <div class="modal-body p-4">
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-secondary">Categoría / Especialidad</label>
-                    <input type="text" name="categoria" id="categoria" class="form-control border-slate" placeholder="Ej: Cardiología, Odontología, Pediatría" required>
+                    <div class="input-group">
+                        <select name="categoria" id="categoria" class="form-select border-slate" required>
+                            <option value="">-- Seleccione una Especialidad --</option>
+                            @foreach($especialidades as $esp)
+                                <option value="{{ $esp->nombre }}">{{ $esp->nombre }}</option>
+                            @endforeach
+                        </select>
+                        <a href="{{ route('empresa.especialidades.index') }}" class="btn btn-outline-secondary d-flex align-items-center" title="Gestionar Especialidades">
+                            <i class="bi bi-gear-fill"></i>
+                        </a>
+                    </div>
+                    <small class="text-muted x-small">Haga clic en el engranaje para crear o editar la lista de especialidades.</small>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-secondary">Nombre de la Práctica / Servicio</label>

@@ -417,4 +417,85 @@ class ReporteController extends Controller
             ->limit(10)
             ->get();
     }
+
+    /**
+     * Módulo de Rendición de Cuentas y Auditoría Médica Avanzada.
+     */
+    public function rendicionMedica()
+    {
+        $empresaId = auth()->user()->empresa_id;
+
+        // KPI 1: Facturación Total Clínica (Turnos completados)
+        $facturadoClinica = DB::table('turnos')
+            ->where('empresa_id', $empresaId)
+            ->whereIn('estado', ['realizado', 'atendido'])
+            ->sum('monto');
+
+        // KPI 2: Total Comisiones a Médicos
+        $totalComisiones = DB::table('turnos')
+            ->where('empresa_id', $empresaId)
+            ->whereIn('estado', ['realizado', 'atendido'])
+            ->sum('comision_monto');
+
+        // KPI 3: Margen Clínica Neto
+        $margenClinica = $facturadoClinica - $totalComisiones;
+
+        // KPI 4: Deuda pendiente Obras Sociales
+        $deudaObrasSociales = DB::table('turnos')
+            ->where('empresa_id', $empresaId)
+            ->whereIn('estado', ['realizado', 'atendido'])
+            ->whereNotNull('obra_social_id')
+            ->sum('monto');
+
+        // 1. Desglose detallado por Profesional
+        $liquidacionesProfesionales = DB::table('turnos as t')
+            ->join('users as u', 'u.id', '=', 't.user_id')
+            ->where('t.empresa_id', $empresaId)
+            ->whereIn('t.estado', ['realizado', 'atendido'])
+            ->select(
+                'u.name as profesional_nombre',
+                'u.email as profesional_email',
+                DB::raw('COUNT(t.id) as cant_turnos'),
+                DB::raw('SUM(t.monto) as total_bruto'),
+                DB::raw('SUM(t.comision_monto) as total_comision'),
+                DB::raw('SUM(t.monto - t.comision_monto) as margen_clinica')
+            )
+            ->groupBy('t.user_id', 'u.name', 'u.email')
+            ->orderByDesc('total_bruto')
+            ->get();
+
+        // 2. Liquidaciones / Deudas por Obra Social
+        $deudasObrasSociales = DB::table('turnos as t')
+            ->join('obras_sociales as os', 'os.id', '=', 't.obra_social_id')
+            ->where('t.empresa_id', $empresaId)
+            ->whereIn('t.estado', ['realizado', 'atendido'])
+            ->select(
+                'os.nombre as obra_social_nombre',
+                'os.cuit as obra_social_cuit',
+                DB::raw('COUNT(t.id) as cant_prestaciones'),
+                DB::raw('SUM(t.monto) as total_reclamado')
+            )
+            ->groupBy('t.obra_social_id', 'os.nombre', 'os.cuit')
+            ->orderByDesc('total_reclamado')
+            ->get();
+
+        // 3. Distribución mensual para Chart.js
+        $rendimientoMensual = DB::table('turnos')
+            ->where('empresa_id', $empresaId)
+            ->whereIn('estado', ['realizado', 'atendido'])
+            ->whereYear('fecha', now()->year)
+            ->select(
+                DB::raw('MONTH(fecha) as mes'),
+                DB::raw('SUM(monto) as total'),
+                DB::raw('SUM(comision_monto) as comision')
+            )
+            ->groupBy(DB::raw('MONTH(fecha)'))
+            ->orderBy('mes')
+            ->get();
+
+        return view('empresa.reportes.rendicion_medica', compact(
+            'facturadoClinica', 'totalComisiones', 'margenClinica', 'deudaObrasSociales',
+            'liquidacionesProfesionales', 'deudasObrasSociales', 'rendimientoMensual'
+        ));
+    }
 }

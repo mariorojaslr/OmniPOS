@@ -188,44 +188,22 @@ Route::middleware(['auth', 'can:isRevendedor'])
 
 /* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÓN (LEAD MAGNET) |-------------------------------------------------------------------------- */
 Route::get('/demo-experience', function() {
-    
-    // 1. Buscamos la Empresa de la Demo Médica (ID 2)
     $demoEmpresa = \App\Models\Empresa::find(2);
-    
     if (!$demoEmpresa) {
         $demoEmpresa = \App\Models\Empresa::updateOrCreate(
             ['id' => 2],
-            [
-                'nombre_comercial' => 'Sanatorio del Sol (Demo)',
-                'cuit' => '30-22222222-9',
-                'activo' => true,
-                'slug' => 'clinica-demo'
-            ]
+            ['nombre_comercial' => 'Sanatorio del Sol (Demo)', 'cuit' => '30-22222222-9', 'activo' => true, 'slug' => 'clinica-demo']
         );
     }
-
-    // 2. Buscamos el Usuario Demo de la Clínica
     $demoUser = \App\Models\User::where('email', 'demo@poolhub.com')->first();
-    
     if (!$demoUser) {
         $demoUser = \App\Models\User::updateOrCreate(
             ['email' => 'demo@poolhub.com'],
-            [
-                'name' => 'Dr. Leandro Gómez (Admin Demo)',
-                'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
-                'role' => 'empresa',
-                'empresa_id' => $demoEmpresa->id,
-                'activo' => true,
-                'status' => 'activo'
-            ]
+            ['name' => 'Dr. Leandro Gómez (Admin Demo)', 'password' => \Illuminate\Support\Facades\Hash::make('admin123'), 'role' => 'empresa', 'empresa_id' => $demoEmpresa->id, 'activo' => true, 'status' => 'activo']
         );
     }
-
-    // 3. Login automático y redirección instantánea
-    Auth::login($demoUser);
-    
+    \Auth::login($demoUser);
     return redirect()->route('empresa.dashboard')->with('success', 'Bienvenido a la Demo de Recepción Médica. Explora todas las funciones.');
-
 })->name('demo.mode');
 
 
@@ -282,6 +260,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('api/recepcion/doctor/{id}/consultorio', [App\Http\Controllers\Empresa\ReceptionistController::class, 'updateDoctorOffice'])->name('recepcion.doctor.consultorio');
 
         Route::resource('servicios', App\Http\Controllers\Empresa\ServicioController::class);
+        Route::resource('especialidades', App\Http\Controllers\Empresa\EspecialidadController::class);
 
         // CERTIFICADOS QR (NUEVO)
         Route::get('certificados', [App\Http\Controllers\Empresa\MedicalCertificateController::class, 'index'])->name('certificados.index');
@@ -318,6 +297,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('obras_sociales/export', [App\Http\Controllers\Empresa\ObraSocialController::class, 'exportExcel'])->name('obras_sociales.export');
         Route::post('obras_sociales/import', [App\Http\Controllers\Empresa\ObraSocialController::class, 'importExcel'])->name('obras_sociales.import');
         Route::resource('obras_sociales', App\Http\Controllers\Empresa\ObraSocialController::class)->parameters(['obras_sociales' => 'obra_social']);
+        Route::post('obras_sociales/simulate', [App\Http\Controllers\Empresa\ObraSocialController::class, 'simulateEligibility'])->name('obras_sociales.simulate');
         Route::post('clientes/quick-store', [ClientController::class, 'quickStore'])->name('clientes.quick-store');
 
         // HOSPITALIZACIÓN / INTERNACIONES (MODULAR)
@@ -518,6 +498,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('/reportes/clientes-frecuentes', [ReporteController::class , 'clientesFrecuentes'])->name('reportes.clientes_frecuentes');
         Route::get('/reportes/por-hora', [ReporteController::class , 'ventasPorHora'])->name('reportes.por_hora');
         Route::get('/reportes/analisis-mensual', [ReporteController::class , 'analisisMensual'])->name('reportes.analisis_mensual');
+        Route::get('/reportes/rendicion-medica', [ReporteController::class , 'rendicionMedica'])->name('reportes.rendicion_medica');
         
         Route::get('/reportes/ranking-productos', [ReporteController::class , 'rankingProductos'])->name('reportes.productos');
         Route::get('/reportes/ranking-clientes', [ReporteController::class , 'rankingClientes'])->name('reportes.clientes');
