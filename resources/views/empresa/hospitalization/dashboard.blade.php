@@ -158,7 +158,7 @@
                                                     <div class="row g-2">
                                                         <div class="col-12">
                                                             <span class="text-muted small">Paciente:</span>
-                                                            <div class="fw-bold text-primary">{{ $activeH->patient?->nombre ?? 'Desconocido' }}</div>
+                                                            <div class="fw-bold text-primary">{{ $activeH->patient?->name ?? 'Desconocido' }}</div>
                                                         </div>
                                                         <div class="col-6">
                                                             <span class="text-muted small d-block">Ingreso:</span>

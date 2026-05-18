@@ -13,10 +13,10 @@
                     </div>
                     <div>
                         <span class="badge bg-danger mb-2 px-2 py-1 text-uppercase small" style="font-size: 0.65rem; letter-spacing: 1px;">Internación Activa</span>
-                        <h4 class="fw-bold mb-1 text-white">{{ $hospitalization->patient?->nombre ?? 'Paciente Desconocido' }}</h4>
+                        <h4 class="fw-bold mb-1 text-white">{{ $hospitalization->patient?->name ?? 'Paciente Desconocido' }}</h4>
                         <div class="small text-muted text-light opacity-75">
-                            <i class="bi bi-card-text me-1"></i> Documento: <strong>{{ $hospitalization->patient?->cuit_cuil ?? 'No Registrado' }}</strong> | 
-                            <i class="bi bi-telephone me-1 ms-2"></i> Tel: <strong>{{ $hospitalization->patient?->telefono ?? 'Sin Teléfono' }}</strong>
+                            <i class="bi bi-card-text me-1"></i> Documento: <strong>{{ $hospitalization->patient?->document ?? 'No Registrado' }}</strong> | 
+                            <i class="bi bi-telephone me-1 ms-2"></i> Tel: <strong>{{ $hospitalization->patient?->phone ?? 'Sin Teléfono' }}</strong>
                         </div>
                     </div>
                 </div>

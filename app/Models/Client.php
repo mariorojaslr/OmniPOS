@@ -53,6 +53,22 @@ class Client extends Model
         'additional_insurances' => 'array',
     ];
 
+    // Accessors de compatibilidad con vistas de hospitalización heredadas
+    public function getNombreAttribute()
+    {
+        return $this->name;
+    }
+
+    public function getCuitCuilAttribute()
+    {
+        return $this->document;
+    }
+
+    public function getTelefonoAttribute()
+    {
+        return $this->phone;
+    }
+
     // =========================================================
     // RELACIONES
     // =========================================================
