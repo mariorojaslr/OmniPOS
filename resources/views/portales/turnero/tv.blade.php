@@ -78,39 +78,57 @@
         .full-width-ticker {
             height: 18vh;
             width: 100%;
-            background: #090d16;
+            background: #000000; /* OLED Deep Black */
             border-top: 2px solid rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 0 40px;
             overflow: hidden;
+            position: relative;
+            padding: 0;
         }
 
-        .ticker-carousel-item {
-            height: 100%;
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            text-align: center;
         }
 
-        .ticker-title {
-            font-size: 1.45rem;
+        .ticker-content {
+            display: inline-flex;
+            align-items: center;
+            animation: marquee 50s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding-right: 150px;
+        }
+
+        .ticker-badge {
+            font-size: 1.5rem;
             font-weight: 800;
             color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
             text-transform: uppercase;
-            margin-bottom: 6px;
+            padding: 10px 24px;
+            border-radius: 14px;
+            margin-right: 25px;
             letter-spacing: 2px;
         }
 
-        .ticker-desc {
-            font-size: 2.3rem; /* Subtítulos gigantes y legibles */
+        .ticker-text {
+            font-size: 2.5rem;
             font-weight: 700;
             color: #ffffff;
-            line-height: 1.25;
-            max-width: 95%;
+        }
+
+        @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
         }
 
         .card-turno {
@@ -233,30 +251,33 @@
         $tDesc3  = $empresa->config_pasarelas['ticker_desc_3'] ?? 'Utilice el dispenser de alcohol en gel disponible en los pasillos al entrar y salir.';
     @endphp
     <div class="full-width-ticker">
-        <div id="ambientCarousel" class="carousel slide carousel-fade w-100 h-100" data-bs-ride="carousel" data-bs-interval="8000">
-            <div class="carousel-inner h-100">
-                
-                <div class="carousel-item active h-100">
-                    <div class="ticker-carousel-item">
-                        <span class="ticker-title">{{ $tTitle1 }}</span>
-                        <p class="ticker-desc">{{ $tDesc1 }}</p>
-                    </div>
+        <div class="ticker-wrap">
+            <div class="ticker-content">
+                <div class="ticker-item">
+                    <span class="ticker-badge">{{ $tTitle1 }}</span>
+                    <span class="ticker-text">{{ $tDesc1 }}</span>
                 </div>
-
-                <div class="carousel-item h-100">
-                    <div class="ticker-carousel-item">
-                        <span class="ticker-title">{{ $tTitle2 }}</span>
-                        <p class="ticker-desc">{{ $tDesc2 }}</p>
-                    </div>
+                <div class="ticker-item">
+                    <span class="ticker-badge">{{ $tTitle2 }}</span>
+                    <span class="ticker-text">{{ $tDesc2 }}</span>
                 </div>
-
-                <div class="carousel-item h-100">
-                    <div class="ticker-carousel-item">
-                        <span class="ticker-title">{{ $tTitle3 }}</span>
-                        <p class="ticker-desc">{{ $tDesc3 }}</p>
-                    </div>
+                <div class="ticker-item">
+                    <span class="ticker-badge">{{ $tTitle3 }}</span>
+                    <span class="ticker-text">{{ $tDesc3 }}</span>
                 </div>
-
+                <!-- Duplicamos los ítems para asegurar un loop infinito continuo y perfecto -->
+                <div class="ticker-item">
+                    <span class="ticker-badge">{{ $tTitle1 }}</span>
+                    <span class="ticker-text">{{ $tDesc1 }}</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-badge">{{ $tTitle2 }}</span>
+                    <span class="ticker-text">{{ $tDesc2 }}</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-badge">{{ $tTitle3 }}</span>
+                    <span class="ticker-text">{{ $tDesc3 }}</span>
+                </div>
             </div>
         </div>
     </div>
