@@ -111,8 +111,8 @@
                                                 @endif
                                             </td>
                                             <td class="py-3">
-                                                <div class="input-group input-group-sm" style="max-width: 250px;">
-                                                    <input type="text" id="url-{{ $conv->id }}" class="form-control bg-light text-muted border-secondary small" value="{{ $portalUrl }}" readonly>
+                                                <div class="input-group input-group-sm" style="max-width: 320px;">
+                                                    <input type="text" id="url-{{ $conv->id }}" class="form-control bg-light text-muted border-secondary small" value="{{ $portalUrl }}" onclick="this.select()" readonly>
                                                     <button onclick="copyToClipboard({{ $conv->id }})" class="btn btn-primary" title="Copiar Enlace">
                                                         <i class="bi bi-clipboard"></i>
                                                     </button>

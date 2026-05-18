@@ -1,7 +1,9 @@
 @extends('layouts.empresa')
 
 @php
+    $config = auth()->user()->empresa?->config;
     $modoOscuro = ($config?->theme === 'dark');
+    $colorPrimario = $config?->color_primary ?? '#0d6efd';
 @endphp
 
 @section('content')
