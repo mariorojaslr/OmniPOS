@@ -1,3 +1,6 @@
+@php
+    $isCatalog = true;
+@endphp
 @extends('layouts.guest')
 
 @php
@@ -386,13 +389,17 @@
                     <div class="step-dot" data-step="5" title="Datos" style="z-index: 2;">5</div>
                     <div class="step-dot" data-step="6" title="Confirmación" style="z-index: 2;">6</div>
                 </div>
-                <div class="d-flex justify-content-between mt-2 px-1 text-center x-small text-muted fw-bold">
+                <div class="d-flex justify-content-between mt-2 px-1 text-center x-small text-muted fw-bold d-none d-md-flex">
                     <span class="step-label text-primary">Especialidad</span>
                     <span class="step-label">Médico</span>
                     <span class="step-label">Práctica</span>
                     <span class="step-label">Agenda</span>
                     <span class="step-label">Paciente</span>
                     <span class="step-label">Confirmación</span>
+                </div>
+                <!-- Dynamic Center Label for mobile and tablet -->
+                <div class="text-center mt-3 d-md-none fs-6 text-primary fw-extrabold" id="mobile-step-label">
+                    Paso 1: Seleccionar Especialidad
                 </div>
             </div>
 
@@ -742,6 +749,20 @@
                 lbl.classList.remove('text-primary');
             }
         });
+
+        // Actualizar etiqueta móvil dinámica
+        const stepNames = {
+            1: "Seleccionar Especialidad",
+            2: "Seleccionar Médico",
+            3: "Seleccionar Práctica",
+            4: "Elegir Fecha y Hora",
+            5: "Completar Datos Paciente",
+            6: "Confirmar Turno Médico"
+        };
+        const mobileStepLabel = document.getElementById('mobile-step-label');
+        if (mobileStepLabel) {
+            mobileStepLabel.innerText = `Paso ${step}: ${stepNames[step]}`;
+        }
 
         currentStep = step;
         window.scrollTo({ top: 0, behavior: 'smooth' });
