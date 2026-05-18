@@ -175,6 +175,9 @@
                                                                         <span class="badge {{ $badgeClass }} small rounded">{{ $bed->estado }}</span>
                                                                     </td>
                                                                     <td class="text-end py-2">
+                                                                        <a href="{{ route('empresa.hospitalization.beds.qr', $bed->id) }}" target="_blank" class="btn btn-link text-primary p-1" title="Imprimir Tarjeta QR de Cama">
+                                                                            <i class="bi bi-qr-code"></i>
+                                                                        </a>
                                                                         @if($bed->estado !== 'ocupada')
                                                                             <form action="{{ route('empresa.hospitalization.beds.toggle_mantenimiento', $bed->id) }}" method="POST" class="d-inline">
                                                                                 @csrf

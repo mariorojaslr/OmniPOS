@@ -17,7 +17,20 @@ class Bed extends Model
         'habitacion_id',
         'nombre',
         'estado',
+        'qr_token',
     ];
+
+    /**
+     * Boot del modelo para auto-generación de tokens QR únicos.
+     */
+    protected static function booted()
+    {
+        static::creating(function ($bed) {
+            if (empty($bed->qr_token)) {
+                $bed->qr_token = 'BED-' . strtoupper(\Illuminate\Support\Str::random(12));
+            }
+        });
+    }
 
     /**
      * Relación con la Habitación a la que pertenece.

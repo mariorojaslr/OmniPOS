@@ -288,53 +288,26 @@ body {
             <span class="nav-icon-label text-center lh-sm mt-1">Mi Catálogo<br>(Store)</span>
         </a>
 
-        {{-- ARTICULOS --}}
+        {{-- ADMINISTRACIÓN --}}
         <div class="nav-link-item">
-            <i class="bi bi-tags" style="color: #00d2ff;"></i>
-            <span class="nav-icon-label text-center">Artículos</span>
-            <div class="floating-balloon">
-                <h6>📦 GESTIÓN DE ARTÍCULOS</h6>
+            <i class="bi bi-briefcase" style="color: #4da3ff;"></i>
+            <span class="nav-icon-label text-center">Administración</span>
+            <div class="floating-balloon" style="width: 290px;">
+                <h6>💼 DEPARTAMENTO ADMINISTRATIVO</h6>
                 <div class="submenu-list">
-                    <a href="{{ route('empresa.products.index') }}" class="submenu-link">📄 Mis Artículos</a>
-                    <a href="{{ route('empresa.rubros.index') }}" class="submenu-link">🏷️ Rubros / Categorías</a>
-                    <a href="{{ route('empresa.listados.articulos') }}" class="submenu-link text-success">🖨️ Catálogo / Imprimir</a>
+                    <a href="{{ route('empresa.products.index') }}" class="submenu-link">📦 Artículos & Categorías</a>
+                    <a href="{{ route('empresa.stock.index') }}" class="submenu-link">🔄 Inventario & Stock</a>
+                    @if($config?->mod_ventas)
+                        <a href="{{ route('empresa.ventas.index') }}" class="submenu-link">🛒 Ventas (POS / Manual)</a>
+                    @endif
+                    @if($config?->mod_compras)
+                        <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📥 Abasto / Compras</a>
+                    @endif
+                    <a href="{{ route('empresa.clientes.index') }}" class="submenu-link">👥 Cartera de Clientes</a>
+                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🚚 Proveedores</a>
                 </div>
             </div>
         </div>
-
-        {{-- STOCK --}}
-        <div class="nav-link-item">
-            <i class="bi bi-boxes" style="color: #20c997;"></i>
-            <span class="nav-icon-label text-center">Stock</span>
-            <div class="floating-balloon">
-                <h6>📊 CONTROL DE STOCK</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.stock.index') }}" class="submenu-link">🔄 Movimientos Stock</a>
-                    <a href="{{ route('empresa.stock.valuation') }}" class="submenu-link">💰 Valuación de Stock</a>
-                    <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-link text-warning">⚠️ Reposición</a>
-                    <hr class="my-1 opacity-10">
-                    <a href="{{ route('empresa.recipes.index') }}" class="submenu-link text-info">🧪 Recetas (BOM)</a>
-                    <a href="{{ route('empresa.production_orders.index') }}" class="submenu-link text-info">🏭 Producción</a>
-                </div>
-            </div>
-        </div>
-
-        {{-- VENTAS --}}
-        @if($config?->mod_ventas)
-        <div class="nav-link-item">
-            <i class="bi bi-shop" style="color: #ffc107;"></i>
-            <span class="nav-icon-label">Ventas</span>
-            <div class="floating-balloon">
-                <h6>📑 ÁREA DE VENTAS</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.orders.index') }}" class="submenu-link text-info">🛒 Pedidos Catálogo</a>
-                    <a href="{{ route('empresa.ventas.index') }}" class="submenu-link">📋 Historial Ventas</a>
-                    <a href="{{ route('empresa.ventas.manual') }}" class="submenu-link">✍️ Venta Manual</a>
-                    <a href="{{ route('empresa.presupuestos.index') }}" class="submenu-link">📜 Presupuestos</a>
-                </div>
-            </div>
-        </div>
-        @endif
 
         {{-- LOGÍSTICA --}}
         @if($config?->mod_logistica)
@@ -346,10 +319,6 @@ body {
                 <div class="submenu-list">
                     <a href="{{ route('empresa.gps.index') }}" class="submenu-link text-primary fw-bold">🗺️ Centro de Control GPS</a>
                     <a href="{{ route('empresa.gps.rutas') }}" class="submenu-link">🚛 Smart Delivery</a>
-                    <a href="{{ route('empresa.gps.zonas_calientes') }}" class="submenu-link">🔥 Mapa de Calor</a>
-                    <a href="{{ route('empresa.gps.retiros_inteligentes') }}" class="submenu-link">📦 Retiros CRM</a>
-                    <hr class="my-1 opacity-10">
-                    <a href="{{ route('empresa.logistica.reporte') }}" class="submenu-link">📦 Stock en Guarda</a>
                     <a href="{{ route('empresa.remitos.index') }}" class="submenu-link">📜 Historial Remitos</a>
                 </div>
             </div>
@@ -359,73 +328,17 @@ body {
         {{-- FINANZAS --}}
         @if($config?->mod_tesoreria)
         <div onclick="window.location='{{ route('empresa.tesoreria.index') }}'" class="nav-link-item" style="cursor: pointer;">
-            <i class="bi bi-bank" style="color: #4da3ff;"></i>
+            <i class="bi bi-bank" style="color: #20c997;"></i>
             <span class="nav-icon-label">Finanzas</span>
             <div class="floating-balloon" onclick="event.stopPropagation()">
                 <h6>🏦 CAJA & FINANZAS</h6>
                 <div class="submenu-list">
                     <a href="{{ route('empresa.tesoreria.index') }}" class="submenu-link">🏦 Cuentas & Billeteras</a>
-                    <a href="{{ route('empresa.tesoreria.proyeccion') }}" class="submenu-link">📈 Proyección de Caja</a>
-                    <a href="{{ route('empresa.tesoreria.cheques.index') }}" class="submenu-link">✍️ Cheques de Terceros</a>
-                    <a href="{{ route('empresa.tesoreria.chequeras.index') }}" class="submenu-link">📖 Chequeras Propias</a>
-                    <hr class="my-1 opacity-10">
                     <a href="{{ route('empresa.gastos.index') }}" class="submenu-link text-danger">💸 Gestión de Gastos</a>
                 </div>
             </div>
         </div>
         @endif
-
-        {{-- ABASTO --}}
-        @if($config?->mod_compras)
-        <div onclick="window.location='{{ route('empresa.compras.index') }}'" class="nav-link-item" style="cursor: pointer;">
-            <i class="bi bi-cart-check" style="color: #ff4d4d;"></i>
-            <span class="nav-icon-label">Abasto</span>
-            <div class="floating-balloon" onclick="event.stopPropagation()">
-                <h6>🛒 ABASTECIMIENTO</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.compras.create') }}" class="submenu-link text-success">🟢 Nueva Compra</a>
-                    <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Historial Compras</a>
-                    <a href="{{ route('empresa.stock.faltantes') }}" class="submenu-link text-warning">📋 Plan de Reposición</a>
-                </div>
-            </div>
-        </div>
-        @endif
-
-        {{-- CLIENTES --}}
-        <div onclick="window.location='{{ route('empresa.clientes.index') }}'" class="nav-link-item" style="cursor: pointer;">
-            <i class="bi bi-people" style="color: #00d2ff;"></i>
-            <span class="nav-icon-label">Clientes</span>
-            <div class="floating-balloon" onclick="event.stopPropagation()">
-                <h6>👥 CARTERA</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.clientes.index') }}" class="submenu-link">📄 Listado de Clientes</a>
-                    <a href="{{ route('empresa.clientes.portal_list') }}" class="submenu-link">🌐 Portal del Cliente</a>
-                    <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">💰 Cta. Cte. Clientes</a>
-                    <a href="{{ route('empresa.pagos.index') }}" class="submenu-link">🧾 Recibos de Cobro</a>
-                    <a href="{{ route('empresa.listados.clientes') }}" class="submenu-link">📋 Padrones</a>
-                </div>
-            </div>
-        </div>
-
-        {{-- PROVEEDORES --}}
-        <div onclick="window.location='{{ route('empresa.proveedores.index') }}'" class="nav-link-item" style="cursor: pointer;">
-            <i class="bi bi-truck" style="color: #28a745;"></i>
-            <span class="nav-icon-label text-center">Proveedores</span>
-            <div class="floating-balloon" onclick="event.stopPropagation()">
-                <h6>🚛 GESTIÓN PROVEEDORES</h6>
-                <div class="submenu-list">
-                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">🚚 Mis Proveedores</a>
-                    <a href="{{ route('empresa.proveedores.portal_list') }}" class="submenu-link">🌐 Portal de Proveedores</a>
-                    <a href="{{ route('empresa.compras.index') }}" class="submenu-link">📑 Facturas de Compra</a>
-                    <a href="{{ route('empresa.proveedores.index') }}" class="submenu-link">💳 Cta. Cte. Proveedores</a>
-                    <a href="{{ route('empresa.recibos-proveedores.index') }}" class="submenu-link">🧾 Recibos de Pago</a>
-                    @if($config?->mod_orden_pedido)
-                        <hr class="my-1 opacity-10">
-                        <a href="{{ route('empresa.ordenes-pedido.index') }}" class="submenu-link fw-bold text-success">📝 Órdenes de Pedido</a>
-                    @endif
-                </div>
-            </div>
-        </div>
 
         {{-- PERSONAL --}}
         <div class="nav-link-item">
@@ -435,54 +348,50 @@ body {
                 <h6>👥 GESTIÓN DE EQUIPO</h6>
                 <div class="submenu-list">
                     <a href="{{ route('empresa.usuarios.index') }}" class="submenu-link">👥 Lista de Personal</a>
-                    <a href="{{ route('empresa.personal.rendimiento') }}" class="submenu-link">📊 Rendimiento Operativo</a>
-                    <a href="{{ route('empresa.personal.cajas.index') }}" class="submenu-link">💵 Auditoría de Cajas</a>
                     <a href="{{ route('empresa.personal.asistencia.qr') }}" class="submenu-link">📱 Fichaje QR</a>
                 </div>
             </div>
         </div>
 
-        {{-- TURNOS (MODULAR) --}}
+        {{-- CONSULTORIOS (ATENCIÓN PRIMARIA) --}}
         @if($config?->mod_turnos)
             <div onclick="window.location='{{ route('empresa.turnos.index') }}'" class="nav-link-item" style="cursor: pointer;">
-                <i class="bi bi-calendar-event" style="color: #00d2ff;"></i>
-                <span class="nav-icon-label">Turnos</span>
-                <div class="floating-balloon">
-                    <h6>📅 RESERVAS</h6>
+                <i class="bi bi-heart-pulse" style="color: #00d2ff;"></i>
+                <span class="nav-icon-label text-center">Consultorios</span>
+                <div class="floating-balloon" onclick="event.stopPropagation()" style="width: 310px;">
+                    <h6>🏥 ATENCIÓN PRIMARIA</h6>
                     <div class="submenu-list">
-                        <a href="{{ route('empresa.turnos.index') }}" class="submenu-link">📋 Agenda de Turnos</a>
-                        <a href="{{ route('empresa.turnos.create') }}" class="submenu-link">⚙️ Nuevo Turno</a>
-                        
+                        <a href="{{ route('empresa.turnos.index') }}" class="submenu-link">📅 Agenda de Turnos</a>
+                        <a href="{{ route('empresa.recepcion.index') }}" class="submenu-link text-success fw-bold"><i class="bi bi-people-fill me-1"></i> Hub de Recepción & Cola</a>
                         @if($config?->mod_hce)
                             <a href="{{ route('empresa.medical_records.index') }}" class="submenu-link text-info">🩺 Historia Clínica (HCE)</a>
                         @endif
-
                         @if($config?->mod_afiliados)
-                            <a href="{{ route('empresa.affiliates.index') }}" class="submenu-link text-success">👥 Plan Afiliados</a>
-                            <a href="{{ route('empresa.affiliate_plans.index') }}" class="submenu-link text-success">⚙️ Configurar Planes</a>
-                            <a href="{{ route('empresa.obras_sociales.index') }}" class="submenu-link text-success">🏥 Obras Sociales</a>
+                            <a href="{{ route('empresa.affiliates.index') }}" class="submenu-link text-success">👥 Plan Afiliados & Obras</a>
                         @endif
-
-                        <a href="{{ route('empresa.liquidaciones.index') }}" class="submenu-link">💰 Liquidaciones</a>
-                        <a href="{{ route('empresa.liquidaciones.create') }}" class="submenu-link">⚡ Motor de Pago</a>
+                        <a href="{{ route('empresa.servicios.index') }}" class="submenu-link">💆 Servicios & Prestaciones</a>
+                        <a href="{{ route('empresa.liquidaciones.index') }}" class="submenu-link">💰 Liquidaciones & Pagos</a>
                         <hr class="my-1 border-white border-opacity-10">
-                        <a href="{{ route('empresa.servicios.index') }}" class="submenu-link">💆 Servicios</a>
+                        <a href="{{ route('empresa.certificados.index') }}" class="submenu-link text-warning fw-bold"><i class="bi bi-patch-check-fill me-1"></i> Certificados QR</a>
+                        <a href="{{ route('empresa.turnos.online-config') }}" class="submenu-link text-warning fw-bold"><i class="bi bi-globe2 me-1"></i> Turnos Online & Pago</a>
                     </div>
                 </div>
             </div>
         @endif
 
-        {{-- INTERNACIONES (MODULAR) --}}
+        {{-- INTERNACIÓN (HOSPITAL) --}}
         @if($config?->mod_internaciones)
             <div onclick="window.location='{{ route('empresa.hospitalization.dashboard') }}'" class="nav-link-item" style="cursor: pointer;">
                 <i class="bi bi-hospital" style="color: #10b981;"></i>
                 <span class="nav-icon-label text-center">Internación</span>
-                <div class="floating-balloon" onclick="event.stopPropagation()">
+                <div class="floating-balloon" onclick="event.stopPropagation()" style="width: 280px;">
                     <h6>🏥 HOSPITALIZACIÓN</h6>
                     <div class="submenu-list">
                         <a href="{{ route('empresa.hospitalization.dashboard') }}" class="submenu-link text-success"><i class="bi bi-grid-3x3-gap-fill me-1"></i> Mapa de Camas</a>
                         <a href="{{ route('empresa.hospitalization.rooms') }}" class="submenu-link"><i class="bi bi-door-open-fill me-1"></i> Habitaciones y Camas</a>
                         <a href="{{ route('empresa.hospitalization.index') }}" class="submenu-link"><i class="bi bi-clock-history me-1"></i> Historial Clínico</a>
+                        <hr class="my-1 border-white border-opacity-10">
+                        <a href="{{ route('empresa.hospitalization.billing') }}" class="submenu-link text-info fw-bold"><i class="bi bi-receipt-cutoff me-1"></i> Facturación & Costos</a>
                     </div>
                 </div>
             </div>
@@ -497,10 +406,7 @@ body {
                 <div class="submenu-list">
                     <a href="{{ route('empresa.reportes.panel') }}" class="submenu-link">📈 Dashboard Global</a>
                     <a href="{{ route('empresa.reportes.caja_diaria') }}" class="submenu-link">💵 Auditoría de Caja</a>
-                    <a href="{{ route('empresa.reportes.vendedores') }}" class="submenu-link">👨‍💼 Ventas por Vendedor</a>
                     <a href="{{ route('empresa.reportes.rentabilidad') }}" class="submenu-link">💎 Rentabilidad</a>
-                    <hr class="my-1 opacity-10">
-                    <a href="{{ route('empresa.gps.index') }}" class="submenu-link">📍 GPS (Beta)</a>
                 </div>
             </div>
         </div>
@@ -510,15 +416,11 @@ body {
             <i class="bi bi-gear" style="color: #f1f5f9;"></i>
             <span class="nav-icon-label">Ajustes</span>
             <div class="floating-balloon" onclick="event.stopPropagation()">
-                <h6>⚙️ SISTEMA</h6>
+                <h6>⚙️ AJUSTES DE APP</h6>
                 <div class="submenu-list">
                     <a href="{{ route('empresa.configuracion.index') }}" class="submenu-link">🛠️ Configurar App</a>
-                    @if($config?->mod_unidades_medida)
-                        <a href="{{ route('empresa.units.index') }}" class="submenu-link">⚖️ Unidades de Medida</a>
-                    @endif
                     <a href="{{ route('empresa.backup.index') }}" class="submenu-link">🛡️ Bóveda de Backups</a>
                     <a href="{{ route('empresa.soporte.index') }}" class="submenu-link text-warning fw-bold">🎫 Generar Ticket</a>
-                    <a href="{{ route('empresa.suscripcion.index') }}" class="submenu-link text-primary">⭐ Mi Suscripción</a>
                 </div>
             </div>
         </div>

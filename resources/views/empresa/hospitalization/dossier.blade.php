@@ -651,6 +651,34 @@
                                     </div>
                                 @endforeach
                             </div>
+
+                            <!-- HISTORIAL DE TRAZABILIDAD PRESENCIAL QR -->
+                            <h5 class="fw-bold text-dark mt-4 mb-3"><i class="bi bi-shield-fill-check text-success me-1"></i> Trazabilidad de Presencia Física (QR Cama)</h5>
+                            
+                            @if($presenceLogs->isEmpty())
+                                <div class="alert alert-light border text-muted small p-3 rounded-4">
+                                    <i class="bi bi-shield-slash-fill me-1 text-danger"></i> Sin registros de validación presencial mediante código QR para esta internación todavía.
+                                </div>
+                            @else
+                                <div class="timeline-container px-1" style="max-height: 400px; overflow-y: auto;">
+                                    @foreach($presenceLogs as $log)
+                                        <div class="card mb-2 border-start border-4 border-success shadow-sm bg-white rounded-3">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                                    <div>
+                                                        <span class="fw-bold text-dark small"><i class="bi bi-hospital me-1 text-success"></i> {{ $log->bed?->room?->nombre }} — {{ $log->bed?->nombre }}</span>
+                                                        <span class="x-small text-muted d-block mt-1">Profesional: <strong>{{ $log->user?->name }}</strong> ({{ $log->user?->esEnfermero() ? 'Enfermero' : 'Médico' }})</span>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="badge bg-success text-white small" style="font-size: 0.7rem;"><i class="bi bi-qr-code-scan me-1"></i> VALIDADO</span>
+                                                        <span class="x-small text-muted d-block mt-1">{{ $log->scanned_at->format('d/m/Y H:i:s') }} hs</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -155,4 +155,15 @@ class RoomController extends Controller
 
         return redirect()->back()->with('success', 'Cama eliminada correctamente.');
     }
+
+    /**
+     * Imprimir tarjeta QR de la cama.
+     */
+    public function printBedQr($id)
+    {
+        $empresa = Auth::user()->empresa;
+        $bed = Bed::where('empresa_id', $empresa->id)->where('id', $id)->with('room')->firstOrFail();
+
+        return view('empresa.hospitalization.qr_card', compact('bed', 'empresa'));
+    }
 }

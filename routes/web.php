@@ -265,12 +265,30 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('clientes/export', [ClientController::class , 'export'])->name('clientes.export');
         Route::post('clientes/import', [ClientController::class , 'import'])->name('clientes.import');
 
-        // TURNOS Y SERVICIOS
         Route::resource('turnos', App\Http\Controllers\Empresa\TurnoController::class);
         Route::get('/turnos-events', [App\Http\Controllers\Empresa\TurnoController::class, 'events'])->name('turnos.events');
         Route::get('/turnos/{turno}/checkout', [App\Http\Controllers\Empresa\TurnoController::class, 'checkout'])->name('turnos.checkout');
         
+        // HUB DE RECEPCIÓN Y COLA DE ESPERA (NUEVO)
+        Route::get('recepcion', [App\Http\Controllers\Empresa\ReceptionistController::class, 'index'])->name('recepcion.index');
+        Route::get('api/recepcion/buscar', [App\Http\Controllers\Empresa\ReceptionistController::class, 'search'])->name('recepcion.search');
+        Route::post('api/recepcion/arribo/{id}', [App\Http\Controllers\Empresa\ReceptionistController::class, 'markArrival'])->name('recepcion.arribo');
+        Route::post('api/recepcion/estado/{id}', [App\Http\Controllers\Empresa\ReceptionistController::class, 'updateQueueState'])->name('recepcion.estado');
+        Route::post('api/recepcion/estudios/{id}/subir', [App\Http\Controllers\Empresa\ReceptionistController::class, 'uploadStudy'])->name('recepcion.estudios.subir');
+        Route::get('api/recepcion/estudios/{id}', [App\Http\Controllers\Empresa\ReceptionistController::class, 'getStudies'])->name('recepcion.estudios.listar');
+        Route::post('api/recepcion/doctor/{id}/consultorio', [App\Http\Controllers\Empresa\ReceptionistController::class, 'updateDoctorOffice'])->name('recepcion.doctor.consultorio');
+
         Route::resource('servicios', App\Http\Controllers\Empresa\ServicioController::class);
+
+        // CERTIFICADOS QR (NUEVO)
+        Route::get('certificados', [App\Http\Controllers\Empresa\MedicalCertificateController::class, 'index'])->name('certificados.index');
+        Route::get('certificados/create', [App\Http\Controllers\Empresa\MedicalCertificateController::class, 'create'])->name('certificados.create');
+        Route::post('certificados', [App\Http\Controllers\Empresa\MedicalCertificateController::class, 'store'])->name('certificados.store');
+        Route::get('certificados/{id}/print', [App\Http\Controllers\Empresa\MedicalCertificateController::class, 'print'])->name('certificados.print');
+
+        // CONFIGURACION TURNOS ONLINE (NUEVO)
+        Route::get('turnos-config', [App\Http\Controllers\Empresa\TurnoController::class, 'onlineConfig'])->name('turnos.online-config');
+        Route::post('turnos-config', [App\Http\Controllers\Empresa\TurnoController::class, 'saveOnlineConfig'])->name('turnos.online-config.save');
 
         // LIQUIDACIONES A PROFESIONALES
         Route::resource('liquidaciones', App\Http\Controllers\Empresa\LiquidacionController::class);
@@ -309,6 +327,12 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('hospitalization/{hospitalization}/administrations', [App\Http\Controllers\Empresa\HospitalizationController::class, 'storeAdministration'])->name('hospitalization.administrations.store');
         Route::post('hospitalization/{hospitalization}/discharge', [App\Http\Controllers\Empresa\HospitalizationController::class, 'discharge'])->name('hospitalization.discharge');
 
+        // HOSPITALIZACIÓN BILLING & REPORTS (NUEVO)
+        Route::get('hospitalization/billing', [App\Http\Controllers\Empresa\HospitalizationBillingController::class, 'index'])->name('hospitalization.billing');
+        Route::get('hospitalization/{id}/billing-report', [App\Http\Controllers\Empresa\HospitalizationBillingController::class, 'showReport'])->name('hospitalization.billing.report');
+        Route::get('hospitalization/{id}/billing-report/excel', [App\Http\Controllers\Empresa\HospitalizationBillingController::class, 'exportExcel'])->name('hospitalization.billing.excel');
+        Route::get('hospitalization/{id}/billing-report/pdf', [App\Http\Controllers\Empresa\HospitalizationBillingController::class, 'exportPdf'])->name('hospitalization.billing.pdf');
+
         // ABM DE INFRAESTRUCTURA (HABITACIONES Y CAMAS)
         Route::get('hospitalization/rooms', [App\Http\Controllers\Empresa\RoomController::class, 'index'])->name('hospitalization.rooms');
         Route::post('hospitalization/rooms', [App\Http\Controllers\Empresa\RoomController::class, 'storeRoom'])->name('hospitalization.rooms.store');
@@ -317,6 +341,13 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('hospitalization/beds', [App\Http\Controllers\Empresa\RoomController::class, 'storeBed'])->name('hospitalization.beds.store');
         Route::post('hospitalization/beds/{bed}/toggle-mantenimiento', [App\Http\Controllers\Empresa\RoomController::class, 'toggleBedMantenimiento'])->name('hospitalization.beds.toggle_mantenimiento');
         Route::delete('hospitalization/beds/{bed}', [App\Http\Controllers\Empresa\RoomController::class, 'deleteBed'])->name('hospitalization.beds.delete');
+        Route::get('hospitalization/beds/{bed}/qr', [App\Http\Controllers\Empresa\RoomController::class, 'printBedQr'])->name('hospitalization.beds.qr');
+
+        // ABM DE CONVENIOS B2B (MUNICIPALIDADES Y ENTIDADES EXTERNAS)
+        Route::get('hospitalization/convenios', [App\Http\Controllers\Empresa\B2bConventionController::class, 'index'])->name('hospitalization.convenios');
+        Route::post('hospitalization/convenios', [App\Http\Controllers\Empresa\B2bConventionController::class, 'store'])->name('hospitalization.convenios.store');
+        Route::post('hospitalization/convenios/{id}/toggle', [App\Http\Controllers\Empresa\B2bConventionController::class, 'toggleStatus'])->name('hospitalization.convenios.toggle');
+
         Route::resource('clientes', ClientController::class)->except(['destroy', 'show']);
         Route::get('clientes/{client}', [App\Http\Controllers\Empresa\ClientAccountController::class, 'show'])->name('clientes.show');
         Route::post('clientes/{client}/recibos', [App\Http\Controllers\Empresa\ClientAccountController::class, 'storeReceipt'])->name('clientes.recibos.store');
@@ -677,6 +708,15 @@ Route::get('/portal/cliente/{token}/simular-pago', [\App\Http\Controllers\Client
 Route::get('/c/{empresa}', [CatalogController::class , 'index'])->name('catalog.index');
 Route::get('/c/{empresa}/producto/{product}', [CatalogController::class , 'show'])->name('catalog.show');
 
+// RESERVA Y PAGO DE TURNOS ONLINE (PUBLICO)
+Route::get('/c/{empresa}/reservar-turno', [CatalogController::class, 'bookingPortal'])->name('catalog.booking');
+Route::post('/c/{empresa}/reservar-turno', [CatalogController::class, 'confirmBooking'])->name('catalog.booking.confirm');
+Route::get('/c/{empresa}/reservar-turno/pago/{turno}', [CatalogController::class, 'bookingPayment'])->name('catalog.booking.payment');
+Route::post('/c/{empresa}/reservar-turno/pago/{turno}', [CatalogController::class, 'bookingPaymentProcess'])->name('catalog.booking.payment-process');
+
+// VALIDACION DE CERTIFICADOS QR (PUBLICO)
+Route::get('/v/certificado/{codigo}', [App\Http\Controllers\Empresa\MedicalCertificateController::class, 'validatePublic'])->name('certificados.public-validate');
+
 
 /* |-------------------------------------------------------------------------- | CHECKOUT |-------------------------------------------------------------------------- */
 use App\Http\Controllers\CheckoutController;
@@ -766,4 +806,18 @@ Route::get('/reparar-rutas', function() {
 // PORTAL INDIVIDUAL PARA PROFESIONALES (ACCESO POR TOKEN)
 Route::get('/portal/profesional/{token}', [App\Http\Controllers\ProfessionalPortalController::class, 'index'])->name('portal.profesional.index');
 Route::post('/portal/profesional/complete/{id}', [App\Http\Controllers\ProfessionalPortalController::class, 'completeTurno'])->name('portal.profesional.complete');
+Route::post('/portal/profesional/enfermeria/administrar', [App\Http\Controllers\ProfessionalPortalController::class, 'storeNurseAdministration'])->name('portal.profesional.enfermeria.store');
+
+// TRAZABILIDAD FÍSICA QR EN CAMA CLINICA (CON MIDDLEWARE AUTH)
+Route::middleware('auth')->get('/portal/profesional/escanear-cama/{token}', [App\Http\Controllers\ProfessionalPortalController::class, 'verifyBedPresence'])->name('portal.profesional.cama.verify');
+
+// PORTAL B2B DE CONVENIOS (MUNICIPALIDADES Y ENTIDADES EXTERNAS)
+Route::get('/portal/agencia/{token}', [App\Http\Controllers\Portal\B2bConventionPortalController::class, 'showPortal'])->name('portal.agencia.dashboard');
+Route::post('/portal/agencia/{token}/buscar', [App\Http\Controllers\Portal\B2bConventionPortalController::class, 'searchCertificates'])->name('portal.agencia.buscar');
+
+// PORTAL PUBLICO DE TV DE SALA DE ESPERA (TURNERO)
+Route::get('/portal/turnero/{slug}', [App\Http\Controllers\Portal\TurneroPortalController::class, 'index'])->name('portal.turnero.index');
+Route::get('/portal/api/turnero/{slug}/activo', [App\Http\Controllers\Portal\TurneroPortalController::class, 'activeCall'])->name('portal.turnero.activo');
+
+
 

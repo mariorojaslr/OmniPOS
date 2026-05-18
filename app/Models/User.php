@@ -33,6 +33,7 @@ class User extends Authenticatable
         'country',
         'crm_notes',
         'payment_voucher',
+        'consultorio',
     ];
 
     /*
@@ -103,6 +104,23 @@ class User extends Authenticatable
     public function esEmpleado(): bool
     {
         return $this->sub_role === 'empleado';
+    }
+
+    public function esEnfermero(): bool
+    {
+        if ($this->sub_role === 'enfermero') {
+            return true;
+        }
+        $config = $this->profesionalConfig;
+        if ($config && is_array($config->especialidades)) {
+            foreach ($config->especialidades as $esp) {
+                // Si la especialidad cargada contiene la palabra "enfermeria"
+                if (stripos((string)$esp, 'enfermer') !== false) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /*

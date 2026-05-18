@@ -27,8 +27,15 @@ class Turno extends Model
         'notas',
         'obra_social_id',
         'nro_afiliado_os',
-        'venta_id'
+        'venta_id',
+        'hora_arribo',
+        'estado_cola'
     ];
+
+    public function studies()
+    {
+        return $this->hasMany(ClientStudy::class, 'turno_id');
+    }
 
     public function servicio()
     {

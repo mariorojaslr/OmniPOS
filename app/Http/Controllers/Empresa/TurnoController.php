@@ -238,4 +238,35 @@ class TurnoController extends Controller
 
         return redirect()->route('empresa.ventas.manual')->with('success', 'Turno cargado en caja. Por favor, procese el pago.');
     }
+
+    /**
+     * Pantalla de Configuración de Reserva y Pago Online.
+     */
+    public function onlineConfig()
+    {
+        $empresa = Auth::user()->empresa;
+        $config = $empresa->config_pasarelas ?? [];
+        return view('empresa.turnos.online_config', compact('empresa', 'config'));
+    }
+
+    /**
+     * Guardar la Configuración de Reserva y Pago Online.
+     */
+    public function saveOnlineConfig(Request $request)
+    {
+        $empresa = Auth::user()->empresa;
+        $config = $empresa->config_pasarelas ?? [];
+
+        $config['online_booking_enabled'] = $request->has('online_booking_enabled');
+        $config['online_booking_price'] = (float) $request->input('online_booking_price', 0);
+        $config['online_booking_tolerance'] = $request->has('online_booking_tolerance');
+        $config['online_booking_gateway'] = $request->input('online_booking_gateway', 'MercadoPago');
+        $config['youtube_playlist_id'] = $request->input('youtube_playlist_id', 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn');
+
+        $empresa->update([
+            'config_pasarelas' => $config
+        ]);
+
+        return redirect()->route('empresa.turnos.online-config')->with('success', 'Configuración de reserva online guardada con éxito.');
+    }
 }

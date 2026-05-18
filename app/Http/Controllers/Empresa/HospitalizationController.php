@@ -192,7 +192,13 @@ class HospitalizationController extends Controller
             ->with('room')
             ->get();
 
-        return view('empresa.hospitalization.dossier', compact('hospitalization', 'availableBeds'));
+        // Obtener historial de fichadas presenciales QR de cama
+        $presenceLogs = \App\Models\BedPresenceLog::where('internacion_id', $hospitalization->id)
+            ->with(['bed.room', 'user'])
+            ->orderBy('scanned_at', 'desc')
+            ->get();
+
+        return view('empresa.hospitalization.dossier', compact('hospitalization', 'availableBeds', 'presenceLogs'));
     }
 
     /**
