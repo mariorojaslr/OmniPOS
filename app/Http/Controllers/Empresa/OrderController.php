@@ -146,7 +146,7 @@ class OrderController extends Controller
 
         // Generar QR (usando un servicio online simple por ahora para evitar dependencias pesadas si no están instaladas)
         // Usamos QRServer que es más confiable que Google Charts (deprecated)
-        $qrData = route('empresa.orders.show', $order->id);
+        $qrData = request()->getSchemeAndHttpHost() . '/empresa/orders/' . $order->id;
         $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . urlencode($qrData);
 
         $pdf = Pdf::loadView('pdf.order_label', compact('order', 'empresa', 'qrUrl'))

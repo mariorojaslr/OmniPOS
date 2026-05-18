@@ -115,8 +115,8 @@ class MedicalCertificateController extends Controller
 
         $certificate = $query->findOrFail($id);
 
-        // Generar URL de validación pública
-        $validationUrl = route('certificados.public-validate', $certificate->codigo_validacion);
+        // Generar URL de validación pública de forma dinámica para que funcione con cualquier IP o dominio local/remoto
+        $validationUrl = request()->getSchemeAndHttpHost() . '/v/certificado/' . $certificate->codigo_validacion;
 
         return view('empresa.certificados.print', compact('certificate', 'validationUrl'));
     }

@@ -127,7 +127,7 @@
         <!-- QR Code Wrapper -->
         <div class="qr-wrapper shadow-sm">
             @php
-                $verificationUrl = route('portal.profesional.cama.verify', $bed->qr_token);
+                $verificationUrl = request()->getSchemeAndHttpHost() . '/portal/profesional/escanear-cama/' . $bed->qr_token;
                 $qrApiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" . urlencode($verificationUrl);
             @endphp
             <img src="{{ $qrApiUrl }}" class="qr-image" alt="Código QR de Cama Clinica">
