@@ -138,7 +138,7 @@
             <!-- Tarjeta Informativa Widget -->
             <div class="card bg-gradient-dark text-white rounded-4 border-0 shadow-lg p-4 mb-4" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
                 <h5 class="fw-bold mb-3 text-white"><i class="bi bi-link-45deg me-2 text-primary"></i> Su Enlace de Widget Público</h5>
-                <p class="small text-muted">Copie y pegue este enlace en sus redes sociales, sitio web institucional o envíelo por WhatsApp para que los pacientes reserven online:</p>
+                <p class="small text-white-50">Copie y pegue este enlace en sus redes sociales, sitio web institucional o envíelo por WhatsApp para que los pacientes reserven online:</p>
                 
                 <div class="input-group mb-3">
                     <input type="text" id="widgetLink" class="form-control bg-dark border-0 text-white x-small" readonly value="{{ route('catalog.booking', $empresa->slug) }}">

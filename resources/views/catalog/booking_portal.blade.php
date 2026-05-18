@@ -57,6 +57,13 @@
         --clinical-green: {{ $secondary }};
     }
 
+    .text-muted {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+    .text-secondary {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+
     body, html {
         background-color: var(--bg-color) !important;
         font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
