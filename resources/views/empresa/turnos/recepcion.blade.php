@@ -110,6 +110,9 @@
 
 <!-- WEB AUDIO CHIMES AND RECEP ACTION JAVASCRIPT -->
 <script>
+    // Base API URL autogenerada de forma dinámica por Laravel para soportar subdirectorios en XAMPP y puertos alternativos
+    const API_BASE = "{{ url('/empresa/api') }}";
+
     // Live Clock
     function updateClock() {
         const now = new Date();
@@ -172,7 +175,7 @@
         const schedList = document.getElementById('scheduled_list');
         const waitList = document.getElementById('waiting_list');
 
-        fetch(`/empresa/api/recepcion/buscar?search=${encodeURIComponent(query)}`)
+        fetch(`${API_BASE}/recepcion/buscar?search=${encodeURIComponent(query)}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -372,7 +375,7 @@
                 const formData = new FormData();
                 formData.append('file', file);
 
-                return fetch(`/empresa/api/recepcion/estudios/${turnoId}/subir`, {
+                return fetch(`${API_BASE}/recepcion/estudios/${turnoId}/subir`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -442,9 +445,8 @@
                     Swal.showValidationMessage('Debe ingresar un Box o Consultorio válido');
                     return false;
                 }
-
                 // Obtener ID del doctor desde el turno asignado
-                return fetch(`/empresa/api/recepcion/buscar`)
+                return fetch(`${API_BASE}/recepcion/buscar`)
                     .then(res => res.json())
                     .then(data => {
                         const targetTurno = data.turnos.find(t => t.id === turnoId);
@@ -452,7 +454,7 @@
                         if (!targetTurno.doctor_id) throw new Error('Médico no asignado a este turno');
                         
                         // Encontrar doctor
-                        return fetch(`/empresa/api/recepcion/doctor/${targetTurno.doctor_id}/consultorio`, {
+                        return fetch(`${API_BASE}/recepcion/doctor/${targetTurno.doctor_id}/consultorio`, {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -489,7 +491,7 @@
 
     // Fichar Arribo del Paciente
     function markArribo(id) {
-        fetch(`/empresa/api/recepcion/arribo/${id}`, {
+        fetch(`${API_BASE}/recepcion/arribo/${id}`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -520,7 +522,7 @@
 
     // Cambiar estado en Sala de Espera (llamado, en_consulta, finalizado)
     function updateEstadoCola(id, nuevoEstado) {
-        fetch(`/empresa/api/recepcion/estado/${id}`, {
+        fetch(`${API_BASE}/recepcion/estado/${id}`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

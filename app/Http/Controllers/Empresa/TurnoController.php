@@ -262,6 +262,14 @@ class TurnoController extends Controller
         $config['online_booking_tolerance'] = $request->has('online_booking_tolerance');
         $config['online_booking_gateway'] = $request->input('online_booking_gateway', 'MercadoPago');
         $config['youtube_playlist_id'] = $request->input('youtube_playlist_id', 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn');
+        
+        // Smart TV dynamic ticker messages
+        $config['ticker_title_1'] = $request->input('ticker_title_1', '📇 Tenga su DNI Listo');
+        $config['ticker_desc_1'] = $request->input('ticker_desc_1', 'Entregue su documento nacional de identidad en recepción para registrar su ingreso.');
+        $config['ticker_title_2'] = $request->input('ticker_title_2', '📁 Digitalice sus Estudios');
+        $config['ticker_desc_2'] = $request->input('ticker_desc_2', 'Presente radiografías, PDF o análisis previos a la secretaria para cargarlos de inmediato.');
+        $config['ticker_title_3'] = $request->input('ticker_title_3', '🧼 Cuidado e Higiene');
+        $config['ticker_desc_3'] = $request->input('ticker_desc_3', 'Utilice el dispenser de alcohol en gel disponible en los pasillos al entrar y salir.');
 
         $empresa->update([
             'config_pasarelas' => $config

@@ -283,7 +283,7 @@ body {
         </a>
 
         {{-- CATÁLOGO PÚBLICO --}}
-        <a href="{{ route('catalog.index', $empresa->slug ?? $empresa->id) }}" target="_blank" class="nav-link-item" title="Ver mi tienda online">
+        <a href="{{ $empresa ? route('catalog.index', $empresa->slug ?? $empresa->id) : '#' }}" target="_blank" class="nav-link-item" title="Ver mi tienda online">
             <i class="bi bi-shop-window" style="color: #ffc107;"></i>
             <span class="nav-icon-label text-center lh-sm mt-1">Mi Catálogo<br>(Store)</span>
         </a>
@@ -445,7 +445,7 @@ body {
                 </a>
                 <h4 class="mb-0 fw-bold ms-2">📦 Terminal de Ventas (POS)</h4>
             @else
-                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa->nombre_comercial ?? $platformName }}</h4>
+                <h4 class="mb-0 fw-bold d-none d-md-block">{{ $empresa?->nombre_comercial ?? $platformName }}</h4>
                 {{-- Novedades con Contraste --}}
                 <a href="{{ route('empresa.novedades') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-2 d-none d-lg-flex align-items-center gap-2 fw-bold" style="font-size: 0.7rem; border-color: var(--color-primario)40; color: var(--color-primario);">
                     <span class="d-flex align-items-center justify-content-center bg-primary rounded-circle" style="width: 8px; height: 8px; background-color: var(--color-primario) !important;"></span>

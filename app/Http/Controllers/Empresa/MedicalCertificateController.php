@@ -16,17 +16,25 @@ class MedicalCertificateController extends Controller
      */
     public function index(Request $request)
     {
-        $empresaId = Auth::user()->empresa_id;
+        $user = Auth::user();
+        $empresaId = $user->empresa_id;
         $search = $request->input('search');
 
-        $query = MedicalCertificate::where('empresa_id', $empresaId)
-            ->with(['patient', 'doctor']);
+        if ($user->role === 'owner' && !$empresaId) {
+            // El Owner tiene visión omnisciente si entra directamente sin mimetizar
+            $query = MedicalCertificate::with(['patient', 'doctor', 'empresa']);
+        } else {
+            $query = MedicalCertificate::where('empresa_id', $empresaId)
+                ->with(['patient', 'doctor']);
+        }
 
         if ($search) {
-            $query->whereHas('patient', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('document', 'like', "%{$search}%");
-            })->orWhere('codigo_validacion', 'like', "%{$search}%");
+            $query->where(function($mainQ) use ($search) {
+                $mainQ->whereHas('patient', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('document', 'like', "%{$search}%");
+                })->orWhere('codigo_validacion', 'like', "%{$search}%");
+            });
         }
 
         $certificates = $query->orderBy('created_at', 'desc')->paginate(15);
@@ -39,14 +47,16 @@ class MedicalCertificateController extends Controller
      */
     public function create()
     {
-        $empresaId = Auth::user()->empresa_id;
+        $user = Auth::user();
+        $empresaId = $user->empresa_id;
         
-        $patients = Client::where('empresa_id', $empresaId)->orderBy('name')->get();
-        
-        // Cargar usuarios de la empresa que actúan como médicos (pueden ser empresa o usuario)
-        $doctors = User::where('empresa_id', $empresaId)
-            ->orderBy('name')
-            ->get();
+        if ($user->role === 'owner' && !$empresaId) {
+            $patients = Client::orderBy('name')->get();
+            $doctors = User::orderBy('name')->get();
+        } else {
+            $patients = Client::where('empresa_id', $empresaId)->orderBy('name')->get();
+            $doctors = User::where('empresa_id', $empresaId)->orderBy('name')->get();
+        }
 
         return view('empresa.certificados.create', compact('patients', 'doctors'));
     }
@@ -64,8 +74,15 @@ class MedicalCertificateController extends Controller
             'vigencia_hasta' => 'nullable|date',
         ]);
 
-        $empresaId = Auth::user()->empresa_id;
+        $user = Auth::user();
+        $empresaId = $user->empresa_id;
         
+        if ($user->role === 'owner' && !$empresaId) {
+            // Si el Owner crea directamente, asocia a la empresa del paciente seleccionado
+            $patient = Client::findOrFail($request->client_id);
+            $empresaId = $patient->empresa_id;
+        }
+
         // Generación de código único seguro de validación MedPlus
         $codigoValidacion = 'MP-CERT-' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
 
@@ -87,10 +104,16 @@ class MedicalCertificateController extends Controller
      */
     public function print($id)
     {
-        $empresaId = Auth::user()->empresa_id;
-        $certificate = MedicalCertificate::where('empresa_id', $empresaId)
-            ->with(['patient', 'doctor.profesionalConfig', 'empresa'])
-            ->findOrFail($id);
+        $user = Auth::user();
+        $empresaId = $user->empresa_id;
+        
+        $query = MedicalCertificate::with(['patient', 'doctor.profesionalConfig', 'empresa']);
+        
+        if ($user->role !== 'owner' || $empresaId) {
+            $query->where('empresa_id', $empresaId);
+        }
+
+        $certificate = $query->findOrFail($id);
 
         // Generar URL de validación pública
         $validationUrl = route('certificados.public-validate', $certificate->codigo_validacion);
@@ -99,7 +122,7 @@ class MedicalCertificateController extends Controller
     }
 
     /**
-     * Validación pública y no autenticada para autoridades que escanean el QR.
+     * Public validation
      */
     public function validatePublic($codigo)
     {

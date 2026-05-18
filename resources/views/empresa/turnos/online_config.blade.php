@@ -94,6 +94,36 @@
                             </div>
                         </div>
 
+                        <!-- Mensajes Dinámicos del Turnero (Smart TV) -->
+                        <h5 class="fw-bold text-dark mb-3 text-uppercase tracking-wider fs-6 border-bottom pb-2 mt-4"><i class="bi bi-chat-left-quote text-info me-2"></i> Mensajes Dinámicos en Sala de Espera (Smart TV)</h5>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4 col-sm-12">
+                                <div class="p-3 border rounded-4 bg-light bg-opacity-75">
+                                    <label class="x-small text-muted fw-bold mb-1">Mensaje 1 (Título)</label>
+                                    <input type="text" name="ticker_title_1" value="{{ $config['ticker_title_1'] ?? '📇 Tenga su DNI Listo' }}" class="form-control shadow-none mb-2 form-control-sm" placeholder="Título">
+                                    <label class="x-small text-muted fw-bold mb-1">Mensaje 1 (Descripción)</label>
+                                    <textarea name="ticker_desc_1" class="form-control shadow-none form-control-sm" rows="3" placeholder="Descripción">{{ $config['ticker_desc_1'] ?? 'Entregue su documento nacional de identidad en recepción para registrar su ingreso.' }}</textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-12">
+                                <div class="p-3 border rounded-4 bg-light bg-opacity-75">
+                                    <label class="x-small text-muted fw-bold mb-1">Mensaje 2 (Título)</label>
+                                    <input type="text" name="ticker_title_2" value="{{ $config['ticker_title_2'] ?? '📁 Digitalice sus Estudios' }}" class="form-control shadow-none mb-2 form-control-sm" placeholder="Título">
+                                    <label class="x-small text-muted fw-bold mb-1">Mensaje 2 (Descripción)</label>
+                                    <textarea name="ticker_desc_2" class="form-control shadow-none form-control-sm" rows="3" placeholder="Descripción">{{ $config['ticker_desc_2'] ?? 'Presente radiografías, PDF o análisis previos a la secretaria para cargarlos de inmediato.' }}</textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-12">
+                                <div class="p-3 border rounded-4 bg-light bg-opacity-75">
+                                    <label class="x-small text-muted fw-bold mb-1">Mensaje 3 (Título)</label>
+                                    <input type="text" name="ticker_title_3" value="{{ $config['ticker_title_3'] ?? '🧼 Cuidado e Higiene' }}" class="form-control shadow-none mb-2 form-control-sm" placeholder="Título">
+                                    <label class="x-small text-muted fw-bold mb-1">Mensaje 3 (Descripción)</label>
+                                    <textarea name="ticker_desc_3" class="form-control shadow-none form-control-sm" rows="3" placeholder="Descripción">{{ $config['ticker_desc_3'] ?? 'Utilice el dispenser de alcohol en gel disponible en los pasillos al entrar y salir.' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="d-grid mt-4">
                             <button type="submit" class="btn btn-primary fw-bold py-3 rounded-4 shadow-sm fs-5">
                                 <i class="bi bi-save me-2"></i> GUARDAR CONFIGURACIONES DE PORTAL

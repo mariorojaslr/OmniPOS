@@ -195,11 +195,14 @@
     <div class="main-container-tv row g-0">
         <!-- Left Panel: 65% width with YouTube Playlist Player -->
         <div class="ambient-panel">
+            @php
+                $playlistId = $empresa->config_pasarelas['youtube_playlist_id'] ?? 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn';
+            @endphp
             <div class="video-container shadow-sm">
                 <iframe 
                     id="tv_youtube_player"
                     class="w-100 h-100 border-0" 
-                    src="https://www.youtube.com/embed/videoseries?list=PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn&autoplay=1&mute=1&loop=1&controls=1&modestbranding=1&rel=0&enablejsapi=1" 
+                    src="https://www.youtube.com/embed/videoseries?list={{ $playlistId }}&autoplay=1&mute=1&loop=1&controls=1&modestbranding=1&rel=0&enablejsapi=1" 
                     allow="autoplay; encrypted-media" 
                     allowfullscreen>
                 </iframe>
@@ -221,28 +224,36 @@
     </div>
 
     <!-- BOTTOM FULL-WIDTH TICKER (18vh): Spans the whole screen width, underneath both panels -->
+    @php
+        $tTitle1 = $empresa->config_pasarelas['ticker_title_1'] ?? '📇 Tenga su DNI Listo';
+        $tDesc1  = $empresa->config_pasarelas['ticker_desc_1'] ?? 'Entregue su documento nacional de identidad en recepción para registrar su ingreso.';
+        $tTitle2 = $empresa->config_pasarelas['ticker_title_2'] ?? '📁 Digitalice sus Estudios';
+        $tDesc2  = $empresa->config_pasarelas['ticker_desc_2'] ?? 'Presente radiografías, PDF o análisis previos a la secretaria para cargarlos de inmediato.';
+        $tTitle3 = $empresa->config_pasarelas['ticker_title_3'] ?? '🧼 Cuidado e Higiene';
+        $tDesc3  = $empresa->config_pasarelas['ticker_desc_3'] ?? 'Utilice el dispenser de alcohol en gel disponible en los pasillos al entrar y salir.';
+    @endphp
     <div class="full-width-ticker">
         <div id="ambientCarousel" class="carousel slide carousel-fade w-100 h-100" data-bs-ride="carousel" data-bs-interval="8000">
             <div class="carousel-inner h-100">
                 
                 <div class="carousel-item active h-100">
                     <div class="ticker-carousel-item">
-                        <span class="ticker-title">📇 Tenga su DNI Listo</span>
-                        <p class="ticker-desc">Entregue su documento nacional de identidad en recepción para registrar su ingreso.</p>
+                        <span class="ticker-title">{{ $tTitle1 }}</span>
+                        <p class="ticker-desc">{{ $tDesc1 }}</p>
                     </div>
                 </div>
 
                 <div class="carousel-item h-100">
                     <div class="ticker-carousel-item">
-                        <span class="ticker-title">📁 Digitalice sus Estudios</span>
-                        <p class="ticker-desc">Presente radiografías, PDF o análisis previos a la secretaria para cargarlos de inmediato.</p>
+                        <span class="ticker-title">{{ $tTitle2 }}</span>
+                        <p class="ticker-desc">{{ $tDesc2 }}</p>
                     </div>
                 </div>
 
                 <div class="carousel-item h-100">
                     <div class="ticker-carousel-item">
-                        <span class="ticker-title">🧼 Cuidado e Higiene</span>
-                        <p class="ticker-desc">Utilice el dispenser de alcohol en gel disponible en los pasillos al entrar y salir.</p>
+                        <span class="ticker-title">{{ $tTitle3 }}</span>
+                        <p class="ticker-desc">{{ $tDesc3 }}</p>
                     </div>
                 </div>
 
@@ -373,7 +384,7 @@
 
         // Consultar llamado activo vía API (Polling de 3 segundos)
         function pollActiveCall() {
-            fetch('/portal/api/turnero/{{ $empresa->slug }}/activo')
+            fetch('{{ url("/portal/api/turnero") }}/{{ $empresa->slug }}/activo')
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
