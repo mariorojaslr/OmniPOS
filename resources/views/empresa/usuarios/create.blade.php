@@ -69,29 +69,29 @@
                         <label class="form-label fw-bold small text-muted text-uppercase mb-1">Nivel de Acceso <span class="text-danger">*</span></label>
                         <select name="role" id="roleSelect" class="form-select" onchange="toggleSubRole()">
                             <option value="usuario" {{ old('role') == 'usuario' ? 'selected' : '' }}>
-                                👤 Personal Operativo (POS, Caja, Fichaje)
+                                👤 Personal Médico & Asistencial (Consultorios, Guardia, Recepción)
                             </option>
                             <option value="empresa" {{ old('role') == 'empresa' ? 'selected' : '' }}>
-                                🛡️ Administrador (Acceso total + Reportes)
+                                🛡️ Director Médico / Administrador (Acceso Total)
                             </option>
                         </select>
-                        <small class="text-muted">Los administradores pueden ver reportes financieros y gestionar usuarios.</small>
+                        <small class="text-muted">Los directores médicos pueden ver reportes globales, liquidaciones y gestionar todo el personal.</small>
                     </div>
 
                     <div class="col-md-6" id="subRoleContainer">
-                        <label class="form-label fw-bold small text-muted text-uppercase mb-1">Especialidad del Personal</label>
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-1">Especialidad / Rol del Personal</label>
                         <select name="sub_role" class="form-select">
                             <option value="cajero" {{ old('sub_role') == 'cajero' ? 'selected' : '' }}>
-                                🖥️ Cajero (Usa POS y maneja Caja)
+                                🩺 Profesional Médico (Médicos, Especialistas, Odontólogos)
                             </option>
                             <option value="operativo" {{ old('sub_role') == 'operativo' ? 'selected' : '' }}>
-                                🏭 Operativo (Fábrica / Taller / Depósito)
+                                🏥 Personal de Enfermería (Portal de Enfermería y Triaje)
                             </option>
                             <option value="empleado" {{ old('sub_role') == 'empleado' ? 'selected' : '' }}>
-                                🏗️ Empleado de Campo (Solo fichaje de asistencia)
+                                🏢 Personal de Recepción (Admisión, Cajas y Llamado de Sala)
                             </option>
                         </select>
-                        <small class="text-muted">Define qué funciones verá en su panel diario.</small>
+                        <small class="text-muted">Define qué herramientas asistenciales y paneles verá en su día a día.</small>
                     </div>
                 </div>
 
@@ -99,7 +99,7 @@
 
                 {{-- FACULTADES ESPECIALES --}}
                 <h6 class="fw-bold text-uppercase text-muted mb-3 small">
-                    <i class="bi bi-toggles me-1"></i> Facultades Especiales
+                    <i class="bi bi-toggles me-1"></i> Facultades y Permisos Médicos
                 </h6>
 
                 <div class="bg-light rounded-3 p-4">
@@ -110,9 +110,9 @@
                                style="transform: scale(1.3);">
                         <div>
                             <label class="form-check-label fw-bold text-dark" for="canRegisterExpenses">
-                                🔐 Habilitar registro de gastos en campo
+                                🔐 Habilitar historial clínico digital (HCE) & recetas
                             </label>
-                            <div class="text-muted small">Acceso a la "App" rápida de gastos desde su celular. Ideal para personal de campo.</div>
+                            <div class="text-muted small">Permite registrar evoluciones médicas, emitir recetas electrónicas y firmar certificados con validación QR.</div>
                         </div>
                     </div>
 
@@ -122,9 +122,9 @@
                                style="transform: scale(1.3);">
                         <div>
                             <label class="form-check-label fw-bold text-dark" for="canManagePurchases">
-                                🛒 Habilitar gestión de compras
+                                🏥 Habilitar gestión de internación & mapa de camas
                             </label>
-                            <div class="text-muted small">Permite ver el historial de compras y registrar nuevos ingresos de mercadería.</div>
+                            <div class="text-muted small">Habilita el acceso para asignar pacientes a salas de internación, camas calientes/frías y el dossier de enfermería.</div>
                         </div>
                     </div>
 
@@ -134,9 +134,9 @@
                                style="transform: scale(1.3);">
                         <div>
                             <label class="form-check-label fw-bold text-dark" for="canSell">
-                                💰 Habilitar facultad de cobro / venta
+                                💰 Habilitar facultad de cobro de co-seguros & copagos
                             </label>
-                            <div class="text-muted small">Facultad para operar el POS y cerrar transacciones financieras.</div>
+                            <div class="text-muted small">Faculta al usuario para cobrar copagos de obras sociales, emitir comprobantes de pago y auditoría de cajas.</div>
                         </div>
                     </div>
 

@@ -91,9 +91,17 @@ FILTRO USUARIOS
 
                     <td>
                         @if($usuario->role === 'empresa')
-                            <span class="small fw-bold text-dark"><i class="bi bi-shield-lock me-1"></i> ADMIN</span>
+                            <span class="small fw-bold text-dark"><i class="bi bi-shield-lock me-1"></i> ADMIN / DIRECTOR</span>
                         @else
-                            <span class="small fw-bold text-primary text-uppercase">{{ $usuario->sub_role ?? 'Cajero' }}</span>
+                            @php
+                                $subRoleLabels = [
+                                    'cajero' => '🩺 Profesional Médico',
+                                    'operativo' => '🏥 Enfermería / Triaje',
+                                    'empleado' => '🏢 Recepción / Admisión'
+                                ];
+                                $label = $subRoleLabels[$usuario->sub_role] ?? 'Personal Asistencial';
+                            @endphp
+                            <span class="small fw-bold text-primary text-uppercase">{{ $label }}</span>
                         @endif
                     </td>
 
@@ -179,41 +187,41 @@ FILTRO USUARIOS
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold small text-dark">Nivel de Acceso</label>
                                                 <select name="role" class="form-select border-2" required id="roleSelectEdit{{ $usuario->id }}" onchange="toggleSubRoleEdit({{ $usuario->id }})">
-                                                    <option value="usuario" {{ $usuario->role === 'usuario' ? 'selected' : '' }}>👤 Personal Operativo (POS, Caja, Fichaje)</option>
-                                                    <option value="empresa" {{ $usuario->role === 'empresa' ? 'selected' : '' }}>🛡️ Administrador (Acceso total + Reportes)</option>
+                                                    <option value="usuario" {{ $usuario->role === 'usuario' ? 'selected' : '' }}>👤 Personal Médico & Asistencial (Consultorios, Guardia, Recepción)</option>
+                                                    <option value="empresa" {{ $usuario->role === 'empresa' ? 'selected' : '' }}>🛡️ Director Médico / Administrador (Acceso Total)</option>
                                                 </select>
-                                                <small class="text-muted small d-block mt-1">Los administradores pueden ver reportes financieros y gestionar usuarios.</small>
+                                                <small class="text-muted small d-block mt-1">Los directores médicos pueden ver reportes globales, liquidaciones y gestionar todo el personal.</small>
                                             </div>
 
                                             <div class="mb-4" id="subRoleContainerEdit{{ $usuario->id }}">
-                                                <label class="form-label fw-bold small text-info">Especialidad del Personal</label>
+                                                <label class="form-label fw-bold small text-info">Especialidad / Rol del Personal</label>
                                                 <select name="sub_role" class="form-select border-2">
-                                                    <option value="cajero" {{ $usuario->sub_role === 'cajero' ? 'selected' : '' }}>🖥️ Cajero (Usa POS y maneja Caja)</option>
-                                                    <option value="operativo" {{ $usuario->sub_role === 'operativo' ? 'selected' : '' }}>🏭 Operativo (Fábrica / Taller / Depósito)</option>
-                                                    <option value="empleado" {{ $usuario->sub_role === 'empleado' ? 'selected' : '' }}>🏗️ Empleado de Campo (Solo fichaje)</option>
+                                                    <option value="cajero" {{ $usuario->sub_role === 'cajero' ? 'selected' : '' }}>🩺 Profesional Médico (Médicos, Especialistas, Odontólogos)</option>
+                                                    <option value="operativo" {{ $usuario->sub_role === 'operativo' ? 'selected' : '' }}>🏥 Personal de Enfermería (Portal de Enfermería y Triaje)</option>
+                                                    <option value="empleado" {{ $usuario->sub_role === 'empleado' ? 'selected' : '' }}>🏢 Personal de Recepción (Admisión, Cajas y Llamado de Sala)</option>
                                                 </select>
-                                                <small class="text-muted small d-block mt-1">Define qué funciones verá el usuario en su panel diario.</small>
+                                                <small class="text-muted small d-block mt-1">Define qué herramientas asistenciales y paneles verá en su día a día.</small>
                                             </div>
 
                                             <div class="bg-light p-3 rounded-3">
-                                                <h6 class="fw-bold mb-3 small text-uppercase text-dark ls-1">Facultades Especiales (Delegar Poder)</h6>
+                                                <h6 class="fw-bold mb-3 small text-uppercase text-dark ls-1">Facultades y Permisos Médicos</h6>
 
                                                 <div class="form-check form-switch mb-3">
                                                     <input class="form-check-input" type="checkbox" name="can_register_expenses" id="flexSwitchExpenses{{ $usuario->id }}" {{ $usuario->can_register_expenses ? 'checked' : '' }}>
-                                                    <label class="form-check-label fw-bold text-dark" for="flexSwitchExpenses{{ $usuario->id }}">🔓 Habilitar registro de gastos en campo</label>
-                                                    <small class="text-muted d-block small">Si se activa, el usuario tendrá acceso a la "App" rápida de gastos desde su celular.</small>
+                                                    <label class="form-check-label fw-bold text-dark" for="flexSwitchExpenses{{ $usuario->id }}">🔐 Habilitar historial clínico digital (HCE) & recetas</label>
+                                                    <small class="text-muted d-block small">Permite registrar evoluciones médicas, emitir recetas electrónicas y firmar certificados con validación QR.</small>
                                                 </div>
 
                                                 <div class="form-check form-switch mb-3">
                                                     <input class="form-check-input" type="checkbox" name="can_manage_purchases" id="flexSwitchPurchases{{ $usuario->id }}" {{ $usuario->can_manage_purchases ? 'checked' : '' }}>
-                                                    <label class="form-check-label fw-bold text-dark" for="flexSwitchPurchases{{ $usuario->id }}">🛒 Habilitar gestión de compras</label>
-                                                    <small class="text-muted d-block small">Permite al usuario ver el historial de compras y registrar nuevos ingresos.</small>
+                                                    <label class="form-check-label fw-bold text-dark" for="flexSwitchPurchases{{ $usuario->id }}">🏥 Habilitar gestión de internación & mapa de camas</label>
+                                                    <small class="text-muted d-block small">Habilita el acceso para asignar pacientes a salas de internación, camas calientes/frías y el dossier de enfermería.</small>
                                                 </div>
 
                                                 <div class="form-check form-switch mb-0">
                                                     <input class="form-check-input" type="checkbox" name="can_sell" id="flexSwitchSell{{ $usuario->id }}" {{ $usuario->can_sell ? 'checked' : '' }}>
-                                                    <label class="form-check-label fw-bold text-dark" for="flexSwitchSell{{ $usuario->id }}">💰 Habilitar facultad de cobro/venta</label>
-                                                    <small class="text-muted d-block small">Facultad específica para operar y cerrar transacciones financieras.</small>
+                                                    <label class="form-check-label fw-bold text-dark" for="flexSwitchSell{{ $usuario->id }}">💰 Habilitar facultad de cobro de co-seguros & copagos</label>
+                                                    <small class="text-muted d-block small">Faculta al usuario para cobrar copagos de obras sociales, emitir comprobantes de pago y auditoría de cajas.</small>
                                                 </div>
                                             </div>
 
