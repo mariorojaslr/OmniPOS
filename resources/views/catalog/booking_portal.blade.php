@@ -532,7 +532,7 @@
                                 <div class="quick-days-container mt-3 d-flex flex-wrap gap-2">
                                     @for($i=0; $i<6; $i++)
                                         @php
-                                            $d = Carbon::now()->addDays($i);
+                                            $d = \Carbon\Carbon::now()->addDays($i);
                                             $dayName = $d->locale('es')->minDayName;
                                             $dayNum = $d->format('d');
                                             $fullDate = $d->format('Y-m-d');
