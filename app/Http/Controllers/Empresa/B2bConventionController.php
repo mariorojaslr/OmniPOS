@@ -24,7 +24,9 @@ class B2bConventionController extends Controller
             ->orderBy('nombre', 'asc')
             ->get();
 
-        return view('empresa.hospitalization.convenios.index', compact('conventions'));
+        $servicios = Auth::user()->empresa->servicios()->orderBy('nombre')->get();
+
+        return view('empresa.hospitalization.convenios.index', compact('conventions', 'servicios'));
     }
 
     /**
@@ -35,6 +37,7 @@ class B2bConventionController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:150',
             'cuit' => 'nullable|string|max:20',
+            'servicios_requeridos' => 'nullable|array',
         ]);
 
         $empresaId = Auth::user()->empresa_id;
@@ -43,6 +46,7 @@ class B2bConventionController extends Controller
             'empresa_id' => $empresaId,
             'nombre' => $request->nombre,
             'cuit' => $request->cuit,
+            'servicios_requeridos' => $request->servicios_requeridos,
             'activo' => true,
         ]);
 

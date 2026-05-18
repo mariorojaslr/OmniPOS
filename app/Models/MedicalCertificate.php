@@ -16,6 +16,7 @@ class MedicalCertificate extends Model
         'empresa_id',
         'client_id',
         'user_id',
+        'b2b_convention_id',
         'codigo_validacion',
         'tipo',
         'contenido',
@@ -40,6 +41,14 @@ class MedicalCertificate extends Model
     public function doctor()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relación con el Convenio B2B.
+     */
+    public function convention()
+    {
+        return $this->belongsTo(B2bConvention::class, 'b2b_convention_id');
     }
 
     /**

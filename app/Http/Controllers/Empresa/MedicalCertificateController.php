@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\User;
 use App\Models\MedicalCertificate;
+use App\Models\B2bConvention;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -53,12 +54,14 @@ class MedicalCertificateController extends Controller
         if ($user->role === 'owner' && !$empresaId) {
             $patients = Client::orderBy('name')->get();
             $doctors = User::orderBy('name')->get();
+            $conventions = B2bConvention::where('activo', true)->orderBy('nombre')->get();
         } else {
             $patients = Client::where('empresa_id', $empresaId)->orderBy('name')->get();
             $doctors = User::where('empresa_id', $empresaId)->orderBy('name')->get();
+            $conventions = B2bConvention::where('empresa_id', $empresaId)->where('activo', true)->orderBy('nombre')->get();
         }
 
-        return view('empresa.certificados.create', compact('patients', 'doctors'));
+        return view('empresa.certificados.create', compact('patients', 'doctors', 'conventions'));
     }
 
     /**
@@ -69,6 +72,7 @@ class MedicalCertificateController extends Controller
         $request->validate([
             'client_id' => 'required|exists:clients,id',
             'user_id' => 'required|exists:users,id',
+            'b2b_convention_id' => 'nullable|exists:b2b_conventions,id',
             'tipo' => 'required|string|max:191',
             'contenido' => 'required|string',
             'vigencia_hasta' => 'nullable|date',
@@ -90,6 +94,7 @@ class MedicalCertificateController extends Controller
             'empresa_id' => $empresaId,
             'client_id' => $request->client_id,
             'user_id' => $request->user_id,
+            'b2b_convention_id' => $request->b2b_convention_id,
             'codigo_validacion' => $codigoValidacion,
             'tipo' => $request->tipo,
             'contenido' => $request->contenido,

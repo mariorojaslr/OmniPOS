@@ -39,6 +39,15 @@
                             <label class="form-label small fw-bold text-muted">CUIT / Identificador Fiscal (Opcional)</label>
                             <input type="text" name="cuit" class="form-control shadow-sm" placeholder="Ej: 30-12345678-9">
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Prácticas / Servicios Requeridos</label>
+                            <select name="servicios_requeridos[]" class="form-select shadow-sm" style="min-height: 120px;" multiple required>
+                                @foreach($servicios as $srv)
+                                    <option value="{{ $srv->id }}">{{ $srv->nombre }} ({{ $srv->categoria }})</option>
+                                @endforeach
+                            </select>
+                            <span class="x-small text-muted d-block mt-1" style="font-size: 0.75rem;">Presiona Ctrl (o Cmd) para seleccionar múltiples prácticas.</span>
+                        </div>
                         <div class="text-end">
                             <button type="submit" class="btn btn-success text-white fw-bold w-100 rounded-pill shadow-sm">
                                 <i class="bi bi-shield-check"></i> Registrar y Crear Enlace Seguro
@@ -89,7 +98,17 @@
                                         <tr>
                                             <td class="py-3">
                                                 <div class="fw-bold text-dark">{{ $conv->nombre }}</div>
-                                                <span class="x-small text-muted font-monospace">{{ $conv->cuit ?? 'Sin CUIT' }}</span>
+                                                <span class="x-small text-muted font-monospace d-block">{{ $conv->cuit ?? 'Sin CUIT' }}</span>
+                                                @if(!empty($conv->servicios_requeridos))
+                                                    @php
+                                                        $srvNames = \App\Models\Servicio::whereIn('id', (array) $conv->servicios_requeridos)->pluck('nombre')->toArray();
+                                                    @endphp
+                                                    <div class="mt-1 d-flex flex-wrap gap-1">
+                                                        @foreach($srvNames as $sname)
+                                                            <span class="badge bg-light text-secondary border x-small py-1 px-2" style="font-size: 0.65rem;">{{ $sname }}</span>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td class="py-3">
                                                 <div class="input-group input-group-sm" style="max-width: 250px;">

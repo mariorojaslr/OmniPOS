@@ -26,7 +26,30 @@ class B2bConventionPortalController extends Controller
         // Obtener la clínica/empresa dueña del inquilino
         $empresa = $convention->empresa;
 
-        return view('portales.b2b_convention.dashboard', compact('convention', 'empresa'));
+        // Cargar todos los certificados vinculados a este convenio
+        $certificates = MedicalCertificate::where('b2b_convention_id', $convention->id)
+            ->with(['patient', 'doctor'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calcular estadísticas
+        $totalCertificados = $certificates->count();
+        
+        $totalVigentes = $certificates->filter(function($cert) {
+            if (!$cert->vigencia_hasta) return true;
+            return $cert->vigencia_hasta->isFuture() || $cert->vigencia_hasta->isToday();
+        })->count();
+
+        $totalExpirados = $totalCertificados - $totalVigentes;
+
+        return view('portales.b2b_convention.dashboard', compact(
+            'convention', 
+            'empresa', 
+            'certificates', 
+            'totalCertificados', 
+            'totalVigentes', 
+            'totalExpirados'
+        ));
     }
 
     /**

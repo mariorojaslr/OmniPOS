@@ -110,15 +110,37 @@
                         </div>
 
                         <div class="row g-3 mb-4">
-                            <div class="col-md-6 col-sm-12">
+                            <div class="col-md-4 col-sm-12">
                                 <label class="form-label-premium">Tipo de Certificado *</label>
                                 <input type="text" name="tipo" id="tipo" class="form-control premium-input shadow-none" placeholder="Ej: Aptitud Psicofísica, Apto Deportivo" required>
                             </div>
 
-                            <div class="col-md-6 col-sm-12">
+                            <div class="col-md-4 col-sm-12">
+                                <label class="form-label-premium">Convenio B2B Asociado (Opcional)</label>
+                                <select name="b2b_convention_id" id="b2b_convention_id" class="form-select premium-input shadow-none" onchange="onConventionChange()">
+                                    <option value="">Ninguno / Particular</option>
+                                    @foreach($conventions as $conv)
+                                        @php
+                                            $names = \App\Models\Servicio::whereIn('id', (array) $conv->servicios_requeridos)->pluck('nombre')->toArray();
+                                            $namesStr = implode(', ', $names);
+                                        @endphp
+                                        <option value="{{ $conv->id }}" data-practices="{{ $namesStr }}">
+                                            {{ $conv->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 col-sm-12">
                                 <label class="form-label-premium">Vigencia hasta (Opcional)</label>
                                 <input type="date" name="vigencia_hasta" class="form-control premium-input shadow-none">
                             </div>
+                        </div>
+
+                        <!-- Alerta dinámica de prácticas requeridas por convenio B2B -->
+                        <div id="convention_practices_alert" class="mb-4 p-3 bg-opacity-10 border border-info rounded-3 text-info d-none" style="background-color: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.3) !important;">
+                            <div class="small fw-bold"><i class="bi bi-info-circle-fill me-1"></i> Circuito de Prácticas Requeridas para este Convenio:</div>
+                            <div id="convention_practices_list" class="mt-1 small font-monospace"></div>
                         </div>
 
                         <!-- Cargar Plantilla Inteligente -->
@@ -211,6 +233,32 @@
         if (selectedValue && templates[selectedValue]) {
             contenidoField.value = templates[selectedValue].texto;
             tipoField.value = templates[selectedValue].tipo;
+        }
+    }
+
+    function onConventionChange() {
+        const conventionSelector = document.getElementById('b2b_convention_id');
+        const selectedOpt = conventionSelector.options[conventionSelector.selectedIndex];
+        const alertBox = document.getElementById('convention_practices_alert');
+        const practicesList = document.getElementById('convention_practices_list');
+
+        if (selectedOpt && selectedOpt.value !== "") {
+            const practices = selectedOpt.getAttribute('data-practices');
+            if (practices && practices.trim() !== "") {
+                practicesList.innerHTML = `<i class="bi bi-patch-check-fill text-info me-1"></i> ${practices}`;
+                alertBox.classList.remove('d-none');
+            } else {
+                alertBox.classList.add('d-none');
+            }
+
+            // Pre-cargar la plantilla de psicofísico si el convenio es de licencias/conducir
+            const optText = selectedOpt.text.toLowerCase();
+            if (optText.includes('licencia') || optText.includes('conducir') || optText.includes('tránsito')) {
+                document.getElementById('templateSelector').value = 'psicofisico';
+                loadTemplate();
+            }
+        } else {
+            alertBox.classList.add('d-none');
         }
     }
 

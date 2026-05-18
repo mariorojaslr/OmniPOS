@@ -20,12 +20,14 @@ class B2bConvention extends Model
         'empresa_id',
         'nombre',
         'cuit',
+        'servicios_requeridos',
         'token_acceso',
         'activo',
     ];
 
     protected $casts = [
         'activo' => 'boolean',
+        'servicios_requeridos' => 'array',
     ];
 
     /**
@@ -38,6 +40,14 @@ class B2bConvention extends Model
                 $model->token_acceso = 'CONV-' . strtoupper(Str::random(24));
             }
         });
+    }
+
+    /**
+     * Relación con los Certificados Médicos emitidos bajo este convenio.
+     */
+    public function certificates()
+    {
+        return $this->hasMany(MedicalCertificate::class, 'b2b_convention_id');
     }
 
     /**

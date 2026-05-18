@@ -166,7 +166,7 @@
     </nav>
 
     <!-- MAIN BODY -->
-    <div class="container my-5" style="max-width: 800px;">
+    <div class="container my-5" style="max-width: 900px;">
         
         <!-- INTRO DUCCIÓN -->
         <div class="text-center mb-5">
@@ -175,13 +175,39 @@
             </span>
             <h2 class="fw-extrabold text-white mb-2 fs-1 tracking-tight">Validación Digital de Aptitud Médica</h2>
             <p class="text-muted mx-auto" style="max-width: 550px;">
-                Ingrese el número de DNI o documento del paciente para consultar al instante la vigencia, aptitud médica, observaciones y firmas de sus certificados emitidos.
+                Consulte al instante la vigencia, aptitud médica, observaciones y firmas de los certificados emitidos bajo este convenio.
             </p>
+        </div>
+
+        <!-- STATS CARDS -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card card-oled-glow p-4 text-center">
+                    <span class="fs-1 d-block mb-2">🤝</span>
+                    <h6 class="text-secondary small text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Total Emitidos</h6>
+                    <h2 class="fw-extrabold text-white mb-0">{{ $totalCertificados }}</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-oled-glow p-4 text-center" style="border-color: rgba(16, 185, 129, 0.25) !important;">
+                    <span class="fs-1 d-block mb-2">🟢</span>
+                    <h6 class="text-secondary small text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Aprobados / Vigentes</h6>
+                    <h2 class="fw-extrabold text-success mb-0">{{ $totalVigentes }}</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-oled-glow p-4 text-center" style="border-color: rgba(239, 68, 68, 0.25) !important;">
+                    <span class="fs-1 d-block mb-2">🔴</span>
+                    <h6 class="text-secondary small text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Expirados / Vencidos</h6>
+                    <h2 class="fw-extrabold text-danger mb-0">{{ $totalExpirados }}</h2>
+                </div>
+            </div>
         </div>
 
         <!-- SEARCH CARD -->
         <div class="card card-oled-glow mb-5">
             <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold text-white mb-3"><i class="bi bi-shield-lock-fill text-success me-2"></i>Buscador Rápido por DNI</h5>
                 <form id="search_form" onsubmit="performSearch(event)">
                     <div class="row g-3">
                         <div class="col-md-8">
@@ -201,15 +227,84 @@
         </div>
 
         <!-- RESULTS CONTAINER -->
-        <div id="results_wrapper">
+        <div id="results_wrapper" class="mb-5">
             <!-- Loader o Estado Inicial -->
-            <div id="status_message" class="text-center py-5 text-muted card-oled-glow p-4">
+            <div id="status_message" class="text-center py-4 text-muted card-oled-glow p-4 d-none">
                 <i class="bi bi-shield-check display-3 text-secondary opacity-25 d-block mb-3"></i>
                 <p class="mb-0 fw-medium">Esperando consulta de DNI en sistema...</p>
             </div>
 
             <div id="certificates_list" class="d-none">
                 <!-- Se inyectan dinámicamente -->
+            </div>
+        </div>
+
+        <!-- AUDIT TABLE SECTION -->
+        <div class="card card-oled-glow mb-5">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                    <div>
+                        <h4 class="fw-bold text-white mb-0"><i class="bi bi-people-fill text-success me-2"></i>Nómina de Personas Certificadas</h4>
+                        <span class="text-secondary x-small" style="font-size: 0.75rem;">Listado oficial y auditable de aptitudes otorgadas bajo el convenio.</span>
+                    </div>
+                    <div>
+                        <input type="text" id="table_filter" class="form-control form-control-oled py-2 px-3 small shadow-none" placeholder="🔍 Buscar DNI o Nombre..." onkeyup="filterAuditTable()" style="max-width: 250px; font-size: 0.85rem; border-radius: 10px;">
+                    </div>
+                </div>
+
+                @if($certificates->isEmpty())
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-person-x-fill display-4 opacity-25 d-block mb-3"></i>
+                        No hay personas certificadas emitidas todavía para este convenio.
+                    </div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle border border-secondary border-opacity-10 mb-0" id="audit_table">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border-oled); font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary);">
+                                    <th class="fw-bold py-3">Paciente / Beneficiario</th>
+                                    <th class="fw-bold py-3">Dictamen Médico</th>
+                                    <th class="fw-bold py-3">Firma Digital</th>
+                                    <th class="fw-bold py-3 text-center">Estado</th>
+                                    <th class="fw-bold py-3 text-end">Certificado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($certificates as $cert)
+                                    @php
+                                        $esVigente = true;
+                                        if ($cert->vigencia_hasta) {
+                                            $esVigente = $cert->vigencia_hasta->isFuture() || $cert->vigencia_hasta->isToday();
+                                        }
+                                    @endphp
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;">
+                                        <td class="py-3">
+                                            <div class="fw-bold text-white patient-name">{{ $cert->patient?->name ?? 'Paciente Registrado' }}</div>
+                                            <span class="x-small text-muted font-monospace patient-doc" style="font-size: 0.75rem;">DNI: {{ $cert->patient?->document ?? 'S/D' }}</span>
+                                        </td>
+                                        <td class="py-3" style="max-width: 200px;">
+                                            <div class="text-truncate text-secondary x-small font-monospace" title="{{ $cert->contenido }}">{{ strip_tags($cert->contenido) }}</div>
+                                        </td>
+                                        <td class="py-3">
+                                            <div class="small fw-semibold text-light">{{ $cert->doctor?->name ?? 'Médico Firmante' }}</div>
+                                            <span class="x-small text-muted" style="font-size: 0.7rem;">M.P. {{ $cert->doctor?->profesionalConfig->matricula ?? 'S/D' }}</span>
+                                        </td>
+                                        <td class="py-3 text-center">
+                                            <span class="badge {{ $esVigente ? 'bg-success bg-opacity-25 text-success border border-success' : 'bg-danger bg-opacity-25 text-danger border border-danger' }} rounded-pill px-3 py-1 fw-bold x-small" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                                {{ $esVigente ? 'VIGENTE' : 'VENCIDO' }}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 text-end">
+                                            <a href="{{ route('empresa.certificados.print', $cert->id) }}" target="_blank" class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold shadow-none" style="font-size: 0.75rem;">
+                                                <i class="bi bi-printer-fill me-1"></i> Imprimir / PDF
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -359,6 +454,28 @@
                     </div>
                 `;
             });
+        }
+        // Filtrar tabla general en tiempo real
+        function filterAuditTable() {
+            const query = document.getElementById('table_filter').value.toLowerCase();
+            const table = document.getElementById('audit_table');
+            if (!table) return;
+
+            const trs = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+            for (let i = 0; i < trs.length; i++) {
+                const nameEl = trs[i].querySelector('.patient-name');
+                const docEl = trs[i].querySelector('.patient-doc');
+                
+                const nameText = nameEl ? nameEl.textContent.toLowerCase() : '';
+                const docText = docEl ? docEl.textContent.toLowerCase() : '';
+
+                if (nameText.includes(query) || docText.includes(query)) {
+                    trs[i].style.display = '';
+                } else {
+                    trs[i].style.display = 'none';
+                }
+            }
         }
     </script>
 </body>
