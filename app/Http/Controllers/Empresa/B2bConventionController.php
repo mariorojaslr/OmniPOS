@@ -24,6 +24,14 @@ class B2bConventionController extends Controller
             ->orderBy('nombre', 'asc')
             ->get();
 
+        // 🩺 Auto-sanación: Generar tokens de acceso para convenios existentes sin token
+        foreach ($conventions as $conv) {
+            if (empty($conv->token_acceso)) {
+                $conv->token_acceso = 'CONV-' . strtoupper(\Illuminate\Support\Str::random(24));
+                $conv->save();
+            }
+        }
+
         $servicios = Auth::user()->empresa->servicios()->orderBy('nombre')->get();
 
         return view('empresa.hospitalization.convenios.index', compact('conventions', 'servicios'));
