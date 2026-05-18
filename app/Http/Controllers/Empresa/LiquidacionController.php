@@ -37,7 +37,7 @@ class LiquidacionController extends Controller
         $profesionales = User::where('empresa_id', $empresa_id)
             ->whereHas('turnosProfesional', function($query) {
                 $query->whereNull('liquidacion_id')
-                      ->whereIn('estado', ['realizado', 'atendido']); // Solo turnos terminados o atendidos
+                      ->whereIn('estado', ['realizado', 'atendido', 'confirmado', 'completado']); // Solo turnos terminados, atendidos o confirmados
             })->get();
 
         return view('empresa.liquidaciones.create', compact('profesionales'));
@@ -60,7 +60,7 @@ class LiquidacionController extends Controller
         $turnos = Turno::where('empresa_id', $empresa_id)
             ->where('user_id', $request->user_id)
             ->whereNull('liquidacion_id')
-            ->whereIn('estado', ['realizado', 'atendido'])
+            ->whereIn('estado', ['realizado', 'atendido', 'confirmado', 'completado'])
             ->with('servicio', 'cliente')
             ->orderBy('fecha', 'asc')
             ->get();

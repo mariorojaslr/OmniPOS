@@ -428,13 +428,13 @@ class ReporteController extends Controller
         // KPI 1: Facturación Total Clínica (Turnos completados)
         $facturadoClinica = DB::table('turnos')
             ->where('empresa_id', $empresaId)
-            ->whereIn('estado', ['realizado', 'atendido'])
+            ->whereIn('estado', ['realizado', 'atendido', 'confirmado', 'completado'])
             ->sum('monto');
 
         // KPI 2: Total Comisiones a Médicos
         $totalComisiones = DB::table('turnos')
             ->where('empresa_id', $empresaId)
-            ->whereIn('estado', ['realizado', 'atendido'])
+            ->whereIn('estado', ['realizado', 'atendido', 'confirmado', 'completado'])
             ->sum('comision_monto');
 
         // KPI 3: Margen Clínica Neto
@@ -443,7 +443,7 @@ class ReporteController extends Controller
         // KPI 4: Deuda pendiente Obras Sociales
         $deudaObrasSociales = DB::table('turnos')
             ->where('empresa_id', $empresaId)
-            ->whereIn('estado', ['realizado', 'atendido'])
+            ->whereIn('estado', ['realizado', 'atendido', 'confirmado', 'completado'])
             ->whereNotNull('obra_social_id')
             ->sum('monto');
 
@@ -451,7 +451,7 @@ class ReporteController extends Controller
         $liquidacionesProfesionales = DB::table('turnos as t')
             ->join('users as u', 'u.id', '=', 't.user_id')
             ->where('t.empresa_id', $empresaId)
-            ->whereIn('t.estado', ['realizado', 'atendido'])
+            ->whereIn('t.estado', ['realizado', 'atendido', 'confirmado', 'completado'])
             ->select(
                 'u.name as profesional_nombre',
                 'u.email as profesional_email',
@@ -468,7 +468,7 @@ class ReporteController extends Controller
         $deudasObrasSociales = DB::table('turnos as t')
             ->join('obras_sociales as os', 'os.id', '=', 't.obra_social_id')
             ->where('t.empresa_id', $empresaId)
-            ->whereIn('t.estado', ['realizado', 'atendido'])
+            ->whereIn('t.estado', ['realizado', 'atendido', 'confirmado', 'completado'])
             ->select(
                 'os.nombre as obra_social_nombre',
                 'os.cuit as obra_social_cuit',
@@ -482,7 +482,7 @@ class ReporteController extends Controller
         // 3. Distribución mensual para Chart.js
         $rendimientoMensual = DB::table('turnos')
             ->where('empresa_id', $empresaId)
-            ->whereIn('estado', ['realizado', 'atendido'])
+            ->whereIn('estado', ['realizado', 'atendido', 'confirmado', 'completado'])
             ->whereYear('fecha', now()->year)
             ->select(
                 DB::raw('MONTH(fecha) as mes'),
