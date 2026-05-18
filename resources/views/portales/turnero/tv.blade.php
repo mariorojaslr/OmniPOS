@@ -82,29 +82,35 @@
             border-top: 2px solid rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
+            justify-content: center;
             overflow: hidden;
             position: relative;
             padding: 0;
         }
 
-        .ticker-wrap {
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
+        .ticker-message {
+            position: absolute;
             display: flex;
             align-items: center;
+            justify-content: center;
+            width: 90%;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(100vw); /* Offscreen right */
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+            pointer-events: none;
         }
 
-        .ticker-content {
-            display: inline-flex;
-            align-items: center;
-            animation: marquee 50s linear infinite;
+        .ticker-message.state-center {
+            opacity: 1;
+            transform: translateX(0); /* Stopped in center */
+            pointer-events: auto;
         }
 
-        .ticker-item {
-            display: inline-flex;
-            align-items: center;
-            padding-right: 150px;
+        .ticker-message.state-left {
+            opacity: 0;
+            transform: translateX(-100vw); /* Exits quickly to left */
+            pointer-events: none;
         }
 
         .ticker-badge {
@@ -118,17 +124,14 @@
             border-radius: 14px;
             margin-right: 25px;
             letter-spacing: 2px;
+            white-space: nowrap;
         }
 
         .ticker-text {
             font-size: 2.5rem;
             font-weight: 700;
             color: #ffffff;
-        }
-
-        @keyframes marquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-50%, 0, 0); }
+            line-height: 1.25;
         }
 
         .card-turno {
@@ -251,34 +254,17 @@
         $tDesc3  = $empresa->config_pasarelas['ticker_desc_3'] ?? 'Utilice el dispenser de alcohol en gel disponible en los pasillos al entrar y salir.';
     @endphp
     <div class="full-width-ticker">
-        <div class="ticker-wrap">
-            <div class="ticker-content">
-                <div class="ticker-item">
-                    <span class="ticker-badge">{{ $tTitle1 }}</span>
-                    <span class="ticker-text">{{ $tDesc1 }}</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-badge">{{ $tTitle2 }}</span>
-                    <span class="ticker-text">{{ $tDesc2 }}</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-badge">{{ $tTitle3 }}</span>
-                    <span class="ticker-text">{{ $tDesc3 }}</span>
-                </div>
-                <!-- Duplicamos los ítems para asegurar un loop infinito continuo y perfecto -->
-                <div class="ticker-item">
-                    <span class="ticker-badge">{{ $tTitle1 }}</span>
-                    <span class="ticker-text">{{ $tDesc1 }}</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-badge">{{ $tTitle2 }}</span>
-                    <span class="ticker-text">{{ $tDesc2 }}</span>
-                </div>
-                <div class="ticker-item">
-                    <span class="ticker-badge">{{ $tTitle3 }}</span>
-                    <span class="ticker-text">{{ $tDesc3 }}</span>
-                </div>
-            </div>
+        <div class="ticker-message">
+            <span class="ticker-badge">{{ $tTitle1 }}</span>
+            <span class="ticker-text">{{ $tDesc1 }}</span>
+        </div>
+        <div class="ticker-message">
+            <span class="ticker-badge">{{ $tTitle2 }}</span>
+            <span class="ticker-text">{{ $tDesc2 }}</span>
+        </div>
+        <div class="ticker-message">
+            <span class="ticker-badge">{{ $tTitle3 }}</span>
+            <span class="ticker-text">{{ $tDesc3 }}</span>
         </div>
     </div>
 
@@ -508,6 +494,41 @@
                 window.speechSynthesis.onvoiceschanged = window.speechSynthesis.getVoices;
             }
         }
+
+        // Ticker del pie de pantalla interactivo y secuencial (estilo premium con detención central)
+        document.addEventListener('DOMContentLoaded', () => {
+            const messages = document.querySelectorAll('.ticker-message');
+            if (messages.length === 0) return;
+
+            let currentIndex = 0;
+
+            function showNextMessage() {
+                const currentMsg = messages[currentIndex];
+                
+                // 1. Desplazar hacia el centro
+                currentMsg.classList.add('state-center');
+
+                // 2. Detenerse en el centro por 5 segundos
+                setTimeout(() => {
+                    // 3. Desplazar rápidamente hacia la izquierda
+                    currentMsg.classList.remove('state-center');
+                    currentMsg.classList.add('state-left');
+
+                    // 4. Tras completar la transición de salida (800ms), remover clases para devolver al extremo derecho silenciosamente
+                    setTimeout(() => {
+                        currentMsg.classList.remove('state-left');
+                    }, 800);
+
+                    // 5. Preparar e iniciar la entrada del siguiente mensaje con una sutil pausa
+                    currentIndex = (currentIndex + 1) % messages.length;
+                    setTimeout(showNextMessage, 300);
+
+                }, 5000);
+            }
+
+            // Iniciar secuencia de mensajes
+            showNextMessage();
+        });
     </script>
 </body>
 </html>
