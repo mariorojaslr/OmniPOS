@@ -127,6 +127,25 @@
                             </div>
                         </div>
 
+                        <h5 class="fw-bold text-dark mb-3 text-uppercase tracking-wider fs-6 border-bottom pb-2 mt-4"><i class="bi bi-stopwatch text-warning me-2"></i> Tiempos y Animaciones del Ticker</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4 col-sm-12">
+                                <label class="x-small text-muted fw-bold mb-1">Fade In/Out (Segundos)</label>
+                                <input type="number" name="ticker_fade_time" value="{{ $config['ticker_fade_time'] ?? 3 }}" class="form-control shadow-none form-control-sm" placeholder="Ej: 3">
+                                <small class="text-muted" style="font-size: 0.75rem;">Tiempo de aparición/desvanecimiento.</small>
+                            </div>
+                            <div class="col-md-4 col-sm-12">
+                                <label class="x-small text-muted fw-bold mb-1">Tiempo de Lectura (Segundos)</label>
+                                <input type="number" name="ticker_read_time" value="{{ $config['ticker_read_time'] ?? 10 }}" class="form-control shadow-none form-control-sm" placeholder="Ej: 10">
+                                <small class="text-muted" style="font-size: 0.75rem;">Tiempo que el mensaje queda fijo.</small>
+                            </div>
+                            <div class="col-md-4 col-sm-12">
+                                <label class="x-small text-muted fw-bold mb-1">Pausa en Negro (Segundos)</label>
+                                <input type="number" name="ticker_pause_time" value="{{ $config['ticker_pause_time'] ?? 20 }}" class="form-control shadow-none form-control-sm" placeholder="Ej: 20">
+                                <small class="text-muted" style="font-size: 0.75rem;">Descanso entre mensajes.</small>
+                            </div>
+                        </div>
+
                         <div class="d-grid mt-4">
                             <button type="submit" class="btn btn-primary fw-bold py-3 rounded-4 shadow-sm fs-5">
                                 <i class="bi bi-save me-2"></i> GUARDAR CONFIGURACIONES DE PORTAL

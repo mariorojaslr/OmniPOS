@@ -96,7 +96,7 @@
             width: 90%;
             text-align: center;
             opacity: 0;
-            transition: opacity 3s ease-in-out;
+            transition: opacity {{ $tFade }}s ease-in-out;
             pointer-events: none;
         }
 
@@ -249,6 +249,10 @@
         $tDesc2  = $empresa->config_pasarelas['ticker_desc_2'] ?? 'Presente radiografías, PDF o análisis previos a la secretaria para cargarlos de inmediato.';
         $tTitle3 = $empresa->config_pasarelas['ticker_title_3'] ?? '🧼 Cuidado e Higiene';
         $tDesc3  = $empresa->config_pasarelas['ticker_desc_3'] ?? 'Utilice el dispenser de alcohol en gel disponible en los pasillos al entrar y salir.';
+        
+        $tFade  = (int)($empresa->config_pasarelas['ticker_fade_time'] ?? 3);
+        $tRead  = (int)($empresa->config_pasarelas['ticker_read_time'] ?? 10);
+        $tPause = (int)($empresa->config_pasarelas['ticker_pause_time'] ?? 20);
     @endphp
     <div class="full-width-ticker">
         <div class="ticker-message">
@@ -584,21 +588,21 @@
             function showNextMessage() {
                 const currentMsg = messages[currentIndex];
                 
-                // 1. Aparecer lentamente (Fade In de 3s)
+                // 1. Aparecer lentamente
                 currentMsg.classList.add('state-active');
 
-                // 2. Mostrarlo fijo por 10 segundos (tiempo de lectura)
+                // 2. Mostrarlo fijo (tiempo de lectura)
                 setTimeout(() => {
-                    // 3. Desvanecer lentamente (Fade Out de 3s)
+                    // 3. Desvanecer lentamente
                     currentMsg.classList.remove('state-active');
 
-                    // 4. Tras desvanecerse (3s + margen), esperar 20 segundos de pantalla negra antes del próximo
+                    // 4. Tras desvanecerse, esperar pausa en pantalla negra antes del próximo
                     setTimeout(() => {
                         currentIndex = (currentIndex + 1) % messages.length;
-                        setTimeout(showNextMessage, 20000); // 20 segundos de vacío total (pantalla negra)
-                    }, 3200); // Tiempo que tarda el fade out CSS (3s) + 200ms de gracia
+                        setTimeout(showNextMessage, {{ $tPause * 1000 }}); // Pausa de vacío total
+                    }, {{ ($tFade * 1000) + 200 }}); // CSS fade out time + 200ms
 
-                }, 10000); // 10 segundos de tiempo de lectura
+                }, {{ $tRead * 1000 }}); // Tiempo de lectura
             }
 
             // Iniciar secuencia de mensajes
