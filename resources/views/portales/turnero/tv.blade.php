@@ -96,21 +96,13 @@
             width: 90%;
             text-align: center;
             opacity: 0;
-            transform: translateX(100vw); /* Offscreen right */
-            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+            transition: opacity 1.5s ease-in-out;
             pointer-events: none;
         }
 
-        .ticker-message.state-center {
+        .ticker-message.state-active {
             opacity: 1;
-            transform: translateX(0); /* Stopped in center */
             pointer-events: auto;
-        }
-
-        .ticker-message.state-left {
-            opacity: 0;
-            transform: translateX(-100vw); /* Exits quickly to left */
-            pointer-events: none;
         }
 
         .ticker-badge {
@@ -592,25 +584,21 @@
             function showNextMessage() {
                 const currentMsg = messages[currentIndex];
                 
-                // 1. Desplazar hacia el centro
-                currentMsg.classList.add('state-center');
+                // 1. Aparecer lentamente (Fade In)
+                currentMsg.classList.add('state-active');
 
-                // 2. Detenerse en el centro por 5 segundos
+                // 2. Mostrarlo fijo por 8 segundos (tiempo de lectura pausado)
                 setTimeout(() => {
-                    // 3. Desplazar rápidamente hacia la izquierda
-                    currentMsg.classList.remove('state-center');
-                    currentMsg.classList.add('state-left');
+                    // 3. Desvanecer lentamente (Fade Out)
+                    currentMsg.classList.remove('state-active');
 
-                    // 4. Tras completar la transición de salida (800ms), remover clases para devolver al extremo derecho silenciosamente
+                    // 4. Tras desvanecerse completamente (1.5s de css + margen) y pausar
                     setTimeout(() => {
-                        currentMsg.classList.remove('state-left');
-                    }, 800);
+                        currentIndex = (currentIndex + 1) % messages.length;
+                        setTimeout(showNextMessage, 1000); // 1 segundo de vacío total antes del próximo
+                    }, 1800);
 
-                    // 5. Preparar e iniciar la entrada del siguiente mensaje con una sutil pausa
-                    currentIndex = (currentIndex + 1) % messages.length;
-                    setTimeout(showNextMessage, 300);
-
-                }, 5000);
+                }, 8000);
             }
 
             // Iniciar secuencia de mensajes
