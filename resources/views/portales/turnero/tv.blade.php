@@ -96,7 +96,7 @@
             width: 90%;
             text-align: center;
             opacity: 0;
-            transition: opacity 1.5s ease-in-out;
+            transition: opacity 3s ease-in-out;
             pointer-events: none;
         }
 
@@ -584,21 +584,21 @@
             function showNextMessage() {
                 const currentMsg = messages[currentIndex];
                 
-                // 1. Aparecer lentamente (Fade In)
+                // 1. Aparecer lentamente (Fade In de 3s)
                 currentMsg.classList.add('state-active');
 
-                // 2. Mostrarlo fijo por 8 segundos (tiempo de lectura pausado)
+                // 2. Mostrarlo fijo por 10 segundos (tiempo de lectura)
                 setTimeout(() => {
-                    // 3. Desvanecer lentamente (Fade Out)
+                    // 3. Desvanecer lentamente (Fade Out de 3s)
                     currentMsg.classList.remove('state-active');
 
-                    // 4. Tras desvanecerse completamente (1.5s de css + margen) y pausar
+                    // 4. Tras desvanecerse (3s + margen), esperar 20 segundos de pantalla negra antes del próximo
                     setTimeout(() => {
                         currentIndex = (currentIndex + 1) % messages.length;
-                        setTimeout(showNextMessage, 1000); // 1 segundo de vacío total antes del próximo
-                    }, 1800);
+                        setTimeout(showNextMessage, 20000); // 20 segundos de vacío total (pantalla negra)
+                    }, 3200); // Tiempo que tarda el fade out CSS (3s) + 200ms de gracia
 
-                }, 8000);
+                }, 10000); // 10 segundos de tiempo de lectura
             }
 
             // Iniciar secuencia de mensajes
