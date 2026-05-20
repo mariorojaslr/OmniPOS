@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     
+    @php
+        $tFade  = (int)($empresa->config_pasarelas['ticker_fade_time'] ?? 3);
+        $tRead  = (int)($empresa->config_pasarelas['ticker_read_time'] ?? 10);
+        $tPause = (int)($empresa->config_pasarelas['ticker_pause_time'] ?? 20);
+    @endphp
+
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -249,10 +255,6 @@
         $tDesc2  = $empresa->config_pasarelas['ticker_desc_2'] ?? 'Presente radiografías, PDF o análisis previos a la secretaria para cargarlos de inmediato.';
         $tTitle3 = $empresa->config_pasarelas['ticker_title_3'] ?? '🧼 Cuidado e Higiene';
         $tDesc3  = $empresa->config_pasarelas['ticker_desc_3'] ?? 'Utilice el dispenser de alcohol en gel disponible en los pasillos al entrar y salir.';
-        
-        $tFade  = (int)($empresa->config_pasarelas['ticker_fade_time'] ?? 3);
-        $tRead  = (int)($empresa->config_pasarelas['ticker_read_time'] ?? 10);
-        $tPause = (int)($empresa->config_pasarelas['ticker_pause_time'] ?? 20);
     @endphp
     <div class="full-width-ticker">
         <div class="ticker-message">
