@@ -299,8 +299,8 @@
                 width: '100%',
                 playerVars: {
                     autoplay: 1,
-                    mute: 1,
-                    controls: 0,
+                    mute: 1, // Require mute for autoplay rules on load
+                    controls: 1, // Mostrar controles para la secretaria
                     modestbranding: 1,
                     rel: 0,
                     loop: 1,
@@ -396,8 +396,12 @@
             overlay.style.opacity = '0';
             setTimeout(() => {
                 overlay.remove();
+                // Intentar reproducir video y ajustar volumen ambiental
+                if (typeof ytPlayer !== 'undefined' && ytPlayer && typeof ytPlayer.unMute === 'function') {
+                    ytPlayer.unMute();
+                    ytPlayer.setVolume(20); // Volumen ambiental (20%)
+                }
                 
-                // Intentar reproducir video explícitamente en el navegador del TV
                 // Iniciar Polling de llamados
                 pollActiveCall();
                 pollInterval = setInterval(pollActiveCall, 3000);
