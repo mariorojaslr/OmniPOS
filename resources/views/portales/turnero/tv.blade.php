@@ -288,37 +288,40 @@
             return playlistsArray[Math.floor(Math.random() * playlistsArray.length)];
         }
 
-        function onYouTubeIframeAPIReady() {
-            const initialPlaylist = getRandomPlaylist();
+        window.onYouTubeIframeAPIReady = function() {
+            let initialPlaylist = getRandomPlaylist();
+            if (!initialPlaylist) initialPlaylist = 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn'; // Fallback
+            
             const isPlaylist = initialPlaylist.length > 15 || initialPlaylist.startsWith('PL');
             
-            let playerVars = {
-                autoplay: 1,
-                mute: 1,
-                controls: 0,
-                modestbranding: 1,
-                rel: 0,
-                loop: 1
-            };
-            
-            if (isPlaylist) {
-                playerVars.listType = 'playlist';
-                playerVars.list = initialPlaylist;
-            } else {
-                playerVars.playlist = initialPlaylist; // para que el loop funcione con un solo video
-            }
-
-            ytPlayer = new YT.Player('tv_youtube_player', {
+            let playerOptions = {
                 height: '100%',
                 width: '100%',
-                videoId: !isPlaylist ? initialPlaylist : undefined,
-                playerVars: playerVars,
+                playerVars: {
+                    autoplay: 1,
+                    mute: 1,
+                    controls: 0,
+                    modestbranding: 1,
+                    rel: 0,
+                    loop: 1,
+                    origin: window.location.origin
+                },
                 events: {
                     'onReady': onPlayerReady,
                     'onStateChange': onPlayerStateChange
                 }
-            });
-        }
+            };
+
+            if (isPlaylist) {
+                playerOptions.playerVars.listType = 'playlist';
+                playerOptions.playerVars.list = initialPlaylist;
+            } else {
+                playerOptions.videoId = initialPlaylist;
+                playerOptions.playerVars.playlist = initialPlaylist;
+            }
+
+            ytPlayer = new YT.Player('tv_youtube_player', playerOptions);
+        };
 
         function onPlayerReady(event) {
             event.target.playVideo();
