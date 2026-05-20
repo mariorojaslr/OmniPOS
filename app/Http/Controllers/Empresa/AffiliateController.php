@@ -30,7 +30,7 @@ class AffiliateController extends Controller
         $empresaId = Auth::user()->empresa_id;
         $plans = \App\Models\AffiliatePlan::where('empresa_id', $empresaId)->where('active', true)->get();
         $obrasSociales = \App\Models\ObraSocial::where('empresa_id', $empresaId)->where('activo', true)->get();
-        $workplaces = \App\Models\Client::where('empresa_id', $empresaId)
+        $workplaces = Client::where('empresa_id', $empresaId)
             ->whereNotNull('workplace')
             ->where('workplace', '!=', '')
             ->distinct()
@@ -121,7 +121,7 @@ class AffiliateController extends Controller
         $empresaId = Auth::user()->empresa_id;
         $plans = \App\Models\AffiliatePlan::where('empresa_id', $empresaId)->where('active', true)->get();
         $obrasSociales = \App\Models\ObraSocial::where('empresa_id', $empresaId)->where('activo', true)->get();
-        $workplaces = \App\Models\Client::where('empresa_id', $empresaId)
+        $workplaces = Client::where('empresa_id', $empresaId)
             ->whereNotNull('workplace')
             ->where('workplace', '!=', '')
             ->distinct()

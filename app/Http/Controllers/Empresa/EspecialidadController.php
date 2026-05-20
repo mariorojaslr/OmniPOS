@@ -22,22 +22,39 @@ class EspecialidadController extends Controller
         // Para cada especialidad, calculamos de manera dinámica la cantidad de prestaciones y profesionales asignados
         $especialidadesData = $especialidades->map(function ($esp) use ($empresa) {
             // Prestaciones con esta categoría
-            $serviciosIds = Servicio::where('empresa_id', $empresa->id)
-                ->where('categoria', $esp->nombre)
-                ->pluck('id')
-                ->toArray();
+            $serviciosQuery = Servicio::where('empresa_id', $empresa->id)
+                ->where('categoria', $esp->nombre);
             
+            $serviciosIds = $serviciosQuery->pluck('id')->toArray();
             $cantServicios = count($serviciosIds);
+
+            // Obtener lista completa de prácticas/servicios
+            $servicios = $serviciosQuery->get()->map(function($serv) {
+                return [
+                    'nombre' => $serv->nombre,
+                    'precio' => (float) $serv->precio,
+                    'duracion_minutos' => (int) $serv->duracion_minutos,
+                    'activo' => (bool) $serv->activo
+                ];
+            })->toArray();
 
             // Médicos asignados: aquellos que tienen en su profesional_config alguno de los IDs de servicios anteriores
             $cantProfesionales = 0;
+            $medicos = [];
             if ($cantServicios > 0) {
-                $configs = ProfesionalConfig::where('empresa_id', $empresa->id)->get();
+                $configs = ProfesionalConfig::where('empresa_id', $empresa->id)->with('user')->get();
                 foreach ($configs as $config) {
                     $espAsignadas = (array) $config->especialidades;
                     // Si hay alguna coincidencia de IDs
                     if (array_intersect($serviciosIds, $espAsignadas)) {
                         $cantProfesionales++;
+                        if ($config->user) {
+                            $medicos[] = [
+                                'name' => $config->user->name,
+                                'email' => $config->user->email,
+                                'activo' => $config->user->activo
+                            ];
+                        }
                     }
                 }
             }
@@ -48,7 +65,9 @@ class EspecialidadController extends Controller
                 'descripcion' => $esp->descripcion,
                 'activo' => $esp->activo,
                 'cant_servicios' => $cantServicios,
-                'cant_profesionales' => $cantProfesionales
+                'cant_profesionales' => $cantProfesionales,
+                'medicos' => $medicos,
+                'servicios' => $servicios
             ];
         });
 

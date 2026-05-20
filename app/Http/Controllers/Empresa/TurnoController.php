@@ -261,7 +261,11 @@ class TurnoController extends Controller
         $config['online_booking_price'] = (float) $request->input('online_booking_price', 0);
         $config['online_booking_tolerance'] = $request->has('online_booking_tolerance');
         $config['online_booking_gateway'] = $request->input('online_booking_gateway', 'MercadoPago');
-        $config['youtube_playlist_id'] = $request->input('youtube_playlist_id', 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn');
+        $config['youtube_playlist_id_1'] = $request->input('youtube_playlist_id_1', 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn');
+        $config['youtube_playlist_id_2'] = $request->input('youtube_playlist_id_2', '');
+        $config['youtube_playlist_id_3'] = $request->input('youtube_playlist_id_3', '');
+        $config['youtube_playlist_id_4'] = $request->input('youtube_playlist_id_4', '');
+        $config['youtube_playlist_id_5'] = $request->input('youtube_playlist_id_5', '');
         
         // Smart TV dynamic ticker messages
         $config['ticker_title_1'] = $request->input('ticker_title_1', '📇 Tenga su DNI Listo');

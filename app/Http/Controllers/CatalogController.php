@@ -128,7 +128,7 @@ class CatalogController extends Controller
             'client_document' => 'required|string|max:20',
             'client_email' => 'required|email|max:191',
             'client_phone' => 'required|string|max:30',
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required',
             'servicio_id' => 'required|exists:servicios,id',
             'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required|string',
@@ -151,6 +151,35 @@ class CatalogController extends Controller
         $horaInicio = $request->hora;
         $horaFin = Carbon::parse($request->hora)->addMinutes(30)->format('H:i');
 
+        // LÓGICA ANTI-OVERBOOKING Y "CUALQUIER MÉDICO"
+        $finalDoctorId = $request->user_id;
+
+        if ($finalDoctorId === 'any') {
+            $doctoresActivos = User::where('empresa_id', $empresa->id)->where('activo', true)->pluck('id');
+            $ocupados = Turno::where('empresa_id', $empresa->id)
+                ->where('fecha', $request->fecha)
+                ->where('hora_inicio', $horaInicio)
+                ->whereIn('estado', ['confirmado', 'pendiente'])
+                ->pluck('user_id');
+            
+            $libres = $doctoresActivos->diff($ocupados);
+            if ($libres->isEmpty()) {
+                return redirect()->back()->with('error', 'Lo sentimos, este turno acaba de ser tomado por otra persona. Por favor seleccione otro horario.');
+            }
+            $finalDoctorId = $libres->first();
+        } else {
+            $existe = Turno::where('empresa_id', $empresa->id)
+                ->where('user_id', $finalDoctorId)
+                ->where('fecha', $request->fecha)
+                ->where('hora_inicio', $horaInicio)
+                ->whereIn('estado', ['confirmado', 'pendiente'])
+                ->exists();
+                
+            if ($existe) {
+                return redirect()->back()->with('error', 'Lo sentimos, este turno acaba de ser tomado por otra persona. Por favor seleccione otro horario.');
+            }
+        }
+
         // 3. Crear registro
         $monto = (float) ($config['online_booking_price'] ?? 0);
         $estadoInicial = ($monto > 0) ? 'pendiente' : 'confirmado';
@@ -158,7 +187,7 @@ class CatalogController extends Controller
         $turno = Turno::create([
             'empresa_id' => $empresa->id,
             'client_id' => $patient->id,
-            'user_id' => $request->user_id,
+            'user_id' => $finalDoctorId,
             'servicio_id' => $request->servicio_id,
             'fecha' => $request->fecha,
             'hora_inicio' => $horaInicio,
@@ -169,12 +198,11 @@ class CatalogController extends Controller
         ]);
 
         if ($monto > 0) {
-            // Requiere pago previo
             return redirect()->route('catalog.booking.payment', [$empresa->slug, $turno->id]);
         }
 
-        return redirect()->route('catalog.booking', $empresa->slug)
-            ->with('success', '¡Su turno ha sido agendado y confirmado con éxito! Le llegará un recordatorio por correo electrónico.');
+        $wspMsg = '¡Su turno ha sido agendado! Hemos enviado el comprobante a su WhatsApp. Recuerde llegar 15 minutos antes para digitalizar documentación. Tolerancia máxima de espera: 15 minutos posteriores a su turno.';
+        return redirect()->route('catalog.booking', $empresa->slug)->with('success', $wspMsg);
     }
 
     /**
@@ -205,10 +233,58 @@ class CatalogController extends Controller
         // Simulación exitosa de pasarela
         $turno->update([
             'estado' => 'confirmado',
-            'notas' => $turno->notes . ' | Pago Online Procesado con éxito vía ' . ($empresa->config_pasarelas['online_booking_gateway'] ?? 'MercadoPago') . ' Transacción N° ' . rand(1000000, 9999999)
+            'notas' => ($turno->notas ?? '') . ' | Pago Online Procesado con éxito vía ' . ($empresa->config_pasarelas['online_booking_gateway'] ?? 'MercadoPago') . ' Transacción N° ' . rand(1000000, 9999999)
         ]);
 
+        $wspMsg = '¡Excelente! Pago procesado de forma segura. Hemos enviado el comprobante a su WhatsApp. Recuerde llegar 15 minutos antes para digitalizar documentación. Tolerancia máxima: 15 minutos posteriores a su turno.';
         return redirect()->route('catalog.booking', $empresa->slug)
-            ->with('success', '¡Excelente! Pago procesado de forma segura y turno confirmado en nuestra agenda.');
+            ->with('success', $wspMsg);
+    }
+
+    /**
+     * Obtener slots horarios ocupados para un médico y una fecha.
+     */
+    public function occupiedSlots(Request $request, Empresa $empresa)
+    {
+        $doctorId = $request->get('doctor_id');
+        $fecha = $request->get('fecha');
+
+        if (!$doctorId || !$fecha) {
+            return response()->json(['success' => false, 'error' => 'Parámetros faltantes']);
+        }
+
+        if ($doctorId === 'any') {
+            $totalDoctores = User::where('empresa_id', $empresa->id)->where('activo', true)->count();
+            
+            $ocupaciones = Turno::where('empresa_id', $empresa->id)
+                ->where('fecha', $fecha)
+                ->whereIn('estado', ['confirmado', 'pendiente'])
+                ->selectRaw('hora_inicio, count(*) as cant')
+                ->groupBy('hora_inicio')
+                ->pluck('cant', 'hora_inicio');
+                
+            $ocupados = [];
+            foreach ($ocupaciones as $hora => $cant) {
+                if ($cant >= $totalDoctores) {
+                    $ocupados[] = Carbon::parse($hora)->format('H:i');
+                }
+            }
+        } else {
+            // Obtener todos los turnos confirmados o pendientes para ese doctor y esa fecha en la empresa
+            $ocupados = Turno::where('empresa_id', $empresa->id)
+                ->where('user_id', $doctorId)
+                ->where('fecha', $fecha)
+                ->whereIn('estado', ['confirmado', 'pendiente'])
+                ->pluck('hora_inicio')
+                ->map(function($hora) {
+                    return Carbon::parse($hora)->format('H:i');
+                })
+                ->toArray();
+        }
+
+        return response()->json([
+            'success' => true,
+            'ocupados' => $ocupados
+        ]);
     }
 }

@@ -25,25 +25,34 @@
 
 
 {{-- ======================================================
-FILTRO USUARIOS
+FILTRO Y BUSCADOR INTELIGENTE EN TIEMPO REAL (NUEVO)
 ====================================================== --}}
-<div class="mb-3">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div class="d-flex gap-2">
+        <a href="{{ route('empresa.usuarios.index', ['estado'=>'activos']) }}"
+           class="btn btn-sm fw-bold px-3 {{ $estado=='activos' ? 'btn-primary shadow-sm' : 'btn-outline-primary' }}">
+            Activos
+        </a>
 
-    <a href="{{ route('empresa.usuarios.index', ['estado'=>'activos']) }}"
-       class="btn btn-sm {{ $estado=='activos' ? 'btn-primary' : 'btn-outline-primary' }}">
-        Activos
-    </a>
+        <a href="{{ route('empresa.usuarios.index', ['estado'=>'inactivos']) }}"
+           class="btn btn-sm fw-bold px-3 {{ $estado=='inactivos' ? 'btn-secondary shadow-sm' : 'btn-outline-secondary' }}">
+            Inactivos
+        </a>
 
-    <a href="{{ route('empresa.usuarios.index', ['estado'=>'inactivos']) }}"
-       class="btn btn-sm {{ $estado=='inactivos' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-        Inactivos
-    </a>
+        <a href="{{ route('empresa.usuarios.index', ['estado'=>'todos']) }}"
+           class="btn btn-sm fw-bold px-3 {{ $estado=='todos' ? 'btn-dark shadow-sm' : 'btn-outline-dark' }}">
+            Todos
+        </a>
+    </div>
 
-    <a href="{{ route('empresa.usuarios.index', ['estado'=>'todos']) }}"
-       class="btn btn-sm {{ $estado=='todos' ? 'btn-dark' : 'btn-outline-dark' }}">
-        Todos
-    </a>
-
+    <div style="max-width: 420px; width: 100%;">
+        <div class="input-group shadow-sm border-2 rounded-3 overflow-hidden">
+            <span class="input-group-text bg-white border-end-0 text-muted">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" id="usuarioSearchInput" class="form-control border-start-0 ps-0 form-control-sm py-2" placeholder="Buscar por nombre, especialidad, mail o rol...">
+        </div>
+    </div>
 </div>
 
 @if(session('ok'))
@@ -240,11 +249,22 @@ FILTRO USUARIOS
 
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center py-4 text-muted">
+                    <td colspan="100" class="text-center py-4 text-muted">
                         No hay usuarios cargados
                     </td>
                 </tr>
                 @endforelse
+
+                {{-- Fila dinámica para cuando la búsqueda no da resultados --}}
+                <tr id="no-results-row" style="display: none;">
+                    <td colspan="100" class="text-center py-4 text-muted bg-light bg-opacity-50">
+                        <div class="py-3">
+                            <i class="bi bi-person-x fs-2 text-secondary d-block mb-2"></i>
+                            <span class="fw-bold">No se encontraron usuarios</span>
+                            <p class="small text-muted mb-0 mt-1">Prueba escribiendo otras palabras clave (nombre, rol, especialidad o mail)</p>
+                        </div>
+                    </td>
+                </tr>
 
             </tbody>
         </table>
@@ -285,6 +305,54 @@ document.addEventListener('DOMContentLoaded', function() {
         const userId = sel.id.replace('roleSelectEdit', '');
         toggleSubRoleEdit(userId);
     });
+
+    // MOTOR DE BÚSQUEDA MULTI-PALABRA EN TIEMPO REAL
+    const searchInput = document.getElementById('usuarioSearchInput');
+    const tableRows = document.querySelectorAll('table tbody tr');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            
+            if (query === '') {
+                tableRows.forEach(row => {
+                    if (row.id !== 'no-results-row') {
+                        row.style.display = '';
+                    }
+                });
+                const noResultsRow = document.getElementById('no-results-row');
+                if (noResultsRow) noResultsRow.style.display = 'none';
+                return;
+            }
+
+            // Dividir los términos por espacios
+            const searchWords = query.split(/\s+/);
+            let visibleRowsCount = 0;
+
+            tableRows.forEach(row => {
+                if (row.id === 'no-results-row') return;
+
+                // Capturar el contenido de búsqueda (nombres, roles, email, etc.)
+                const searchableText = row.textContent.toLowerCase();
+
+                // CADA término buscado debe estar en el contenido de la fila
+                const matches = searchWords.every(word => searchableText.includes(word));
+
+                if (matches) {
+                    row.style.display = '';
+                    visibleRowsCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Mostrar u ocultar la fila de "sin resultados"
+            const noResultsRow = document.getElementById('no-results-row');
+            if (noResultsRow) {
+                noResultsRow.style.display = (visibleRowsCount === 0) ? '' : 'none';
+            }
+        });
+    }
 });
 </script>
 @endsection

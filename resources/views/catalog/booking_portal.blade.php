@@ -240,29 +240,56 @@
     }
 
     .slot-button {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid var(--border-color);
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #34d399;
         border-radius: 12px;
         padding: 14px 5px;
         font-weight: 700;
         font-size: 0.9rem;
-        color: var(--text-secondary);
         text-align: center;
         cursor: pointer;
         transition: all 0.2s;
+        position: relative;
+    }
+
+    .slot-button::after {
+        content: "✓ Libre";
+        display: block;
+        font-size: 0.65rem;
+        font-weight: normal;
+        color: #34d399;
+        margin-top: 2px;
     }
 
     .slot-button:hover {
-        border-color: var(--clinical-blue);
+        border-color: #10b981;
         color: white;
-        background: rgba(59, 130, 246, 0.1);
+        background: rgba(16, 185, 129, 0.3);
     }
 
     .slot-button.active {
-        background: var(--clinical-blue) !important;
+        background: #10b981 !important;
         color: white !important;
-        border-color: var(--clinical-blue) !important;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
+        border-color: #10b981 !important;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+    .slot-button.active::after {
+        color: white;
+    }
+
+    .slot-button.taken {
+        background: rgba(239, 68, 68, 0.1) !important;
+        border-color: rgba(239, 68, 68, 0.25) !important;
+        color: #fca5a5 !important;
+        opacity: 0.65;
+        cursor: not-allowed !important;
+        pointer-events: none !important;
+    }
+
+    .slot-button.taken::after {
+        content: "🔒 Ocupado";
+        color: #ef4444;
     }
 
     /* INPUTS OLED */
@@ -455,6 +482,25 @@
                     <input type="hidden" name="user_id" id="selected_doctor_id" required>
                     
                     <div class="row g-3" id="doctors-wizard-grid">
+                        <!-- CUALQUIER PROFESIONAL -->
+                        <div class="col-md-6 col-sm-12 doctor-wizard-card-container all-specialties-card" data-specialties="CUALQUIERA" style="display: none;">
+                            <div class="premium-doctor-card p-4 d-flex align-items-center gap-3" style="border-color: var(--clinical-green);" onclick="nextStepDoctor('any', 'El Primer Especialista Disponible', 'Asignación Automática')">
+                                <div class="doctor-avatar-circle" style="background: linear-gradient(135deg, var(--clinical-green), #059669);">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h5 class="fw-bold text-white mb-1" style="font-size: 1.1rem;">Cualquier Profesional</h5>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">
+                                            Recomendado
+                                        </span>
+                                        <span class="x-small text-muted">Asignación ultra rápida</span>
+                                    </div>
+                                </div>
+                                <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                            </div>
+                        </div>
+
                         @foreach($doctors as $doctor)
                             @php
                                 $doctorSpecialties = $doctor->profesionalConfig && is_array($doctor->profesionalConfig->especialidades) 
@@ -784,7 +830,9 @@
         document.getElementById('selected-specialty-title').innerText = specialty;
         
         // Filtrar doctores
+        document.querySelector('.all-specialties-card').style.display = 'block';
         document.querySelectorAll('.doctor-wizard-card-container').forEach(card => {
+            if (card.classList.contains('all-specialties-card')) return;
             const specialties = card.getAttribute('data-specialties').split(',');
             if (specialties.includes(specialty)) {
                 card.style.display = 'block';
@@ -810,6 +858,7 @@
         selectedServiceCategory = category;
         
         showStep(4);
+        loadOccupiedSlots();
     }
 
     function selectQuickDate(dateString, element) {
@@ -817,6 +866,7 @@
         element.classList.add('active');
         document.getElementById('wizard_fecha').value = dateString;
         selectedDate = dateString;
+        loadOccupiedSlots();
     }
 
     function updateSelectedDateLabel(dateVal) {
@@ -830,9 +880,13 @@
                 break;
             }
         }
+        loadOccupiedSlots();
     }
 
     function nextStepSchedule(timeSlot, element) {
+        // Impedir selección de slots ocupados
+        if (element.classList.contains('taken')) return;
+
         document.querySelectorAll('.slot-button').forEach(b => b.classList.remove('active'));
         element.classList.add('active');
         document.getElementById('selected_hora').value = timeSlot;
@@ -903,6 +957,37 @@
         }).then(() => {
             document.getElementById('wizard-form').submit();
         });
+    }
+
+    // Cargar slots horarios dinámicamente desde el backend
+    function loadOccupiedSlots() {
+        const doctorId = document.getElementById('selected_doctor_id').value;
+        const dateVal = document.getElementById('wizard_fecha').value;
+        
+        if (!doctorId || !dateVal) return;
+        
+        // Limpiar estados previos
+        document.querySelectorAll('.slot-button').forEach(btn => {
+            btn.classList.remove('taken', 'active');
+            btn.removeAttribute('title');
+        });
+        
+        const url = `{{ url("/c/{$empresa->slug}/api/slots-ocupados") }}?doctor_id=${doctorId}&fecha=${dateVal}&especialidad=${encodeURIComponent(selectedSpecialty)}`;
+        
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.ocupados) {
+                    document.querySelectorAll('.slot-button').forEach(btn => {
+                        const slotTime = btn.innerText.trim();
+                        if (data.ocupados.includes(slotTime)) {
+                            btn.classList.add('taken');
+                            btn.setAttribute('title', 'Turno Ocupado');
+                        }
+                    });
+                }
+            })
+            .catch(err => console.error('Error al obtener slots ocupados:', err));
     }
 </script>
 @endsection

@@ -272,8 +272,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('turnos-config', [App\Http\Controllers\Empresa\TurnoController::class, 'onlineConfig'])->name('turnos.online-config');
         Route::post('turnos-config', [App\Http\Controllers\Empresa\TurnoController::class, 'saveOnlineConfig'])->name('turnos.online-config.save');
 
-        // LIQUIDACIONES A PROFESIONALES
-        Route::resource('liquidaciones', App\Http\Controllers\Empresa\LiquidacionController::class);
+
 
         // HISTORIA CLÍNICA (HCE)
         Route::resource('medical_records', App\Http\Controllers\Empresa\MedicalRecordController::class);
@@ -697,6 +696,7 @@ Route::get('/c/{empresa}/reservar-turno', [CatalogController::class, 'bookingPor
 Route::post('/c/{empresa}/reservar-turno', [CatalogController::class, 'confirmBooking'])->name('catalog.booking.confirm');
 Route::get('/c/{empresa}/reservar-turno/pago/{turno}', [CatalogController::class, 'bookingPayment'])->name('catalog.booking.payment');
 Route::post('/c/{empresa}/reservar-turno/pago/{turno}', [CatalogController::class, 'bookingPaymentProcess'])->name('catalog.booking.payment-process');
+Route::get('/c/{empresa}/api/slots-ocupados', [CatalogController::class, 'occupiedSlots'])->name('catalog.booking.occupied-slots');
 
 // VALIDACION DE CERTIFICADOS QR (PUBLICO)
 Route::get('/v/certificado/{codigo}', [App\Http\Controllers\Empresa\MedicalCertificateController::class, 'validatePublic'])->name('certificados.public-validate');

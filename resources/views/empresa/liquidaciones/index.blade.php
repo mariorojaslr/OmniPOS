@@ -8,13 +8,13 @@
             <p class="text-muted">Historial de cierres administrativos y pagos.</p>
         </div>
         <a href="{{ route('empresa.liquidaciones.create') }}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus-circle me-2"></i>Nueva Liquidación
+            <i class="bi bi-plus-circle-fill me-2"></i>Nueva Liquidación
         </a>
     </div>
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
@@ -43,7 +43,7 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                        <i class="fas fa-user-md"></i>
+                                        <i class="bi bi-person-badge-fill fs-5"></i>
                                     </div>
                                     <div>
                                         <span class="d-block fw-bold text-dark">{{ $liq->profesional->name }}</span>
@@ -64,18 +64,18 @@
                             </td>
                             <td class="text-center">
                                 <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2 border border-success-subtle">
-                                    <i class="fas fa-check-circle me-1"></i>{{ ucfirst($liq->estado) }}
+                                    <i class="bi bi-check-circle-fill me-1"></i>{{ ucfirst($liq->estado) }}
                                 </span>
                             </td>
                             <td class="px-4 text-end">
                                 <div class="d-flex justify-content-end gap-2">
-                                    <a href="{{ route('empresa.liquidaciones.show', $liq->id) }}" class="btn btn-sm btn-light border shadow-sm rounded-3 text-primary p-2" title="Ver Detalle" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="fas fa-eye fs-6"></i>
+                                    <a href="{{ route('empresa.liquidaciones.show', $liq->id) }}" class="btn btn-sm btn-primary shadow-sm rounded-3 text-white p-2" title="Ver Detalle" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-eye-fill fs-6"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-light border shadow-sm rounded-3 text-danger p-2" 
+                                    <button type="button" class="btn btn-sm btn-danger shadow-sm rounded-3 text-white p-2" 
                                             onclick="confirmDelete('{{ route('empresa.liquidaciones.destroy', $liq->id) }}')" 
                                             title="Anular Liquidación" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="fas fa-trash-alt fs-6"></i>
+                                        <i class="bi bi-trash3-fill fs-6"></i>
                                     </button>
                                 </div>
                             </td>
@@ -84,7 +84,7 @@
                         <tr>
                             <td colspan="7" class="text-center py-5">
                                 <div class="py-4">
-                                    <i class="fas fa-receipt fa-4x text-gray-300 mb-3"></i>
+                                    <i class="bi bi-receipt text-gray-300 mb-3" style="font-size: 4rem;"></i>
                                     <p class="text-muted fs-5">No hay liquidaciones registradas aún.</p>
                                     <a href="{{ route('empresa.liquidaciones.create') }}" class="btn btn-primary rounded-pill px-4">
                                         Comenzar primer cierre
@@ -110,11 +110,11 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header bg-danger text-white rounded-top">
-                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Anular Liquidación</h5>
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Anular Liquidación</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center py-4">
-                <i class="fas fa-undo-alt fa-3x text-danger mb-3"></i>
+                <i class="bi bi-arrow-counterclockwise text-danger mb-3" style="font-size: 3.5rem;"></i>
                 <h5>¿Estás seguro de anular esta liquidación?</h5>
                 <p class="text-muted">Esta acción liberará todos los turnos asociados para que puedan ser liquidados nuevamente. Los datos financieros actuales se eliminarán.</p>
             </div>

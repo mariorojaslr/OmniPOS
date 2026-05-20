@@ -95,7 +95,7 @@ class DashboardController extends Controller
 
         $plan = $empresa->plan;
         if ($plan && $request->custom_price < $plan->price) {
-            return back()->withErrors(['custom_price' => 'El precio acordado no puede ser menor al precio base del plan ($' . number_format($plan->price) . ')'])
+            return back()->withErrors(['custom_price' => 'El precio acordado no puede ser menor al precio base del plan ($' . number_format((float) ($plan->price ?? 0)) . ')'])
                          ->withInput();
         }
 

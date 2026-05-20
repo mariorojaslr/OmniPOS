@@ -217,17 +217,22 @@
         <!-- Left Panel: 65% width with YouTube Playlist Player -->
         <div class="ambient-panel">
             @php
-                $playlistId = $empresa->config_pasarelas['youtube_playlist_id'] ?? 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn';
+                // Recopilar playlists no vacías
+                $playlists = [];
+                for($i=1; $i<=5; $i++) {
+                    $pid = $empresa->config_pasarelas['youtube_playlist_id_'.$i] ?? '';
+                    if(empty($pid) && $i == 1) {
+                        $pid = $empresa->config_pasarelas['youtube_playlist_id'] ?? 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn';
+                    }
+                    if(!empty($pid)) {
+                        $playlists[] = $pid;
+                    }
+                }
+                if(empty($playlists)) {
+                    $playlists[] = 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn';
+                }
             @endphp
-            <div class="video-container shadow-sm">
-                <iframe 
-                    id="tv_youtube_player"
-                    class="w-100 h-100 border-0" 
-                    src="https://www.youtube.com/embed/videoseries?list={{ $playlistId }}&autoplay=1&mute=1&loop=1&controls=1&modestbranding=1&rel=0&enablejsapi=1" 
-                    allow="autoplay; encrypted-media" 
-                    allowfullscreen>
-                </iframe>
-            </div>
+            <div class="video-container shadow-sm" id="tv_youtube_player"></div>
         </div>
 
         <!-- Right Panel: 35% width with queue list (scrollable) -->
@@ -270,6 +275,70 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Cargar YouTube API Asíncronamente (forma oficial y segura)
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        // Sistema de Playlists Aleatorias
+        const playlistsArray = {!! json_encode($playlists) !!};
+        let ytPlayer;
+
+        function getRandomPlaylist() {
+            return playlistsArray[Math.floor(Math.random() * playlistsArray.length)];
+        }
+
+        function onYouTubeIframeAPIReady() {
+            const initialPlaylist = getRandomPlaylist();
+            const isPlaylist = initialPlaylist.length > 15 || initialPlaylist.startsWith('PL');
+            
+            let playerVars = {
+                autoplay: 1,
+                mute: 1,
+                controls: 0,
+                modestbranding: 1,
+                rel: 0,
+                loop: 1
+            };
+            
+            if (isPlaylist) {
+                playerVars.listType = 'playlist';
+                playerVars.list = initialPlaylist;
+            } else {
+                playerVars.playlist = initialPlaylist; // para que el loop funcione con un solo video
+            }
+
+            ytPlayer = new YT.Player('tv_youtube_player', {
+                height: '100%',
+                width: '100%',
+                videoId: !isPlaylist ? initialPlaylist : undefined,
+                playerVars: playerVars,
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === 0) { // ENDED
+                const nextPlaylist = getRandomPlaylist();
+                const isPlaylist = nextPlaylist.length > 15 || nextPlaylist.startsWith('PL');
+                if (isPlaylist) {
+                    event.target.loadPlaylist({
+                        list: nextPlaylist,
+                        listType: 'playlist'
+                    });
+                } else {
+                    event.target.loadVideoById(nextPlaylist);
+                }
+            }
+        }
+
         // Reloj en Cabecera
         function updateClockTV() {
             const now = new Date();
@@ -367,8 +436,18 @@
                 // Cancelar cualquier audio de voz previo
                 window.speechSynthesis.cancel();
                 
-                // Construir mensaje amigable
-                const textoLlamado = `Paciente: ${paciente}. Por favor, diríjase al ${consultorio} de el doctor ${doctor}.`;
+                // Limpiar prefijos redundantes de Dr./Dra. para evitar duplicación al hablar
+                const cleanDoctor = doctor.trim();
+                const cleanDocSpoken = cleanDoctor.replace(/^(dr\.|dr|dra\.|dra)\s+/i, '');
+                
+                let introDoctor = "del doctor";
+                const docLower = cleanDoctor.toLowerCase();
+                if (docLower.startsWith('dra.') || docLower.startsWith('dra') || docLower.includes('dra. ') || docLower.includes('dra ')) {
+                    introDoctor = "de la doctora";
+                }
+                
+                // Construir mensaje amigable y limpio de redundancia
+                const textoLlamado = `Paciente: ${paciente}. Por favor, diríjase al ${consultorio} ${introDoctor} ${cleanDocSpoken}.`;
                 
                 const utterance = new SpeechSynthesisUtterance(textoLlamado);
                 utterance.lang = 'es-ES'; // Idioma Español
@@ -426,6 +505,7 @@
                             data.historicos.forEach((h, idx) => {
                                 const isFirst = (idx === 0);
                                 const isCalling = (isFirst && isAlertShowing);
+                                const cleanDoc = h.doctor.replace(/^(dr\.|dr|dra\.|dra)\s+/i, '');
 
                                 if (isFirst) {
                                     // La primera arriba (última llamada) es gigante y llamativa
@@ -439,15 +519,15 @@
                                                     <span class="text-success font-monospace fs-5 fw-bold ms-auto">${h.hora} hs</span>
                                                 </div>
                                                 
-                                                <h1 class="${isCalling ? 'text-warning' : 'text-white'} fw-extrabold text-uppercase mb-2" style="font-size: 2.5rem; line-height: 1.1; letter-spacing: 1px;">
+                                                <h1 class="${isCalling ? 'text-warning' : 'text-white'} fw-extrabold text-uppercase mb-2" style="font-size: 4rem; line-height: 1.1; letter-spacing: 1px;">
                                                     ${h.paciente}
                                                 </h1>
                                                 
                                                 <div class="fs-4 text-white opacity-75 mb-2">
-                                                    Médico: <strong class="text-info">Dr. ${h.doctor}</strong>
+                                                    Médico: <strong class="text-info">Dr. ${cleanDoc}</strong>
                                                 </div>
                                                 
-                                                <div class="badge bg-success py-2 px-4 rounded-pill fs-4 fw-extrabold border border-white border-opacity-10 mt-1 d-inline-flex align-items-center gap-2">
+                                                <div class="badge bg-success py-2 px-4 rounded-pill fs-3 fw-extrabold border border-white border-opacity-10 mt-1 d-inline-flex align-items-center gap-2">
                                                     📍 ${h.consultorio || 'Box 1'}
                                                 </div>
                                             </div>
@@ -463,12 +543,12 @@
                                     const item = `
                                         <div class="card-turno bg-dark bg-opacity-20 border border-secondary border-opacity-20 p-3 mb-2 d-flex align-items-center justify-content-between text-start" style="min-height: 54px;">
                                             <div>
-                                                <h5 class="fw-bold text-white mb-0" style="font-size: 1.35rem; text-transform: uppercase;">${h.paciente}</h5>
-                                                <span class="x-small text-white opacity-75 fs-6">Dr. ${h.doctor}</span>
+                                                <h5 class="fw-bold text-white mb-0" style="font-size: 2.2rem; text-transform: uppercase;">${h.paciente}</h5>
+                                                <span class="text-white opacity-75 fs-5">Dr. ${cleanDoc}</span>
                                             </div>
                                             <div class="text-end d-flex align-items-center gap-2">
-                                                <span class="badge bg-success bg-opacity-25 border border-success border-opacity-25 text-success rounded-pill px-3 py-1 fs-6 fw-bold">📍 ${h.consultorio || 'Box 1'}</span>
-                                                <span class="x-small text-success font-monospace" style="font-size: 0.95rem;">${h.hora} hs</span>
+                                                <span class="badge bg-success bg-opacity-25 border border-success border-opacity-25 text-success rounded-pill px-4 py-2 fs-5 fw-bold">📍 ${h.consultorio || 'Box 1'}</span>
+                                                <span class="text-success font-monospace fs-5">${h.hora} hs</span>
                                             </div>
                                         </div>
                                     `;

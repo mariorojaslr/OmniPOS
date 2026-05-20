@@ -83,15 +83,18 @@
                         <!-- Configuración del Smart TV / Turnero de Sala -->
                         <h5 class="fw-bold text-dark mb-3 text-uppercase tracking-wider fs-6 border-bottom pb-2 mt-4"><i class="bi bi-tv text-primary me-2"></i> Configuración de Smart TV / Turnero de Sala</h5>
                         
+                        <p class="x-small text-muted mt-1 mb-3">Copie y pegue el ID de su playlist de YouTube (es la serie de caracteres después de <code>?list=</code>). Puede cargar hasta 5 listas distintas. El sistema las seleccionará y reproducirá al azar de forma continua para evitar que los pacientes se aburran.</p>
+
                         <div class="row g-3 mb-4">
-                            <div class="col-sm-12">
-                                <label class="small text-muted fw-bold mb-1">ID de la Playlist de YouTube para la Sala de Espera</label>
+                            @for($i = 1; $i <= 5; $i++)
+                            <div class="col-md-4 col-sm-6">
+                                <label class="small text-muted fw-bold mb-1">Playlist de YouTube {{ $i }}</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-youtube text-danger"></i></span>
-                                    <input type="text" name="youtube_playlist_id" value="{{ $config['youtube_playlist_id'] ?? 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn' }}" class="form-control border-start-0 shadow-none" placeholder="PL...">
+                                    <input type="text" name="youtube_playlist_id_{{ $i }}" value="{{ $config['youtube_playlist_id_'.$i] ?? ($i == 1 ? ($config['youtube_playlist_id'] ?? 'PLUw7Nsql2TwQrUwKitNw4OIoxYAzEWczn') : '') }}" class="form-control border-start-0 shadow-none" placeholder="PL...">
                                 </div>
-                                <p class="x-small text-muted mt-1">Copie y pegue el ID de su playlist de YouTube (es la serie de caracteres que aparece después de <code>?list=</code> en el enlace de su navegador). Por defecto, el sistema proyecta una lista de música ambient lounge relajante para los pacientes.</p>
                             </div>
+                            @endfor
                         </div>
 
                         <!-- Mensajes Dinámicos del Turnero (Smart TV) -->

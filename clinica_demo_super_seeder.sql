@@ -24,34 +24,34 @@ ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), cuit=VALUES(cuit), activo=VALUES(
 
 -- TABLA: users
 INSERT INTO `users` (`id`, `name`, `email`, `role`, `status`, `lead_source`, `country`, `crm_notes`, `payment_voucher`, `sub_role`, `can_register_expenses`, `is_super_admin`, `activo`, `email_verified_at`, `password`, `must_change_password`, `remember_token`, `created_at`, `updated_at`, `empresa_id`, `can_manage_purchases`, `can_sell`, `consultorio`) VALUES 
-('7', 'Dr. Leandro Gómez (Admin Demo)', 'demo@poolhub.com', 'empresa', 'activo', NULL, NULL, NULL, NULL, 'cajero', '0', '0', '1', NULL, '$2y$12$6zO.i0quYqtH/a5WcdJ16Ov2kXHEnFLnXrwSJC.t.s6PpPDzltHTm', '0', NULL, '2026-05-17 04:31:22', '2026-05-18 12:55:57', '2', '0', '0', 'Consultorio 101'),
+('7', 'Dr. Leandro Gómez (Traumatología)', 'demo@poolhub.com', 'empresa', 'activo', NULL, NULL, NULL, NULL, 'cajero', '0', '0', '1', NULL, '$2y$12$6zO.i0quYqtH/a5WcdJ16Ov2kXHEnFLnXrwSJC.t.s6PpPDzltHTm', '0', NULL, '2026-05-17 04:31:22', '2026-05-18 12:55:57', '2', '0', '0', 'Consultorio 101'),
 ('8', 'Dra. Sofía Martínez (Cardiología)', 'medico@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$.BOuxO8cIWze.mRCmxg55eWljYOkf3ts.PO5Ode2v7PPONqaBq2Ze', '0', NULL, '2026-05-17 04:31:22', '2026-05-18 12:55:57', '2', '0', '0', 'Consultorio 102'),
-('20', 'Dr. Mateo Valenzuela', 'valenzuela@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$Ev09A14CMTzCeo8YjmVff.MCjBzbqCQmQG1qYV0agMG3nh/TYAL8S', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 103'),
-('21', 'Dra. Valentina Herrera', 'herrera@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$Yu4afLpsZuduhk/hW6DLAON0gqChqrsQyTmUse1qbraxOfc2rkcMy', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 104'),
-('22', 'Dr. Francisco Benítez', 'benitez@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$196r8fL9nY9.0mw7Ge1GLuu//DP8sDQpAXJYKkgrZQJFAvLx226g2', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 105'),
-('23', 'Dra. Camila Fuentes', 'fuentes@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$HOqU1iKozPk0eMyYJSJGz.IViS2DXV4Rkn0kqWGztvyU.M3dDbb0O', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 106'),
-('24', 'Dr. Andrés Quintana', 'quintana@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$qWASIGUhC8jmjCq6yypWyuO4h3UOHxl6rWqA/lyYwcmJP5a5IaR9q', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 107'),
-('25', 'Dra. Natalia Soler', 'soler@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$EX.pLCfHn7PqFRDvvnzKL.mkVK4yVTIxGP7krhPB.TutKuArXE4zG', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Consultorio 108'),
-('26', 'Dr. Julián Ortega', 'ortega@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$wm3p.cnv5PjHejhkWaFMEuMyWSOQRCDzuzB2zk3v4OVBI5OEUWpwO', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Consultorio 109'),
-('27', 'Dra. Mariana Castro', 'castro@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$EaPj3aGJKr5czvqHuTNDM.58tlvZJ.sq5xFRbYa9l6L6mKSRrFg3C', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Box Kinesiología 1'),
-('28', 'Dr. Esteban Ruiz', 'ruiz@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$Qkjm7oWLfxxQh2mfZ7IS9ORA1O2ub50/mHFNMe3Ek9bx913vVKsHW', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Consultorio 110'),
-('29', 'Dra. Victoria Pellegrini', 'pellegrini@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$SeG33sZPYlZX4AKNsNbqRuXhC2gnk05K5wddzx7g6urfbNddVuVtO', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Consultorio 111')
+('20', 'Dr. Mateo Valenzuela (Clínica Médica)', 'valenzuela@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$Ev09A14CMTzCeo8YjmVff.MCjBzbqCQmQG1qYV0agMG3nh/TYAL8S', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 103'),
+('21', 'Dra. Valentina Herrera (Ginecología)', 'herrera@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$Yu4afLpsZuduhk/hW6DLAON0gqChqrsQyTmUse1qbraxOfc2rkcMy', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 104'),
+('22', 'Dr. Francisco Benítez (Cardiología)', 'benitez@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$196r8fL9nY9.0mw7Ge1GLuu//DP8sDQpAXJYKkgrZQJFAvLx226g2', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 105'),
+('23', 'Dra. Camila Fuentes (Ginecología)', 'fuentes@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$HOqU1iKozPk0eMyYJSJGz.IViS2DXV4Rkn0kqWGztvyU.M3dDbb0O', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 106'),
+('24', 'Dr. Andrés Quintana (Cardiología)', 'quintana@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$qWASIGUhC8jmjCq6yypWyuO4h3UOHxl6rWqA/lyYwcmJP5a5IaR9q', '0', NULL, '2026-05-18 12:55:58', '2026-05-18 12:55:58', '2', '0', '0', 'Consultorio 107'),
+('25', 'Dra. Natalia Soler (Ginecología)', 'soler@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$EX.pLCfHn7PqFRDvvnzKL.mkVK4yVTIxGP7krhPB.TutKuArXE4zG', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Consultorio 108'),
+('26', 'Dr. Julián Ortega (Clínica Médica)', 'ortega@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$wm3p.cnv5PjHejhkWaFMEuMyWSOQRCDzuzB2zk3v4OVBI5OEUWpwO', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Consultorio 109'),
+('27', 'Dra. Mariana Castro (Clínica Médica)', 'castro@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$EaPj3aGJKr5czvqHuTNDM.58tlvZJ.sq5xFRbYa9l6L6mKSRrFg3C', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Consultorio 110'),
+('28', 'Dr. Esteban Ruiz (Clínica Médica)', 'ruiz@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$Qkjm7oWLfxxQh2mfZ7IS9ORA1O2ub50/mHFNMe3Ek9bx913vVKsHW', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Consultorio 111'),
+('29', 'Dra. Victoria Pellegrini (Clínica Médica)', 'pellegrini@poolhub.com', 'usuario', 'activo', NULL, NULL, NULL, NULL, 'empleado', '0', '0', '1', NULL, '$2y$12$SeG33sZPYlZX4AKNsNbqRuXhC2gnk05K5wddzx7g6urfbNddVuVtO', '0', NULL, '2026-05-18 12:55:59', '2026-05-18 12:55:59', '2', '0', '0', 'Consultorio 112')
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `email`=VALUES(`email`), `role`=VALUES(`role`), `sub_role`=VALUES(`sub_role`), `activo`=VALUES(`activo`), `status`=VALUES(`status`), `consultorio`=VALUES(`consultorio`), `updated_at`=NOW();
 
 -- TABLA: profesionales_config
 INSERT INTO `profesionales_config` (`id`, `empresa_id`, `user_id`, `tipo_contrato`, `sueldo_base`, `tipo_comision`, `valor_comision`, `token_portal`, `especialidades`, `created_at`, `updated_at`) VALUES 
-('13', '2', '7', 'comision', '0.0000', 'porcentaje', '30.0000', 'c99b79a752b7bcf77dc71c84c640c170', '[24,25]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('14', '2', '8', 'comision', '0.0000', 'porcentaje', '30.0000', 'f892fbeddccd9da355daf3d3a2b25856', '[26,27,28]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('15', '2', '20', 'comision', '0.0000', 'porcentaje', '30.0000', '6d94a37eef20f6fe8091c1e2d15e21ec', '[29,30]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('16', '2', '21', 'comision', '0.0000', 'porcentaje', '30.0000', '87d963082fe780e5f50bc5338a8223ac', '[31,32]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('17', '2', '22', 'comision', '0.0000', 'porcentaje', '30.0000', 'cc087a4c116cdb9a0531b3f78dc57201', '[33,34]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('18', '2', '23', 'comision', '0.0000', 'porcentaje', '30.0000', '30b6180ae17107ae538d866f6daef263', '[35,36]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('19', '2', '24', 'comision', '0.0000', 'porcentaje', '30.0000', '34684e40d1ff038f4d40269a7a947610', '[37,38]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('20', '2', '25', 'comision', '0.0000', 'porcentaje', '30.0000', '371c7380bdd4a6ca1ad5b5448096fa8d', '[39]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('21', '2', '26', 'comision', '0.0000', 'porcentaje', '30.0000', 'b9b3247785dcd7f7244e270f2f2ee7bb', '[40]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('22', '2', '27', 'comision', '0.0000', 'porcentaje', '30.0000', 'df8497bf222ba214af22bc6226f88830', '[41,42]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('23', '2', '28', 'comision', '0.0000', 'porcentaje', '30.0000', '9eacf119df28503f076208b704b81c93', '[43,44]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('24', '2', '29', 'comision', '0.0000', 'porcentaje', '30.0000', 'f412aad2e7d02c61a77b8077467a6eba', '[45,46]', '2026-05-18 12:55:59', '2026-05-18 12:55:59');
+('13', '2', '7', 'comision', '0.0000', 'porcentaje', '30.0000', 'c99b79a752b7bcf77dc71c84c640c170', '["Traumatología"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('14', '2', '8', 'comision', '0.0000', 'porcentaje', '30.0000', 'f892fbeddccd9da355daf3d3a2b25856', '["Cardiología"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('15', '2', '20', 'comision', '0.0000', 'porcentaje', '30.0000', '6d94a37eef20f6fe8091c1e2d15e21ec', '["Clínica Médica"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('16', '2', '21', 'comision', '0.0000', 'porcentaje', '30.0000', '87d963082fe780e5f50bc5338a8223ac', '["Ginecología"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('17', '2', '22', 'comision', '0.0000', 'porcentaje', '30.0000', 'cc087a4c116cdb9a0531b3f78dc57201', '["Cardiología"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('18', '2', '23', 'comision', '0.0000', 'porcentaje', '30.0000', '30b6180ae17107ae538d866f6daef263', '["Ginecología"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('19', '2', '24', 'comision', '0.0000', 'porcentaje', '30.0000', '34684e40d1ff038f4d40269a7a947610', '["Cardiología"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('20', '2', '25', 'comision', '0.0000', 'porcentaje', '30.0000', '371c7380bdd4a6ca1ad5b5448096fa8d', '["Ginecología"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('21', '2', '26', 'comision', '0.0000', 'porcentaje', '30.0000', 'b9b3247785dcd7f7244e270f2f2ee7bb', '["Clínica Médica"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('22', '2', '27', 'comision', '0.0000', 'porcentaje', '30.0000', 'df8497bf222ba214af22bc6226f88830', '["Clínica Médica"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('23', '2', '28', 'comision', '0.0000', 'porcentaje', '30.0000', '9eacf119df28503f076208b704b81c93', '["Clínica Médica"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('24', '2', '29', 'comision', '0.0000', 'porcentaje', '30.0000', 'f412aad2e7d02c61a77b8077467a6eba', '["Clínica Médica"]', '2026-05-18 12:55:59', '2026-05-18 12:55:59');
 
 -- TABLA: servicios
 INSERT INTO `servicios` (`id`, `empresa_id`, `nombre`, `categoria`, `precio`, `duracion_minutos`, `comision_porcentaje`, `activo`, `created_at`, `updated_at`) VALUES 
@@ -77,7 +77,9 @@ INSERT INTO `servicios` (`id`, `empresa_id`, `nombre`, `categoria`, `precio`, `d
 ('43', '2', 'Endoscopía Digestiva Alta (EDA)', 'Gastroenterología', '68000.0000', '45', '25.00', '1', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
 ('44', '2', 'Consulta Gastroenterología', 'Gastroenterología', '18000.0000', '15', '20.00', '1', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
 ('45', '2', 'Consulta de Nutrición y Antropometría', 'Nutrición', '15000.0000', '30', '30.00', '1', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
-('46', '2', 'Plan de Diabetología Especializado', 'Nutrición', '19000.0000', '30', '25.00', '1', '2026-05-18 12:55:59', '2026-05-18 12:55:59');
+('46', '2', 'Plan de Diabetología Especializado', 'Nutrición', '19000.0000', '30', '25.00', '1', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('47', '2', 'Consulta Clínica General', 'Clínica Médica', '12000.0000', '15', '20.00', '1', '2026-05-18 12:55:59', '2026-05-18 12:55:59'),
+('48', '2', 'Chequeo Clínico Completo', 'Clínica Médica', '20000.0000', '30', '25.00', '1', '2026-05-18 12:55:59', '2026-05-18 12:55:59');
 
 -- TABLA: clients
 INSERT INTO `clients` (`id`, `empresa_id`, `name`, `email`, `is_affiliate`, `affiliate_number`, `affiliate_since`, `affiliate_status`, `monthly_fee`, `phone`, `address`, `lat`, `lng`, `plus_code`, `city`, `province`, `document`, `tax_condition`, `type`, `discount_percentage`, `credit_limit`, `active`, `photo_path`, `workplace`, `obra_social_id`, `additional_insurances`, `affiliate_plan_id`, `created_at`, `updated_at`) VALUES 

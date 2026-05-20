@@ -186,10 +186,10 @@
                     <input type="checkbox" name="turnos_ids[]" value="${turno.id}" class="form-check-input turno-check" checked data-monto="${turno.monto}" data-comision="${turno.comision_monto}">
                 </td>
                 <td>
-                    <span class="d-block fw-bold">${new Date(turno.fecha).toLocaleDateString()}</span>
-                    <small class="text-muted">${turno.hora}</small>
+                    <span class="d-block fw-bold">${turno.fecha ? turno.fecha.split('-').reverse().join('/') : 'S/D'}</span>
+                    <small class="text-muted">${turno.hora_inicio ? turno.hora_inicio.substring(0, 5) : ''}</small>
                 </td>
-                <td>${turno.cliente ? turno.cliente.nombre : 'S/D'}</td>
+                <td>${turno.cliente ? (turno.cliente.name || turno.cliente.nombre || 'S/D') : 'S/D'}</td>
                 <td>${turno.servicio ? turno.servicio.nombre : 'S/D'}</td>
                 <td class="text-end">$${parseFloat(turno.monto).toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
                 <td class="px-4 text-end fw-bold text-success">$${parseFloat(turno.comision_monto).toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
