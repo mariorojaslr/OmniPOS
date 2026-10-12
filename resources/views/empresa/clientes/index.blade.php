@@ -149,6 +149,50 @@
                                        Cuenta corriente
                                     </a>
 
+                                    @php
+                                        $token = $c->portalToken?->token;
+                                        if (!$token) {
+                                            $tokenObj = \App\Models\ClientPortalToken::firstOrCreate(
+                                                ['client_id' => $c->id, 'empresa_id' => $c->empresa_id],
+                                                ['token' => \Illuminate\Support\Str::random(40)]
+                                            );
+                                            $token = $tokenObj->token;
+                                        }
+                                        $urlComercial = route('client.portal', $token);
+                                        $urlSalud = route('client.health_portal', $token);
+                                        $phoneClean = preg_replace('/[^0-9]/', '', $c->phone ?? '');
+                                        if (strlen($phoneClean) === 10) $phoneClean = '549' . $phoneClean;
+                                        $msgWsp = urlencode("Hola {$c->name}, te compartimos el acceso a tus portales:\n\n📅 Portal de Turnos y Actividades: {$urlSalud}\n💳 Portal Comercial y Pagos: {$urlComercial}");
+                                        $linkWsp = !empty($phoneClean) ? "https://api.whatsapp.com/send?phone={$phoneClean}&text={$msgWsp}" : null;
+                                    @endphp
+
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle fw-bold" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-box-arrow-up-right me-1"></i> Portales
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                            <li><h6 class="dropdown-header x-small text-uppercase">Acceso del Paciente</h6></li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ $urlSalud }}" target="_blank">
+                                                    <i class="bi bi-calendar-heart-fill text-primary me-2"></i> Portal Turnos y Actividades
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ $urlComercial }}" target="_blank">
+                                                    <i class="bi bi-receipt text-success me-2"></i> Portal Comercial y Pagos
+                                                </a>
+                                            </li>
+                                            @if($linkWsp)
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <a class="dropdown-item text-success fw-bold" href="{{ $linkWsp }}" target="_blank">
+                                                        <i class="bi bi-whatsapp me-2"></i> Enviar Portales por WhatsApp
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </div>
+
                                     @if($c->lat && $c->lng)
                                         <a href="https://www.google.com/maps?q={{ $c->lat }},{{ $c->lng }}"
                                            target="_blank"

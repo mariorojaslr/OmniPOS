@@ -398,6 +398,20 @@ body {
             </div>
         @endif
 
+        {{-- SECTOR DE INTELIGENCIA ARTIFICIAL (IA) --}}
+        <div onclick="window.location='{{ route('empresa.ai.index') }}'" class="nav-link-item {{ Route::is('empresa.ai.*') ? 'active' : '' }}" style="cursor: pointer;">
+            <i class="bi bi-cpu" style="color: #a855f7;"></i>
+            <span class="nav-icon-label text-center" style="color: #c084fc;">Sector IA</span>
+            <div class="floating-balloon" onclick="event.stopPropagation()" style="width: 310px;">
+                <h6 style="color: #c084fc;">🤖 SECTOR INTELIGENCIA ARTIFICIAL</h6>
+                <div class="submenu-list">
+                    <a href="{{ route('empresa.ai.index') }}" class="submenu-link fw-bold text-white"><i class="bi bi-stars me-1 text-warning"></i> Panel Central de IA</a>
+                    <a href="{{ route('empresa.ai.import-patients') }}" class="submenu-link text-info"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Carga de Pacientes con IA</a>
+                    <a href="{{ route('empresa.ai.scan-odontogram') }}" class="submenu-link text-warning"><i class="bi bi-camera-fill me-1"></i> Escaneo de Odontogramas Antiguos</a>
+                </div>
+            </div>
+        </div>
+
         {{-- REPORTES --}}
         <div onclick="window.location='{{ route('empresa.reportes.panel') }}'" class="nav-link-item" style="cursor: pointer;">
             <i class="bi bi-bar-chart-line" style="color: #adb5bd;"></i>

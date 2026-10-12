@@ -293,6 +293,15 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::post('affiliates/generate-fees', [App\Http\Controllers\Empresa\AffiliateController::class, 'generateFees'])->name('affiliates.generate_fees');
         Route::get('affiliates/{client}/account', [App\Http\Controllers\Empresa\AffiliateController::class, 'accountStatement'])->name('affiliates.account');
 
+        // SECTOR DE INTELIGENCIA ARTIFICIAL (IA)
+        Route::get('sector-ia', [App\Http\Controllers\Empresa\AISectorController::class, 'index'])->name('ai.index');
+        Route::get('sector-ia/importar-pacientes', [App\Http\Controllers\Empresa\AISectorController::class, 'importPatientsView'])->name('ai.import-patients');
+        Route::post('sector-ia/analizar-archivo', [App\Http\Controllers\Empresa\AISectorController::class, 'analyzePatientsFile'])->name('ai.analyze-patients');
+        Route::post('sector-ia/ejecutar-importacion', [App\Http\Controllers\Empresa\AISectorController::class, 'executePatientsImport'])->name('ai.execute-import-patients');
+        Route::get('sector-ia/escanear-odontograma', [App\Http\Controllers\Empresa\AISectorController::class, 'scanOdontogramView'])->name('ai.scan-odontogram');
+        Route::post('sector-ia/procesar-odontograma', [App\Http\Controllers\Empresa\AISectorController::class, 'processOdontogramImage'])->name('ai.process-odontogram-image');
+        Route::post('sector-ia/guardar-odontograma-escaneado', [App\Http\Controllers\Empresa\AISectorController::class, 'saveScannedToPatient'])->name('ai.save-scanned-odontogram');
+
         // OBRAS SOCIALES
         Route::get('obras_sociales/export', [App\Http\Controllers\Empresa\ObraSocialController::class, 'exportExcel'])->name('obras_sociales.export');
         Route::post('obras_sociales/import', [App\Http\Controllers\Empresa\ObraSocialController::class, 'importExcel'])->name('obras_sociales.import');
@@ -683,10 +692,14 @@ Route::get('/portal/proveedor/{token}', [\App\Http\Controllers\SupplierPortalCon
 Route::get('/portal/proveedor/{token}/invoice/{id}', [\App\Http\Controllers\SupplierPortalController::class, 'downloadInvoice'])->name('supplier.portal.invoice');
 Route::get('/portal/proveedor/{token}/payment/{id}', [\App\Http\Controllers\SupplierPortalController::class, 'downloadPayment'])->name('supplier.portal.payment');
 
+// 1. PORTAL COMERCIAL Y CUENTA CORRIENTE
 Route::get('/portal/cliente/{token}', [\App\Http\Controllers\ClientPortalController::class, 'index'])->name('client.portal');
 Route::get('/portal/cliente/{token}/invoice/{id}', [\App\Http\Controllers\ClientPortalController::class, 'downloadInvoice'])->name('client.portal.invoice');
 Route::get('/portal/cliente/{token}/payment/{id}', [\App\Http\Controllers\ClientPortalController::class, 'downloadPayment'])->name('client.portal.payment');
 Route::get('/portal/cliente/{token}/simular-pago', [\App\Http\Controllers\ClientPortalController::class, 'paySimulator'])->name('client.portal.pay_simulator');
+
+// 2. PORTAL DE TURNOS, OBLIGACIONES Y ACTIVIDADES (SALUD Y SEGUIMIENTO)
+Route::get('/portal/paciente/{token}/turnos', [\App\Http\Controllers\ClientPortalController::class, 'healthPortal'])->name('client.health_portal');
 
 /* |-------------------------------------------------------------------------- | CATÃLOGO PÃšBLICO |-------------------------------------------------------------------------- */
 Route::get('/c/{empresa}', [CatalogController::class , 'index'])->name('catalog.index');

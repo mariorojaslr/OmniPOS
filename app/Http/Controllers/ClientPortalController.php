@@ -38,7 +38,71 @@ class ClientPortalController extends Controller
 
         $saldo = $client->saldo();
 
-        return view('client_portal.index', compact('client', 'empresa', 'movimientos', 'saldo'));
+        return view('client_portal.index', compact('client', 'empresa', 'movimientos', 'saldo', 'token'));
+    }
+
+    /**
+     * Portal Clínico, de Turnos y Obligaciones del Paciente
+     */
+    public function healthPortal($token)
+    {
+        $portalToken = ClientPortalToken::with(['client.empresa.config'])->where('token', $token)->first();
+
+        if (!$portalToken) {
+            abort(404, 'Portal de turnos no encontrado.');
+        }
+
+        $client = $portalToken->client;
+        if (!$client) {
+            abort(404, 'Paciente no encontrado.');
+        }
+
+        $empresa = $client->empresa;
+        $config = $empresa->config;
+
+        // Próximos turnos y turnos pasados
+        $proximosTurnos = \App\Models\Turno::where('client_id', $client->id)
+            ->where('empresa_id', $empresa->id)
+            ->whereDate('fecha', '>=', now()->toDateString())
+            ->with(['servicio', 'user'])
+            ->orderBy('fecha', 'asc')
+            ->orderBy('hora_inicio', 'asc')
+            ->get();
+
+        $historialTurnos = \App\Models\Turno::where('client_id', $client->id)
+            ->where('empresa_id', $empresa->id)
+            ->whereDate('fecha', '<', now()->toDateString())
+            ->with(['servicio', 'user'])
+            ->orderBy('fecha', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Obligaciones / Cuotas / Pagos pendientes
+        $saldoPendiente = $client->saldo();
+        $comprobantesPendientes = ClientLedger::where('client_id', $client->id)
+            ->where('type', 'debit')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->filter(function($mov) {
+                return $mov->saldo_pendiente > 0.01;
+            });
+
+        // Enlace de WhatsApp directo con la clínica para asistencia
+        $clinicPhone = preg_replace('/[^0-9]/', '', $empresa->telefono ?? '');
+        if (strlen($clinicPhone) === 10) $clinicPhone = '549' . $clinicPhone;
+        $whatsappUrl = !empty($clinicPhone) ? 'https://api.whatsapp.com/send?phone=' . $clinicPhone . '&text=' . urlencode("Hola {$empresa->nombre_comercial}, soy {$client->name} (DNI {$client->document}) y tengo una consulta sobre mis turnos / estado de cuenta.") : null;
+
+        return view('client_portal.health_portal', compact(
+            'client',
+            'empresa',
+            'config',
+            'token',
+            'proximosTurnos',
+            'historialTurnos',
+            'saldoPendiente',
+            'comprobantesPendientes',
+            'whatsappUrl'
+        ));
     }
 
     /**

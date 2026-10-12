@@ -94,7 +94,12 @@
                 <h1 class="header-title">{{ $empresa->nombre_comercial }}</h1>
                 <p class="header-subtitle text-uppercase">Portal del Cliente: <span class="text-dark fw-bold">{{ $client->name }}</span></p>
             </div>
-            <div class="no-print">
+            <div class="no-print d-flex align-items-center gap-2">
+                @if(isset($token))
+                    <a href="{{ route('client.health_portal', $token) }}" class="btn btn-sm btn-primary fw-bold px-3" style="font-size: 0.7rem;">
+                        <i class="fas fa-calendar-alt me-1"></i> PORTAL DE TURNOS Y ACTIVIDADES
+                    </a>
+                @endif
                 <button class="btn btn-sm btn-dark fw-bold px-3" onclick="window.print()" style="font-size: 0.7rem;">
                     <i class="fas fa-print me-1"></i> IMPRIMIR ESTADO
                 </button>
