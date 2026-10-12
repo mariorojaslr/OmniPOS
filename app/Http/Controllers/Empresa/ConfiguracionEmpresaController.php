@@ -140,6 +140,9 @@ class ConfiguracionEmpresaController extends Controller
             | ACTUALIZAR CONFIG (VISUAL Y MÓDULOS)
             |--------------------------------------------------------------------------
             */
+            $tipoClinica = $request->input('tipo_clinica', $empresa->config?->tipo_clinica ?? 'clinica_general');
+            $isOdonto = ($tipoClinica === 'clinica_odontologica') || $request->has('mod_odontograma');
+
             $configData = [
                 'color_primary'   => $request->color_primary ?? '#1f6feb',
                 'color_secondary' => $request->color_secondary ?? '#0d1117',
@@ -149,8 +152,17 @@ class ConfiguracionEmpresaController extends Controller
                 'mod_orden_pedido_extra' => $request->has('mod_orden_pedido_extra'),
                 'mod_turnos' => $request->has('mod_turnos'),
                 'mod_unidades_medida' => $request->has('mod_unidades_medida'),
-                'mod_internaciones' => $request->has('mod_internaciones'),
+                'tipo_clinica' => $tipoClinica,
+                'mod_odontograma' => $isOdonto,
+                'terminologia_espacio' => $request->input('terminologia_espacio', $isOdonto ? 'consultorio' : 'consultorio'),
             ];
+
+            // Si es odontología y no se forzó explícitamente internación, apagar internaciones
+            if ($isOdonto && !$request->has('mod_internaciones')) {
+                $configData['mod_internaciones'] = false;
+            } else {
+                $configData['mod_internaciones'] = $request->has('mod_internaciones');
+            }
 
             if ($logoPath) {
                 $configData['logo'] = $logoPath;

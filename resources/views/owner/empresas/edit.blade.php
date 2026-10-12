@@ -107,9 +107,108 @@
                             </div>
                             <small class="text-muted">Si se activa, el sistema NUNCA la bloqueará por falta de pago.</small>
                         </div>
+                    {{-- PERFIL CLÍNICO Y ESPECIALIDAD (SWITCHABLE) --}}
+                    @php
+                        $cfg = $empresa->config;
+                        $tipoClinicaActual = $cfg?->tipo_clinica ?? 'clinica_general';
+                        $isOdontoActual = $cfg?->isOdontologica() ?? false;
+                    @endphp
+                    <hr class="my-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h6 class="fw-bold text-dark mb-0"><i class="bi bi-hospital me-2 text-primary"></i>Perfil y Especialidad de la Clínica (Switchable)</h6>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill fw-bold">SaaS Multi-Especialidad</span>
                     </div>
 
-                    <div class="d-flex justify-content-between">
+                    <div class="card border-primary border-opacity-25 bg-light p-3 rounded-4 mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-7 mb-2">
+                                <label class="form-label fw-bold">Especialidad Principal del Centro Médico</label>
+                                <select name="tipo_clinica" id="owner_tipo_clinica" class="form-select border-primary fw-semibold shadow-sm" onchange="actualizarPerfilClinicoOwner(this.value)">
+                                    <option value="clinica_general" {{ $tipoClinicaActual === 'clinica_general' ? 'selected' : '' }}>🩺 Clínica Médica General / Policonsultorios</option>
+                                    <option value="clinica_odontologica" {{ $tipoClinicaActual === 'clinica_odontologica' ? 'selected' : '' }}>🦷 Clínica Odontológica / Centro Dental</option>
+                                    <option value="unidad_coronaria" {{ $tipoClinicaActual === 'unidad_coronaria' ? 'selected' : '' }}>❤️ Unidad Coronaria / Cardiología</option>
+                                    <option value="centro_rehabilitacion" {{ $tipoClinicaActual === 'centro_rehabilitacion' ? 'selected' : '' }}>🏃‍♂️ Centro de Rehabilitación / Kinesiología</option>
+                                </select>
+                                <small class="text-muted d-block mt-1">Configura automáticamente las herramientas de la plataforma según la especialidad del cliente.</small>
+                            </div>
+
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label fw-bold">Denominación de Espacios</label>
+                                <select name="terminologia_espacio" id="owner_terminologia_espacio" class="form-select shadow-sm">
+                                    <option value="consultorio" {{ ($cfg?->terminologia_espacio ?? 'consultorio') === 'consultorio' ? 'selected' : '' }}>Consultorio Dental / Médico</option>
+                                    <option value="sillon" {{ ($cfg?->terminologia_espacio ?? '') === 'sillon' ? 'selected' : '' }}>Sillón Odontológico</option>
+                                    <option value="box" {{ ($cfg?->terminologia_espacio ?? '') === 'box' ? 'selected' : '' }}>Box de Atención</option>
+                                    <option value="sala" {{ ($cfg?->terminologia_espacio ?? '') === 'sala' ? 'selected' : '' }}>Sala de Tratamiento</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12"><hr class="my-1 border-secondary border-opacity-25"></div>
+
+                            {{-- SWITCH ODONTOGRAMA --}}
+                            <div class="col-md-6">
+                                <div class="form-check form-switch p-2 ps-5 rounded-3 bg-white border shadow-sm">
+                                    <input class="form-check-input ms-n4" type="checkbox" name="mod_odontograma" id="owner_mod_odontograma" value="1" {{ ($cfg?->mod_odontograma || $tipoClinicaActual === 'clinica_odontologica') ? 'checked' : '' }}>
+                                    <label class="form-check-label fw-bold text-dark" for="owner_mod_odontograma">
+                                        🦷 Odontograma Interactivo (HCE)
+                                    </label>
+                                    <small class="text-muted d-block">Habilita el odontograma digital interactivo con caras y piezas dentales en las historias clínicas.</small>
+                                </div>
+                            </div>
+
+                            {{-- SWITCH INTERNACIÓN --}}
+                            <div class="col-md-6" id="contenedor_internacion">
+                                <div class="form-check form-switch p-2 ps-5 rounded-3 bg-white border shadow-sm">
+                                    <input class="form-check-input ms-n4" type="checkbox" name="mod_internaciones" id="owner_mod_internaciones" value="1" {{ ($cfg?->mod_internaciones ?? false) ? 'checked' : '' }}>
+                                    <label class="form-check-label fw-bold text-dark" for="owner_mod_internaciones">
+                                        🏥 Módulo de Internación (Camas/Habitaciones)
+                                    </label>
+                                    <small class="text-muted d-block" id="texto_aviso_internacion">Control de camas y hospitalización. (No recomendado en odontología).</small>
+                                </div>
+                            </div>
+
+                            {{-- SWITCH HCE Y TURNOS --}}
+                            <div class="col-md-6">
+                                <div class="form-check form-switch p-2 ps-5 rounded-3 bg-white border shadow-sm">
+                                    <input class="form-check-input ms-n4" type="checkbox" name="mod_hce" id="owner_mod_hce" value="1" {{ ($cfg?->mod_hce ?? true) ? 'checked' : '' }}>
+                                    <label class="form-check-label fw-bold text-dark" for="owner_mod_hce">
+                                        🩺 Historia Clínica Electrónica (HCE)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch p-2 ps-5 rounded-3 bg-white border shadow-sm">
+                                    <input class="form-check-input ms-n4" type="checkbox" name="mod_turnos" id="owner_mod_turnos" value="1" {{ ($cfg?->mod_turnos ?? true) ? 'checked' : '' }}>
+                                    <label class="form-check-label fw-bold text-dark" for="owner_mod_turnos">
+                                        📅 Turnos & Agenda Web Online
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function actualizarPerfilClinicoOwner(tipo) {
+                            const switchOdonto = document.getElementById('owner_mod_odontograma');
+                            const switchInternacion = document.getElementById('owner_mod_internaciones');
+                            const selectEspacio = document.getElementById('owner_terminologia_espacio');
+                            const avisoInternacion = document.getElementById('texto_aviso_internacion');
+
+                            if (tipo === 'clinica_odontologica') {
+                                switchOdonto.checked = true;
+                                switchInternacion.checked = false; // Desactivar internación
+                                avisoInternacion.innerText = '⚠️ Desactivado por defecto: las clínicas dentales no disponen de internación hospitalaria.';
+                                avisoInternacion.classList.add('text-warning');
+                                selectEspacio.value = 'consultorio';
+                            } else {
+                                if (tipo !== 'clinica_odontologica') {
+                                    switchOdonto.checked = false;
+                                }
+                                avisoInternacion.innerText = 'Control de camas y hospitalización médica.';
+                                avisoInternacion.classList.remove('text-warning');
+                            }
+                        }
+                    </script>
                         <a href="{{ route('owner.empresas.index') }}"
                            class="btn btn-outline-secondary">
                             Cancelar

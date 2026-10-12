@@ -87,29 +87,56 @@
                                     <small class="text-muted">Tiempo que permanece el cartel de novedad.</small>
                                 </div>
 
-                                <label class="form-label fw-bold">Módulos del Sistema</label>
-                                <div class="p-3 border rounded-3 bg-white shadow-sm border-success border-opacity-25 mb-3">
-                                    <div class="form-check form-switch mb-2">
-                                        <input class="form-check-input" type="checkbox" id="modOrdenPedido" name="mod_orden_pedido" value="1" {{ ($config->mod_orden_pedido ?? false) ? 'checked' : '' }}>
-                                        <label class="form-check-label small fw-bold" for="modOrdenPedido">📦 Órdenes de Pedido</label>
+                                <label class="form-label fw-bold">Especialidad & Módulos Clínicos</label>
+                                <div class="p-3 border rounded-3 bg-white shadow-sm border-primary border-opacity-25 mb-3">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-primary">🩺 Tipo de Centro de Salud</label>
+                                        <select name="tipo_clinica" id="cfg_tipo_clinica" class="form-select form-select-sm border-primary fw-semibold" onchange="toggleOdontoConfig(this.value)">
+                                            <option value="clinica_general" {{ ($config->tipo_clinica ?? 'clinica_general') === 'clinica_general' ? 'selected' : '' }}>🩺 Clínica Médica General / Policonsultorios</option>
+                                            <option value="clinica_odontologica" {{ ($config->tipo_clinica ?? '') === 'clinica_odontologica' ? 'selected' : '' }}>🦷 Clínica Odontológica / Centro Dental</option>
+                                            <option value="unidad_coronaria" {{ ($config->tipo_clinica ?? '') === 'unidad_coronaria' ? 'selected' : '' }}>❤️ Unidad Coronaria / Cardiología</option>
+                                            <option value="centro_rehabilitacion" {{ ($config->tipo_clinica ?? '') === 'centro_rehabilitacion' ? 'selected' : '' }}>🏃‍♂️ Centro de Rehabilitación / Kinesiología</option>
+                                        </select>
                                     </div>
+
                                     <div class="form-check form-switch mb-2">
-                                        <input class="form-check-input" type="checkbox" id="modOrdenPedidoExtra" name="mod_orden_pedido_extra" value="1" {{ ($config->mod_orden_pedido_extra ?? false) ? 'checked' : '' }}>
-                                        <label class="form-check-label small fw-bold" for="modOrdenPedidoExtra">🛠️ Datos Extra (Constructivos)</label>
+                                        <input class="form-check-input" type="checkbox" id="modOdontograma" name="mod_odontograma" value="1" {{ ($config->mod_odontograma || ($config->tipo_clinica ?? '') === 'clinica_odontologica') ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold" for="modOdontograma">🦷 Odontograma Interactivo (HCE)</label>
                                     </div>
                                     <div class="form-check form-switch mb-2">
                                         <input class="form-check-input" type="checkbox" id="modTurnos" name="mod_turnos" value="1" {{ ($config->mod_turnos ?? false) ? 'checked' : '' }}>
-                                        <label class="form-check-label small fw-bold" for="modTurnos">📅 Gestión de Turnos</label>
+                                        <label class="form-check-label small fw-bold" for="modTurnos">📅 Gestión de Turnos & Agenda</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2" id="boxInternacionEmpresa">
+                                        <input class="form-check-input" type="checkbox" id="modInternaciones" name="mod_internaciones" value="1" {{ ($config->mod_internaciones ?? false) ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold" for="modInternaciones">🏥 Módulo de Internaciones (Camas)</label>
+                                        <small class="text-muted d-block" id="avisoInternacionEmpresa" style="font-size:0.75rem;"></small>
                                     </div>
                                     <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="modOrdenPedido" name="mod_orden_pedido" value="1" {{ ($config->mod_orden_pedido ?? false) ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold" for="modOrdenPedido">📦 Órdenes de Pedido / Abasto</label>
+                                    </div>
+                                    <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="modUnidades" name="mod_unidades_medida" value="1" {{ ($config->mod_unidades_medida ?? false) ? 'checked' : '' }}>
                                         <label class="form-check-label small fw-bold" for="modUnidades">⚖️ Unidades de Medida</label>
                                     </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="modInternaciones" name="mod_internaciones" value="1" {{ ($config->mod_internaciones ?? false) ? 'checked' : '' }}>
-                                        <label class="form-check-label small fw-bold" for="modInternaciones">🏥 Módulo de Internaciones</label>
-                                    </div>
                                 </div>
+
+                                <script>
+                                    function toggleOdontoConfig(val) {
+                                        const swOdonto = document.getElementById('modOdontograma');
+                                        const swIntern = document.getElementById('modInternaciones');
+                                        const aviso = document.getElementById('avisoInternacionEmpresa');
+                                        if (val === 'clinica_odontologica') {
+                                            swOdonto.checked = true;
+                                            swIntern.checked = false;
+                                            aviso.innerText = 'Desactivado: no aplica para odontología.';
+                                        } else {
+                                            if (val !== 'clinica_odontologica') swOdonto.checked = false;
+                                            aviso.innerText = '';
+                                        }
+                                    }
+                                </script>
 
                                 <div class="p-3 border rounded-3 bg-light shadow-sm">
                                     <label class="form-label small fw-bold">Provincia Principal</label>

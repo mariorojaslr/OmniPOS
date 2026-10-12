@@ -201,8 +201,8 @@ class CatalogController extends Controller
             return redirect()->route('catalog.booking.payment', [$empresa->slug, $turno->id]);
         }
 
-        $wspMsg = '¡Su turno ha sido agendado! Hemos enviado el comprobante a su WhatsApp. Recuerde llegar 15 minutos antes para digitalizar documentación. Tolerancia máxima de espera: 15 minutos posteriores a su turno.';
-        return redirect()->route('catalog.booking', $empresa->slug)->with('success', $wspMsg);
+        $wspMsg = '¡Turno agendado con éxito! Podés realizar el seguimiento de tu turno en tiempo real aquí.';
+        return redirect()->route('turno.seguimiento', $turno->id)->with('success', $wspMsg);
     }
 
     /**
@@ -233,11 +233,11 @@ class CatalogController extends Controller
         // Simulación exitosa de pasarela
         $turno->update([
             'estado' => 'confirmado',
-            'notas' => ($turno->notas ?? '') . ' | Pago Online Procesado con éxito vía ' . ($empresa->config_pasarelas['online_booking_gateway'] ?? 'MercadoPago') . ' Transacción N° ' . rand(1000000, 9999999)
+            'notas' => ($turno->notas ?? '') . ' | Pago Online Simulado con éxito vía ' . ($empresa->config_pasarelas['online_booking_gateway'] ?? 'MercadoPago') . ' Transacción N° ' . rand(1000000, 9999999)
         ]);
 
-        $wspMsg = '¡Excelente! Pago procesado de forma segura. Hemos enviado el comprobante a su WhatsApp. Recuerde llegar 15 minutos antes para digitalizar documentación. Tolerancia máxima: 15 minutos posteriores a su turno.';
-        return redirect()->route('catalog.booking', $empresa->slug)
+        $wspMsg = '¡Excelente! Pago simulado con éxito. Tu turno ha sido confirmado.';
+        return redirect()->route('turno.seguimiento', $turno->id)
             ->with('success', $wspMsg);
     }
 
@@ -286,5 +286,28 @@ class CatalogController extends Controller
             'success' => true,
             'ocupados' => $ocupados
         ]);
+    }
+
+    /**
+     * Portal Público Móvil de Seguimiento de Turno para el Paciente
+     */
+    public function patientTurnoTracking($id)
+    {
+        $turno = Turno::with(['empresa.config', 'cliente', 'user', 'servicio'])->findOrFail($id);
+        $empresa = $turno->empresa;
+
+        return view('catalog.turno_tracking', compact('turno', 'empresa'));
+    }
+
+    /**
+     * Confirmación de Asistencia directa por parte del Paciente
+     */
+    public function patientConfirmAttendance($id)
+    {
+        $turno = Turno::findOrFail($id);
+        $turno->estado = 'confirmado';
+        $turno->save();
+
+        return back()->with('success', '¡Excelente! Tu turno ha sido confirmado. Te esperamos puntualmente.');
     }
 }

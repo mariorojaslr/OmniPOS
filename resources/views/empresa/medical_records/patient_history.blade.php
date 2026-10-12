@@ -158,9 +158,44 @@
         </div>
     @endif
 
+    @php
+        $config = auth()->user()->empresa?->config;
+        $odontogramaConsolidado = [];
+        foreach ($records->reverse() as $r) {
+            $data = $r->specialized_data ?? [];
+            if (is_string($data)) $data = json_decode($data, true) ?? [];
+            if (!empty($data['odontograma']) && is_array($data['odontograma'])) {
+                foreach ($data['odontograma'] as $pieza => $info) {
+                    $odontogramaConsolidado[$pieza] = $info;
+                }
+            }
+        }
+        $tieneOdonto = !empty($odontogramaConsolidado) || ($config?->isOdontologica() ?? false);
+    @endphp
+
     <div class="row g-4">
         <!-- 2. Gráfico e Historial Clínico (Columna Izquierda 8/12) -->
         <div class="col-lg-8">
+            @if($tieneOdonto)
+                <!-- Bloque de Odontograma Consolidado del Paciente -->
+                <div class="glass-card p-4 mb-4 bg-white border border-primary border-opacity-10 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0"><span class="fs-4 me-2">🦷</span>Odontograma Integral Acumulado del Paciente</h5>
+                            <p class="x-small text-muted mb-0">Estado bucal general consolidado a partir de todas las evoluciones odontológicas registradas.</p>
+                        </div>
+                        <a href="{{ route('empresa.medical_records.create', ['patient_id' => $client->id]) }}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
+                            <i class="bi bi-plus-lg me-1"></i> Nueva Consulta Odontológica
+                        </a>
+                    </div>
+                    @include('empresa.medical_records.components.odontograma', [
+                        'readonly' => true,
+                        'initialData' => $odontogramaConsolidado,
+                        'containerId' => 'odontograma_consolidado_' . $client->id
+                    ])
+                </div>
+            @endif
+
             <!-- Bloque de Gráficos -->
             <div class="glass-card p-4 mb-4 bg-white">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -324,6 +359,18 @@
                                     </div>
                                     @endif
                                 </div>
+
+                                <!-- Odontograma de la Sesión -->
+                                @if(!empty($specData['odontograma']) && is_array($specData['odontograma']))
+                                <div class="p-3 bg-light rounded-4 border mb-4">
+                                    <h6 class="fw-bold text-dark mb-3"><span class="fs-5 me-1">🦷</span> Odontograma Registrado en esta Visita</h6>
+                                    @include('empresa.medical_records.components.odontograma', [
+                                        'readonly' => true,
+                                        'initialData' => $specData['odontograma'],
+                                        'containerId' => 'odontograma_visita_' . $rec->id
+                                    ])
+                                </div>
+                                @endif
 
                                 <!-- Campos Dinámicos / Etiquetas de Especialidad -->
                                 @php

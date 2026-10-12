@@ -175,6 +175,17 @@
                                             @endforeach
                                         </div>
                                     </div>
+                            {{-- ODONTOGRAMA DE LA CONSULTA --}}
+                            @if(!empty($specData['odontograma']) && is_array($specData['odontograma']))
+                                <div class="col-12 mt-4">
+                                    <div class="card border border-info border-opacity-25 rounded-4 p-4 shadow-sm" style="background: rgba(6, 182, 212, 0.02);">
+                                        <h6 class="text-info fw-bold text-uppercase small mb-3" style="letter-spacing: 1px;"><span class="fs-5 me-2">🦷</span>Odontograma Registrado en Consulta</h6>
+                                        @include('empresa.medical_records.components.odontograma', [
+                                            'readonly' => true,
+                                            'initialData' => $specData['odontograma'],
+                                            'containerId' => 'odontograma_show_' . $medical_record->id
+                                        ])
+                                    </div>
                                 </div>
                             @endif
                         </div>

@@ -89,12 +89,14 @@ class ReceptionistController extends Controller
                 'paciente_email' => $turno->cliente?->email ?? 'S/D',
                 'doctor_id' => $turno->user_id,
                 'doctor_nombre' => $turno->user?->name ?? 'Médico Asignado',
+                'consultorio' => $turno->user?->consultorio ?? 'Sin consultorio',
                 'hora_turno' => Carbon::parse($turno->hora_inicio)->format('H:i'),
                 'hora_arribo' => $turno->hora_arribo ? Carbon::parse($turno->hora_arribo)->format('H:i') : null,
                 'estado_cola' => $turno->estado_cola ?? 'pendiente',
                 'puntualidad' => $puntualidad,
                 'puntualidad_class' => $puntualidadClass,
                 'notas' => $turno->notas ?? '',
+                'whatsapp_url' => $turno->whatsapp_link,
                 'estudios' => $turno->studies->map(function ($st) {
                     return [
                         'file_path' => $st->file_path,

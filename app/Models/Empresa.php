@@ -285,6 +285,29 @@ class Empresa extends Model
     }
 
     /**
+     * Helpers de Perfil Clínico y Especialidad
+     */
+    public function isOdontologica(): bool
+    {
+        return $this->config?->isOdontologica() ?? false;
+    }
+
+    public function hasOdontograma(): bool
+    {
+        return $this->config?->hasOdontograma() ?? false;
+    }
+
+    public function hasInternaciones(): bool
+    {
+        return (bool) ($this->config?->mod_internaciones ?? false);
+    }
+
+    public function getEspacioLabel(bool $plural = false): string
+    {
+        return $this->config?->getEspacioLabel($plural) ?? ($plural ? 'Consultorios' : 'Consultorio');
+    }
+
+    /**
      * Usa el slug en lugar del ID para las rutas
      */
     public function getRouteKeyName()

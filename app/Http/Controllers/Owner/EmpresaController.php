@@ -83,6 +83,26 @@ class EmpresaController extends Controller
 
         /*
         |----------------------------------------------------------
+        | CONFIGURACIÓN CLÍNICA INICIAL
+        |----------------------------------------------------------
+        */
+        $tipoClinica = $request->input('tipo_clinica', 'clinica_general');
+        $isOdonto = ($tipoClinica === 'clinica_odontologica') || $request->has('mod_odontograma');
+        
+        $empresa->config()->create([
+            'color_primary'        => '#1f6feb',
+            'color_secondary'      => '#0d1117',
+            'theme'                => 'light',
+            'tipo_clinica'         => $tipoClinica,
+            'mod_odontograma'      => $isOdonto,
+            'mod_internaciones'    => $isOdonto ? false : $request->has('mod_internaciones'),
+            'mod_turnos'           => true,
+            'mod_hce'              => true,
+            'terminologia_espacio' => $isOdonto ? 'consultorio' : 'consultorio',
+        ]);
+
+        /*
+        |----------------------------------------------------------
         | MENSAJE CON PASSWORD GENERADA (SOLO SI FUE AUTOMÁTICA)
         |----------------------------------------------------------
         */
@@ -102,7 +122,7 @@ class EmpresaController extends Controller
      */
     public function edit($empresaId)
     {
-        $empresa = Empresa::findOrFail($empresaId);
+        $empresa = Empresa::with('config')->findOrFail($empresaId);
         $planes = \App\Models\Plan::where('is_active', true)->get();
         return view('owner.empresas.edit', compact('empresa', 'planes'));
     }
@@ -122,15 +142,43 @@ class EmpresaController extends Controller
             'custom_max_products' => 'nullable|integer',
             'grace_period_until'  => 'nullable|date',
             'is_bonificated'      => 'nullable',
+            
+            // Configuración clínica
+            'tipo_clinica'        => 'nullable|string|in:clinica_general,clinica_odontologica,unidad_coronaria,centro_rehabilitacion',
+            'terminologia_espacio'=> 'nullable|string|in:consultorio,sillon,box,sala',
         ]);
 
         $data['is_bonificated'] = $request->has('is_bonificated');
 
         $empresa->update($data);
 
+        // Actualizar o crear EmpresaConfig con las llaves de salud
+        $tipoClinica = $request->input('tipo_clinica', 'clinica_general');
+        $isOdonto = ($tipoClinica === 'clinica_odontologica') || $request->has('mod_odontograma');
+
+        $configData = [
+            'tipo_clinica'         => $tipoClinica,
+            'mod_odontograma'      => $isOdonto,
+            'mod_turnos'           => $request->has('mod_turnos'),
+            'mod_hce'              => $request->has('mod_hce'),
+            'terminologia_espacio' => $request->input('terminologia_espacio', $isOdonto ? 'consultorio' : 'consultorio'),
+        ];
+
+        // Si es odontología y no se forzó internación, apagar internación automáticamente
+        if ($isOdonto && !$request->has('mod_internaciones')) {
+            $configData['mod_internaciones'] = false;
+        } else {
+            $configData['mod_internaciones'] = $request->has('mod_internaciones');
+        }
+
+        $empresa->config()->updateOrCreate(
+            ['empresa_id' => $empresa->id],
+            $configData
+        );
+
         return redirect()
             ->route('owner.empresas.index')
-            ->with('success', 'Empresa actualizada');
+            ->with('success', 'Empresa y configuración clínica actualizadas correctamente');
     }
 
     /**

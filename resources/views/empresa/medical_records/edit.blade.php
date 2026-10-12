@@ -157,8 +157,20 @@
                                 <label class="form-label-premium mb-3"><i class="bi bi-braces-asterisk me-1 text-primary"></i> Data Especializada Estructurada</label>
                                 
                                 <ul class="nav nav-pills nav-justified gap-2 mb-4" id="specializedTabs" role="tablist">
+                                    @php
+                                        $odontoInitial = (isset($specData['odontograma']) && is_array($specData['odontograma'])) ? $specData['odontograma'] : [];
+                                        $esOdonto = $config?->isOdontologica() || $config?->hasOdontograma() || !empty($odontoInitial);
+                                    @endphp
+
+                                    @if($esOdonto)
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active fw-bold border py-2" id="odonto-tab" data-bs-toggle="tab" data-bs-target="#odonto-pane" type="button" role="tab">
+                                                <span class="fs-6 me-1">🦷</span> Odontograma Clínico
+                                            </button>
+                                        </li>
+                                    @endif
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link active fw-bold border py-2" id="vitals-tab" data-bs-toggle="tab" data-bs-target="#vitals-pane" type="button" role="tab"><i class="bi bi-heart-pulse-fill me-2"></i>Signos Vitales</button>
+                                        <button class="nav-link {{ !$esOdonto ? 'active' : '' }} fw-bold border py-2" id="vitals-tab" data-bs-toggle="tab" data-bs-target="#vitals-pane" type="button" role="tab"><i class="bi bi-heart-pulse-fill me-2"></i>Signos Vitales</button>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link fw-bold border py-2" id="meds-tab" data-bs-toggle="tab" data-bs-target="#meds-pane" type="button" role="tab"><i class="bi bi-capsule me-2"></i>Receta / Meds</button>
@@ -168,9 +180,16 @@
                                     </li>
                                 </ul>
 
-                                <div class="tab-content bg-white p-4 rounded-4 border" id="specializedTabsContent">
+                                <div class="tab-content bg-white p-3 p-md-4 rounded-4 border" id="specializedTabsContent">
+                                    @if($esOdonto)
+                                        <!-- PESTAÑA: ODONTOGRAMA CLÍNICO -->
+                                        <div class="tab-pane fade show active" id="odonto-pane" role="tabpanel">
+                                            @include('empresa.medical_records.components.odontograma', ['readonly' => false, 'initialData' => $odontoInitial])
+                                        </div>
+                                    @endif
+
                                     <!-- PESTAÑA: SIGNOS VITALES -->
-                                    <div class="tab-pane fade show active" id="vitals-pane" role="tabpanel">
+                                    <div class="tab-pane fade {{ !$esOdonto ? 'show active' : '' }}" id="vitals-pane" role="tabpanel">
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label text-muted small fw-bold">Presión Arterial Sistólica (mmHg)</label>
@@ -475,11 +494,22 @@
             }
         });
 
+        let odontogramaData = null;
+        const odontoInput = document.querySelector('input[name="odontograma_data"]');
+        if (odontoInput && odontoInput.value) {
+            try {
+                odontogramaData = JSON.parse(odontoInput.value);
+            } catch(e) {
+                odontogramaData = null;
+            }
+        }
+
         const specializedData = {
             vitals: vitals,
             medications: medications,
             labs: labs,
-            dynamic_fields: dynamicFields
+            dynamic_fields: dynamicFields,
+            odontograma: odontogramaData
         };
 
         document.getElementById('specialized_data').value = JSON.stringify(specializedData);

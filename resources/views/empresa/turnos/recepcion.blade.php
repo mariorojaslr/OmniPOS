@@ -249,10 +249,16 @@
                                     </div>
                                     <div class="x-small text-dark fw-bold mt-1 d-flex align-items-center gap-1">
                                         👨‍⚕️ Dr. ${turno.doctor_nombre} 
+                                        <span class="badge bg-secondary bg-opacity-10 text-muted ms-1 font-monospace">📍 ${turno.consultorio}</span>
                                     </div>
                                     ${studiesHtml}
-                                    <div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
                                         ${uploadBtn}
+                                        ${turno.whatsapp_url ? `
+                                            <a href="${turno.whatsapp_url}" target="_blank" class="btn btn-sm btn-outline-success rounded-pill px-2 py-1 mt-1 text-decoration-none fw-bold" style="font-size: 0.7rem;" title="Enviar recordatorio por WhatsApp">
+                                                <i class="bi bi-whatsapp text-success me-1"></i> WhatsApp
+                                            </a>
+                                        ` : ''}
                                     </div>
                                 </div>
                                 <div>

@@ -695,8 +695,11 @@ Route::get('/c/{empresa}/producto/{product}', [CatalogController::class , 'show'
 Route::get('/c/{empresa}/reservar-turno', [CatalogController::class, 'bookingPortal'])->name('catalog.booking');
 Route::post('/c/{empresa}/reservar-turno', [CatalogController::class, 'confirmBooking'])->name('catalog.booking.confirm');
 Route::get('/c/{empresa}/reservar-turno/pago/{turno}', [CatalogController::class, 'bookingPayment'])->name('catalog.booking.payment');
-Route::post('/c/{empresa}/reservar-turno/pago/{turno}', [CatalogController::class, 'bookingPaymentProcess'])->name('catalog.booking.payment-process');
 Route::get('/c/{empresa}/api/slots-ocupados', [CatalogController::class, 'occupiedSlots'])->name('catalog.booking.occupied-slots');
+
+// SEGUIMIENTO DE TURNO EN VIVO PARA EL PACIENTE (PUBLICO Y MOVIL)
+Route::get('/turno/{id}/seguimiento', [CatalogController::class, 'patientTurnoTracking'])->name('turno.seguimiento');
+Route::post('/turno/{id}/confirmar-asistencia', [CatalogController::class, 'patientConfirmAttendance'])->name('turno.confirmar-asistencia');
 
 // VALIDACION DE CERTIFICADOS QR (PUBLICO)
 Route::get('/v/certificado/{codigo}', [App\Http\Controllers\Empresa\MedicalCertificateController::class, 'validatePublic'])->name('certificados.public-validate');

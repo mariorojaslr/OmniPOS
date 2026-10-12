@@ -715,17 +715,30 @@
                         <!-- Método de Pago / Simulación -->
                         <div class="col-md-6 col-sm-12">
                             <div class="payment-method-card p-4 rounded-4 border border-secondary border-opacity-10 h-100 bg-dark bg-opacity-40">
-                                <h5 class="fw-bold text-white mb-3 border-bottom border-secondary border-opacity-25 pb-2"><i class="bi bi-shield-check me-2 text-success"></i> Confirmación Segura</h5>
+                                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-shield-check me-2 text-success"></i> Confirmación</h5>
+                                    <span class="badge bg-warning bg-opacity-15 text-warning rounded-pill px-3 py-1 fw-bold font-monospace x-small">
+                                        🧪 Simulación Activa
+                                    </span>
+                                </div>
+
+                                <div class="alert alert-warning border border-warning border-opacity-25 text-white rounded-3 p-3 mb-3" style="background: rgba(245, 158, 11, 0.08);">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <i class="bi bi-info-circle-fill text-warning fs-5"></i>
+                                        <strong class="text-warning small">Entorno de Pruebas & Demostración</strong>
+                                    </div>
+                                    <p class="x-small text-white text-opacity-75 mb-0">
+                                        El sistema se encuentra en fase de desarrollo comercial. Al confirmar se simula el pago de manera inmediata y se registra el turno oficial con su enlace de seguimiento en tiempo real.
+                                    </p>
+                                </div>
                                 
                                 @if($onlinePrice > 0)
-                                    <p class="x-small text-muted mb-4">Esta clínica cuenta con coseguro previo obligatorio. A los fines demostrativos de su presentación de mañana, simularemos el procesamiento seguro de su tarjeta.</p>
-                                    
                                     <div class="gateway-selector d-flex flex-column gap-2 mb-4">
                                         <div class="gateway-pill p-3 rounded-3 border active d-flex align-items-center gap-3 cursor-pointer">
                                             <span class="fs-4">💳</span>
                                             <div class="text-start">
-                                                <div class="small fw-bold text-white">Tarjeta de Crédito / Débito</div>
-                                                <div class="x-small text-muted">Simulación instantánea con acreditación inmediata</div>
+                                                <div class="small fw-bold text-white">Tarjeta de Crédito / Débito (Simulador)</div>
+                                                <div class="x-small text-muted">Aprobación instantánea con comprobante emitido</div>
                                             </div>
                                             <span class="badge bg-success text-white rounded-pill ms-auto">✓</span>
                                         </div>
@@ -737,8 +750,6 @@
                                         </button>
                                     </div>
                                 @else
-                                    <p class="x-small text-muted mb-4">La clínica ofrece reserva directa online sin cobro previo. Al hacer clic a continuación, se procesará su turno de inmediato y se registrará en el panel de recepción de guardia.</p>
-                                    
                                     <div class="d-grid">
                                         <button type="submit" class="btn btn-warning btn-lg py-3 rounded-pill fw-bold text-dark fs-5 shadow">
                                             <i class="bi bi-calendar2-check-fill me-2"></i> CONFIRMAR Y AGENDAR TURNO
