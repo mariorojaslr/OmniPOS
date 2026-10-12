@@ -201,7 +201,23 @@
                                     @if($esOdonto)
                                         <!-- PESTAÑA: ODONTOGRAMA CLÍNICO -->
                                         <div class="tab-pane fade show active" id="odonto-pane" role="tabpanel">
-                                            @include('empresa.medical_records.components.odontograma', ['readonly' => false, 'initialData' => []])
+                                            <div id="odontograma_history_alert" class="alert alert-info py-2 px-3 rounded-3 d-flex align-items-center justify-content-between mb-3 {{ empty($odontogramaAcumulado) ? 'd-none' : '' }}" style="background: rgba(13, 110, 253, 0.08); border: 1px solid rgba(13, 110, 253, 0.2);">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="bi bi-clock-history fs-5 text-primary"></i>
+                                                    <span class="small text-primary fw-bold" id="odontograma_history_msg">
+                                                        Arrastrando estado bucal acumulado de consultas anteriores. Registre nuevos tratamientos o hallazgos sobre la gráfica.
+                                                    </span>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill x-small fw-bold" onclick="recargarOdontoPaciente()">
+                                                    <i class="bi bi-arrow-repeat me-1"></i> Re-sincronizar
+                                                </button>
+                                            </div>
+
+                                            @include('empresa.medical_records.components.odontograma', [
+                                                'readonly' => false, 
+                                                'initialData' => $odontogramaAcumulado ?? [],
+                                                'containerId' => 'odontograma_create'
+                                            ])
                                         </div>
                                     @endif
 
@@ -334,6 +350,65 @@
 
 @push('scripts')
 <script>
+    // Sincronización en vivo del Odontograma histórico al seleccionar o cambiar de paciente
+    document.addEventListener('DOMContentLoaded', function() {
+        const patientSelect = document.querySelector('select[name="client_id"]');
+        if (patientSelect) {
+            patientSelect.addEventListener('change', function() {
+                const patientId = this.value;
+                if (!patientId) {
+                    const alertBox = document.getElementById('odontograma_history_alert');
+                    if (alertBox) alertBox.classList.add('d-none');
+                    if (typeof window.cargarOdontogramaData === 'function') {
+                        window.cargarOdontogramaData('odontograma_create', {});
+                    }
+                    return;
+                }
+                cargarHistorialOdontograma(patientId);
+            });
+        }
+    });
+
+    function cargarHistorialOdontograma(patientId) {
+        const alertBox = document.getElementById('odontograma_history_alert');
+        const alertMsg = document.getElementById('odontograma_history_msg');
+
+        fetch(`/empresa/api/patients/${patientId}/odontograma`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const odonto = data.odontograma || {};
+            const keysCount = Object.keys(odonto).length;
+
+            if (typeof window.cargarOdontogramaData === 'function') {
+                window.cargarOdontogramaData('odontograma_create', odonto);
+            }
+
+            if (alertBox && alertMsg) {
+                if (keysCount > 0) {
+                    alertMsg.innerHTML = `<strong>¡Historial cargado!</strong> Se arrastraron <strong>${keysCount} piezas con antecedentes</strong> de visitas previas. Modifique o agregue las novedades clínicas de esta consulta.`;
+                    alertBox.classList.remove('d-none');
+                } else {
+                    alertMsg.innerHTML = `El paciente no tiene registros odontológicos previos. Se inicia con odontograma limpio (boca sana).`;
+                    alertBox.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error al sincronizar odontograma histórico:', err);
+        });
+    }
+
+    function recargarOdontoPaciente() {
+        const patientSelect = document.querySelector('select[name="client_id"]');
+        if (patientSelect && patientSelect.value) {
+            cargarHistorialOdontograma(patientSelect.value);
+        }
+    }
     function addMedRow() {
         const tbody = document.getElementById('medsRows');
         const tr = document.createElement('tr');

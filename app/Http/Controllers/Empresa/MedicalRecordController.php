@@ -38,7 +38,54 @@ class MedicalRecordController extends Controller
         $patients = Client::where('empresa_id', $empresaId)->get();
         $selectedPatientId = $request->query('patient_id');
 
-        return view('empresa.medical_records.create', compact('patients', 'selectedPatientId'));
+        // Arrastrar el odontograma acumulado del paciente si fue seleccionado previamente
+        $odontogramaAcumulado = [];
+        if ($selectedPatientId) {
+            $patient = Client::where('empresa_id', $empresaId)->find($selectedPatientId);
+            if ($patient) {
+                $odontogramaAcumulado = $this->getPatientConsolidatedOdontograma($patient->id);
+            }
+        }
+
+        return view('empresa.medical_records.create', compact('patients', 'selectedPatientId', 'odontogramaAcumulado'));
+    }
+
+    /**
+     * Obtiene el odontograma consolidado acumulado a lo largo de todas las evoluciones del paciente
+     */
+    public function getPatientConsolidatedOdontograma($patientId)
+    {
+        $records = MedicalRecord::where('client_id', $patientId)
+            ->where('empresa_id', Auth::user()->empresa_id)
+            ->oldest()
+            ->get();
+
+        $consolidado = [];
+        foreach ($records as $r) {
+            $data = $r->specialized_data ?? [];
+            if (is_string($data)) {
+                $data = json_decode($data, true) ?? [];
+            }
+            if (!empty($data['odontograma']) && is_array($data['odontograma'])) {
+                foreach ($data['odontograma'] as $pieza => $info) {
+                    $consolidado[$pieza] = $info;
+                }
+            }
+        }
+
+        return $consolidado;
+    }
+
+    /**
+     * Endpoint API JSON para obtener el odontograma acumulado al cambiar de paciente en tiempo real
+     */
+    public function apiPatientOdontograma($patientId)
+    {
+        $consolidado = $this->getPatientConsolidatedOdontograma($patientId);
+        return response()->json([
+            'patient_id' => $patientId,
+            'odontograma' => $consolidado
+        ]);
     }
 
     public function store(Request $request)

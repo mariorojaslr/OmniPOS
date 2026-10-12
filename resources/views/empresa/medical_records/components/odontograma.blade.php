@@ -476,10 +476,11 @@
             }
         }
 
-        window.limpiarOdontograma = function(containerId) {
-            if (!confirm('¿Desea restablecer y limpiar todo el odontograma?')) return;
+        window.limpiarOdontograma = function(containerId, omitConfirm = false) {
+            if (!omitConfirm && !confirm('¿Desea restablecer y limpiar todo el odontograma?')) return;
             odontogramaState = {};
             const container = document.getElementById(containerId);
+            if (!container) return;
             container.querySelectorAll('.diente-cara').forEach(el => {
                 el.className.baseVal = 'diente-cara';
             });
@@ -487,6 +488,32 @@
                 el.classList.remove('estado-ausente', 'estado-corona-total', 'estado-implante-total', 'estado-endodoncia');
             });
             actualizarHallazgos(containerId);
+        };
+
+        // Método expuesto globalmente para cargar nuevos datos externamente (ej: cambio de paciente vía AJAX)
+        window['cargarOdontograma_' + cId] = function(nuevosDatos) {
+            odontogramaState = nuevosDatos ? JSON.parse(JSON.stringify(nuevosDatos)) : {};
+            const inputHidden = document.getElementById(cId + '_data');
+            if (inputHidden) {
+                inputHidden.value = JSON.stringify(odontogramaState);
+            }
+            // Limpiar visuales existentes
+            const container = document.getElementById(cId);
+            if (container) {
+                container.querySelectorAll('.diente-cara').forEach(el => {
+                    el.className.baseVal = 'diente-cara';
+                });
+                container.querySelectorAll('.diente-box').forEach(el => {
+                    el.classList.remove('estado-ausente', 'estado-corona-total', 'estado-implante-total', 'estado-endodoncia');
+                });
+            }
+            renderEstadoInicial();
+        };
+
+        window.cargarOdontogramaData = function(containerId, nuevosDatos) {
+            if (window['cargarOdontograma_' + containerId]) {
+                window['cargarOdontograma_' + containerId](nuevosDatos);
+            }
         };
 
         // Renderizado tras carga del DOM

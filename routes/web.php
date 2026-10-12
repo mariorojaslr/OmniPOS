@@ -277,6 +277,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         // HISTORIA CLÍNICA (HCE)
         Route::resource('medical_records', App\Http\Controllers\Empresa\MedicalRecordController::class);
         Route::get('clients/{client}/medical-history', [App\Http\Controllers\Empresa\MedicalRecordController::class, 'patientHistory'])->name('medical_records.patient_history');
+        Route::get('api/patients/{patient}/odontograma', [App\Http\Controllers\Empresa\MedicalRecordController::class, 'apiPatientOdontograma'])->name('medical_records.api_odontograma');
         Route::post('medical_records/{medical_record}/attach', [App\Http\Controllers\Empresa\MedicalRecordController::class, 'attachFile'])->name('medical_records.attach');
 
         Route::get('/soporte', function() { 
