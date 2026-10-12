@@ -145,7 +145,7 @@ class ClinicaDentalPruebaSeeder extends Seeder
         ];
 
         foreach ($profesionales as $userId => $conf) {
-            \App\Models\ProfessionalConfig::updateOrCreate(
+            \App\Models\ProfesionalConfig::updateOrCreate(
                 ['empresa_id' => $empresa->id, 'user_id' => $userId],
                 [
                     'tipo_contrato' => 'comision',
