@@ -208,11 +208,9 @@ Route::get('/demo-login/{tipo?}', function($tipo = 'dental') {
     }
 
     // Por defecto: Clínica Dental
-    $dentalUser = \App\Models\User::where('email', 'dental@poolhub.com')
+    $dentalUser = \App\Models\User::where('email', 'dental@poolhub.com')->first()
                ?? \App\Models\User::where('email', 'admin@dentalpremium.com')->first();
-    if (!$dentalUser) {
-        $dentalUser = \App\Models\User::where('email', 'admin@dentalpremium.com')->first();
-    }
+
     if ($dentalUser) {
         \Auth::login($dentalUser);
         request()->session()->regenerate();
