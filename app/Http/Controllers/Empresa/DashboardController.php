@@ -26,6 +26,11 @@ class DashboardController extends Controller
                 return redirect()->route('empresa.usuario.dashboard');
             }
 
+            // Si es Owner directo supervisando, redirigir a su panel si no tiene empresa asignada
+            if ($user->role === 'owner' && !$user->empresa_id) {
+                return redirect()->route('owner.dashboard');
+            }
+
             $empresaId = $user->empresa_id;
 
             if (!$empresaId) {
@@ -35,10 +40,10 @@ class DashboardController extends Controller
                     if ($owner) {
                         Auth::login($owner);
                         session()->forget('impersonator_id');
-                        return redirect()->route('owner.dashboard')->with('error', 'Error crítico: La empresa a la que intentó entrar no tiene ID válido.');
+                        return redirect()->route('owner.dashboard')->with('error', 'Error: La empresa seleccionada no tiene un ID válido asignado.');
                     }
                 }
-                abort(403, 'Usuario sin empresa asignada');
+                return redirect()->route('dashboard');
             }
 
             $empresa = $user->empresa;

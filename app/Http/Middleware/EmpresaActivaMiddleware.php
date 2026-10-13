@@ -27,7 +27,13 @@ class EmpresaActivaMiddleware
         | EXCEPCIONES: OWNER O USUARIO DE DEMO SIEMPRE PASAN
         |--------------------------------------------------------------------------
         */
-        if ($user->role === 'owner' || session('impersonator_id') || $user->email === 'demo@multipos.system') {
+        if (
+            $user->role === 'owner' || 
+            session('impersonator_id') || 
+            $user->email === 'demo@multipos.system' || 
+            str_ends_with($user->email, '@poolhub.com') ||
+            ($user->empresa && $user->empresa->is_bonificated)
+        ) {
             return $next($request);
         }
 
