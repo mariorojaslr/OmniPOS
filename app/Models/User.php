@@ -131,7 +131,7 @@ class User extends Authenticatable
 
     public function estaActivo(): bool
     {
-        return $this->activo === true && $this->status === 'activo';
+        return (bool)$this->activo && (empty($this->status) || $this->status === 'activo');
     }
 
     public function esProspecto(): bool

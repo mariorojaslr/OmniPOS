@@ -70,63 +70,67 @@ return new class extends Migration
 
             // 4. Usuarios de Acceso Libre
             $admin = User::updateOrCreate(
-                ['email' => 'dental@poolhub.com'],
-                [
-                    'name' => 'Dr. Fernando Varela (Director Dental)',
-                    'password' => Hash::make('demo1234'),
-                    'role' => 'empresa',
-                    'sub_role' => 'cajero',
-                    'empresa_id' => $empresa->id,
-                    'activo' => 1,
-                    'must_change_password' => 0,
-                    'consultorio' => 'Consultorio Dental Central',
-                    'email_verified_at' => now(),
-                ]
+                 ['email' => 'dental@poolhub.com'],
+                 [
+                     'name' => 'Dr. Fernando Varela (Director Dental)',
+                     'password' => Hash::make('demo1234'),
+                     'role' => 'empresa',
+                     'sub_role' => 'cajero',
+                     'empresa_id' => $empresa->id,
+                     'activo' => 1,
+                     'status' => 'activo',
+                     'must_change_password' => 0,
+                     'consultorio' => 'Consultorio Dental Central',
+                     'email_verified_at' => now(),
+                 ]
             );
 
             $draFlorencia = User::updateOrCreate(
-                ['email' => 'florencia.morales@poolhub.com'],
-                [
-                    'name' => 'Dra. Florencia Morales (Cirugía & Implantes)',
-                    'password' => Hash::make('demo1234'),
-                    'role' => 'usuario',
-                    'sub_role' => 'empleado',
-                    'empresa_id' => $empresa->id,
-                    'activo' => 1,
-                    'must_change_password' => 0,
-                    'consultorio' => 'Sillón Odontológico 1 (Box Quirúrgico)',
-                    'email_verified_at' => now(),
-                ]
+                 ['email' => 'florencia.morales@poolhub.com'],
+                 [
+                     'name' => 'Dra. Florencia Morales (Cirugía & Implantes)',
+                     'password' => Hash::make('demo1234'),
+                     'role' => 'usuario',
+                     'sub_role' => 'empleado',
+                     'empresa_id' => $empresa->id,
+                     'activo' => 1,
+                     'status' => 'activo',
+                     'must_change_password' => 0,
+                     'consultorio' => 'Sillón Odontológico 1 (Box Quirúrgico)',
+                     'email_verified_at' => now(),
+                 ]
             );
 
             $drLucas = User::updateOrCreate(
-                ['email' => 'lucas.benitez@poolhub.com'],
-                [
-                    'name' => 'Dr. Lucas Benítez (Endodoncia & Estética)',
-                    'password' => Hash::make('demo1234'),
-                    'role' => 'usuario',
-                    'sub_role' => 'empleado',
-                    'empresa_id' => $empresa->id,
-                    'activo' => 1,
-                    'must_change_password' => 0,
-                    'consultorio' => 'Sillón Odontológico 2 (Box Estético)',
-                    'email_verified_at' => now(),
-                ]
+                 ['email' => 'lucas.benitez@poolhub.com'],
+                 [
+                     'name' => 'Dr. Lucas Benítez (Endodoncia & Estética)',
+                     'password' => Hash::make('demo1234'),
+                     'role' => 'usuario',
+                     'sub_role' => 'empleado',
+                     'empresa_id' => $empresa->id,
+                     'activo' => 1,
+                     'status' => 'activo',
+                     'must_change_password' => 0,
+                     'consultorio' => 'Sillón Odontológico 2 (Box Estético)',
+                     'email_verified_at' => now(),
+                 ]
             );
 
             $recepcionista = User::updateOrCreate(
-                ['email' => 'recepcion.dental@poolhub.com'],
-                [
-                    'name' => 'Carla Rossi (Recepción & Admisión)',
-                    'password' => Hash::make('demo1234'),
-                    'role' => 'usuario',
-                    'sub_role' => 'empleado',
-                    'empresa_id' => $empresa->id,
-                    'activo' => 1,
-                    'must_change_password' => 0,
-                    'consultorio' => 'Recepción Principal',
-                    'email_verified_at' => now(),
-                ]
+                 ['email' => 'recepcion.dental@poolhub.com'],
+                 [
+                     'name' => 'Carla Rossi (Recepción & Admisión)',
+                     'password' => Hash::make('demo1234'),
+                     'role' => 'usuario',
+                     'sub_role' => 'empleado',
+                     'empresa_id' => $empresa->id,
+                     'activo' => 1,
+                     'status' => 'activo',
+                     'must_change_password' => 0,
+                     'consultorio' => 'Recepción Principal',
+                     'email_verified_at' => now(),
+                 ]
             );
 
             // 5. Profesionales Config
