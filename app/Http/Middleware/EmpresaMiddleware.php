@@ -22,7 +22,17 @@ class EmpresaMiddleware
         |--------------------------------------------------------------------------
         */
         if ($user->role === 'owner') {
-             // Si el owner está revisando, lo dejamos pasar.
+             // Si el owner no tiene empresa asignada, vincular con la clínica de prueba
+             // para que pueda navegar todos los sectores (turnos, historias, etc.) fluidamente.
+             if (!$user->empresa_id) {
+                 $empresaDefault = \App\Models\Empresa::where('slug', 'clinica-dental-prueba')->first()
+                                ?? \App\Models\Empresa::where('tipo_clinica', 'clinica_odontologica')->first()
+                                ?? \App\Models\Empresa::first();
+                 if ($empresaDefault) {
+                     $user->empresa_id = $empresaDefault->id;
+                     $user->setRelation('empresa', $empresaDefault);
+                 }
+             }
              return $next($request);
         }
 
