@@ -186,42 +186,21 @@ Route::middleware(['auth', 'can:isRevendedor'])
     });
 
 
-/* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÓN (LEAD MAGNET Y ACCESO DIRECTO) |-------------------------------------------------------------------------- */
-Route::get('/demo-login/{tipo?}', function($tipo = 'dental') {
-    if ($tipo === 'owner') {
-        $owner = \App\Models\User::where('role', 'owner')->first() 
-              ?? \App\Models\User::where('email', 'admin@poolhub.com')->first();
-        if ($owner) {
-            \Auth::login($owner);
-            request()->session()->regenerate();
-            return redirect()->route('owner.dashboard')->with('success', 'Sesión iniciada como Administrador Global (Owner).');
-        }
-    }
-
-    if ($tipo === 'medica') {
-        $medUser = \App\Models\User::where('email', 'demo@poolhub.com')->first();
-        if ($medUser) {
-            \Auth::login($medUser);
-            request()->session()->regenerate();
-            return redirect()->route('empresa.dashboard')->with('success', 'Sesión iniciada en Sanatorio del Sol (Demo Médica).');
-        }
-    }
-
-    // Por defecto: Clínica Dental
-    $dentalUser = \App\Models\User::where('email', 'dental@poolhub.com')->first()
-               ?? \App\Models\User::where('email', 'admin@dentalpremium.com')->first();
+/* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÓN (ACCESO DIRECTO A CLÍNICA) |-------------------------------------------------------------------------- */
+Route::get('/demo-login', function() {
+    $dentalUser = \App\Models\User::where('email', 'dental@poolhub.com')->first();
 
     if ($dentalUser) {
         \Auth::login($dentalUser);
         request()->session()->regenerate();
-        return redirect()->route('empresa.dashboard')->with('success', 'Sesión iniciada en Clínica Dental.');
+        return redirect()->route('empresa.dashboard')->with('success', 'Sesión iniciada en la Demostración de Clínica.');
     }
 
     return redirect()->route('login');
 })->name('demo.direct-login');
 
 Route::get('/demo-experience', function() {
-    return redirect()->route('demo.direct-login', 'dental');
+    return redirect()->route('demo.direct-login');
 })->name('demo.mode');
 
 
