@@ -282,11 +282,40 @@ body {
             <span class="nav-icon-label">Inicio</span>
         </a>
 
-        {{-- CATÁLOGO PÚBLICO --}}
-        <a href="{{ $empresa ? route('catalog.index', $empresa->slug ?? $empresa->id) : '#' }}" target="_blank" class="nav-link-item" title="Ver mi tienda online">
-            <i class="bi bi-shop-window" style="color: #ffc107;"></i>
-            <span class="nav-icon-label text-center lh-sm mt-1">Mi Catálogo<br>(Store)</span>
-        </a>
+        {{-- PORTAL PÚBLICO: AGENDAR CITA / CATÁLOGO --}}
+        @php
+            $esClinica = $config?->isOdontologica() || ($config?->mod_turnos ?? false);
+        @endphp
+        <div class="nav-link-item" onclick="window.open('{{ $empresa ? ($esClinica ? route('catalog.booking', $empresa->slug ?? $empresa->id) : route('catalog.index', $empresa->slug ?? $empresa->id)) : '#' }}', '_blank')" style="cursor: pointer;" title="{{ $esClinica ? 'Portal de Citas y Turnos Online' : 'Ver mi tienda online' }}">
+            <i class="bi {{ $esClinica ? 'bi-calendar2-check-fill' : 'bi-shop-window' }}" style="color: #ffc107;"></i>
+            <span class="nav-icon-label text-center lh-sm mt-1">
+                @if($esClinica)
+                    Agendar Cita<br><small style="font-size:0.6rem; opacity:0.8;">(Web Pacientes)</small>
+                @else
+                    Mi Catálogo<br>(Store)
+                @endif
+            </span>
+            <div class="floating-balloon" onclick="event.stopPropagation()" style="width: 290px;">
+                <h6 style="color: #ffc107;">🌐 {{ $esClinica ? 'PORTAL WEB DEL PACIENTE' : 'CATÁLOGO ONLINE PÚBLICO' }}</h6>
+                <div class="submenu-list">
+                    @if($esClinica)
+                        <a href="{{ $empresa ? route('catalog.booking', $empresa->slug ?? $empresa->id) : '#' }}" target="_blank" class="submenu-link fw-bold text-white">
+                            📅 Agendar Cita Online (24/7)
+                        </a>
+                        <a href="{{ $empresa ? route('catalog.index', $empresa->slug ?? $empresa->id) : '#' }}" target="_blank" class="submenu-link">
+                            💼 Aranceles & Tratamientos
+                        </a>
+                        <a href="{{ $empresa ? route('portal.turnero.index', $empresa->slug ?? $empresa->id) : '#' }}" target="_blank" class="submenu-link text-warning fw-bold">
+                            📺 Monitor de Sala (Smart TV)
+                        </a>
+                    @else
+                        <a href="{{ $empresa ? route('catalog.index', $empresa->slug ?? $empresa->id) : '#' }}" target="_blank" class="submenu-link fw-bold text-white">
+                            🛍️ Tienda Pública Online
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
 
         {{-- ADMINISTRACIÓN --}}
         <div class="nav-link-item">

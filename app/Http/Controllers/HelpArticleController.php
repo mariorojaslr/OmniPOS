@@ -18,6 +18,13 @@ class HelpArticleController extends Controller
             ->where('is_active', true)
             ->first();
 
+        if (!$article && str_contains($routeName, '__')) {
+            $baseRoute = explode('__', $routeName)[0];
+            $article = HelpArticle::where('route_name', $baseRoute)
+                ->where('is_active', true)
+                ->first();
+        }
+
         return response()->json([
             'success' => true,
             'data' => $article
