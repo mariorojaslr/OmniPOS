@@ -200,11 +200,40 @@
 
         <h1>@yield('head')</h1>
         
-        <p>@yield('message')</p>
+        <div class="mb-3">
+            @yield('message')
+        </div>
 
-        <a href="{{ session('impersonator_id') ? route('owner.return-to-owner') : url('/') }}" class="btn-safety">
-            <i class="bi bi-shield-check"></i> Volver a Zona Segura
-        </a>
+        @if(auth()->check())
+            <div class="p-3 rounded-3 mb-4 text-start small font-monospace" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1;">
+                <div class="text-warning fw-bold mb-1"><i class="bi bi-info-circle me-1"></i> Sesión Actual Activa:</div>
+                <div>• Usuario: <strong>{{ auth()->user()->email }}</strong></div>
+                <div>• Rol: <strong>{{ auth()->user()->role ?? 'Sin rol' }}</strong></div>
+                <div>• Empresa ID: <strong>{{ auth()->user()->empresa_id ?? 'Sin Empresa (Owner/Admin)' }}</strong></div>
+                <div>• Estado Activo: <strong>{{ auth()->user()->activo ? 'Sí (1)' : 'No (0)' }}</strong></div>
+                @if(auth()->user()->role === 'owner')
+                    <div class="mt-2 text-info">💡 Estás conectado como OWNER. Tu panel maestro es <a href="{{ route('owner.dashboard') }}" class="text-white fw-bold text-decoration-underline">/owner/dashboard</a>.</div>
+                @endif
+            </div>
+        @else
+            <div class="p-3 rounded-3 mb-4 text-start small text-muted" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);">
+                No hay ninguna sesión activa en este navegador. <a href="{{ route('login') }}" class="text-primary fw-bold text-decoration-underline">Ir al Inicio de Sesión</a>
+            </div>
+        @endif
+
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+            @if(auth()->check() && auth()->user()->role === 'owner')
+                <a href="{{ route('owner.dashboard') }}" class="btn-safety" style="background: #6366f1; color: white;">
+                    <i class="bi bi-speedometer2"></i> Ir al Panel de Owner
+                </a>
+            @endif
+            <a href="{{ session('impersonator_id') ? route('owner.return-to-owner') : (auth()->check() ? (auth()->user()->role === 'owner' ? route('owner.dashboard') : route('dashboard')) : url('/login')) }}" class="btn-safety">
+                <i class="bi bi-shield-check"></i> Volver a Zona Segura
+            </a>
+            <a href="{{ route('logout.get') }}" class="btn-safety" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444;">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
 
         <div class="status-badge">
             <div class="pulse"></div> @yield('status', 'Monitoreo de Seguridad Activo')
