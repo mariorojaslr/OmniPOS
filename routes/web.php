@@ -186,24 +186,44 @@ Route::middleware(['auth', 'can:isRevendedor'])
     });
 
 
-/* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÓN (LEAD MAGNET) |-------------------------------------------------------------------------- */
+/* |-------------------------------------------------------------------------- | MODO DEMOSTRACIÓN (LEAD MAGNET Y ACCESO DIRECTO) |-------------------------------------------------------------------------- */
+Route::get('/demo-login/{tipo?}', function($tipo = 'dental') {
+    if ($tipo === 'owner') {
+        $owner = \App\Models\User::where('role', 'owner')->first() 
+              ?? \App\Models\User::where('email', 'admin@poolhub.com')->first();
+        if ($owner) {
+            \Auth::login($owner);
+            request()->session()->regenerate();
+            return redirect()->route('owner.dashboard')->with('success', 'Sesión iniciada como Administrador Global (Owner).');
+        }
+    }
+
+    if ($tipo === 'medica') {
+        $medUser = \App\Models\User::where('email', 'demo@poolhub.com')->first();
+        if ($medUser) {
+            \Auth::login($medUser);
+            request()->session()->regenerate();
+            return redirect()->route('empresa.dashboard')->with('success', 'Sesión iniciada en Sanatorio del Sol (Demo Médica).');
+        }
+    }
+
+    // Por defecto: Clínica Dental
+    $dentalUser = \App\Models\User::where('email', 'dental@poolhub.com')
+               ?? \App\Models\User::where('email', 'admin@dentalpremium.com')->first();
+    if (!$dentalUser) {
+        $dentalUser = \App\Models\User::where('email', 'admin@dentalpremium.com')->first();
+    }
+    if ($dentalUser) {
+        \Auth::login($dentalUser);
+        request()->session()->regenerate();
+        return redirect()->route('empresa.dashboard')->with('success', 'Sesión iniciada en Clínica Dental.');
+    }
+
+    return redirect()->route('login');
+})->name('demo.direct-login');
+
 Route::get('/demo-experience', function() {
-    $demoEmpresa = \App\Models\Empresa::find(2);
-    if (!$demoEmpresa) {
-        $demoEmpresa = \App\Models\Empresa::updateOrCreate(
-            ['id' => 2],
-            ['nombre_comercial' => 'Sanatorio del Sol (Demo)', 'cuit' => '30-22222222-9', 'activo' => true, 'slug' => 'clinica-demo']
-        );
-    }
-    $demoUser = \App\Models\User::where('email', 'demo@poolhub.com')->first();
-    if (!$demoUser) {
-        $demoUser = \App\Models\User::updateOrCreate(
-            ['email' => 'demo@poolhub.com'],
-            ['name' => 'Dr. Leandro Gómez (Admin Demo)', 'password' => \Illuminate\Support\Facades\Hash::make('admin123'), 'role' => 'empresa', 'empresa_id' => $demoEmpresa->id, 'activo' => true, 'status' => 'activo']
-        );
-    }
-    \Auth::login($demoUser);
-    return redirect()->route('empresa.dashboard')->with('success', 'Bienvenido a la Demo de Recepción Médica. Explora todas las funciones.');
+    return redirect()->route('demo.direct-login', 'dental');
 })->name('demo.mode');
 
 
