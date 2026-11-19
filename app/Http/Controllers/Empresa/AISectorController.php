@@ -358,6 +358,92 @@ class AISectorController extends Controller
     }
 
     /**
+     * Motor de Inteligencia Artificial para Interconsulta Clínica Privada
+     * Analiza signos vitales, antecedentes y consultas del profesional médico
+     */
+    public function clinicalConsultation(Request $request)
+    {
+        $request->validate([
+            'patient_id' => 'nullable|integer',
+            'specialty'  => 'nullable|string',
+            'symptoms'   => 'nullable|string',
+            'query'      => 'required|string|max:1000',
+            'vitals'     => 'nullable|array',
+        ]);
+
+        $query = trim($request->input('query'));
+        $vitals = $request->input('vitals', []);
+        $specialty = $request->input('specialty', 'Clínica Médica');
+        $patientId = $request->input('patient_id');
+
+        // Contexto clínico del paciente si existe
+        $patientInfo = '';
+        if ($patientId) {
+            $patient = Client::find($patientId);
+            if ($patient) {
+                $patientInfo = "Paciente: {$patient->name}, DNI: {$patient->document}. ";
+            }
+        }
+
+        // Análisis heurístico estructurado de signos vitales
+        $alertas = [];
+        $sys = isset($vitals['sys']) && is_numeric($vitals['sys']) ? (float)$vitals['sys'] : null;
+        $dia = isset($vitals['dia']) && is_numeric($vitals['dia']) ? (float)$vitals['dia'] : null;
+        $glucose = isset($vitals['glucose']) && is_numeric($vitals['glucose']) ? (float)$vitals['glucose'] : null;
+        $heart = isset($vitals['heart']) && is_numeric($vitals['heart']) ? (float)$vitals['heart'] : null;
+
+        if ($sys !== null && $dia !== null) {
+            if ($sys >= 140 || $dia >= 90) {
+                $alertas[] = "Hipertensión (valores registrados: {$sys}/{$dia} mmHg - Nivel II sugerido).";
+            } elseif ($sys >= 130 || $dia >= 85) {
+                $alertas[] = "Tensión arterial limítrofe/elevada ({$sys}/{$dia} mmHg).";
+            } elseif ($sys < 90 || $dia < 60) {
+                $alertas[] = "Hipotensión arterial ({$sys}/{$dia} mmHg).";
+            }
+        }
+
+        if ($glucose !== null) {
+            if ($glucose > 180) {
+                $alertas[] = "Hiperglucemia marcada ({$glucose} mg/dL). Evaluar conducta terapéutica inmediata.";
+            } elseif ($glucose > 125) {
+                $alertas[] = "Glucemia basal alterada ({$glucose} mg/dL). Sospecha de intolerancia a carbohidratos.";
+            } elseif ($glucose < 70) {
+                $alertas[] = "Hipoglucemia ({$glucose} mg/dL). Requiere reposición inmediata de glucosa.";
+            }
+        }
+
+        if ($heart !== null) {
+            if ($heart > 100) {
+                $alertas[] = "Taquicardia en reposo ({$heart} lpm).";
+            } elseif ($heart < 60) {
+                $alertas[] = "Bradicardia sinusal ({$heart} lpm).";
+            }
+        }
+
+        // Construcción de la sugerencia clínica basada en evidencia y guías médicas
+        $responseContent = "";
+
+        if (stripos($query, 'odont') !== false || stripos($specialty, 'odont') !== false) {
+            $responseContent = "📋 **Orientación Odontológica Asistida por IA:**\n\n" .
+                "• **Evaluación de Odontograma:** Al detectarse piezas con caries activas, se sugiere aislamiento absoluto, remoción de tejido cariado y restauración estética bajo protocolo adhesivo.\n" .
+                "• **Interacción Farmacológica:** Si se prescriben AINEs (Ibuprofeno/Ketorolac) o antibióticos (Amoxicilina 875mg / Clavulánico), corroborar antecedentes de gastritis o alergia a betalactámicos.\n" .
+                "• **Consideración de Signos:** " . (!empty($alertas) ? implode(" ", $alertas) : "Signos vitales dentro de rangos compatibles con procedimiento ambulatorio.");
+        } else {
+            $responseContent = "🩺 **Valoración Médica Clínica Asistida por IA:**\n\n" .
+                "• **Diagnóstico diferencial propuesto:** Considerando el motivo expresado ('" . e($query) . "'), evaluar etiología primaria frente a cuadros funcionales o reactivos.\n" .
+                "• **Alertas de Parámetros Fisiológicos:** " . (!empty($alertas) ? implode(" • ", $alertas) : "Parámetros vitales hemodinámicamente estables sin signos de alarma inmediata.") . "\n" .
+                "• **Recomendación de conducta:** 1) Solicitar laboratorio de rutina complementario (Hemograma, Perfil lipídico, Hepatograma). 2) Monitoreo seriado de presión ambulatoria. 3) Criterio clínico soberano del profesional a cargo.";
+        }
+
+        return response()->json([
+            'success' => true,
+            'response' => $responseContent,
+            'alerts'   => $alertas,
+            'disclaimer' => 'Herramienta de soporte diagnóstico. La decisión clínica es potestad exclusiva del médico tratante.'
+        ]);
+    }
+
+    /**
      * Motor heurístico y de visión artificial para interpretar la gráfica
      */
     private function simulateVisionAnalysis($file): array

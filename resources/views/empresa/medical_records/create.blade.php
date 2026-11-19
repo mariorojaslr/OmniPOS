@@ -221,28 +221,66 @@
                                         </div>
                                     @endif
 
-                                    <!-- PESTAÑA: SIGNOS VITALES -->
+                                    <!-- PESTAÑA: SIGNOS VITALES CON ALERTAS CROMÁTICAS INTELIGENTES -->
                                     <div class="tab-pane fade {{ !$esOdonto ? 'show active' : '' }}" id="vitals-pane" role="tabpanel">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="small text-muted"><i class="bi bi-shield-check text-success me-1"></i>Los valores se analizan en tiempo real indicando normalidad o alertas críticas.</span>
+                                            <div id="vitals_general_badge" class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 fw-bold rounded-pill">Parámetros Normales</div>
+                                        </div>
                                         <div class="row g-3">
                                             <div class="col-md-6 col-sm-12">
-                                                <label class="form-label text-muted small fw-bold">Presión Arterial Sistólica (mmHg)</label>
-                                                <input type="number" id="vital_sys" class="form-control form-control-premium" placeholder="Ej: 120" min="0">
+                                                <div class="d-flex justify-content-between">
+                                                    <label class="form-label text-muted small fw-bold">Presión Arterial Sistólica (mmHg)</label>
+                                                    <span id="badge_sys" class="badge bg-secondary-subtle text-secondary small">--</span>
+                                                </div>
+                                                <input type="number" id="vital_sys" class="form-control form-control-premium" placeholder="Ej: 120" min="0" oninput="evaluarSignosVitales()">
                                             </div>
                                             <div class="col-md-6 col-sm-12">
-                                                <label class="form-label text-muted small fw-bold">Presión Arterial Diastólica (mmHg)</label>
-                                                <input type="number" id="vital_dia" class="form-control form-control-premium" placeholder="Ej: 80" min="0">
+                                                <div class="d-flex justify-content-between">
+                                                    <label class="form-label text-muted small fw-bold">Presión Arterial Diastólica (mmHg)</label>
+                                                    <span id="badge_dia" class="badge bg-secondary-subtle text-secondary small">--</span>
+                                                </div>
+                                                <input type="number" id="vital_dia" class="form-control form-control-premium" placeholder="Ej: 80" min="0" oninput="evaluarSignosVitales()">
                                             </div>
                                             <div class="col-md-4 col-sm-12">
-                                                <label class="form-label text-muted small fw-bold">Glucemia (mg/dL)</label>
-                                                <input type="number" id="vital_glucose" class="form-control form-control-premium" placeholder="Ej: 95" min="0">
+                                                <div class="d-flex justify-content-between">
+                                                    <label class="form-label text-muted small fw-bold">Glucemia (mg/dL)</label>
+                                                    <span id="badge_glucose" class="badge bg-secondary-subtle text-secondary small">--</span>
+                                                </div>
+                                                <input type="number" id="vital_glucose" class="form-control form-control-premium" placeholder="Ej: 95" min="0" oninput="evaluarSignosVitales()">
                                             </div>
                                             <div class="col-md-4 col-sm-12">
-                                                <label class="form-label text-muted small fw-bold">Frecuencia Cardíaca (lpm)</label>
-                                                <input type="number" id="vital_heart" class="form-control form-control-premium" placeholder="Ej: 72" min="0">
+                                                <div class="d-flex justify-content-between">
+                                                    <label class="form-label text-muted small fw-bold">Frecuencia Cardíaca (lpm)</label>
+                                                    <span id="badge_heart" class="badge bg-secondary-subtle text-secondary small">--</span>
+                                                </div>
+                                                <input type="number" id="vital_heart" class="form-control form-control-premium" placeholder="Ej: 72" min="0" oninput="evaluarSignosVitales()">
                                             </div>
                                             <div class="col-md-4 col-sm-12">
-                                                <label class="form-label text-muted small fw-bold">Peso Corporal (kg)</label>
-                                                <input type="number" step="0.1" id="vital_weight" class="form-control form-control-premium" placeholder="Ej: 75.5" min="0">
+                                                <div class="d-flex justify-content-between">
+                                                    <label class="form-label text-muted small fw-bold">Peso Corporal (kg)</label>
+                                                    <span id="badge_weight" class="badge bg-secondary-subtle text-secondary small">--</span>
+                                                </div>
+                                                <input type="number" step="0.1" id="vital_weight" class="form-control form-control-premium" placeholder="Ej: 75.5" min="0" oninput="evaluarSignosVitales()">
+                                            </div>
+                                        </div>
+
+                                        <!-- Panel Interactivo Privado con la IA para el Médico -->
+                                        <div class="mt-4 p-3 rounded-4 border border-info border-opacity-25" style="background: rgba(14, 165, 233, 0.04);">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="fw-bold mb-0 text-info d-flex align-items-center gap-2">
+                                                    <i class="bi bi-robot fs-5"></i> Interconsulta Privada con Asistente IA
+                                                </h6>
+                                                <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 x-small">100% Confidencial</span>
+                                            </div>
+                                            <p class="x-small text-muted mb-2">Consulte sugerencias diferenciales, interacciones farmacológicas o análisis de antecedentes en base a los datos registrados.</p>
+                                            <div class="input-group mb-2">
+                                                <input type="text" id="ai_clinical_query" class="form-control form-control-premium" placeholder="Ej: ¿Qué conducta seguir con glucemia 190 y dolor lumbar?">
+                                                <button class="btn btn-info text-white fw-bold px-3 d-flex align-items-center gap-1" type="button" onclick="consultarIAClinica()">
+                                                    <i class="bi bi-stars"></i> Consultar
+                                                </button>
+                                            </div>
+                                            <div id="ai_clinical_response_box" class="d-none mt-2 p-3 rounded-3 bg-dark bg-opacity-75 border border-info border-opacity-25 text-white small" style="white-space: pre-line; line-height: 1.6;">
                                             </div>
                                         </div>
                                     </div>
@@ -546,5 +584,142 @@
         // Inyectar en el input oculto en formato string JSON
         document.getElementById('specialized_data').value = JSON.stringify(specializedData);
     });
+
+    /**
+     * Evaluación cromática en tiempo real de Signos Vitales
+     */
+    function evaluarSignosVitales() {
+        const sys = parseFloat(document.getElementById('vital_sys')?.value);
+        const dia = parseFloat(document.getElementById('vital_dia')?.value);
+        const glucose = parseFloat(document.getElementById('vital_glucose')?.value);
+        const heart = parseFloat(document.getElementById('vital_heart')?.value);
+
+        let hayAlertaCritica = false;
+        let hayPrecaucion = false;
+
+        // Sistólica
+        const badgeSys = document.getElementById('badge_sys');
+        if (!isNaN(sys)) {
+            if (sys >= 140) {
+                badgeSys.className = 'badge bg-danger text-white'; badgeSys.innerText = 'Crisis / HTA II'; hayAlertaCritica = true;
+            } else if (sys >= 130) {
+                badgeSys.className = 'badge bg-warning text-dark'; badgeSys.innerText = 'Elevada'; hayPrecaucion = true;
+            } else if (sys < 90) {
+                badgeSys.className = 'badge bg-danger text-white'; badgeSys.innerText = 'Hipotensión'; hayAlertaCritica = true;
+            } else {
+                badgeSys.className = 'badge bg-success text-white'; badgeSys.innerText = 'Normal (Óptima)';
+            }
+        }
+
+        // Diastólica
+        const badgeDia = document.getElementById('badge_dia');
+        if (!isNaN(dia)) {
+            if (dia >= 90) {
+                badgeDia.className = 'badge bg-danger text-white'; badgeDia.innerText = 'Elevada / HTA'; hayAlertaCritica = true;
+            } else if (dia >= 85) {
+                badgeDia.className = 'badge bg-warning text-dark'; badgeDia.innerText = 'Limítrofe'; hayPrecaucion = true;
+            } else if (dia < 60) {
+                badgeDia.className = 'badge bg-danger text-white'; badgeDia.innerText = 'Baja'; hayAlertaCritica = true;
+            } else {
+                badgeDia.className = 'badge bg-success text-white'; badgeDia.innerText = 'Normal';
+            }
+        }
+
+        // Glucemia
+        const badgeGluc = document.getElementById('badge_glucose');
+        if (!isNaN(glucose)) {
+            if (glucose > 180) {
+                badgeGluc.className = 'badge bg-danger text-white'; badgeGluc.innerText = 'Hiperglucemia Severa'; hayAlertaCritica = true;
+            } else if (glucose > 125) {
+                badgeGluc.className = 'badge bg-warning text-dark'; badgeGluc.innerText = 'Glucemia Elevada'; hayPrecaucion = true;
+            } else if (glucose < 70) {
+                badgeGluc.className = 'badge bg-danger text-white'; badgeGluc.innerText = 'Hipoglucemia'; hayAlertaCritica = true;
+            } else {
+                badgeGluc.className = 'badge bg-success text-white'; badgeGluc.innerText = 'Normal (< 100 mg/dL)';
+            }
+        }
+
+        // Frecuencia Cardíaca
+        const badgeHeart = document.getElementById('badge_heart');
+        if (!isNaN(heart)) {
+            if (heart > 100) {
+                badgeHeart.className = 'badge bg-danger text-white'; badgeHeart.innerText = 'Taquicardia'; hayAlertaCritica = true;
+            } else if (heart < 60) {
+                badgeHeart.className = 'badge bg-warning text-dark'; badgeHeart.innerText = 'Bradicardia'; hayPrecaucion = true;
+            } else {
+                badgeHeart.className = 'badge bg-success text-white'; badgeHeart.innerText = 'Normal (60-100 lpm)';
+            }
+        }
+
+        // Insignia General
+        const badgeGeneral = document.getElementById('vitals_general_badge');
+        if (badgeGeneral) {
+            if (hayAlertaCritica) {
+                badgeGeneral.className = 'badge bg-danger text-white px-3 py-1 fw-bold rounded-pill animate__animated animate__pulse animate__infinite';
+                badgeGeneral.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i> Alertas Críticas Detectadas';
+            } else if (hayPrecaucion) {
+                badgeGeneral.className = 'badge bg-warning text-dark px-3 py-1 fw-bold rounded-pill';
+                badgeGeneral.innerHTML = '<i class="bi bi-exclamation-circle-fill me-1"></i> Parámetros en Observación';
+            } else {
+                badgeGeneral.className = 'badge bg-success-subtle text-success border border-success-subtle px-3 py-1 fw-bold rounded-pill';
+                badgeGeneral.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Parámetros Normales';
+            }
+        }
+    }
+
+    /**
+     * Consulta confidencial de interconsulta médica asistida por IA
+     */
+    function consultarIAClinica() {
+        const query = document.getElementById('ai_clinical_query')?.value.trim();
+        const responseBox = document.getElementById('ai_clinical_response_box');
+        const patientSelect = document.querySelector('select[name="client_id"]');
+        const specialtyInput = document.querySelector('input[name="specialty"]');
+
+        if (!query) {
+            alert('Por favor redacte la consulta clínica para la IA.');
+            return;
+        }
+
+        responseBox.classList.remove('d-none');
+        responseBox.innerHTML = '<div class="d-flex align-items-center gap-2 text-info"><div class="spinner-border spinner-border-sm text-info"></div><span>Analizando historia clínica y parámetros con Inteligencia Artificial...</span></div>';
+
+        const vitalsData = {
+            sys: document.getElementById('vital_sys')?.value,
+            dia: document.getElementById('vital_dia')?.value,
+            glucose: document.getElementById('vital_glucose')?.value,
+            heart: document.getElementById('vital_heart')?.value,
+            weight: document.getElementById('vital_weight')?.value
+        };
+
+        fetch('{{ route("empresa.ai.clinical-consultation") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                query: query,
+                patient_id: patientSelect ? patientSelect.value : null,
+                specialty: specialtyInput ? specialtyInput.value : null,
+                vitals: vitalsData
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                let alertHtml = '';
+                if (data.alerts && data.alerts.length > 0) {
+                    alertHtml = '<div class="alert alert-danger py-1 px-2 mb-2 x-small fw-bold">⚠️ ' + data.alerts.join(' | ') + '</div>';
+                }
+                responseBox.innerHTML = alertHtml + '<div>' + data.response.replace(/\n/g, '<br>') + '</div><div class="x-small text-muted mt-2 border-top border-secondary pt-1 opacity-75">' + data.disclaimer + '</div>';
+            } else {
+                responseBox.innerHTML = '<div class="text-danger">No se pudo procesar la consulta: ' + (data.message || 'Error del servidor') + '</div>';
+            }
+        })
+        .catch(err => {
+            responseBox.innerHTML = '<div class="text-danger">Error de comunicación con el motor de IA.</div>';
+        });
+    }
 </script>
 @endpush

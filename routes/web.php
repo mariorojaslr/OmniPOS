@@ -298,6 +298,7 @@ Route::middleware(['auth', 'empresa', 'empresa.activa'])
         Route::get('sector-ia/escanear-odontograma', [App\Http\Controllers\Empresa\AISectorController::class, 'scanOdontogramView'])->name('ai.scan-odontogram');
         Route::post('sector-ia/procesar-odontograma', [App\Http\Controllers\Empresa\AISectorController::class, 'processOdontogramImage'])->name('ai.process-odontogram-image');
         Route::post('sector-ia/guardar-odontograma-escaneado', [App\Http\Controllers\Empresa\AISectorController::class, 'saveScannedToPatient'])->name('ai.save-scanned-odontogram');
+        Route::post('sector-ia/consulta-clinica', [App\Http\Controllers\Empresa\AISectorController::class, 'clinicalConsultation'])->name('ai.clinical-consultation');
 
         // OBRAS SOCIALES
         Route::get('obras_sociales/export', [App\Http\Controllers\Empresa\ObraSocialController::class, 'exportExcel'])->name('obras_sociales.export');

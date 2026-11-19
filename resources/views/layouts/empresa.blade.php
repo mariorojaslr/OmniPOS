@@ -390,6 +390,7 @@ body {
                 <div class="floating-balloon" onclick="event.stopPropagation()" style="width: 310px;">
                     <h6>🏥 ATENCIÓN PRIMARIA</h6>
                     <div class="submenu-list">
+                        <a href="{{ route('empresa.clientes.create') }}" class="submenu-link text-warning fw-bold"><i class="bi bi-person-plus-fill me-1"></i> Registrar Nuevo Paciente</a>
                         <a href="{{ route('empresa.turnos.index') }}" class="submenu-link">📅 Agenda de Turnos</a>
                         <a href="{{ route('empresa.recepcion.index') }}" class="submenu-link text-success fw-bold"><i class="bi bi-people-fill me-1"></i> Hub de Recepción & Cola</a>
                         @if($config?->mod_hce)

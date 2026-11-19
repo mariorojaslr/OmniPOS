@@ -45,14 +45,19 @@
 </style>
 
 <div class="container medical-container">
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
         <div>
             <h1 class="fw-800 text-dark mb-1">Historias Clínicas</h1>
             <p class="text-muted mb-0">Legajos, evoluciones y registros médicos estructurados de tus pacientes.</p>
         </div>
-        <a href="{{ route('empresa.medical_records.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-800 shadow-lg" style="background: linear-gradient(135deg, #0d6efd, #3b82f6);">
-            <i class="bi bi-plus-lg me-2"></i> NUEVA ATENCIÓN
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('empresa.clientes.create') }}" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-800 shadow-sm">
+                <i class="bi bi-person-plus-fill me-2"></i> REGISTRAR NUEVO PACIENTE
+            </a>
+            <a href="{{ route('empresa.medical_records.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-800 shadow-lg" style="background: linear-gradient(135deg, #0d6efd, #3b82f6);">
+                <i class="bi bi-plus-lg me-2"></i> NUEVA ATENCIÓN
+            </a>
+        </div>
     </div>
 
     <div class="glass-card overflow-hidden">

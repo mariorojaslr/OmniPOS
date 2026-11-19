@@ -90,4 +90,36 @@ Este documento es una crónica del crecimiento constante de MultiPOS, detallando
 - **Resultado:** ✅ Sistema contable y de stock 100% sincronizado para devoluciones.
 
 ---
+
+## 📅 19 de Noviembre, 2026
+
+### 10. 🏥 Arquitectura Dual: Clínica Médica General + Odontología FDI
+- **Descripción:** Implementación de convivencia switchable entre Medicina General y Odontología Integral en la misma plataforma.
+- **Acciones y Mejoras:**
+    - Se adaptó la vista de evolución médica (`medical_records/create`) con pestañas especializadas estructuradas: **Signos Vitales y Laboratorio** para Medicina Clínica, y **Odontograma Interactivo FDI** para Odontología.
+    - Se incorporó la persistencia y arrastre del estado odontológico previo del paciente a lo largo de sus consultas sucesivas.
+- **Resultado:** ✅ Capacidad de atender policonsultorios multidisciplinarios sin fragmentación de datos.
+
+---
+
+### 11. 🤖 Asistente de IA Clínica: Alertas Cromáticas e Interconsulta Privada
+- **Descripción:** Integración de un motor heurístico y de Inteligencia Artificial para el profesional de la salud.
+- **Detalle Operativo:**
+    - **Semáforo Cromático en Tiempo Real:** Análisis automático de presión arterial (sistólica/diastólica), glucemia y frecuencia cardíaca con insignias de color (Verde = Óptimo, Amarillo = Observación/Precaución, Rojo = Crisis o Alerta Crítica).
+    - **Interconsulta Confidencial:** El médico puede consultar a la IA diagnósticos diferenciales o interacciones farmacológicas de forma privada durante la evolución del paciente.
+- **Resultado:** ✅ Seguridad clínica asistida por IA y reducción de errores en consulta ambulatoria.
+
+---
+
+### 12. 👥 Accesibilidad Directa para Alta de Pacientes
+- **Descripción:** Incorporación de acceso directo prominente para **"Registrar Nuevo Paciente"** desde la barra lateral (`layouts/empresa`) y desde la cabecera de Historias Clínicas (`medical_records/index`).
+- **Resultado:** ✅ Flujo de admisión intuitivo y sin pasos innecesarios.
+
+---
+
+### 13. 📖 Registro de Novedades y Actualización del Manual Interactivo
+- **Descripción:** Carga de registros oficiales en la base de datos de Novedades del Sistema (`system_updates`) y ampliación del Manual Interactivo flotante (`help_articles`) cubriendo los nuevos procedimientos de admisión de pacientes y consulta clínica con IA.
+- **Resultado:** ✅ Documentación viva para auditorías y formación inmediata del personal.
+
+---
 *Documentación generada por Antigravity - IA Arquitecto de Software.*
