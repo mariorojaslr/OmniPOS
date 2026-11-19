@@ -67,7 +67,7 @@ class TurnoController extends Controller
         $end = $request->get('end');
 
         $turnos = $empresa->turnos()
-            ->with(['cliente.latestMedicalRecord', 'servicio', 'user'])
+            ->with(['cliente.latestMedicalRecord', 'servicio', 'user', 'createdBy'])
             ->whereBetween('fecha', [$start, $end])
             ->get();
 
@@ -95,6 +95,8 @@ class TurnoController extends Controller
                     'cliente' => $t->cliente ? $t->cliente->name : $t->cliente_nombre_manual,
                     'servicio' => $t->servicio ? $t->servicio->nombre : 'S/D',
                     'profesional' => $t->user ? $t->user->name : 'S/D',
+                    'responsable_label' => $t->responsable_creacion_label,
+                    'origen_creacion' => $t->origen_creacion,
                     'estado' => $t->estado,
                     'notas' => $t->notas,
                     'client_id' => $t->client_id,
@@ -194,9 +196,18 @@ class TurnoController extends Controller
             $hora_inicio = Carbon::parse($request->fecha . ' ' . $request->hora_inicio);
             $hora_fin = $hora_inicio->copy()->addMinutes($duracion)->format('H:i:s');
 
+            // Determinar si quien registra es médico o asistente/recepción
+            $currentUser = Auth::user();
+            $origenCreacion = 'asistente_recepcion';
+            if ($currentUser->hasRole('medico') || ($currentUser->profesionalConfig && $currentUser->id == $request->user_id)) {
+                $origenCreacion = 'medico_consulta';
+            }
+
             $turno = $empresa->turnos()->create([
                 'servicio_id' => $request->servicio_id,
                 'user_id' => $request->user_id,
+                'created_by_user_id' => $currentUser->id,
+                'origen_creacion' => $origenCreacion,
                 'client_id' => $request->client_id, // Nueva vinculación
                 'fecha' => $request->fecha,
                 'hora_inicio' => $request->hora_inicio,

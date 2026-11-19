@@ -195,6 +195,12 @@
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link fw-bold border py-2" id="labs-tab" data-bs-toggle="tab" data-bs-target="#labs-pane" type="button" role="tab"><i class="bi bi-clipboard2-pulse-fill me-2"></i>Laboratorio</button>
                                     </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link fw-bold border py-2" id="cardio-tab" data-bs-toggle="tab" data-bs-target="#cardio-pane" type="button" role="tab"><span class="fs-6 me-1">🫀</span>Cardiología</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link fw-bold border py-2" id="kine-tab" data-bs-toggle="tab" data-bs-target="#kine-pane" type="button" role="tab"><span class="fs-6 me-1">🏃</span>Kinesiología</button>
+                                    </li>
                                 </ul>
 
                                 <div class="tab-content p-3 p-md-4 rounded-4 border" id="specializedTabsContent">
@@ -287,23 +293,34 @@
 
                                     <!-- PESTAÑA: RECETA / MEDICAMENTOS -->
                                     <div class="tab-pane fade" id="meds-pane" role="tabpanel">
-                                        <p class="small text-muted mb-3"><i class="bi bi-info-circle me-1 text-primary"></i>Agrega las prescripciones correspondientes para esta consulta.</p>
+                                        <p class="small text-muted mb-3"><i class="bi bi-info-circle me-1 text-primary"></i>Agrega las prescripciones correspondientes para esta consulta, diferenciando entre <strong>tratamiento permanente/crónico</strong> o <strong>temporal con duración en días</strong>.</p>
                                         <div class="table-responsive">
                                             <table class="table align-middle" id="tableMeds">
                                                 <thead>
                                                     <tr class="small text-secondary fw-bold border-bottom">
-                                                        <th>Medicamento</th>
-                                                        <th>Dosis</th>
-                                                        <th>Frecuencia</th>
-                                                        <th>Vía de Administración</th>
-                                                        <th style="width: 50px;"></th>
+                                                        <th style="min-width: 170px;">Medicamento</th>
+                                                        <th style="width: 130px;">Tipo de Toma</th>
+                                                        <th style="width: 100px;">Duración (días)</th>
+                                                        <th style="width: 120px;">Dosis</th>
+                                                        <th style="width: 120px;">Frecuencia</th>
+                                                        <th style="width: 130px;">Vía</th>
+                                                        <th style="width: 40px;"></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="medsRows">
                                                     <tr class="med-row">
-                                                        <td><input type="text" class="form-control form-control-sm med-name" placeholder="Ej: Paracetamol 500mg"></td>
+                                                        <td><input type="text" class="form-control form-control-sm med-name" placeholder="Ej: Valsartán 160mg"></td>
+                                                        <td>
+                                                            <select class="form-select form-select-sm med-type" onchange="toggleMedDuration(this)">
+                                                                <option value="permanente">Permanente / Crónico</option>
+                                                                <option value="temporal">Tratamiento Temporal</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" class="form-control form-control-sm med-duration" placeholder="Días" min="1" disabled>
+                                                        </td>
                                                         <td><input type="text" class="form-control form-control-sm med-dose" placeholder="Ej: 1 comp"></td>
-                                                        <td><input type="text" class="form-control form-control-sm med-freq" placeholder="Ej: cada 8 hs"></td>
+                                                        <td><input type="text" class="form-control form-control-sm med-freq" placeholder="Ej: cada 24 hs"></td>
                                                         <td>
                                                             <select class="form-select form-select-sm med-route">
                                                                 <option value="Oral">Vía Oral</option>
@@ -320,7 +337,7 @@
                                             </table>
                                         </div>
                                         <button type="button" class="btn btn-sm btn-outline-primary fw-bold rounded-pill mt-2" onclick="addMedRow()">
-                                            <i class="bi bi-plus-lg me-1"></i> Agregar Fila
+                                            <i class="bi bi-plus-lg me-1"></i> Agregar Fármaco
                                         </button>
                                     </div>
 
@@ -346,6 +363,82 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- PESTAÑA: CARDIOLOGÍA ESPECIALIZADA -->
+                                    <div class="tab-pane fade" id="cardio-pane" role="tabpanel">
+                                        <p class="small text-muted mb-3"><i class="bi bi-info-circle me-1 text-danger"></i>Módulo cardiovascular: estratificación de riesgo, ECG, ecocardiograma y capacidad funcional.</p>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small fw-bold">Riesgo Cardiovascular Global (Framingham / SCORE)</label>
+                                                <select id="cardio_riesgo" class="form-select form-select-premium">
+                                                    <option value="">Seleccionar nivel...</option>
+                                                    <option value="Bajo (<5%)">Bajo (< 5%)</option>
+                                                    <option value="Moderado (5-10%)">Moderado (5-10%)</option>
+                                                    <option value="Alto (10-20%)">Alto (10-20%)</option>
+                                                    <option value="Muy Alto (>20% o evento previo)">Muy Alto (> 20% o evento previo)</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small fw-bold">Clase Funcional Insuficiencia Cardíaca (NYHA)</label>
+                                                <select id="cardio_nyha" class="form-select form-select-premium">
+                                                    <option value="">No aplica / Asintomático</option>
+                                                    <option value="Clase I: Actividad habitual sin disnea">Clase I: Actividad habitual sin disnea</option>
+                                                    <option value="Clase II: Limitación leve en actividad ordinaria">Clase II: Limitación leve en actividad ordinaria</option>
+                                                    <option value="Clase III: Limitación marcada con actividad menor">Clase III: Limitación marcada con actividad menor</option>
+                                                    <option value="Clase IV: Síntomas y disnea en reposo">Clase IV: Síntomas y disnea en reposo</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label text-muted small fw-bold">Ritmo Electrocardiográfico (ECG)</label>
+                                                <select id="cardio_ecg_ritmo" class="form-select form-select-premium">
+                                                    <option value="Sinusal regular">Sinusal regular</option>
+                                                    <option value="Fibrilación Auricular (FA)">Fibrilación Auricular (FA)</option>
+                                                    <option value="Flutter Auricular">Flutter Auricular</option>
+                                                    <option value="Ritmo de Marcapasos">Ritmo de Marcapasos</option>
+                                                    <option value="Taquicardia Supraventricular">Taquicardia Supraventricular</option>
+                                                    <option value="Extrasístoles frecuentes">Extrasístoles frecuentes</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label text-muted small fw-bold">Intervalo PR / QTc (ms)</label>
+                                                <input type="text" id="cardio_ecg_qtc" class="form-control form-control-premium" placeholder="Ej: PR 160ms / QTc 420ms">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label text-muted small fw-bold">FEVI - Fracción de Eyección (%)</label>
+                                                <input type="number" id="cardio_fevi" class="form-control form-control-premium" placeholder="Ej: 58 (Normal >50%)" min="10" max="85">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label text-muted small fw-bold">Hallazgos Ecocardiográficos / Holter / Ergometría</label>
+                                                <textarea id="cardio_hallazgos" class="form-control form-control-premium" rows="2" placeholder="Ej: Motilidad parietal conservada, sin valvulopatías severas ni signos de sobrecarga ventricular."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- PESTAÑA: KINESIOLOGÍA Y REHABILITACIÓN -->
+                                    <div class="tab-pane fade" id="kine-pane" role="tabpanel">
+                                        <p class="small text-muted mb-3"><i class="bi bi-info-circle me-1 text-success"></i>Módulo de Fisioterapia y Kinesiología: Escala de dolor EVA, movilidad articular y plan de rehabilitación.</p>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small fw-bold">Zona Anatómica / Lesión Evaluada</label>
+                                                <input type="text" id="kine_region" class="form-control form-control-premium" placeholder="Ej: Manguito rotador derecho / Región Lumbar">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small fw-bold">Escala Visual Analógica de Dolor (EVA 1 - 10)</label>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <input type="range" class="form-range" id="kine_eva" min="0" max="10" step="1" value="4" oninput="document.getElementById('eva_val_label').innerText = this.value + '/10'">
+                                                    <span id="eva_val_label" class="badge bg-danger px-3 py-2 fw-bold fs-6">4/10</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small fw-bold">Rango de Movilidad Articular (ROM) y Palpación</label>
+                                                <textarea id="kine_rom" class="form-control form-control-premium" rows="2" placeholder="Ej: Flexión limitada a 110°, dolor en rotación externa. Contractura moderada en paravertebrales."></textarea>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small fw-bold">Plan Kinésico / Agentes Físicos Aplicados</label>
+                                                <textarea id="kine_plan" class="form-control form-control-premium" rows="2" placeholder="Ej: Magnetoterapia 20 min, ultrasonido 1MHz, ejercicios de propiocepción y fortalecimiento excéntrico."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Entrada oculta que recibirá la serialización JSON del formulario antes de submit -->
@@ -363,6 +456,54 @@
                                 <span class="badge bg-white text-muted border x-small">PDF</span>
                                 <span class="badge bg-white text-muted border x-small">JPG</span>
                                 <span class="badge bg-white text-muted border x-small">PNG</span>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta para Programar Próxima Cita / Turno -->
+                        <div class="glass-card p-4 mb-4" style="background: {{ $modoOscuro ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)' }}; border-left: 4px solid var(--color-primario, #0d6efd);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="fw-bold mb-0" style="color: {{ $modoOscuro ? '#ffffff' : '#1e293b' }};">
+                                    <i class="bi bi-calendar-plus me-2 text-primary"></i>Próxima Visita / Turno
+                                </h6>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" id="proximo_turno_activo" name="proximo_turno_activo" value="1" onchange="toggleProximoTurno(this)">
+                                </div>
+                            </div>
+                            <p class="x-small text-muted mb-3">El médico puede programar directamente el turno de control. Quedará registrado con su autoría médica.</p>
+
+                            <div id="seccion_proximo_turno" class="d-none">
+                                <div class="row g-2 mb-2">
+                                    <div class="col-7">
+                                        <label class="x-small text-muted fw-bold">Fecha</label>
+                                        <input type="date" name="proximo_turno_fecha" class="form-control form-control-sm form-control-premium" min="{{ date('Y-m-d') }}">
+                                    </div>
+                                    <div class="col-5">
+                                        <label class="x-small text-muted fw-bold">Hora</label>
+                                        <input type="time" name="proximo_turno_hora" class="form-control form-control-sm form-control-premium" value="09:00">
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="x-small text-muted fw-bold">Profesional a Cargo</label>
+                                    <select name="proximo_turno_user_id" class="form-select form-select-sm form-select-premium">
+                                        @foreach($profesionales ?? [] as $prof)
+                                            <option value="{{ $prof->id }}" {{ $prof->id == auth()->id() ? 'selected' : '' }}>
+                                                {{ $prof->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="x-small text-muted fw-bold">Servicio / Motivo de Turno</label>
+                                    <select name="proximo_turno_servicio_id" class="form-select form-select-sm form-select-premium">
+                                        @foreach($servicios ?? [] as $serv)
+                                            <option value="{{ $serv->id }}">{{ $serv->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="x-small text-muted fw-bold">Indicaciones para el Turno</label>
+                                    <input type="text" name="proximo_turno_notas" class="form-control form-control-sm form-control-premium" placeholder="Ej: Control post-tratamiento 15 días">
+                                </div>
                             </div>
                         </div>
 
@@ -447,12 +588,43 @@
             cargarHistorialOdontograma(patientSelect.value);
         }
     }
+    function toggleProximoTurno(checkbox) {
+        const sec = document.getElementById('seccion_proximo_turno');
+        if (checkbox.checked) {
+            sec.classList.remove('d-none');
+        } else {
+            sec.classList.add('d-none');
+        }
+    }
+
+    function toggleMedDuration(select) {
+        const row = select.closest('tr');
+        const durationInput = row.querySelector('.med-duration');
+        if (select.value === 'temporal') {
+            durationInput.disabled = false;
+            if (!durationInput.value) durationInput.value = '15';
+            durationInput.focus();
+        } else {
+            durationInput.disabled = true;
+            durationInput.value = '';
+        }
+    }
+
     function addMedRow() {
         const tbody = document.getElementById('medsRows');
         const tr = document.createElement('tr');
         tr.className = 'med-row';
         tr.innerHTML = `
-            <td><input type="text" class="form-control form-control-sm med-name" placeholder="Ej: Paracetamol 500mg"></td>
+            <td><input type="text" class="form-control form-control-sm med-name" placeholder="Ej: Valsartán 160mg / Amoxicilina 875mg"></td>
+            <td>
+                <select class="form-select form-select-sm med-type" onchange="toggleMedDuration(this)">
+                    <option value="permanente">Permanente / Crónico</option>
+                    <option value="temporal">Tratamiento Temporal</option>
+                </select>
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm med-duration" placeholder="Días" min="1" disabled>
+            </td>
             <td><input type="text" class="form-control form-control-sm med-dose" placeholder="Ej: 1 comp"></td>
             <td><input type="text" class="form-control form-control-sm med-freq" placeholder="Ej: cada 8 hs"></td>
             <td>
@@ -535,8 +707,12 @@
         document.querySelectorAll('.med-row').forEach(row => {
             const name = row.querySelector('.med-name').value.trim();
             if (name) {
+                const type = row.querySelector('.med-type')?.value || 'permanente';
+                const duration = row.querySelector('.med-duration')?.value ? parseInt(row.querySelector('.med-duration').value) : null;
                 medications.push({
                     name: name,
+                    type: type,
+                    duration_days: duration,
                     dose: row.querySelector('.med-dose').value.trim(),
                     frequency: row.querySelector('.med-freq').value.trim(),
                     route: row.querySelector('.med-route').value
@@ -550,6 +726,24 @@
             red: document.getElementById('lab_red').value,
             white: document.getElementById('lab_white').value,
             chol: document.getElementById('lab_chol').value
+        };
+
+        // Cardiología Especializada
+        const cardio = {
+            riesgo_cardiovascular: document.getElementById('cardio_riesgo')?.value || '',
+            nyha: document.getElementById('cardio_nyha')?.value || '',
+            ecg_ritmo: document.getElementById('cardio_ecg_ritmo')?.value || '',
+            ecg_qtc: document.getElementById('cardio_ecg_qtc')?.value || '',
+            fevi: document.getElementById('cardio_fevi')?.value || '',
+            hallazgos: document.getElementById('cardio_hallazgos')?.value || ''
+        };
+
+        // Kinesiología Especializada
+        const kinesio = {
+            region: document.getElementById('kine_region')?.value || '',
+            eva: document.getElementById('kine_eva')?.value || '',
+            rom: document.getElementById('kine_rom')?.value || '',
+            plan: document.getElementById('kine_plan')?.value || ''
         };
 
         // Obtener Campos Dinámicos / Tags si el contenedor existe
@@ -577,6 +771,8 @@
             vitals: vitals,
             medications: medications,
             labs: labs,
+            cardio: cardio,
+            kinesio: kinesio,
             dynamic_fields: dynamicFields,
             odontograma: odontogramaData
         };

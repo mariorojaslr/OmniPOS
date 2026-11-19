@@ -7,6 +7,7 @@ use App\Models\MedicalRecord;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class MedicalRecordController extends Controller
 {
@@ -38,6 +39,10 @@ class MedicalRecordController extends Controller
         $patients = Client::where('empresa_id', $empresaId)->get();
         $selectedPatientId = $request->query('patient_id');
 
+        // Obtener profesionales y servicios médicos para permitir agendar el próximo turno directamente
+        $profesionales = \App\Models\User::where('empresa_id', $empresaId)->where('activo', true)->get();
+        $servicios = \App\Models\Servicio::where('empresa_id', $empresaId)->where('activo', true)->get();
+
         // Arrastrar el odontograma acumulado del paciente si fue seleccionado previamente
         $odontogramaAcumulado = [];
         if ($selectedPatientId) {
@@ -47,7 +52,7 @@ class MedicalRecordController extends Controller
             }
         }
 
-        return view('empresa.medical_records.create', compact('patients', 'selectedPatientId', 'odontogramaAcumulado'));
+        return view('empresa.medical_records.create', compact('patients', 'selectedPatientId', 'odontogramaAcumulado', 'profesionales', 'servicios'));
     }
 
     /**
@@ -122,6 +127,42 @@ class MedicalRecordController extends Controller
                     'file_type' => $file->getClientOriginalExtension(),
                     'file_size' => $file->getSize(),
                 ]);
+            }
+        }
+
+        // Programar Próximo Turno de forma directa desde la Consulta Médica si fue solicitado
+        if ($request->filled('proximo_turno_activo') && $request->proximo_turno_activo == '1' && $request->filled('proximo_turno_fecha') && $request->filled('proximo_turno_hora')) {
+            try {
+                $paciente = Client::find($request->client_id);
+                $profesionalId = $request->proximo_turno_user_id ?: Auth::id();
+                $servicioId = $request->proximo_turno_servicio_id;
+                
+                // Fallback de servicio si no se seleccionó
+                if (!$servicioId) {
+                    $primerServicio = \App\Models\Servicio::where('empresa_id', Auth::user()->empresa_id)->first();
+                    $servicioId = $primerServicio ? $primerServicio->id : null;
+                }
+
+                $horaInicio = Carbon::parse($request->proximo_turno_fecha . ' ' . $request->proximo_turno_hora);
+                $horaFin = $horaInicio->copy()->addMinutes(30)->format('H:i:s');
+
+                \App\Models\Turno::create([
+                    'empresa_id' => Auth::user()->empresa_id,
+                    'user_id' => $profesionalId,
+                    'created_by_user_id' => Auth::id(),
+                    'origen_creacion' => 'medico_consulta',
+                    'client_id' => $request->client_id,
+                    'servicio_id' => $servicioId,
+                    'cliente_nombre_manual' => $paciente ? $paciente->name : 'Paciente',
+                    'fecha' => $request->proximo_turno_fecha,
+                    'hora_inicio' => $request->proximo_turno_hora,
+                    'hora_fin' => $horaFin,
+                    'estado' => 'pendiente',
+                    'monto' => 0,
+                    'notas' => 'Próximo turno agendado por médico en consulta de evolución HCE #' . $record->id . '. ' . ($request->proximo_turno_notas ?? ''),
+                ]);
+            } catch (\Exception $e) {
+                \Log::warning('No se pudo agendar el próximo turno desde HCE: ' . $e->getMessage());
             }
         }
 

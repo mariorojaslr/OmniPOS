@@ -341,16 +341,27 @@
                                     @if(count($meds) > 0)
                                     <div class="col-md-6">
                                         <div class="p-3 bg-light rounded-4 border">
-                                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-capsule-pill text-success me-2"></i>Medicamentos Recetados</h6>
+                                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-capsule-pill text-success me-2"></i>Medicamentos Recetados en esta Consulta</h6>
                                             <div class="d-flex flex-column gap-2">
                                                 @foreach($meds as $m)
+                                                @php
+                                                    $mType = $m['type'] ?? 'permanente';
+                                                    $mDuration = $m['duration_days'] ?? null;
+                                                @endphp
                                                 <div class="bg-white p-2 rounded-3 border small">
                                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                                        <strong class="text-dark">{{ $m['name'] }}</strong>
+                                                        <div>
+                                                            <strong class="text-dark">{{ $m['name'] }}</strong>
+                                                            @if($mType === 'permanente')
+                                                                <span class="badge bg-success text-white x-small py-0 px-2 rounded-pill ms-1" style="font-size: 0.6rem;">Permanente</span>
+                                                            @else
+                                                                <span class="badge bg-warning text-dark x-small py-0 px-2 rounded-pill ms-1" style="font-size: 0.6rem;">Tratamiento ({{ $mDuration ?: 15 }} d)</span>
+                                                            @endif
+                                                        </div>
                                                         <span class="badge bg-secondary bg-opacity-10 text-secondary x-small py-1 rounded-pill">{{ $m['route'] ?? 'Oral' }}</span>
                                                     </div>
                                                     <div class="text-muted x-small">
-                                                        Dosis: {{ $m['dose'] ?? '—' }} | Frecuencia: {{ $m['frequency'] ?? '—' }}
+                                                        Dosis: <strong>{{ $m['dose'] ?? '—' }}</strong> | Frecuencia: <strong>{{ $m['frequency'] ?? '—' }}</strong>
                                                     </div>
                                                 </div>
                                                 @endforeach
@@ -434,6 +445,97 @@
                                 </div>
                                 @endif
 
+                                <!-- Cardiología Especializada -->
+                                @php
+                                    $cardio = $specData['cardio'] ?? [];
+                                @endphp
+                                @if(!empty($cardio['riesgo_cardiovascular']) || !empty($cardio['nyha']) || !empty($cardio['ecg_ritmo']) || !empty($cardio['fevi']) || !empty($cardio['hallazgos']))
+                                <div class="p-3 bg-light rounded-4 border mb-4">
+                                    <h6 class="fw-bold text-dark mb-3"><span class="fs-5 me-1">🫀</span>Evaluación Cardiológica Registrada</h6>
+                                    <div class="row g-2 mb-2">
+                                        @if(!empty($cardio['riesgo_cardiovascular']))
+                                            <div class="col-sm-6">
+                                                <div class="bg-white p-2 rounded-3 border small">
+                                                    <span class="text-muted d-block x-small">Riesgo Cardiovascular</span>
+                                                    <span class="badge bg-danger-subtle text-danger fw-bold">{{ $cardio['riesgo_cardiovascular'] }}</span>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if(!empty($cardio['nyha']))
+                                            <div class="col-sm-6">
+                                                <div class="bg-white p-2 rounded-3 border small">
+                                                    <span class="text-muted d-block x-small">Clase Funcional NYHA</span>
+                                                    <strong class="text-dark">{{ $cardio['nyha'] }}</strong>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if(!empty($cardio['ecg_ritmo']))
+                                            <div class="col-sm-6">
+                                                <div class="bg-white p-2 rounded-3 border small">
+                                                    <span class="text-muted d-block x-small">Ritmo ECG / Intervalo</span>
+                                                    <strong class="text-primary">{{ $cardio['ecg_ritmo'] }}</strong> 
+                                                    @if(!empty($cardio['ecg_qtc'])) <span class="text-muted x-small">({{ $cardio['ecg_qtc'] }})</span> @endif
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if(!empty($cardio['fevi']))
+                                            <div class="col-sm-6">
+                                                <div class="bg-white p-2 rounded-3 border small">
+                                                    <span class="text-muted d-block x-small">FEVI (Fracción Eyección)</span>
+                                                    <strong class="{{ (int)$cardio['fevi'] < 50 ? 'text-danger' : 'text-success' }}">{{ $cardio['fevi'] }}%</strong>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @if(!empty($cardio['hallazgos']))
+                                        <div class="bg-white p-2 rounded-3 border small">
+                                            <span class="text-muted d-block x-small">Ecocardiograma / Ergometría / Holter:</span>
+                                            <p class="mb-0 text-dark" style="font-size: 0.82rem;">{{ $cardio['hallazgos'] }}</p>
+                                        </div>
+                                    @endif
+                                </div>
+                                @endif
+
+                                <!-- Kinesiología y Fisioterapia -->
+                                @php
+                                    $kinesio = $specData['kinesio'] ?? [];
+                                @endphp
+                                @if(!empty($kinesio['region']) || !empty($kinesio['eva']) || !empty($kinesio['rom']) || !empty($kinesio['plan']))
+                                <div class="p-3 bg-light rounded-4 border mb-4">
+                                    <h6 class="fw-bold text-dark mb-3"><span class="fs-5 me-1">🏃</span>Sesión Kinésica y Fisioterapia</h6>
+                                    <div class="row g-2 mb-2">
+                                        @if(!empty($kinesio['region']))
+                                            <div class="col-sm-8">
+                                                <div class="bg-white p-2 rounded-3 border small">
+                                                    <span class="text-muted d-block x-small">Zona / Lesión Evaluada</span>
+                                                    <strong class="text-dark">{{ $kinesio['region'] }}</strong>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if(isset($kinesio['eva']) && $kinesio['eva'] !== '')
+                                            <div class="col-sm-4">
+                                                <div class="bg-white p-2 rounded-3 border small text-center">
+                                                    <span class="text-muted d-block x-small">Escala de Dolor (EVA)</span>
+                                                    <span class="badge bg-danger fw-bold fs-6">{{ $kinesio['eva'] }}/10</span>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @if(!empty($kinesio['rom']))
+                                        <div class="bg-white p-2 rounded-3 border small mb-2">
+                                            <span class="text-muted d-block x-small">Movilidad Articular (ROM) y Evaluación Física:</span>
+                                            <p class="mb-0 text-dark" style="font-size: 0.82rem;">{{ $kinesio['rom'] }}</p>
+                                        </div>
+                                    @endif
+                                    @if(!empty($kinesio['plan']))
+                                        <div class="bg-white p-2 rounded-3 border small">
+                                            <span class="text-muted d-block x-small">Plan Fisiokinésico Aplicado:</span>
+                                            <p class="mb-0 text-dark" style="font-size: 0.82rem;">{{ $kinesio['plan'] }}</p>
+                                        </div>
+                                    @endif
+                                </div>
+                                @endif
+
                                 <!-- Adjuntos e Imágenes médicas -->
                                 @if($rec->attachments->count() > 0)
                                 <div class="mb-0">
@@ -490,9 +592,11 @@
 
         <!-- 3. Columna Derecha (4/12) -->
         <div class="col-lg-4">
-            <!-- Perfil Farmacológico Consolidado (Medicación Activa) -->
+            <!-- Perfil Farmacológico Consolidado (Crónicos Permanentes vs Tratamientos Temporales) -->
             @php
-                $allMedications = [];
+                $chronicMeds = [];
+                $tempMeds = [];
+
                 foreach($records as $rec) {
                     $specData = $rec->specialized_data ?? [];
                     if (is_string($specData)) {
@@ -501,21 +605,64 @@
                     if (!is_array($specData)) {
                         $specData = [];
                     }
+
                     $meds = (isset($specData['medications']) && is_array($specData['medications'])) ? $specData['medications'] : [];
+                    
+                    // Fallback de retrocompatibilidad: si en visitas previas no existía el array 'medications', extraer de receta o texto
+                    if (empty($meds) && !empty($rec->treatment)) {
+                        // Si no tiene medications estructurado pero tiene tratamiento en texto
+                    }
+
                     foreach($meds as $m) {
-                        $medName = trim(strtolower($m['name']));
-                        if (!isset($allMedications[$medName])) {
-                            $allMedications[$medName] = [
-                                'name' => $m['name'],
-                                'route' => $m['route'] ?? 'Oral',
-                                'dose' => $m['dose'] ?? '—',
-                                'frequency' => $m['frequency'] ?? '—',
-                                'date' => $rec->created_at->format('d/m/Y'),
-                                'doctor' => $rec->doctor->name
-                            ];
+                        $rawName = $m['name'] ?? '';
+                        if (empty($rawName)) continue;
+
+                        $medKey = trim(strtolower($rawName));
+                        $isPermanent = isset($m['type']) && $m['type'] === 'permanente';
+                        $durationDays = isset($m['duration_days']) ? (int)$m['duration_days'] : null;
+
+                        // Determinar si por defecto o nombre es típicamente crónico si no venía tipeado
+                        if (!isset($m['type'])) {
+                            // Si contiene nombres habituales crónicos o no tiene días indicados
+                            $esCronicoHabitual = preg_match('/(valsartan|losartan|metformina|enalapril|levotiroxina|atorvastatina|amlodipina|aspirina|carvedilol|bisoprolol)/i', $rawName);
+                            $isPermanent = $esCronicoHabitual || (empty($durationDays) && empty($m['days']));
+                        }
+
+                        $medEntry = [
+                            'name' => $rawName,
+                            'route' => $m['route'] ?? 'Oral',
+                            'dose' => $m['dose'] ?? '—',
+                            'frequency' => $m['frequency'] ?? '—',
+                            'type' => $isPermanent ? 'permanente' : 'temporal',
+                            'duration_days' => $durationDays,
+                            'date' => $rec->created_at->format('d/m/Y'),
+                            'raw_date' => $rec->created_at,
+                            'doctor' => $rec->doctor ? $rec->doctor->name : 'Médico Tratante',
+                            'record_id' => $rec->id
+                        ];
+
+                        if ($isPermanent) {
+                            if (!isset($chronicMeds[$medKey])) {
+                                $chronicMeds[$medKey] = $medEntry;
+                            }
+                        } else {
+                            // Tratamiento temporal: calcular si finalizó o sigue activo
+                            $recDate = $rec->created_at->copy();
+                            $dias = $durationDays ?: 15; // default 15 días si no fue especificado
+                            $endDate = $recDate->copy()->addDays($dias);
+                            $isFinished = now()->greaterThan($endDate);
+
+                            $medEntry['days'] = $dias;
+                            $medEntry['end_date'] = $endDate->format('d/m/Y');
+                            $medEntry['is_finished'] = $isFinished;
+
+                            // Almacenar en la lista de temporales (por clave y fecha)
+                            $tempKey = $medKey . '_' . $rec->id;
+                            $tempMeds[$tempKey] = $medEntry;
                         }
                     }
                 }
+                $totalMedsCount = count($chronicMeds) + count($tempMeds);
             @endphp
             
             <div class="glass-card p-4 quick-vitals-card bg-white mb-4">
@@ -524,33 +671,81 @@
                         <i class="bi bi-capsule-pill text-success me-2"></i>Perfil Farmacológico
                     </h5>
                     <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 px-2 py-1 rounded-pill small fw-bold">
-                        {{ count($allMedications) }} {{ count($allMedications) == 1 ? 'medicamento' : 'medicamentos' }}
+                        {{ $totalMedsCount }} {{ $totalMedsCount == 1 ? 'fármaco' : 'fármacos' }}
                     </span>
                 </div>
-                <p class="small text-muted mb-3">Consolidado de medicamentos recetados al paciente en su historial clínico.</p>
+                <p class="small text-muted mb-3">Consolidado diferencial entre <strong>medicación permanente</strong> y <strong>tratamientos agudos finalizados o en curso</strong>.</p>
 
-                @if(count($allMedications) > 0)
-                    <div class="d-flex flex-column gap-3" style="max-height: 280px; overflow-y: auto; padding-right: 5px;">
-                        @foreach($allMedications as $med)
-                            <div class="p-3 bg-light rounded-4 border">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <strong class="text-dark" style="font-size: 0.9rem;">{{ $med['name'] }}</strong>
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary x-small py-1 px-2 rounded-pill fw-bold" style="font-size: 0.6rem;">{{ $med['route'] }}</span>
-                                </div>
-                                <div class="text-muted small mb-2" style="font-size: 0.75rem;">
-                                    Dosis: <strong>{{ $med['dose'] }}</strong> | Frecuencia: <strong>{{ $med['frequency'] }}</strong>
-                                </div>
-                                <div class="pt-2 border-top border-white d-flex justify-content-between text-muted" style="font-size: 0.65rem;">
-                                    <span>📅 Recetado: <strong>{{ $med['date'] }}</strong></span>
-                                    <span>🩺 {{ str_starts_with(strtolower($med['doctor']), 'dr') ? $med['doctor'] : 'Dr. ' . $med['doctor'] }}</span>
-                                </div>
+                @if($totalMedsCount > 0)
+                    <div class="d-flex flex-column gap-3" style="max-height: 480px; overflow-y: auto; padding-right: 5px;">
+                        
+                        {{-- 1. MEDICACIÓN CRÓNICA / PERMANENTE --}}
+                        @if(count($chronicMeds) > 0)
+                            <div class="d-flex align-items-center gap-2 mt-1 mb-1">
+                                <span class="badge bg-success text-white px-2 py-1 rounded-pill x-small fw-bold">
+                                    <i class="bi bi-arrow-repeat me-1"></i> Medicación Crónica / Permanente ({{ count($chronicMeds) }})
+                                </span>
                             </div>
-                        @endforeach
+                            @foreach($chronicMeds as $med)
+                                <div class="p-3 rounded-4 border" style="background: rgba(16, 185, 129, 0.04); border-color: rgba(16, 185, 129, 0.2) !important;">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <strong class="text-dark" style="font-size: 0.95rem;">{{ $med['name'] }}</strong>
+                                            <span class="badge bg-success text-white ms-1 x-small py-0 px-2 rounded-pill" style="font-size: 0.65rem;">Permanente</span>
+                                        </div>
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary x-small py-1 px-2 rounded-pill fw-bold" style="font-size: 0.65rem;">{{ $med['route'] }}</span>
+                                    </div>
+                                    <div class="text-muted small mb-2" style="font-size: 0.78rem;">
+                                        Dosis: <strong>{{ $med['dose'] }}</strong> | Frecuencia: <strong>{{ $med['frequency'] }}</strong>
+                                    </div>
+                                    <div class="pt-2 border-top border-light d-flex justify-content-between text-muted" style="font-size: 0.68rem;">
+                                        <span>📅 Indicado: <strong>{{ $med['date'] }}</strong></span>
+                                        <span>🩺 {{ str_starts_with(strtolower($med['doctor']), 'dr') ? $med['doctor'] : 'Dr. ' . $med['doctor'] }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+
+                        {{-- 2. TRATAMIENTOS TEMPORALES / OCASIONALES --}}
+                        @if(count($tempMeds) > 0)
+                            <div class="d-flex align-items-center gap-2 mt-2 mb-1">
+                                <span class="badge bg-warning bg-opacity-25 text-dark px-2 py-1 rounded-pill x-small fw-bold">
+                                    <i class="bi bi-clock-history me-1"></i> Tratamientos Temporales / Agudos ({{ count($tempMeds) }})
+                                </span>
+                            </div>
+                            @foreach($tempMeds as $med)
+                                <div class="p-3 rounded-4 border {{ $med['is_finished'] ? 'bg-light opacity-75' : 'bg-warning bg-opacity-10' }}" style="border-color: {{ $med['is_finished'] ? '#e2e8f0' : 'rgba(245, 158, 11, 0.3)' }} !important;">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <strong class="text-dark" style="font-size: 0.9rem;">{{ $med['name'] }}</strong>
+                                            @if($med['is_finished'])
+                                                <span class="badge bg-secondary text-white ms-1 x-small py-0 px-2 rounded-pill" style="font-size: 0.65rem;">
+                                                    <i class="bi bi-check2-circle me-1"></i>Tratamiento Finalizado
+                                                </span>
+                                            @else
+                                                <span class="badge bg-warning text-dark ms-1 x-small py-0 px-2 rounded-pill fw-bold" style="font-size: 0.65rem;">
+                                                    <i class="bi bi-hourglass-split me-1"></i>En Curso ({{ $med['days'] }} días)
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary x-small py-1 px-2 rounded-pill fw-bold" style="font-size: 0.65rem;">{{ $med['route'] }}</span>
+                                    </div>
+                                    <div class="text-muted small mb-2" style="font-size: 0.78rem;">
+                                        Dosis: <strong>{{ $med['dose'] }}</strong> | Frecuencia: <strong>{{ $med['frequency'] }}</strong>
+                                    </div>
+                                    <div class="pt-2 border-top border-light d-flex justify-content-between text-muted" style="font-size: 0.68rem;">
+                                        <span>📅 {{ $med['is_finished'] ? 'Finalizó: ' . $med['end_date'] : 'Finaliza: ' . $med['end_date'] }} ({{ $med['days'] }} d)</span>
+                                        <span>🩺 {{ str_starts_with(strtolower($med['doctor']), 'dr') ? $med['doctor'] : 'Dr. ' . $med['doctor'] }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+
                     </div>
                 @else
                     <div class="text-center py-4 bg-light rounded-4 border">
                         <i class="bi bi-shield-slash fs-2 text-muted opacity-25 d-block mb-2"></i>
-                        <span class="text-muted small fw-semibold">Sin medicamentos recetados</span>
+                        <span class="text-muted small fw-semibold">Sin medicamentos recetados en el historial</span>
                     </div>
                 @endif
             </div>

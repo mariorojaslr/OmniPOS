@@ -4,6 +4,38 @@ Este documento es una crónica del crecimiento constante de MultiPOS, detallando
 
 ---
 
+## 📅 19 de Noviembre, 2026
+
+### 1. 💊 Perfil Farmacológico Inteligente: Medicación Crónica vs Tratamientos Temporales
+- **Necesidad:** En la historia clínica consolidada se sobreescribían medicamentos de consultas distintas, impidiendo visualizar el perfil completo y sin distinguir fármacos de por vida de tratamientos agudos (como antibióticos o analgésicos con duración en días).
+- **Solución Implementada:**
+    - Se categorizó la carga farmacológica en dos tipos: **Permanente / Crónico** (ej. Valsartán, Metformina) y **Tratamiento Temporal** (ej. Amoxicilina con duración parametrizable en días).
+    - En el Perfil Farmacológico de la HCE del paciente, se presentan dos paneles diferenciados:
+      1. *Medicación Crónica Activa*: Siempre visible con su dosis y frecuencia.
+      2. *Tratamientos Temporales*: Indicando fecha de inicio, duración en días, fecha de vencimiento y badge de "En Curso" o "Tratamiento Finalizado", preservando el registro histórico.
+- **Resultado:** ✅ Registro farmacológico 100% fiel, acumulativo y clínicamente riguroso.
+
+---
+
+### 2. 📅 Agendamiento de Próximo Turno Directo desde la Consulta Médica y Trazabilidad de Responsable
+- **Necesidad:** Permitir al médico programar el próximo turno de control al finalizar la evolución, y registrar con claridad si el turno fue creado por el médico o por recepción/asistente.
+- **Solución Implementada:**
+    - Se incorporó la tarjeta interactiva de "Próxima Visita / Turno" en la pantalla de evolución médica (`medical_records/create`), permitiendo seleccionar fecha, hora, profesional y notas de control.
+    - Se añadieron las columnas `created_by_user_id` y `origen_creacion` en la tabla `turnos`.
+    - En el calendario y detalle de turnos se visualiza la autoría explícita: `🩺 Agendado por Médico: Dr. [Nombre]` vs `📋 Agendado por Asistente/Recepción: [Nombre]`.
+- **Resultado:** ✅ Continuidad asistencial sin fricción y claridad total sobre responsabilidades operativas.
+
+---
+
+### 3. 🫀 Módulo Estructurado para Especialidades Médicas: Cardiología y Kinesiología
+- **Aporte Especializado:**
+    - **Cardiología:** Carga de Estratificación de Riesgo Cardiovascular (Framingham/SCORE), Clase Funcional NYHA (I a IV), Ritmo Electrocardiográfico (ECG), Intervalos PR/QTc, Fracción de Eyección Ventricular (FEVI %) y hallazgos ecocardiográficos/ergometría.
+    - **Kinesiología:** Registro de Región anatómica/lesión, Escala Visual Analógica del Dolor (EVA 1 a 10 con slider dinámico), Rango de Movilidad Articular (ROM) y Plan Fisiokinésico aplicado (agentes físicos, ejercicios).
+    - Visualización estructurada en la línea de tiempo de la Historia Clínica del paciente.
+- **Resultado:** ✅ Plataforma médica integral apta para policonsultorios y especialistas.
+
+---
+
 ## 📅 16 de Marzo, 2026
 
 ### 1. 🖼️ Estabilización de Imágenes y Servidor de Pruebas (Staging)

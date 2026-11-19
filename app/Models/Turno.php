@@ -14,6 +14,8 @@ class Turno extends Model
     protected $fillable = [
         'empresa_id',
         'user_id',
+        'created_by_user_id',
+        'origen_creacion',
         'client_id',
         'servicio_id',
         'cliente_nombre_manual',
@@ -50,6 +52,31 @@ class Turno extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Usuario (médico, secretaria o asistente) que agendó o generó el turno
+     */
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    /**
+     * Etiqueta descriptiva del origen y responsable de la creación del turno
+     */
+    public function getResponsableCreacionLabelAttribute(): string
+    {
+        $creador = $this->createdBy;
+        if ($this->origen_creacion === 'medico_consulta') {
+            $nombre = $creador ? $creador->name : 'Médico en Consulta';
+            return "🩺 Agendado por Médico ({$nombre})";
+        }
+        if ($this->origen_creacion === 'web_paciente') {
+            return "🌐 Autogestión Web del Paciente";
+        }
+        $nombre = $creador ? $creador->name : 'Recepción';
+        return "📋 Agendado por Asistente/Recepción ({$nombre})";
     }
 
     public function cliente()

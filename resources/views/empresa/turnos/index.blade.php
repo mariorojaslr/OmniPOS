@@ -336,6 +336,12 @@
             <div class="row g-3">
                 <div class="col-6"><label class="x-small fw-bold text-muted d-block">Servicio</label><span class="small fw-bold">${props.servicio}</span></div>
                 <div class="col-6"><label class="x-small fw-bold text-muted d-block">Profesional</label><span class="small fw-bold">${props.profesional}</span></div>
+                <div class="col-12">
+                    <label class="x-small fw-bold text-muted d-block mb-1">Responsable de Asignación / Registro</label>
+                    <span class="badge ${props.origen_creacion === 'medico_consulta' ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-info-subtle text-info border border-info-subtle'} rounded-pill px-3 py-1 fw-bold">
+                        ${props.responsable_label || '📋 Agendado por Recepción'}
+                    </span>
+                </div>
                 <div class="col-12"><label class="x-small fw-bold text-muted d-block">Notas</label><p class="small mb-0">${props.notas || 'Sin observaciones'}</p></div>
                 
                 ${hceButtonHtml}
