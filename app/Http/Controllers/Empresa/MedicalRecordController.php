@@ -43,16 +43,19 @@ class MedicalRecordController extends Controller
         $profesionales = \App\Models\User::where('empresa_id', $empresaId)->where('activo', true)->get();
         $servicios = \App\Models\Servicio::where('empresa_id', $empresaId)->where('activo', true)->get();
 
-        // Arrastrar el odontograma acumulado del paciente si fue seleccionado previamente
+        // Arrastrar el odontograma acumulado y resumen interdisciplinario si el paciente fue seleccionado previamente
         $odontogramaAcumulado = [];
+        $resumenInterdisciplinario = null;
         if ($selectedPatientId) {
             $patient = Client::where('empresa_id', $empresaId)->find($selectedPatientId);
             if ($patient) {
                 $odontogramaAcumulado = $this->getPatientConsolidatedOdontograma($patient->id);
+                // Resumen directo para la carga inicial
+                $resumenInterdisciplinario = json_decode($this->apiPatientInterdisciplinarySummary($patient->id)->getContent(), true);
             }
         }
 
-        return view('empresa.medical_records.create', compact('patients', 'selectedPatientId', 'odontogramaAcumulado', 'profesionales', 'servicios'));
+        return view('empresa.medical_records.create', compact('patients', 'selectedPatientId', 'odontogramaAcumulado', 'resumenInterdisciplinario', 'profesionales', 'servicios'));
     }
 
     /**
@@ -91,6 +94,120 @@ class MedicalRecordController extends Controller
             'patient_id' => $patientId,
             'odontograma' => $consolidado
         ]);
+    }
+
+    /**
+     * Endpoint API JSON que devuelve el resumen de actividades interdisciplinarias del paciente.
+     * Detecta si el paciente tiene historial en Odontología, Cardiología, Kinesiología o Clínica General.
+     */
+    public function apiPatientInterdisciplinarySummary($patientId)
+    {
+        $records = MedicalRecord::where('client_id', $patientId)
+            ->where('empresa_id', Auth::user()->empresa_id)
+            ->with('doctor')
+            ->latest()
+            ->get();
+
+        $summary = [
+            'has_odonto' => false,
+            'has_cardio' => false,
+            'has_kine' => false,
+            'has_clinica' => false,
+            'odonto_count' => 0,
+            'cardio_count' => 0,
+            'kine_count' => 0,
+            'clinica_count' => 0,
+            'last_odonto' => null,
+            'last_cardio' => null,
+            'last_kine' => null,
+            'last_clinica' => null,
+            'consolidated_odontograma' => [],
+        ];
+
+        foreach ($records as $r) {
+            $data = $r->specialized_data ?? [];
+            if (is_string($data)) {
+                $data = json_decode($data, true) ?? [];
+            }
+            if (!is_array($data)) $data = [];
+
+            $docName = $r->doctor ? $r->doctor->name : 'Profesional';
+            $dateStr = $r->created_at->format('d/m/Y');
+
+            // 1. Odontología
+            if (!empty($data['odontograma']) && is_array($data['odontograma']) && count($data['odontograma']) > 0) {
+                $summary['has_odonto'] = true;
+                $summary['odonto_count']++;
+                if (!$summary['last_odonto']) {
+                    $summary['last_odonto'] = [
+                        'date' => $dateStr,
+                        'doctor' => $docName,
+                        'diagnosis' => $r->diagnosis,
+                        'treatment' => $r->treatment,
+                        'piezas_count' => count($data['odontograma'])
+                    ];
+                }
+                foreach ($data['odontograma'] as $p => $info) {
+                    if (!isset($summary['consolidated_odontograma'][$p])) {
+                        $summary['consolidated_odontograma'][$p] = $info;
+                    }
+                }
+            }
+
+            // 2. Cardiología
+            $c = $data['cardio'] ?? [];
+            if (!empty($c['riesgo_cardiovascular']) || !empty($c['nyha']) || !empty($c['ecg_ritmo']) || !empty($c['fevi']) || !empty($c['hallazgos'])) {
+                $summary['has_cardio'] = true;
+                $summary['cardio_count']++;
+                if (!$summary['last_cardio']) {
+                    $summary['last_cardio'] = [
+                        'date' => $dateStr,
+                        'doctor' => $docName,
+                        'riesgo' => $c['riesgo_cardiovascular'] ?? '',
+                        'nyha' => $c['nyha'] ?? '',
+                        'ecg' => $c['ecg_ritmo'] ?? '',
+                        'fevi' => $c['fevi'] ?? '',
+                        'hallazgos' => $c['hallazgos'] ?? '',
+                        'diagnosis' => $r->diagnosis,
+                    ];
+                }
+            }
+
+            // 3. Kinesiología
+            $k = $data['kinesio'] ?? [];
+            if (!empty($k['region']) || (isset($k['eva']) && $k['eva'] !== '') || !empty($k['rom']) || !empty($k['plan'])) {
+                $summary['has_kine'] = true;
+                $summary['kine_count']++;
+                if (!$summary['last_kine']) {
+                    $summary['last_kine'] = [
+                        'date' => $dateStr,
+                        'doctor' => $docName,
+                        'region' => $k['region'] ?? '',
+                        'eva' => $k['eva'] ?? '',
+                        'rom' => $k['rom'] ?? '',
+                        'plan' => $k['plan'] ?? '',
+                        'diagnosis' => $r->diagnosis,
+                    ];
+                }
+            }
+
+            // 4. Clínica General (Vástago vitales o diagnóstico clínico)
+            $v = $data['vitals'] ?? [];
+            if (!empty($v['sys']) || !empty($v['glucose']) || !empty($v['heart']) || !empty($v['weight'])) {
+                $summary['has_clinica'] = true;
+                $summary['clinica_count']++;
+                if (!$summary['last_clinica']) {
+                    $summary['last_clinica'] = [
+                        'date' => $dateStr,
+                        'doctor' => $docName,
+                        'vitals' => $v,
+                        'diagnosis' => $r->diagnosis,
+                    ];
+                }
+            }
+        }
+
+        return response()->json($summary);
     }
 
     public function store(Request $request)

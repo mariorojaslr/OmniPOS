@@ -169,6 +169,41 @@
                                 </div>
                             </div>
 
+                            <!-- Barra de Acceso Interdisciplinario Bajo Demanda (Solo si el paciente tiene historial en otras áreas) -->
+                            <div id="interdisciplinary_bar" class="mb-4 d-none">
+                                <div class="p-3 rounded-4 border border-secondary border-opacity-25" style="background: {{ $modoOscuro ? 'rgba(30, 41, 59, 0.4)' : '#f8fafc' }};">
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="bi bi-diagram-3-fill text-primary fs-5"></i>
+                                            <div>
+                                                <strong class="text-dark small d-block" style="color: {{ $modoOscuro ? '#f1f5f9' : '#1e293b' }} !important;">
+                                                    Historial Interdisciplinario del Paciente
+                                                </strong>
+                                                <span class="x-small text-muted">
+                                                    Consulte las intervenciones de otros especialistas solo si lo necesita clínicamente (modo solo lectura).
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2" id="interdisciplinary_buttons">
+                                            <!-- Botones inyectados dinámicamente si hay actividad registrada -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Panel Desplegable de Consulta Interdisciplinaria -->
+                                    <div id="interdisciplinary_viewer_box" class="d-none mt-3 pt-3 border-top border-light">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-secondary-subtle text-secondary px-2 py-1 x-small fw-bold" id="interdisciplinary_viewer_title">Detalle</span>
+                                            <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2 x-small" onclick="cerrarVisorInterdisciplinario()">
+                                                <i class="bi bi-x-lg me-1"></i> Cerrar visor
+                                            </button>
+                                        </div>
+                                        <div id="interdisciplinary_viewer_content" class="p-3 bg-white rounded-3 border small shadow-sm text-dark">
+                                            <!-- Contenido cargado al pulsar el botón -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <hr class="my-4" style="opacity: 0.15;">
 
                             <!-- Módulo de Pestañas de Carga Especializada Estructurada -->
@@ -529,10 +564,16 @@
 
 @push('scripts')
 <script>
-    // Sincronización en vivo del Odontograma histórico al seleccionar o cambiar de paciente
+    // Sincronización en vivo del Odontograma e Historial Interdisciplinario al seleccionar paciente
     document.addEventListener('DOMContentLoaded', function() {
         const patientSelect = document.querySelector('select[name="client_id"]');
         if (patientSelect) {
+            // Si ya viene preseleccionado por URL
+            if (patientSelect.value) {
+                cargarHistorialOdontograma(patientSelect.value);
+                cargarResumenInterdisciplinario(patientSelect.value);
+            }
+
             patientSelect.addEventListener('change', function() {
                 const patientId = this.value;
                 if (!patientId) {
@@ -541,12 +582,191 @@
                     if (typeof window.cargarOdontogramaData === 'function') {
                         window.cargarOdontogramaData('odontograma_create', {});
                     }
+                    ocultarBarraInterdisciplinaria();
                     return;
                 }
                 cargarHistorialOdontograma(patientId);
+                cargarResumenInterdisciplinario(patientId);
             });
         }
     });
+
+    let currentInterSummary = null;
+
+    function cargarResumenInterdisciplinario(patientId) {
+        fetch(`/empresa/api/patients/${patientId}/interdisciplinary-summary`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            currentInterSummary = data;
+            renderInterdisciplinaryButtons(data);
+        })
+        .catch(err => {
+            console.error('Error al cargar resumen interdisciplinario:', err);
+        });
+    }
+
+    function renderInterdisciplinaryButtons(data) {
+        const bar = document.getElementById('interdisciplinary_bar');
+        const container = document.getElementById('interdisciplinary_buttons');
+        if (!bar || !container) return;
+
+        container.innerHTML = '';
+        let countButtons = 0;
+
+        // Botón Odontología
+        if (data.has_odonto) {
+            countButtons++;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-sm btn-outline-info rounded-pill fw-bold d-flex align-items-center gap-1 shadow-sm';
+            btn.innerHTML = `<span class="fs-6">🦷</span> Actividad Odontología <span class="badge bg-info text-white rounded-pill ms-1">${data.odonto_count}</span>`;
+            btn.onclick = () => mostrarDetalleInterdisciplinario('odonto');
+            container.appendChild(btn);
+        }
+
+        // Botón Cardiología
+        if (data.has_cardio) {
+            countButtons++;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-sm btn-outline-danger rounded-pill fw-bold d-flex align-items-center gap-1 shadow-sm';
+            btn.innerHTML = `<span class="fs-6">🫀</span> Actividad Cardiología <span class="badge bg-danger text-white rounded-pill ms-1">${data.cardio_count}</span>`;
+            btn.onclick = () => mostrarDetalleInterdisciplinario('cardio');
+            container.appendChild(btn);
+        }
+
+        // Botón Kinesiología
+        if (data.has_kine) {
+            countButtons++;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-sm btn-outline-success rounded-pill fw-bold d-flex align-items-center gap-1 shadow-sm';
+            btn.innerHTML = `<span class="fs-6">🏃</span> Actividad Kinesiología <span class="badge bg-success text-white rounded-pill ms-1">${data.kine_count}</span>`;
+            btn.onclick = () => mostrarDetalleInterdisciplinario('kine');
+            container.appendChild(btn);
+        }
+
+        // Si tiene al menos una actividad de otra área, mostramos la barra; si no, queda totalmente oculta
+        if (countButtons > 0) {
+            bar.classList.remove('d-none');
+        } else {
+            bar.classList.add('d-none');
+        }
+        cerrarVisorInterdisciplinario();
+    }
+
+    function mostrarDetalleInterdisciplinario(tipo) {
+        if (!currentInterSummary) return;
+
+        const box = document.getElementById('interdisciplinary_viewer_box');
+        const title = document.getElementById('interdisciplinary_viewer_title');
+        const content = document.getElementById('interdisciplinary_viewer_content');
+
+        box.classList.remove('d-none');
+
+        if (tipo === 'odonto') {
+            const last = currentInterSummary.last_odonto;
+            title.className = 'badge bg-info text-white px-2 py-1 x-small fw-bold';
+            title.innerHTML = '🦷 Historial Odontológico';
+            content.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div>
+                        <strong class="text-dark">Última Atención Odontológica: ${last ? last.date : 'S/D'}</strong>
+                        <div class="x-small text-muted">Profesional: <strong>${last ? last.doctor : 'Odontólogo'}</strong></div>
+                    </div>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle fw-bold">${last ? last.piezas_count : 0} piezas registradas</span>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <span class="x-small text-muted fw-bold d-block">Diagnóstico / Hallazgos Bucomaxilofaciales:</span>
+                        <p class="mb-0 small text-dark">${last && last.diagnosis ? last.diagnosis : 'Sin diagnóstico registrado'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="x-small text-muted fw-bold d-block">Tratamiento Odontológico Realizado:</span>
+                        <p class="mb-0 small text-dark">${last && last.treatment ? last.treatment : 'Sin tratamiento registrado'}</p>
+                    </div>
+                </div>
+                <div class="p-2 rounded bg-light border x-small text-muted">
+                    <i class="bi bi-shield-check text-success me-1"></i>
+                    Información en solo lectura para soporte clínico. No altera el odontograma ni la evolución dental actual.
+                </div>
+            `;
+        } else if (tipo === 'cardio') {
+            const last = currentInterSummary.last_cardio;
+            title.className = 'badge bg-danger text-white px-2 py-1 x-small fw-bold';
+            title.innerHTML = '🫀 Historial Cardiológico';
+            content.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div>
+                        <strong class="text-dark">Última Evaluación Cardiológica: ${last ? last.date : 'S/D'}</strong>
+                        <div class="x-small text-muted">Profesional: <strong>${last ? last.doctor : 'Cardiólogo'}</strong></div>
+                    </div>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold">FEVI: ${last && last.fevi ? last.fevi + '%' : 'S/D'}</span>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-4">
+                        <span class="x-small text-muted fw-bold d-block">Riesgo Cardiovascular:</span>
+                        <strong class="text-danger small">${last && last.riesgo ? last.riesgo : 'No estratificado'}</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="x-small text-muted fw-bold d-block">Clase NYHA:</span>
+                        <span class="text-dark small">${last && last.nyha ? last.nyha : 'Asintomático / No aplica'}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="x-small text-muted fw-bold d-block">Ritmo ECG:</span>
+                        <strong class="text-primary small">${last && last.ecg ? last.ecg : 'Sin ECG cargado'}</strong>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <span class="x-small text-muted fw-bold d-block">Estudios / Eco / Holter:</span>
+                        <p class="mb-0 small text-dark">${last && last.hallazgos ? last.hallazgos : 'Sin observaciones adicionales'}</p>
+                    </div>
+                </div>
+            `;
+        } else if (tipo === 'kine') {
+            const last = currentInterSummary.last_kine;
+            title.className = 'badge bg-success text-white px-2 py-1 x-small fw-bold';
+            title.innerHTML = '🏃 Historial Kinésico / Fisioterapia';
+            content.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div>
+                        <strong class="text-dark">Última Sesión de Kinesiología: ${last ? last.date : 'S/D'}</strong>
+                        <div class="x-small text-muted">Profesional: <strong>${last ? last.doctor : 'Kinesiólogo'}</strong></div>
+                    </div>
+                    <span class="badge bg-danger text-white fw-bold">Dolor EVA: ${last && last.eva ? last.eva + '/10' : 'S/D'}</span>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <span class="x-small text-muted fw-bold d-block">Zona Anatómica / Lesión:</span>
+                        <strong class="text-dark small">${last && last.region ? last.region : 'No especificada'}</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="x-small text-muted fw-bold d-block">Movilidad (ROM) y Palpación:</span>
+                        <p class="mb-0 small text-dark">${last && last.rom ? last.rom : 'Sin datos de movilidad'}</p>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <span class="x-small text-muted fw-bold d-block">Plan Fisiokinésico / Agentes:</span>
+                        <p class="mb-0 small text-dark">${last && last.plan ? last.plan : 'Sin plan registrado'}</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function cerrarVisorInterdisciplinario() {
+        const box = document.getElementById('interdisciplinary_viewer_box');
+        if (box) box.classList.add('d-none');
+    }
+
+    function ocultarBarraInterdisciplinaria() {
+        const bar = document.getElementById('interdisciplinary_bar');
+        if (bar) bar.classList.add('d-none');
+        cerrarVisorInterdisciplinario();
+    }
 
     function cargarHistorialOdontograma(patientId) {
         const alertBox = document.getElementById('odontograma_history_alert');
